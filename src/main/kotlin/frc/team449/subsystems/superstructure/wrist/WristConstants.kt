@@ -16,7 +16,7 @@ object WristConstants {
   const val MOTOR_ID = 41
 
   val TOLERANCE = Degrees.of(5.0)
-  val ELEVATOR_READY = Degrees.of(30.0)
+  val ELEVATOR_READY = Degrees.of(50.0)
   const val GEARING = 17.0 / 576.0
   const val UPR = 2 * PI
 
@@ -37,19 +37,8 @@ object WristConstants {
   const val KI = 0.0
   const val KD = 0.096482
 
-  val CRUISE_VEL = RotationsPerSecond.of(1.75) // 2.0, max theoretical 2.9
-  val MAX_ACCEL = RotationsPerSecondPerSecond.of(1.5) // 3.0, max theoretical 18.842
+  val CRUISE_VEL = RotationsPerSecond.of(2.75) // should get to 2.5, max theoretical 2.95
+  val MAX_ACCEL = RotationsPerSecondPerSecond.of(4.9496) // should get to 3.0, max theoretical 18.842
 
   val STARTUP_ANGLE = Degrees.of(90.0)
-
-  val RESET_ENC_LIMIT = Degrees.of(0.05)
-
-  /** Encoder Values */
-  const val ABS_ENC_DIO_PORT = 1
-  const val ABS_OFFSET = 0.0
-  const val ENC_INVERTED = false
-  val ABS_RANGE = Pair(-0.25, 0.75)
-  const val ENC_RATIO = 2 * PI / (30.0 / 30.0)
-  const val ENC_CPR = 2048
-  const val SAMPLES_TO_AVERAGE = 127
 }

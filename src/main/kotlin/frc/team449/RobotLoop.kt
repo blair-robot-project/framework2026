@@ -20,6 +20,7 @@ import frc.team449.commands.light.BreatheHue
 import frc.team449.commands.light.Rainbow
 import frc.team449.subsystems.FieldConstants
 import frc.team449.subsystems.drive.swerve.SwerveSim
+import frc.team449.subsystems.superstructure.SuperstructureGoal
 import frc.team449.subsystems.superstructure.elevator.ElevatorConstants
 import frc.team449.subsystems.superstructure.elevator.ElevatorFeedForward.Companion.createElevatorFeedForward
 import frc.team449.subsystems.superstructure.pivot.PivotFeedForward.Companion.createPivotFeedForward
@@ -76,6 +77,7 @@ class RobotLoop : TimedRobot() {
     robot.pivot.pivotFeedForward = createPivotFeedForward(robot.elevator)
     robot.wrist.wristFeedForward = createWristFeedForward(robot.pivot)
 
+    // Generate Auto Routines
     println("Generating Auto Routines : ${Timer.getFPGATimestamp()}")
 
     routines.addOptions(robot.autoChooser)
@@ -85,18 +87,14 @@ class RobotLoop : TimedRobot() {
     RobotModeTriggers.autonomous().whileTrue(robot.autoChooser.selectedCommandScheduler())
     println("DONE Generating Auto Routines : ${Timer.getFPGATimestamp()}")
 
+    routineChooser.createOptions()
+
+    SmartDashboard.putData("Routine Chooser", routineChooser)
     SmartDashboard.putData("Command Scheduler", CommandScheduler.getInstance())
 
     robot.light.defaultCommand = BlairChasing(robot.light)
 
     controllerBinder.bindButtons()
-//
-//    characChooser.addOption("Elevator", "elevator")
-//    characChooser.addOption("Pivot", "pivot")
-//    characChooser.addOption("Wrist", "wrist")
-//    characChooser.addOption("Drive", "drive")
-//
-//    characChooser.onChange(controllerBinder::updateSelectedCharacterization)
 
     DogLog.setOptions(
       DogLogOptions()
@@ -148,6 +146,8 @@ class RobotLoop : TimedRobot() {
   override fun autonomousPeriodic() {}
 
   override fun teleopInit() {
+    robot.superstructureManager.requestGoal(SuperstructureGoal.STOW).schedule()
+
     (robot.light.currentCommand ?: InstantCommand()).cancel()
 
     robot.drive.defaultCommand = robot.driveCommand
@@ -200,18 +200,6 @@ class RobotLoop : TimedRobot() {
 
     val elevatorPos = robot.elevator.positionSupplier.get()
 
-    var componentStorage: Array<Pose3d> = arrayOf(
-      Pose3d(),
-      Pose3d(),
-      Pose3d(),
-      Pose3d(),
-      Pose3d(
-        0.0,
-        0.0,
-        0.0,
-        Rotation3d(0.0, 0.0, 0.0)
-      )
-    )
     componentStorage = arrayOf(
 //       pivot/base stage
       Pose3d(
