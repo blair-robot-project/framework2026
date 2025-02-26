@@ -222,7 +222,6 @@ class PoseSubsystem(
     magDec = MathUtil.clamp(magDec, 0.0, 0.5)
     clampMult()
 
-    println(rotScaled)
     if(controllerMag > 0.35 || abs(rotScaled) > 1.0) {
       magMultiply += 0.3
     }
@@ -234,15 +233,18 @@ class PoseSubsystem(
     currentControllerPower *= magMultiply
 
     clampCP()
-    if(controllerMag > 0.35) {
+    if(controllerMag > 0.35 || abs(rotScaled) > 1.0) {
       currentControllerPower = MathUtil.clamp(currentControllerPower, 5.0, maxMagPower)
     }
-    if(distance <= autoDistance || controllerMag < 0.1) {
+    if(distance <= autoDistance || controllerMag < 0.1 || currentControllerPower < 3) {
       if(distance <= autoDistance) {
         resetMagVars()
       } else {
         currentControllerPower -= 0.3
         magMultiply -= 0.1
+        if(abs(rotScaled) > 0.3) {
+          desVel.omegaRadiansPerSecond = rotScaled*(if (currentControllerPower > 5) 5.0 else currentControllerPower)/3
+        }
       }
       drive.set(desVel)
     } else {
@@ -272,9 +274,12 @@ class PoseSubsystem(
         magMultiply -= 0.05
       } else if(controllerMag > 0.35 || currentControllerPower > 16) {
         combinedChassisSpeeds = controllerSpeeds * 8.0
+      } else if(abs(rotScaled) > 0.5) {
+        combinedChassisSpeeds = desVel
+        combinedChassisSpeeds.omegaRadiansPerSecond = controllerSpeeds.omegaRadiansPerSecond*8.0
       } else {
-        controllerSpeeds *= currentControllerPower / 2
-        combinedChassisSpeeds = controllerSpeeds + desVelAdjustedSpeeds
+          controllerSpeeds *= currentControllerPower / 2
+          combinedChassisSpeeds = controllerSpeeds + desVelAdjustedSpeeds
       }
 
       combinedChassisSpeeds.vxMetersPerSecond = MathUtil.clamp(combinedChassisSpeeds.vxMetersPerSecond , -AutoScoreCommandConstants.MAX_LINEAR_SPEED, AutoScoreCommandConstants.MAX_LINEAR_SPEED)
@@ -411,9 +416,7 @@ class PoseSubsystem(
       )
     }
 
-
     if (cameras.isNotEmpty()) localize()
-
 
     setRobotPose()
   }
@@ -430,7 +433,6 @@ class PoseSubsystem(
           avgAmbiguity[index] = 0.0
           heightError[index] = abs(presentResult.estimatedPose.z)
 
-
           for (tag in presentResult.targetsUsed) {
             val tagPose = camera.estimator.fieldTags.getTagPose(tag.fiducialId)
             if (tagPose.isPresent) {
@@ -444,9 +446,7 @@ class PoseSubsystem(
             }
           }
 
-
           val estVisionPose = presentResult.estimatedPose.toPose2d()
-
 
           visionPose[0 + 3 * index] = estVisionPose.x
           visionPose[1 + 3 * index] = estVisionPose.y
