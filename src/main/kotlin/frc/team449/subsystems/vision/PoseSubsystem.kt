@@ -265,7 +265,7 @@ class PoseSubsystem(
       var controllerSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
         vel.x * directionCompensation.invoke(),
         vel.y * directionCompensation.invoke(),
-        rotScaled,
+        rotScaled * 10,
         heading
       )
       //this increases the users power based on how much it is going against pathmag

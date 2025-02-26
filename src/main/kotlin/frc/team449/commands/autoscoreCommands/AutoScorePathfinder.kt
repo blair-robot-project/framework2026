@@ -16,12 +16,13 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds.fromFieldRelativeSpeeds
 import edu.wpi.first.networktables.*
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.Command
+import edu.wpi.first.wpilibj2.command.InstantCommand
 import frc.team449.Robot
+import frc.team449.commands.driveAlign.SimpleReefAlign
 import frc.team449.subsystems.RobotConstants
 import frc.team449.subsystems.drive.swerve.SwerveDrive
 import frc.team449.subsystems.superstructure.SuperstructureGoal
 import kotlin.math.PI
-import kotlin.math.floor
 
 class AutoScorePathfinder(val robot: Robot, val endPose: Pose2d) {
   private var ADStar = LocalADStar()
@@ -44,7 +45,7 @@ class AutoScorePathfinder(val robot: Robot, val endPose: Pose2d) {
   private val timer = Timer()
   private val zeroPose = Pose2d(Translation2d(0.0, 0.0), Rotation2d(0.0))
   private var inPIDDistance = false
-  private var tolerance = 0.075
+  private var tolerance = 0.2
   private var pidDistance = 1.1
   var atSetpoint = false
 
@@ -59,9 +60,9 @@ class AutoScorePathfinder(val robot: Robot, val endPose: Pose2d) {
   var yPIDSpeed = 0.0
   private val pidOffsetTime = 0.5
 
-  var thetaController: PIDController = PIDController(12.0, 0.3, 0.0)
-  var xController = PIDController(7.0, 2.0, 0.1)
-  var yController = PIDController(7.0, 2.0, 0.1)
+  var thetaController: PIDController = PIDController(14.0, 0.0, 0.0)
+  private var xController = PIDController(7.0, 2.0, 0.1)
+  private var yController = PIDController(7.0, 2.0, 0.1)
   var distance : Double
   private var adMag = 1.0
   private val rotTol = 0.01
@@ -189,14 +190,8 @@ class AutoScorePathfinder(val robot: Robot, val endPose: Pose2d) {
         }
       }
     }
-    setpointPub.set(atSetpoint)
-    rotPub.set(thetaController.atSetpoint())
-    autodistancePub.set(inPIDDistance)
-    velXPub.set(xPIDSpeed)
-    velYPub.set(yPIDSpeed)
-    velRotationPub.set(rotation)
-    admagpub.set(adMag)
-    distpub.set(distance)
+    xPIDSpeed = MathUtil.clamp(xPIDSpeed, -6.0, 6.0)
+    yPIDSpeed = MathUtil.clamp(yPIDSpeed, -6.0, 6.0)
 
     rotation = thetaController.calculate(MathUtil.angleModulus(robot.poseSubsystem.pose.rotation.radians))
     if (thetaController.atSetpoint()) {
@@ -207,13 +202,20 @@ class AutoScorePathfinder(val robot: Robot, val endPose: Pose2d) {
     } else {
       val fieldRelative = fromFieldRelativeSpeeds(
         ChassisSpeeds(
-          (velocityX+xPIDSpeed) / speedDivide, (velocityY+yPIDSpeed) / speedDivide, rotation
+          (velocityX+xPIDSpeed), (velocityY+yPIDSpeed), rotation
         ),
         robot.poseSubsystem.pose.rotation
       )
       robot.poseSubsystem.setPathMag(fieldRelative)
     }
-
+    setpointPub.set(atSetpoint)
+    rotPub.set(thetaController.atSetpoint())
+    autodistancePub.set(inPIDDistance)
+    velXPub.set(xPIDSpeed)
+    velYPub.set(yPIDSpeed)
+    velRotationPub.set(rotation)
+    admagpub.set(adMag)
+    distpub.set(distance)
   }
 }
 
@@ -233,46 +235,35 @@ class AutoscoreWrapperCommand(
 )
 : Command() {
 
-  private val currentCommand = command
-  private val waitTime = 0.5
-  private var waitTimer = waitTime
+  private val asPathfinder = command
+  private var reefAlignCommand : Command = InstantCommand()
+  private var usingReefAlign = false
   private var reachedAD = false
-  private val slideDivide : Double = 1.6
 
   override fun initialize() {
     robot.drive.defaultCommand.cancel()
     robot.drive.defaultCommand = EmptyDrive(robot.drive)
     robot.drive.defaultCommand.schedule()
-    currentCommand.runSetup()
+    asPathfinder.runSetup()
   }
 
   override fun execute() {
-    if (robot.poseSubsystem.pose.translation.getDistance(currentCommand.endPose.translation) < robot.poseSubsystem.autoDistance && !reachedAD) {
+    if (robot.poseSubsystem.pose.translation.getDistance(asPathfinder.endPose.translation) < robot.poseSubsystem.autoDistance && !reachedAD) {
       robot.superstructureManager.requestGoal(goal).schedule()
       reachedAD = true
     }
-    if(currentCommand.atSetpoint && currentCommand.thetaController.atSetpoint()) {
-      if(waitTimer == 1.0) {
-        currentCommand.velocityX = currentCommand.xController.calculate(robot.poseSubsystem.pose.x)
-        currentCommand.velocityY = currentCommand.yController.calculate(robot.poseSubsystem.pose.y)
-        robot.poseSubsystem.setPathMag(fromFieldRelativeSpeeds(
-          ChassisSpeeds(currentCommand.xPIDSpeed/slideDivide*(currentCommand.distance/0.09),
-            currentCommand.yPIDSpeed/slideDivide*(currentCommand.distance/0.09),
-            0.0),
-          robot.poseSubsystem.pose.rotation
-        ))
-      }
-      waitTimer -= 0.02
+    if (asPathfinder.atSetpoint && asPathfinder.thetaController.atSetpoint() && !usingReefAlign) {
+      reefAlignCommand = SimpleReefAlign(robot.drive, robot.poseSubsystem)
+      usingReefAlign = true
+      reefAlignCommand.schedule()
     } else {
-      waitTimer = waitTime
-      currentCommand.pathfind()
+      asPathfinder.pathfind()
     }
   }
 
   override fun isFinished(): Boolean {
-    if(waitTimer < 0) {
-      NetworkTableInstance.getDefault().getDoubleTopic("/endDistance").publish().set(currentCommand.endPose.translation.getDistance(robot.poseSubsystem.pose.translation))
-      return true
+    if(usingReefAlign) {
+      return reefAlignCommand.isFinished
     }
     return false
   }
