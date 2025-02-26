@@ -86,10 +86,6 @@ class RobotLoop : TimedRobot() {
 
     RobotModeTriggers.autonomous().whileTrue(robot.autoChooser.selectedCommandScheduler())
     println("DONE Generating Auto Routines : ${Timer.getFPGATimestamp()}")
-
-    routineChooser.createOptions()
-
-    SmartDashboard.putData("Routine Chooser", routineChooser)
     SmartDashboard.putData("Command Scheduler", CommandScheduler.getInstance())
 
     robot.light.defaultCommand = BlairChasing(robot.light)
