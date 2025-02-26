@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism
+import frc.team449.commands.autoscoreCommands.AutoScoreCommandConstants
+import frc.team449.commands.autoscoreCommands.AutoScoreCommands
 import frc.team449.commands.driveAlign.SimpleReefAlign
 import frc.team449.subsystems.FieldConstants
 import frc.team449.subsystems.RobotConstants
@@ -186,32 +188,32 @@ class ControllerBindings(
   }
 
   private fun score_l1() {
-    driveController.povDown().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.L1)
+    driveController.a().onTrue(
+      AutoScoreCommands(robot).getReefCommand(AutoScoreCommandConstants.ReefLocation.Location12, AutoScoreCommandConstants.CoralLevel.L1)
     )
   }
 
   private fun score_l2() {
     driveController.x().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.L2)
+      AutoScoreCommands(robot).getReefCommand(AutoScoreCommandConstants.ReefLocation.Location8, AutoScoreCommandConstants.CoralLevel.L3)
     )
   }
 
   private fun score_l3() {
     driveController.b().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.L3)
+      AutoScoreCommands(robot).getReefCommand(AutoScoreCommandConstants.ReefLocation.Location5, AutoScoreCommandConstants.CoralLevel.L2)
     )
   }
 
   private fun score_l4() {
     driveController.y().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.L4)
+      AutoScoreCommands(robot).getReefCommand(AutoScoreCommandConstants.ReefLocation.Location3, AutoScoreCommandConstants.CoralLevel.L4)
     )
   }
 
   private fun premove_l1() {
     mechanismController.a().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.L1_PREMOVE)
+      AutoScoreCommands(robot).getReefCommand(AutoScoreCommandConstants.ReefLocation.Location12, AutoScoreCommandConstants.CoralLevel.L1)
     )
   }
 

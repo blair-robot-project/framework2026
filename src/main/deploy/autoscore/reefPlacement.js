@@ -43,6 +43,7 @@ locationImg.onclick = () => {
     if(areaSelected) {
         areaText.innerText = `Reef Area: ${reefArea}`;
         areaSelectionText.innerText = "Click again to reselect";
+        locationImg.src = "locationSelectorImages/locationSelectorNone.png";
     } else {
         confirmReefButton.innerText = `Choose Robot Alignment`;
         areaText.innerText = `Reef Area: None`;

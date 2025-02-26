@@ -38,14 +38,14 @@ class AutoScorePathfinder(val robot: Robot, val endPose: Pose2d) {
   private val distpub: DoublePublisher
   private lateinit var path: PathPlannerPath
 
-  private var velocityX = 0.0
-  private var velocityY = 0.0
+  var velocityX = 0.0
+  var velocityY = 0.0
   private var rotation = 0.0
   private val timer = Timer()
   private val zeroPose = Pose2d(Translation2d(0.0, 0.0), Rotation2d(0.0))
   private var inPIDDistance = false
-  private var tolerance = 0.0254
-  private var pidDistance = 1.0
+  private var tolerance = 0.075
+  private var pidDistance = 1.1
   var atSetpoint = false
 
   private var trajValid = true
@@ -55,15 +55,19 @@ class AutoScorePathfinder(val robot: Robot, val endPose: Pose2d) {
   private var pathNull = true
   private var trajectoryNull = true
 
-  private var xPIDSpeed = 0.0
-  private var yPIDSpeed = 0.0
+  var xPIDSpeed = 0.0
+  var yPIDSpeed = 0.0
   private val pidOffsetTime = 0.5
 
-  var thetaController: PIDController = PIDController(7.0, 0.3, 0.1)
-  private var xController = PIDController(10.0, 0.7, 0.5)
-  private var yController = PIDController(10.0, 0.7, 0.5)
+  var thetaController: PIDController = PIDController(12.0, 0.3, 0.0)
+  var xController = PIDController(7.0, 2.0, 0.1)
+  var yController = PIDController(7.0, 2.0, 0.1)
+  var distance : Double
   private var adMag = 1.0
   private val rotTol = 0.01
+  private val adDecRate = 0.08
+
+  private val speedDivide = 1.4
 
   init {
     timer.restart()
@@ -91,7 +95,7 @@ class AutoScorePathfinder(val robot: Robot, val endPose: Pose2d) {
     yController.setTolerance(tolerance)
     adMag = 1.0
     admagpub = NetworkTableInstance.getDefault().getDoubleTopic("/admag").publish()
-
+    distance = 100.0
   }
 
   fun runSetup() {
@@ -101,23 +105,21 @@ class AutoScorePathfinder(val robot: Robot, val endPose: Pose2d) {
     velXPub.set(velocityX)
     velYPub.set(velocityY)
     velRotationPub.set(rotation)
-    println("new command started")
   }
 
   fun pathfind() {
     val currentTime = timer.get()
-    val distance = robot.poseSubsystem.pose.translation.getDistance(endPose.translation)
-    println("distance: $distance")
+    distance = robot.poseSubsystem.pose.translation.getDistance(endPose.translation)
     if (distance < pidDistance) {
       if(!inPIDDistance) {
         inPIDDistance = true
         xController.setpoint = endPose.translation.x
         yController.setpoint = endPose.translation.y
       }
-//      adMag -= 0.02
-//      if(adMag < 0) {
-//        adMag = 0.0
-//      }
+      adMag -= adDecRate
+      if(adMag < 0) {
+        adMag = 0.0
+      }
       if (distance < tolerance) {
         atSetpoint = true
       }
@@ -166,7 +168,6 @@ class AutoScorePathfinder(val robot: Robot, val endPose: Pose2d) {
         if (inPIDDistance || currentTime - startTime + pidOffsetTime > expectedTime) {
           xPIDSpeed = xController.calculate(robot.poseSubsystem.pose.translation.x)
           yPIDSpeed = yController.calculate(robot.poseSubsystem.pose.translation.y)
-          println("distance pid")
         } else {
           expectedTime = trajectory.totalTimeSeconds
           trajectory.sample(currentTime - startTime + pidOffsetTime).pose.let {
@@ -174,7 +175,6 @@ class AutoScorePathfinder(val robot: Robot, val endPose: Pose2d) {
             yController.setpoint = (it.translation.y)
             xPIDSpeed = xController.calculate(robot.poseSubsystem.pose.translation.x)
             yPIDSpeed = yController.calculate(robot.poseSubsystem.pose.translation.y)
-            println("traj pid")
           }
         }
         trajectory.sample(currentTime - startTime).fieldSpeeds.let {
@@ -187,14 +187,7 @@ class AutoScorePathfinder(val robot: Robot, val endPose: Pose2d) {
           velocityY = trajSpeeds.vyMetersPerSecond * adMag
           rotation = 0.0
         }
-        println("pidx: $xPIDSpeed pidy: $yPIDSpeed")
       }
-    } else {
-      velocityX = 0.0
-      velocityY = 0.0
-      xPIDSpeed = 0.0
-      yPIDSpeed = 0.0
-      println("setpoint")
     }
     setpointPub.set(atSetpoint)
     rotPub.set(thetaController.atSetpoint())
@@ -209,10 +202,18 @@ class AutoScorePathfinder(val robot: Robot, val endPose: Pose2d) {
     if (thetaController.atSetpoint()) {
       rotation = 0.0
     }
-    val fieldRelative = fromFieldRelativeSpeeds(
-      ChassisSpeeds(velocityX+xPIDSpeed, velocityY+yPIDSpeed, rotation), robot.poseSubsystem.pose.rotation
-    )
-    robot.poseSubsystem.setPathMag(fieldRelative)
+    if(atSetpoint) {
+      robot.poseSubsystem.setPathMag(ChassisSpeeds(0.0, 0.0, rotation))
+    } else {
+      val fieldRelative = fromFieldRelativeSpeeds(
+        ChassisSpeeds(
+          (velocityX+xPIDSpeed) / speedDivide, (velocityY+yPIDSpeed) / speedDivide, rotation
+        ),
+        robot.poseSubsystem.pose.rotation
+      )
+      robot.poseSubsystem.setPathMag(fieldRelative)
+    }
+
   }
 }
 
@@ -233,26 +234,34 @@ class AutoscoreWrapperCommand(
 : Command() {
 
   private val currentCommand = command
-  private val waitTime = 1.0
+  private val waitTime = 0.5
   private var waitTimer = waitTime
   private var reachedAD = false
+  private val slideDivide : Double = 1.6
 
   override fun initialize() {
     robot.drive.defaultCommand.cancel()
     robot.drive.defaultCommand = EmptyDrive(robot.drive)
     robot.drive.defaultCommand.schedule()
     currentCommand.runSetup()
-    println("initialized")
   }
 
   override fun execute() {
     if (robot.poseSubsystem.pose.translation.getDistance(currentCommand.endPose.translation) < robot.poseSubsystem.autoDistance && !reachedAD) {
-      println("ad reached")
       robot.superstructureManager.requestGoal(goal).schedule()
       reachedAD = true
     }
     if(currentCommand.atSetpoint && currentCommand.thetaController.atSetpoint()) {
-      println("in timer")
+      if(waitTimer == 1.0) {
+        currentCommand.velocityX = currentCommand.xController.calculate(robot.poseSubsystem.pose.x)
+        currentCommand.velocityY = currentCommand.yController.calculate(robot.poseSubsystem.pose.y)
+        robot.poseSubsystem.setPathMag(fromFieldRelativeSpeeds(
+          ChassisSpeeds(currentCommand.xPIDSpeed/slideDivide*(currentCommand.distance/0.09),
+            currentCommand.yPIDSpeed/slideDivide*(currentCommand.distance/0.09),
+            0.0),
+          robot.poseSubsystem.pose.rotation
+        ))
+      }
       waitTimer -= 0.02
     } else {
       waitTimer = waitTime
@@ -262,7 +271,7 @@ class AutoscoreWrapperCommand(
 
   override fun isFinished(): Boolean {
     if(waitTimer < 0) {
-      println("finished")
+      NetworkTableInstance.getDefault().getDoubleTopic("/endDistance").publish().set(currentCommand.endPose.translation.getDistance(robot.poseSubsystem.pose.translation))
       return true
     }
     return false

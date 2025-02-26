@@ -8,6 +8,7 @@ import edu.wpi.first.hal.HAL
 import edu.wpi.first.math.geometry.Pose3d
 import edu.wpi.first.math.geometry.Rotation3d
 import edu.wpi.first.math.util.Units
+import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.*
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
@@ -66,13 +67,8 @@ class RobotLoop : TimedRobot() {
 
     HAL.report(FRCNetComm.tResourceType.kResourceType_Language, FRCNetComm.tInstances.kLanguage_Kotlin)
 
-//    if (isSimulation()) {
     // Don't complain about joysticks if there aren't going to be any
     DriverStation.silenceJoystickConnectionWarning(true)
-//      val instance = NetworkTableInstance.getDefault()
-//      instance.stopServer()
-//      instance.startClient4("localhost")
-//    }
 
     // Custom Feedforwards
     robot.elevator.elevatorFeedForward = createElevatorFeedForward(robot.pivot)

@@ -23,19 +23,21 @@ const coralY = coralImgPos.top + coralHeight;
 coralImage.addEventListener("mousemove", (event) => {
     let mouseY = event.clientY;
     let ydiff = coralY - mouseY;
-    if(ydiff > coralHeight * 0.4) {
-        setCoralImg("L4");
-        prevCoralLevel = 4;
-    } else if (ydiff > coralHeight * 0.1) {
-        setCoralImg("L3");
-        prevCoralLevel = 3;
-    } else if (ydiff > -coralHeight * 0.4) {
-        setCoralImg("L2");
-        prevCoralLevel = 2;
-    } else {
-        setCoralImg("L1");
-        prevCoralLevel = 1;
-    }
+    if(!coralSelected) {
+        if(ydiff > coralHeight * 0.4) {
+            setCoralImg("L4");
+            prevCoralLevel = 4;
+        } else if (ydiff > coralHeight * 0.1) {
+            setCoralImg("L3");
+            prevCoralLevel = 3;
+        } else if (ydiff > -coralHeight * 0.4) {
+            setCoralImg("L2");
+            prevCoralLevel = 2;
+        } else {
+            setCoralImg("L1");
+            prevCoralLevel = 1;
+        }
+    }   
 });
 coralImage.addEventListener("mouseleave", () => {
     if(coralSelected) {
