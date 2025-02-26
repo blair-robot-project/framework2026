@@ -66,10 +66,6 @@ class PoseSubsystem(
   private val allianceCompensation = { if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) PI else 0.0 }
   private val directionCompensation = { if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) -1.0 else 1.0 }
 
-
-  var headingLock = false
-
-
   private var rotRamp = SlewRateLimiter(RobotConstants.ROT_RATE_LIMIT)
 
 
@@ -133,10 +129,6 @@ class PoseSubsystem(
       drive.currentSpeeds.omegaRadiansPerSecond
     )
 
-
-    headingLock = false
-
-
     xController.reset()
     yController.reset()
     thetaController.reset()
@@ -178,6 +170,48 @@ class PoseSubsystem(
     val ctrlY = -controller.leftX
     val controllerMag = hypot(ctrlX, ctrlY)
 
+    // controller stuff
+    val ctrlRadius = MathUtil.applyDeadband(
+      min(sqrt(ctrlX.pow(2) + ctrlY.pow(2)), 1.0),
+      RobotConstants.DRIVE_RADIUS_DEADBAND,
+      1.0
+    ).pow(SwerveConstants.JOYSTICK_FILTER_ORDER)
+
+    val ctrlTheta = atan2(ctrlY, ctrlX)
+
+    val xScaled = ctrlRadius * cos(ctrlTheta) * drive.maxLinearSpeed
+    val yScaled = ctrlRadius * sin(ctrlTheta) * drive.maxLinearSpeed
+
+    var xClamped = xScaled
+    var yClamped = yScaled
+
+    if (RobotConstants.USE_ACCEL_LIMIT) {
+      dx = xScaled - prevX
+      dy = yScaled - prevY
+      magAcc = hypot(dx / dt, dy / dt)
+      magAccClamped = MathUtil.clamp(magAcc, -drive.accel, drive.accel)
+
+      val factor = if (magAcc == 0.0) 0.0 else magAccClamped / magAcc
+      val dxClamped = dx * factor
+      val dyClamped = dy * factor
+      xClamped = prevX + dxClamped
+      yClamped = prevY + dyClamped
+    }
+    rotScaled = rotRamp.calculate(
+      min(
+        MathUtil.applyDeadband(
+          abs(controller.rightX).pow(SwerveConstants.ROT_FILTER_ORDER),
+          RobotConstants.ROTATION_DEADBAND,
+          1.0
+        ),
+        1.0
+      ) * -sign(controller.rightX) * drive.maxRotSpeed
+    )
+
+    val vel = Translation2d(xClamped, yClamped)
+
+    vel.rotateBy(Rotation2d(-rotScaled * dt * skewConstant))
+
     if(distance > lastDistance) {
       magMultiply += magIncConstant
       magDec -= 0.001
@@ -188,7 +222,8 @@ class PoseSubsystem(
     magDec = MathUtil.clamp(magDec, 0.0, 0.5)
     clampMult()
 
-    if(controllerMag > 0.35) {
+    println(rotScaled)
+    if(controllerMag > 0.35 || abs(rotScaled) > 1.0) {
       magMultiply += 0.3
     }
 
@@ -211,56 +246,6 @@ class PoseSubsystem(
       }
       drive.set(desVel)
     } else {
-      // controller stuff
-      val ctrlRadius = MathUtil.applyDeadband(
-        min(sqrt(ctrlX.pow(2) + ctrlY.pow(2)), 1.0),
-        RobotConstants.DRIVE_RADIUS_DEADBAND,
-        1.0
-      ).pow(SwerveConstants.JOYSTICK_FILTER_ORDER)
-
-      val ctrlTheta = atan2(ctrlY, ctrlX)
-
-      val xScaled = ctrlRadius * cos(ctrlTheta) * drive.maxLinearSpeed
-      val yScaled = ctrlRadius * sin(ctrlTheta) * drive.maxLinearSpeed
-
-      var xClamped = xScaled
-      var yClamped = yScaled
-
-      if (RobotConstants.USE_ACCEL_LIMIT) {
-        dx = xScaled - prevX
-        dy = yScaled - prevY
-        magAcc = hypot(dx / dt, dy / dt)
-        magAccClamped = MathUtil.clamp(magAcc, -drive.accel, drive.accel)
-
-        val factor = if (magAcc == 0.0) 0.0 else magAccClamped / magAcc
-        val dxClamped = dx * factor
-        val dyClamped = dy * factor
-        xClamped = prevX + dxClamped
-        yClamped = prevY + dyClamped
-      }
-
-      rotScaled = if (!headingLock) {
-        rotRamp.calculate(
-          min(
-            MathUtil.applyDeadband(
-              abs(controller.rightX).pow(SwerveConstants.ROT_FILTER_ORDER),
-              RobotConstants.ROTATION_DEADBAND,
-              1.0
-            ),
-            1.0
-          ) * -sign(controller.rightX) * drive.maxRotSpeed
-        )
-      } else {
-        MathUtil.clamp(
-          rotCtrl.calculate(heading.radians),
-          -RobotConstants.ALIGN_ROT_SPEED,
-          RobotConstants.ALIGN_ROT_SPEED
-        )
-      }
-
-      val vel = Translation2d(xClamped, yClamped)
-
-      vel.rotateBy(Rotation2d(-rotScaled * dt * skewConstant))
 
       var controllerSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
         vel.x * directionCompensation.invoke(),
