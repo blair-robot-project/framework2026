@@ -22,7 +22,7 @@ import kotlin.math.min
 /**
  * @param drive The holonomic drive you want to align with
  */
-class SimpleReefAlign(
+open class SimpleReefAlign(
   private val drive: SwerveDrive,
   private val poseSubsystem: PoseSubsystem,
   translationSpeedLim: Double = 0.5 * RobotConstants.MAX_LINEAR_SPEED,
@@ -31,26 +31,26 @@ class SimpleReefAlign(
   headingAccelLim: Double = 4 * PI,
   translationPID: Triple<Double, Double, Double> = Triple(5.0, 0.0, 0.0),
   headingPID: Triple<Double, Double, Double> = Triple(6.5, 0.0, 0.0),
-  private val translationTolerance: Double = Units.inchesToMeters(0.5),
-  private val headingTolerance: Double = Units.degreesToRadians(0.75),
-  private val speedTol: Double = 0.10,
-  private val speedTolRot: Double = PI / 16,
-  private val ffMinRadius: Double = 0.2,
-  private val ffMaxRadius: Double = 0.65,
-  private val leftOrRight: Optional<FieldConstants.ReefSide> = Optional.empty()
+  protected val translationTolerance: Double = Units.inchesToMeters(0.5),
+  protected val headingTolerance: Double = Units.degreesToRadians(0.75),
+  protected val speedTol: Double = 0.10,
+  protected val speedTolRot: Double = PI / 16,
+  protected val ffMinRadius: Double = 0.2,
+  protected val ffMaxRadius: Double = 0.65,
+  protected val leftOrRight: Optional<FieldConstants.ReefSide> = Optional.empty()
 ) : Command() {
   init {
     addRequirements(drive)
   }
 
-  private val translationController = ProfiledPIDController(
+  protected val translationController = ProfiledPIDController(
     translationPID.first,
     translationPID.second,
     translationPID.third,
     TrapezoidProfile.Constraints(translationSpeedLim, translationAccelLim)
   )
 
-  private val headingController = ProfiledPIDController(
+  protected val headingController = ProfiledPIDController(
     headingPID.first,
     headingPID.second,
     headingPID.third,

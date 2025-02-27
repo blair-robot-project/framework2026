@@ -84,7 +84,7 @@ class PoseSubsystem(
   private val maxMagPower = 20.0
   private var lastDistance = 0.0
   private val agreeVal = 0.15
-  val autoDistance = 0.5
+  val autoDistance = 0.21
   lateinit var autoscoreCurrentCommand: Command
 
   init {
@@ -252,6 +252,9 @@ class PoseSubsystem(
         magMultiply -= 0.05
       } else if (controllerMag > 0.35 || currentControllerPower > 16) {
         combinedChassisSpeeds = controllerSpeeds * 8.0
+        if(abs(rotScaled) < 0.05) {
+          combinedChassisSpeeds.omegaRadiansPerSecond = desVel.omegaRadiansPerSecond
+        }
       } else if (abs(rotScaled) > 0.5) {
         combinedChassisSpeeds = desVel
         combinedChassisSpeeds.omegaRadiansPerSecond = controllerSpeeds.omegaRadiansPerSecond * 8.0

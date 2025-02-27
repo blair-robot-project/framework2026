@@ -62,7 +62,7 @@ coralImage.onclick = () => {
         coralImage.src = `coralLevelImages/coralL${coralLevel}.png`;
         coralText.innerText = `Coral Level: ${coralLevel}`;
         if(areaSelected) {
-            confirmReefButton.innerText = `Score at Level ${coralLevel} and Area ${reefArea}`;
+            confirmReefButton.innerText = `Score at Level ${coralLevel} and Area ${numberToLetter[11-(reefArea+4)%12]}`;
         }
     } else {
         setCoralImg("None");

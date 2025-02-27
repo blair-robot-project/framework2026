@@ -28,9 +28,7 @@ document.addEventListener("mousemove", (event) => {
         if(reefArea == -1) {
             locationImg.src = `locationSelectorImages/locationSelectorNone.png`;
         } else {
-            locationImg.src = `locationSelectorImages/locationSelector${
-                reefArea < 5 ? reefArea+8 : reefArea-4
-            }.png`;
+            locationImg.src = `locationSelectorImages/locationSelector${reefArea < 5 ? reefArea+8 : reefArea-4}.png`;
         }
     }
 });
@@ -41,15 +39,15 @@ let areaSelectionText = document.getElementById("areaSelectionText");
 locationImg.onclick = () => {
     areaSelected = !areaSelected;
     if(areaSelected) {
-        areaText.innerText = `Reef Area: ${reefArea}`;
+        areaText.innerText = `Reef Area: ${numberToLetter[11-(reefArea+4)%12]}`;
         areaSelectionText.innerText = "Click again to reselect";
-        locationImg.src = "locationSelectorImages/locationSelectorNone.png";
     } else {
         confirmReefButton.innerText = `Choose Robot Alignment`;
         areaText.innerText = `Reef Area: None`;
         areaSelectionText.innerText = "Click the area you want to go to.";
+        locationImg.src = "locationSelectorImages/locationSelectorNone.png";
     }
     if(coralSelected) {
-        confirmReefButton.innerText = `Score at Level ${coralLevel} and Area ${reefArea}`;
+        confirmReefButton.innerText = `Score at Level ${coralLevel} and Area ${numberToLetter[11-(reefArea+4)%12]}`;
     }
 }

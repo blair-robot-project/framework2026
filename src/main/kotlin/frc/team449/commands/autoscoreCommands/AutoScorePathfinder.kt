@@ -40,8 +40,8 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
   private val distpub: DoublePublisher
   private lateinit var path: PathPlannerPath
 
-  var velocityX = 0.0
-  var velocityY = 0.0
+  private var velocityX = 0.0
+  private var velocityY = 0.0
   private var rotation = 0.0
   private val timer = Timer()
   private val zeroPose = Pose2d(Translation2d(0.0, 0.0), Rotation2d(0.0))
@@ -119,7 +119,7 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
     return abs(robot.poseSubsystem.pose.rotation.radians - endPose.rotation.radians) < rotTol
   }
 
-  fun pathfind() {
+  fun pathFind() {
     ADStar.setStartPosition(robot.poseSubsystem.pose.translation)
     val currentTime = timer.get()
     distance = robot.poseSubsystem.pose.translation.getDistance(endPose.translation)
@@ -272,7 +272,7 @@ class AutoScoreWrapperCommand(
       reefAlignCommand.schedule()
       robot.superstructureManager.requestGoal(goal).schedule()
     } else if(!usingReefAlign) {
-      asPathfinder.pathfind()
+      asPathfinder.pathFind()
     }
   }
 

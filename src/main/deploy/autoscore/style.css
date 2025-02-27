@@ -99,8 +99,8 @@ body {
 .locationImageContainer {
     display: flex;
     flex-direction: column;
-    height: 80%;
-    aspect-ratio: 473/411;
+    width: 80%;
+    aspect-ratio: 1.15085158151;
     text-align: center;
     align-items: center;
     justify-content: center;
