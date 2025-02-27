@@ -1,26 +1,26 @@
-//package frc.team449.commands.autoscoreCommands
+// package frc.team449.commands.autoscoreCommands
 //
-//import com.pathplanner.lib.config.RobotConfig
-//import com.pathplanner.lib.path.GoalEndState
-//import com.pathplanner.lib.path.PathConstraints
-//import com.pathplanner.lib.path.PathPlannerPath
-//import com.pathplanner.lib.pathfinding.LocalADStar
-//import edu.wpi.first.math.geometry.Pose2d
-//import edu.wpi.first.math.geometry.Rotation2d
-//import edu.wpi.first.math.geometry.Translation2d
-//import edu.wpi.first.math.kinematics.ChassisSpeeds
-//import edu.wpi.first.networktables.*
-//import edu.wpi.first.wpilibj.Timer
-//import edu.wpi.first.wpilibj2.command.Command
-//import edu.wpi.first.wpilibj2.command.PrintCommand
-//import edu.wpi.first.wpilibj2.command.SubsystemBase
-//import frc.team449.Robot
-//import frc.team449.auto.choreo.MagnetizePIDPoseAlign
-//import frc.team449.commands.driveAlign.PIDPoseAlign
-//import frc.team449.subsystems.RobotConstants
-//import kotlin.math.floor
+// import com.pathplanner.lib.config.RobotConfig
+// import com.pathplanner.lib.path.GoalEndState
+// import com.pathplanner.lib.path.PathConstraints
+// import com.pathplanner.lib.path.PathPlannerPath
+// import com.pathplanner.lib.pathfinding.LocalADStar
+// import edu.wpi.first.math.geometry.Pose2d
+// import edu.wpi.first.math.geometry.Rotation2d
+// import edu.wpi.first.math.geometry.Translation2d
+// import edu.wpi.first.math.kinematics.ChassisSpeeds
+// import edu.wpi.first.networktables.*
+// import edu.wpi.first.wpilibj.Timer
+// import edu.wpi.first.wpilibj2.command.Command
+// import edu.wpi.first.wpilibj2.command.PrintCommand
+// import edu.wpi.first.wpilibj2.command.SubsystemBase
+// import frc.team449.Robot
+// import frc.team449.auto.choreo.MagnetizePIDPoseAlign
+// import frc.team449.commands.driveAlign.PIDPoseAlign
+// import frc.team449.subsystems.RobotConstants
+// import kotlin.math.floor
 //
-//class pathfinder(val robot: Robot) : SubsystemBase() {
+// class pathfinder(val robot: Robot) : SubsystemBase() {
 //  var adstar = LocalADStar()
 //  var pathPub: StructArrayPublisher<Pose2d>? = null
 //  var velsPub: DoubleArrayPublisher? = null
@@ -83,10 +83,10 @@
 //          }
 //          println()
 //        }
-////        if (indexinpath == pathSub?.get()!!.size) {
-////          println("done")
-////          alongpath = 0.0
-////        }
+// //        if (indexinpath == pathSub?.get()!!.size) {
+// //          println("done")
+// //          alongpath = 0.0
+// //        }
 //      } catch (e: Exception) {
 //        println("path done probably")
 //        alongpath = 0.0
@@ -103,7 +103,7 @@
 //        nextpose = Pose2d(Translation2d(0.0,0.0),Rotation2d(0.0))
 //      }
 //    }
-////
+// //
 //    if (adstar.isNewPathAvailable) {
 //      path = adstar.getCurrentPath(
 //        PathConstraints(
@@ -126,9 +126,9 @@
 //
 //      println("new path def")
 //
-////      alongpath = 0.0
-////      indexinpath = 0
-////      expectedtime = 0.0
+// //      alongpath = 0.0
+// //      indexinpath = 0
+// //      expectedtime = 0.0
 //      try {
 //        expectedtime = path?.generateTrajectory(robot.drive.currentSpeeds, robot.poseSubsystem.pose.rotation, RobotConfig.fromGUISettings())?.totalTimeSeconds!!
 //      }
@@ -138,10 +138,10 @@
 //      points = doubleArrayOf(0.0, 0.0)
 //      prevpose = Pose2d(Translation2d(0.0,0.0), Rotation2d(0.0))
 //      nextpose = Pose2d(Translation2d(0.0,0.0),Rotation2d(0.0))
-////      pathPub = null
-////      velsPub = null
-////      pathSub = null
-////      velsSub = null
+// //      pathPub = null
+// //      velsPub = null
+// //      pathSub = null
+// //      velsSub = null
 //    }
 //  }
 //
@@ -169,4 +169,4 @@
 //    }).andThen(PrintCommand("                                                                                                              goal updated")) //
 //    // .andThen(PrintCommand("pathstart: $pathstart")).andThen(PrintCommand(" "))
 //  }
-//}
+// }

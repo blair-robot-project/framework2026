@@ -8,7 +8,6 @@ import edu.wpi.first.hal.HAL
 import edu.wpi.first.math.geometry.Pose3d
 import edu.wpi.first.math.geometry.Rotation3d
 import edu.wpi.first.math.util.Units
-import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.*
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
@@ -27,7 +26,6 @@ import frc.team449.subsystems.superstructure.pivot.PivotFeedForward.Companion.cr
 import frc.team449.subsystems.superstructure.wrist.WristFeedForward.Companion.createWristFeedForward
 import frc.team449.subsystems.vision.VisionConstants
 import frc.team449.system.encoder.QuadCalibration
-import io.javalin.plugin.bundled.RouteOverviewUtil.metaInfo
 import org.littletonrobotics.urcl.URCL
 import kotlin.jvm.optionals.getOrDefault
 import kotlin.jvm.optionals.getOrNull

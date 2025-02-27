@@ -15,7 +15,6 @@ interface DriveSubsystem : Subsystem {
       this.pose = Pose2d(Translation2d(this.pose.x, this.pose.y), value)
     }
 
-
   var pose: Pose2d
 
   /** Sets the drivetrain's desired speeds. */

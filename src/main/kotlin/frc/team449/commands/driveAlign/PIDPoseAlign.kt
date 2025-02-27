@@ -56,8 +56,7 @@ class PIDPoseAlign(
     )
   }
 
-  fun calculate(currentPose : Pose2d, endPose : Pose2d) : ChassisSpeeds {
-
+  fun calculate(currentPose: Pose2d, endPose: Pose2d): ChassisSpeeds {
     xPID.setpoint = endPose.x
     yPID.setpoint = endPose.y
     headingPID.setpoint = endPose.rotation.radians

@@ -98,39 +98,36 @@ class AutoScoreCommandConstants() {
     val reef2Translation2dBlue = Translation2d(5.3162, 5.1349)
 
     // RADIANS
-    val reef2Rotation2dBlue = Rotation2d(radians(240))
-    val reef2PoseBlue = Pose2d(reef2Translation2dBlue, reef2Rotation2dBlue)
+    val reef2PoseBlue = Pose2d(reef2Translation2dBlue, reef1Rotation2dBlue)
 
     // reef 3rd pose values
-    val reef3Translation2dBlue = Translation2d(5.9216, 4.1711)
+    val reef3Translation2dBlue = Translation2d(5.9066, 4.1872)
 
     // RADIANS
     val reef3Rotation2dBlue = Rotation2d(radians(180))
     val reef3PoseBlue = Pose2d(reef3Translation2dBlue, reef3Rotation2dBlue)
 
     // reef 4th pose values
-    val reef4Translation2dBlue = Translation2d(5.9216, 3.8747)
+    val reef4Translation2dBlue = Translation2d(5.9066, 3.8611)
 
     // RADIANS
-    val reef4Rotation2dBlue = Rotation2d(radians(180))
-    val reef4PoseBlue = Pose2d(reef4Translation2dBlue, reef4Rotation2dBlue)
+    val reef4PoseBlue = Pose2d(reef4Translation2dBlue, reef3Rotation2dBlue)
 
     // reef 5th pose values
-    val reef5Translation2dBlue = Translation2d(5.3409, 2.8740)
+    val reef5Translation2dBlue = Translation2d(5.3346, 2.8689)
 
     // RADIANS
     val reef5Rotation2dBlue = Rotation2d(radians(120))
     val reef5PoseBlue = Pose2d(reef5Translation2dBlue, reef5Rotation2dBlue)
 
     // reef 6th pose values
-    val reef6Translation2dBlue = Translation2d(5.057, 2.7133)
+    val reef6Translation2dBlue = Translation2d(5.0415, 2.7321)
 
     // RADIANS
-    val reef6Rotation2dBlue = Rotation2d(radians(120))
-    val reef6PoseBlue = Pose2d(reef6Translation2dBlue, reef6Rotation2dBlue)
+    val reef6PoseBlue = Pose2d(reef6Translation2dBlue, reef5Rotation2dBlue)
 
     // reef 7th pose values
-    val reef7Translation2dBlue = Translation2d(3.9324, 2.7504)
+    val reef7Translation2dBlue = Translation2d(3.9276, 2.70767)
 
     // RADIANS
     val reef7Rotation2dBlue = Rotation2d(radians(60))
@@ -140,8 +137,7 @@ class AutoScoreCommandConstants() {
     val reef8Translation2dBlue = Translation2d(3.6356, 2.8740)
 
     // RADIANS
-    val reef8Rotation2dBlue = Rotation2d(radians(60))
-    val reef8PoseBlue = Pose2d(reef8Translation2dBlue, reef8Rotation2dBlue)
+    val reef8PoseBlue = Pose2d(reef8Translation2dBlue, reef7Rotation2dBlue)
 
     // reef 9th pose values
     val reef9Translation2dBlue = Translation2d(3.0799, 3.8623)
@@ -151,14 +147,13 @@ class AutoScoreCommandConstants() {
     val reef9PoseBlue = Pose2d(reef9Translation2dBlue, reef9Rotation2dBlue)
 
     // reef 10th pose values
-    val reef10Translation2dBlue = Translation2d(3.0799, 4.1929)
+    val reef10Translation2dBlue = Translation2d(3.0799, 4.1823)
 
     // RADIANS
-    val reef10Rotation2dBlue = Rotation2d(radians(-60))
-    val reef10PoseBlue = Pose2d(reef10Translation2dBlue, reef10Rotation2dBlue)
+    val reef10PoseBlue = Pose2d(reef10Translation2dBlue, reef9Rotation2dBlue)
 
     // reef 11th pose values
-    val reef11Translation2dBlue = Translation2d(3.6606, 5.14724)
+    val reef11Translation2dBlue = Translation2d(3.64155, 5.1416)
 
     // RADIANS
     val reef11Rotation2dBlue = Rotation2d(radians(-60))
@@ -166,11 +161,10 @@ class AutoScoreCommandConstants() {
     val reef11PoseBlue = Pose2d(reef11Translation2dBlue, reef11Rotation2dBlue)
 
     // reef 12th pose values
-    val reef12Translation2dBlue = Translation2d(3.93242, 5.3079)
+    val reef12Translation2dBlue = Translation2d(3.9232, 5.3333)
 
     // RADIANS
-    val reef12Rotation2dBlue = Rotation2d(radians(-60))
-    val reef12PoseBlue = Pose2d(reef12Translation2dBlue, reef12Rotation2dBlue)
+    val reef12PoseBlue = Pose2d(reef12Translation2dBlue, reef11Rotation2dBlue)
 
     // RED
     // reef 1st pose values
@@ -184,8 +178,7 @@ class AutoScoreCommandConstants() {
     val reef2Translation2dRed = Translation2d(13.9229, 5.1800)
 
     // RADIANS
-    val reef2Rotation2dRed = Rotation2d(radians(-120))
-    val reef2PoseRed = Pose2d(reef2Translation2dRed, reef2Rotation2dRed)
+    val reef2PoseRed = Pose2d(reef2Translation2dRed, reef1Rotation2dRed)
 
     // reef 3rd pose values
     val reef3Translation2dRed = Translation2d(14.5286, 4.1675)
@@ -198,36 +191,33 @@ class AutoScoreCommandConstants() {
     val reef4Translation2dRed = Translation2d(14.5286, 3.8560)
 
     // RADIANS
-    val reef4Rotation2dRed = Rotation2d(radians(180))
-    val reef4PoseRed = Pose2d(reef4Translation2dRed, reef4Rotation2dRed)
+    val reef4PoseRed = Pose2d(reef4Translation2dRed, reef3Rotation2dRed)
 
     // reef 5th pose values
-    val reef5Translation2dRed = Translation2d(13.9229, 2.8695)
+    val reef5Translation2dRed = Translation2d(13.9352, 2.8325)
 
     // RADIANS
     val reef5Rotation2dRed = Rotation2d(radians(120))
     val reef5PoseRed = Pose2d(reef5Translation2dRed, reef5Rotation2dRed)
 
     // reef 6th pose values
-    val reef6Translation2dRed = Translation2d(13.6546, 2.7138)
+    val reef6Translation2dRed = Translation2d(13.6350, 2.7027)
 
     // RADIANS
-    val reef6Rotation2dRed = Rotation2d(radians(120))
-    val reef6PoseRed = Pose2d(reef6Translation2dRed, reef6Rotation2dRed)
+    val reef6PoseRed = Pose2d(reef6Translation2dRed, reef5Rotation2dRed)
 
     // reef 7th pose values
-    val reef7Translation2dRed = Translation2d(12.5037, 2.8782)
+    val reef7Translation2dRed = Translation2d(12.4764, 2.6716)
 
     // RADIANS
     val reef7Rotation2dRed = Rotation2d(radians(60))
     val reef7PoseRed = Pose2d(reef7Translation2dRed, reef7Rotation2dRed)
 
     // reef 8th pose values
-    val reef8Translation2dRed = Translation2d(12.2182, 2.8608)
+    val reef8Translation2dRed = Translation2d(12.2086, 2.8623)
 
     // RADIANS
-    val reef8Rotation2dRed = Rotation2d(radians(60))
-    val reef8PoseRed = Pose2d(reef8Translation2dRed, reef8Rotation2dRed)
+    val reef8PoseRed = Pose2d(reef8Translation2dRed, reef7Rotation2dRed)
 
     // reef 9th pose values
     val reef9Translation2dRed = Translation2d(11.6384, 3.8647)
@@ -237,11 +227,10 @@ class AutoScoreCommandConstants() {
     val reef9PoseRed = Pose2d(reef9Translation2dRed, reef9Rotation2dRed)
 
     // reef 10th pose values
-    val reef10Translation2dRed = Translation2d(11.6384, 4.1762)
+    val reef10Translation2dRed = Translation2d(11.6384, 4.1912)
 
     // RADIANS
-    val reef10Rotation2dRed = Rotation2d(radians(0))
-    val reef10PoseRed = Pose2d(reef10Translation2dRed, reef10Rotation2dRed)
+    val reef10PoseRed = Pose2d(reef10Translation2dRed, reef9Rotation2dRed)
 
     // reef 11th pose values
     val reef11Translation2dRed = Translation2d(12.2182, 5.1800)
@@ -254,12 +243,11 @@ class AutoScoreCommandConstants() {
     val reef12Translation2dRed = Translation2d(12.5037, 5.3271)
 
     // RADIANS
-    val reef12Rotation2dRed = Rotation2d(radians(-60))
-    val reef12PoseRed = Pose2d(reef12Translation2dRed, reef12Rotation2dRed)
+    val reef12PoseRed = Pose2d(reef12Translation2dRed, reef11Rotation2dRed)
 
-    const val ROT_MAX_ACCEL = 2 * PI
+    const val ROT_MAX_ACCEL = PI
     const val MAX_ACCEL = 8.0
     const val MAX_ROT_SPEED = 5 * PI / 4 // r ad/s
-    val MAX_LINEAR_SPEED = SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED // m/s
+    val MAX_LINEAR_SPEED = SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED * 4 / 5 // m/s
   }
 }

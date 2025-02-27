@@ -25,7 +25,7 @@ import frc.team449.subsystems.superstructure.SuperstructureGoal
 import kotlin.math.PI
 import kotlin.math.abs
 
-class AutoScorePathfinder(val robot: Robot, val endPose: Pose2d) {
+class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
   private var ADStar = LocalADStar()
 
   private val pathPub: StructArrayPublisher<Pose2d>
@@ -64,7 +64,7 @@ class AutoScorePathfinder(val robot: Robot, val endPose: Pose2d) {
   private var thetaController: PIDController = PIDController(5.0, 0.5, 0.0)
   private var xController = PIDController(7.0, 2.0, 0.1)
   private var yController = PIDController(7.0, 2.0, 0.1)
-  var distance : Double
+  var distance: Double
   private var adMag = 1.0
   private var pidMag = 0.0
   private val rotTol = 0.085
@@ -107,7 +107,7 @@ class AutoScorePathfinder(val robot: Robot, val endPose: Pose2d) {
     velRotationPub.set(rotation)
   }
 
-  fun atRotSetpoint() : Boolean {
+  fun atRotSetpoint(): Boolean {
     return abs(robot.poseSubsystem.pose.rotation.radians - endPose.rotation.radians) < rotTol
   }
 
@@ -115,13 +115,13 @@ class AutoScorePathfinder(val robot: Robot, val endPose: Pose2d) {
     val currentTime = timer.get()
     distance = robot.poseSubsystem.pose.translation.getDistance(endPose.translation)
     if (distance < pidDistance) {
-      if(!inPIDDistance) {
+      if (!inPIDDistance) {
         inPIDDistance = true
         xController.setpoint = endPose.translation.x
         yController.setpoint = endPose.translation.y
       }
       adMag -= adDecRate
-      if(adMag < 0) {
+      if (adMag < 0) {
         adMag = 0.0
       }
       if (distance < tolerance) {
@@ -129,9 +129,9 @@ class AutoScorePathfinder(val robot: Robot, val endPose: Pose2d) {
       }
     } else {
       inPIDDistance = false
-      if(distance < 2) {
+      if (distance < 1.7) {
         pidMag += adDecRate
-        if(pidMag > 1) {
+        if (pidMag > 1) {
           pidMag = 1.0
         }
       }
@@ -199,19 +199,21 @@ class AutoScorePathfinder(val robot: Robot, val endPose: Pose2d) {
         }
       }
     }
-    xPIDSpeed = MathUtil.clamp(xPIDSpeed, -6.0, 6.0) * pidMag
-    yPIDSpeed = MathUtil.clamp(yPIDSpeed, -6.0, 6.0) * pidMag
+    xPIDSpeed *= pidMag
+    yPIDSpeed *= pidMag
 
     rotation = thetaController.calculate(MathUtil.angleModulus(robot.poseSubsystem.pose.rotation.radians), endPose.rotation.radians)
     if (atRotSetpoint()) {
       rotation = 0.0
     }
-    if(atSetpoint) {
+    if (atSetpoint) {
       robot.poseSubsystem.setPathMag(ChassisSpeeds(0.0, 0.0, rotation))
     } else {
       val fieldRelative = fromFieldRelativeSpeeds(
         ChassisSpeeds(
-          (velocityX+xPIDSpeed), (velocityY+yPIDSpeed), rotation
+          MathUtil.clamp((velocityX + xPIDSpeed), -AutoScoreCommandConstants.MAX_LINEAR_SPEED, AutoScoreCommandConstants.MAX_LINEAR_SPEED),
+          MathUtil.clamp((velocityY + yPIDSpeed), -AutoScoreCommandConstants.MAX_LINEAR_SPEED, AutoScoreCommandConstants.MAX_LINEAR_SPEED),
+          MathUtil.clamp(rotation, -AutoScoreCommandConstants.MAX_ROT_SPEED, AutoScoreCommandConstants.MAX_ROT_SPEED)
         ),
         robot.poseSubsystem.pose.rotation
       )
@@ -236,18 +238,18 @@ class EmptyDrive(drive: SwerveDrive) : Command() {
     return true
   }
 }
-//goal should be a premove state
+
+// goal should be a premove state
 class AutoscoreWrapperCommand(
   val robot: Robot,
   command: AutoScorePathfinder,
-  private val goal: SuperstructureGoal.SuperstructureState,
-)
-: Command() {
+  private val goal: SuperstructureGoal.SuperstructureState
+) :
+  Command() {
 
   private val asPathfinder = command
-  private var reefAlignCommand : Command = InstantCommand()
+  private var reefAlignCommand: Command = InstantCommand()
   private var usingReefAlign = false
-  private var reachedAD = false
 
   override fun initialize() {
     robot.drive.defaultCommand.cancel()
@@ -257,21 +259,18 @@ class AutoscoreWrapperCommand(
   }
 
   override fun execute() {
-    if (robot.poseSubsystem.pose.translation.getDistance(asPathfinder.endPose.translation) < robot.poseSubsystem.autoDistance && !reachedAD) {
-      robot.superstructureManager.requestGoal(goal).schedule()
-      reachedAD = true
-    }
     if (asPathfinder.atSetpoint && asPathfinder.atRotSetpoint() && !usingReefAlign) {
       reefAlignCommand = SimpleReefAlign(robot.drive, robot.poseSubsystem)
       usingReefAlign = true
       reefAlignCommand.schedule()
+      robot.superstructureManager.requestGoal(goal).schedule()
     } else {
       asPathfinder.pathfind()
     }
   }
 
   override fun isFinished(): Boolean {
-    if(usingReefAlign) {
+    if (usingReefAlign) {
       return reefAlignCommand.isFinished
     }
     return false

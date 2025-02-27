@@ -1,26 +1,26 @@
-//package frc.team449.commands.autoscoreCommands
+// package frc.team449.commands.autoscoreCommands
 //
-//import com.pathplanner.lib.config.RobotConfig
-//import com.pathplanner.lib.path.GoalEndState
-//import com.pathplanner.lib.path.PathConstraints
-//import com.pathplanner.lib.path.PathPlannerPath
-//import com.pathplanner.lib.pathfinding.LocalADStar
-//import com.pathplanner.lib.trajectory.PathPlannerTrajectory
-//import edu.wpi.first.math.geometry.Pose2d
-//import edu.wpi.first.math.geometry.Rotation2d
-//import edu.wpi.first.math.geometry.Translation2d
-//import edu.wpi.first.math.kinematics.ChassisSpeeds
-//import edu.wpi.first.networktables.*
-//import edu.wpi.first.wpilibj.Timer
-//import edu.wpi.first.wpilibj2.command.Command
-//import edu.wpi.first.wpilibj2.command.PrintCommand
-//import edu.wpi.first.wpilibj2.command.RunCommand
-//import edu.wpi.first.wpilibj2.command.SubsystemBase
-//import frc.team449.Robot
-//import frc.team449.commands.driveAlign.SimpleReefAlign
-//import frc.team449.subsystems.RobotConstants
+// import com.pathplanner.lib.config.RobotConfig
+// import com.pathplanner.lib.path.GoalEndState
+// import com.pathplanner.lib.path.PathConstraints
+// import com.pathplanner.lib.path.PathPlannerPath
+// import com.pathplanner.lib.pathfinding.LocalADStar
+// import com.pathplanner.lib.trajectory.PathPlannerTrajectory
+// import edu.wpi.first.math.geometry.Pose2d
+// import edu.wpi.first.math.geometry.Rotation2d
+// import edu.wpi.first.math.geometry.Translation2d
+// import edu.wpi.first.math.kinematics.ChassisSpeeds
+// import edu.wpi.first.networktables.*
+// import edu.wpi.first.wpilibj.Timer
+// import edu.wpi.first.wpilibj2.command.Command
+// import edu.wpi.first.wpilibj2.command.PrintCommand
+// import edu.wpi.first.wpilibj2.command.RunCommand
+// import edu.wpi.first.wpilibj2.command.SubsystemBase
+// import frc.team449.Robot
+// import frc.team449.commands.driveAlign.SimpleReefAlign
+// import frc.team449.subsystems.RobotConstants
 //
-//class PathMag(val robot: Robot): SubsystemBase() {
+// class PathMag(val robot: Robot): SubsystemBase() {
 //  var adStar = LocalADStar()
 //  private var pathPub: StructArrayPublisher<Pose2d>? = null
 //  private var pathSub: StructArraySubscriber<Pose2d>? = null
@@ -110,7 +110,7 @@
 //          SimpleReefAlign(robot.drive, robot.poseSubsystem).schedule()
 //          expectedTime = 0.0
 //        }
-////    	println("rotation: ${robot.poseSubsystem.pose.rotation}")
+// //    	println("rotation: ${robot.poseSubsystem.pose.rotation}")
 //        adStar.setStartPosition(robot.poseSubsystem.pose.translation)
 //      }
 //    }
@@ -124,4 +124,4 @@
 //    }.andThen(PrintCommand("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t goal updated")) //
 //
 //  }
-//}
+// }
