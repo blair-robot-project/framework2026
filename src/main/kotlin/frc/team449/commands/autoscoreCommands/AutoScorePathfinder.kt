@@ -112,6 +112,7 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
   }
 
   fun pathfind() {
+    ADStar.setStartPosition(robot.poseSubsystem.pose.translation)
     val currentTime = timer.get()
     distance = robot.poseSubsystem.pose.translation.getDistance(endPose.translation)
     if (distance < pidDistance) {
@@ -240,7 +241,7 @@ class EmptyDrive(drive: SwerveDrive) : Command() {
 }
 
 // goal should be a premove state
-class AutoscoreWrapperCommand(
+class AutoScoreWrapperCommand(
   val robot: Robot,
   command: AutoScorePathfinder,
   private val goal: SuperstructureGoal.SuperstructureState

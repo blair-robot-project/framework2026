@@ -61,7 +61,7 @@ class AutoScoreCommands(private val robot: Robot) {
         AutoScoreCommandConstants.CoralLevel.L4 -> SuperstructureGoal.L4
       }
       robot.poseSubsystem.autoscoreCommandPose = reefLocationPose
-      currentCommand = AutoscoreWrapperCommand(robot, AutoScorePathfinder(robot, reefLocationPose), premoveGoal)
+      currentCommand = AutoScoreWrapperCommand(robot, AutoScorePathfinder(robot, reefLocationPose), premoveGoal)
         .andThen(
           runOnce({
             if (!RobotBase.isSimulation()) {
@@ -84,7 +84,7 @@ class AutoScoreCommands(private val robot: Robot) {
     return runOnce({
       val reefLocationPose = if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) AutoScoreCommandConstants.processorPoseRed else AutoScoreCommandConstants.processorPoseBlue
       robot.poseSubsystem.autoscoreCommandPose = reefLocationPose
-      currentCommand = AutoscoreWrapperCommand(robot, AutoScorePathfinder(robot, reefLocationPose), SuperstructureGoal.STOW)
+      currentCommand = AutoScoreWrapperCommand(robot, AutoScorePathfinder(robot, reefLocationPose), SuperstructureGoal.STOW)
         .andThen(
           runOnce({
             if (!RobotBase.isSimulation()) {
@@ -105,7 +105,7 @@ class AutoScoreCommands(private val robot: Robot) {
         if (atRedSide) AutoScoreCommandConstants.netRotation2dRed else AutoScoreCommandConstants.netRotation2dBlue
       )
       robot.poseSubsystem.autoscoreCommandPose = reefLocationPose
-      currentCommand = AutoscoreWrapperCommand(robot, AutoScorePathfinder(robot, reefLocationPose), SuperstructureGoal.STOW)
+      currentCommand = AutoScoreWrapperCommand(robot, AutoScorePathfinder(robot, reefLocationPose), SuperstructureGoal.STOW)
         .andThen(
           runOnce({
             if (!RobotBase.isSimulation()) {
