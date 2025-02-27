@@ -61,15 +61,15 @@ class AutoScoreCommands(private val robot: Robot) {
         AutoScoreCommandConstants.CoralLevel.L4 -> SuperstructureGoal.L4
       }
       robot.poseSubsystem.autoscoreCommandPose = reefLocationPose
-      currentCommand = AutoScoreWrapperCommand(robot, AutoScorePathfinder(robot, reefLocationPose), premoveGoal)
+      currentCommand = AutoScoreWrapperCommand(
+        robot, AutoScorePathfinder(robot, reefLocationPose), premoveGoal)
         .andThen(
           runOnce({
             if (!RobotBase.isSimulation()) {
               robot.superstructureManager.requestGoal(scoreGoal)
             }
           })
-        )
-        .andThen(
+        ).andThen(
           runOnce({
             robot.drive.defaultCommand = robot.driveCommand
             robot.drive.set(ChassisSpeeds(0.0, 0.0, 0.0))
@@ -82,7 +82,7 @@ class AutoScoreCommands(private val robot: Robot) {
   fun getProcessorCommand(): Command {
     // set to stow because there is no processor goal
     return runOnce({
-      val reefLocationPose = if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) AutoScoreCommandConstants.processorPoseRed else AutoScoreCommandConstants.processorPoseBlue
+      val reefLocationPose = if (DriverStation.getAlliance().get() == Alliance.Red) AutoScoreCommandConstants.processorPoseRed else AutoScoreCommandConstants.processorPoseBlue
       robot.poseSubsystem.autoscoreCommandPose = reefLocationPose
       currentCommand = AutoScoreWrapperCommand(robot, AutoScorePathfinder(robot, reefLocationPose), SuperstructureGoal.STOW)
         .andThen(
@@ -91,8 +91,7 @@ class AutoScoreCommands(private val robot: Robot) {
               robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
             }
           })
-        )
-        .andThen(runOnce({ robot.drive.defaultCommand = robot.driveCommand }))
+        ).andThen(runOnce({ robot.drive.defaultCommand = robot.driveCommand }))
     })
   }
 
@@ -112,8 +111,7 @@ class AutoScoreCommands(private val robot: Robot) {
               robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
             }
           })
-        )
-        .andThen(runOnce({ robot.drive.defaultCommand = robot.driveCommand }))
+        ).andThen(runOnce({ robot.drive.defaultCommand = robot.driveCommand }))
     })
   }
 

@@ -47,7 +47,7 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
   private val zeroPose = Pose2d(Translation2d(0.0, 0.0), Rotation2d(0.0))
   private var inPIDDistance = false
   private var tolerance = 0.15
-  private var pidDistance = 1.1
+  private var pidDistance = 1.0
   var atSetpoint = false
 
   private var trajValid = true
@@ -62,13 +62,14 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
   private val pidOffsetTime = 0.5
 
   private var thetaController: PIDController = PIDController(5.0, 0.5, 0.0)
-  private var xController = PIDController(7.0, 2.0, 0.1)
-  private var yController = PIDController(7.0, 2.0, 0.1)
+  private var xController = PIDController(7.0, 2.0, 0.0)
+  private var yController = PIDController(7.0, 2.0, 0.0)
   var distance: Double
   private var adMag = 1.0
   private var pidMag = 0.0
-  private val rotTol = 0.085
-  private val adDecRate = 0.04
+  private val rotTol = 0.25
+  private val adDecRate = 0.07
+  private val pidIncRate = 0.04
 
   init {
     timer.restart()
@@ -84,7 +85,6 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
       NetworkTableInstance.getDefault().getStructArrayTopic("/zactivePath", Pose2d.struct)
         .subscribe(arrayOf(zeroPose, zeroPose))
 
-    PathPlannerPath.clearCache()
     xController.reset()
     xController.reset()
     thetaController.reset()
@@ -100,14 +100,22 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
 
   fun runSetup() {
     timer.restart()
+    PathPlannerPath.clearCache()
     ADStar.setStartPosition(robot.poseSubsystem.pose.translation)
     ADStar.setGoalPosition(endPose.translation)
     velXPub.set(velocityX)
     velYPub.set(velocityY)
     velRotationPub.set(rotation)
+    distance = robot.poseSubsystem.pose.translation.getDistance(endPose.translation)
+    adMag = 1.0
+    pidMag = 0.0
+    if(distance < pidDistance) {
+      adMag = (distance/1.5)
+      pidMag = abs(1 - adMag)
+    }
   }
 
-  fun atRotSetpoint(): Boolean {
+  private fun atRotSetpoint(): Boolean {
     return abs(robot.poseSubsystem.pose.rotation.radians - endPose.rotation.radians) < rotTol
   }
 
@@ -125,17 +133,15 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
       if (adMag < 0) {
         adMag = 0.0
       }
+      pidMag += pidIncRate
+      if (pidMag > 1) {
+        pidMag = 1.0
+      }
       if (distance < tolerance) {
         atSetpoint = true
       }
     } else {
       inPIDDistance = false
-      if (distance < 1.7) {
-        pidMag += adDecRate
-        if (pidMag > 1) {
-          pidMag = 1.0
-        }
-      }
     }
     if (!atSetpoint) {
       if (ADStar.isNewPathAvailable) {
@@ -260,20 +266,17 @@ class AutoScoreWrapperCommand(
   }
 
   override fun execute() {
-    if (asPathfinder.atSetpoint && asPathfinder.atRotSetpoint() && !usingReefAlign) {
+    if (asPathfinder.atSetpoint && !usingReefAlign) {
       reefAlignCommand = SimpleReefAlign(robot.drive, robot.poseSubsystem)
       usingReefAlign = true
       reefAlignCommand.schedule()
       robot.superstructureManager.requestGoal(goal).schedule()
-    } else {
+    } else if(!usingReefAlign) {
       asPathfinder.pathfind()
     }
   }
 
   override fun isFinished(): Boolean {
-    if (usingReefAlign) {
-      return reefAlignCommand.isFinished
-    }
-    return false
+    return usingReefAlign && reefAlignCommand.isFinished
   }
 }
