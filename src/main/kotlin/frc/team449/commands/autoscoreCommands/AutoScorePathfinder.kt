@@ -28,12 +28,14 @@ import kotlin.math.abs
 class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
   private var ADStar = LocalADStar()
 
+  private val pathPub: StructArrayPublisher<Pose2d>
   private val velXPub: DoublePublisher
   private val velYPub: DoublePublisher
   private val velRotationPub: DoublePublisher
   private val setpointPub: BooleanPublisher
   private val rotPub: BooleanPublisher
   private val autodistancePub: BooleanPublisher
+  private val pathSub: StructArraySubscriber<Pose2d>
   private val admagpub: DoublePublisher
   private val distpub: DoublePublisher
   private lateinit var path: PathPlannerPath
@@ -62,22 +64,25 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
   private var thetaController: PIDController = PIDController(5.0, 0.5, 0.0)
   private var xController = PIDController(7.0, 2.0, 0.1)
   private var yController = PIDController(7.0, 2.0, 0.1)
-  var distance: Double = 100.0
+  var distance: Double
   private var adMag = 1.0
-  private var pidMag = 0.2
+  private var pidMag = 0.0
   private val rotTol = 0.085
   private val adDecRate = 0.04
 
   init {
     timer.restart()
-    velXPub = NetworkTableInstance.getDefault().getDoubleTopic("/pathMag/pathVelocityX").publish()
-    velYPub = NetworkTableInstance.getDefault().getDoubleTopic("/pathMag/pathVelocityY").publish()
-    velRotationPub = NetworkTableInstance.getDefault().getDoubleTopic("/pathMag/pathRotation").publish()
-    setpointPub = NetworkTableInstance.getDefault().getBooleanTopic("/pathMag/atSetpoint").publish()
-    rotPub = NetworkTableInstance.getDefault().getBooleanTopic("/pathMag/atRotSetpoint").publish()
-    autodistancePub = NetworkTableInstance.getDefault().getBooleanTopic("/pathMag/inPIDDistance").publish()
-    distpub = NetworkTableInstance.getDefault().getDoubleTopic("/pathMag/distance").publish()
-    admagpub = NetworkTableInstance.getDefault().getDoubleTopic("/pathMag/adMag").publish()
+    velXPub = NetworkTableInstance.getDefault().getDoubleTopic("/pathVelocityX").publish()
+    velYPub = NetworkTableInstance.getDefault().getDoubleTopic("/pathVelocityY").publish()
+    velRotationPub = NetworkTableInstance.getDefault().getDoubleTopic("/pathRotation").publish()
+    setpointPub = NetworkTableInstance.getDefault().getBooleanTopic("/atSetpoint").publish()
+    rotPub = NetworkTableInstance.getDefault().getBooleanTopic("/atRotSetpoint").publish()
+    autodistancePub = NetworkTableInstance.getDefault().getBooleanTopic("/inPIDDistance").publish()
+    pathPub = NetworkTableInstance.getDefault().getStructArrayTopic("/zactivePath", Pose2d.struct).publish(*arrayOf<PubSubOption>())
+    distpub = NetworkTableInstance.getDefault().getDoubleTopic("/distance").publish()
+    pathSub =
+      NetworkTableInstance.getDefault().getStructArrayTopic("/zactivePath", Pose2d.struct)
+        .subscribe(arrayOf(zeroPose, zeroPose))
 
     PathPlannerPath.clearCache()
     xController.reset()
@@ -88,6 +93,9 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
     thetaController.setTolerance(rotTol)
     xController.setTolerance(tolerance)
     yController.setTolerance(tolerance)
+    adMag = 1.0
+    admagpub = NetworkTableInstance.getDefault().getDoubleTopic("/admag").publish()
+    distance = 100.0
   }
 
   fun runSetup() {
@@ -105,7 +113,6 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
 
   fun pathfind() {
     val currentTime = timer.get()
-    ADStar.setStartPosition(endPose.translation)
     distance = robot.poseSubsystem.pose.translation.getDistance(endPose.translation)
     if (distance < pidDistance) {
       if (!inPIDDistance) {
@@ -122,7 +129,7 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
       }
     } else {
       inPIDDistance = false
-      if (distance < 0.75) {
+      if (distance < 1.7) {
         pidMag += adDecRate
         if (pidMag > 1) {
           pidMag = 1.0
@@ -130,38 +137,41 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
       }
     }
     if (!atSetpoint) {
-      val newPath: PathPlannerPath? = ADStar.getCurrentPath(
-        PathConstraints(
-          AutoScoreCommandConstants.MAX_LINEAR_SPEED,
-          AutoScoreCommandConstants.MAX_ACCEL,
-          5 * 2 * Math.PI,
-          RobotConstants.ROT_RATE_LIMIT
-        ),
-        GoalEndState(0.0, endPose.rotation)
-      )
-      if (newPath == null) {
-        pathNull = true
-      } else {
-        path = newPath
-        pathNull = false
-      }
-      if (!pathNull) {
-        val pathList = path.pathPoses.toTypedArray<Pose2d>()
-        val newTraj: PathPlannerTrajectory? = path.generateTrajectory(
-          robot.drive.currentSpeeds,
-          Rotation2d(MathUtil.angleModulus(robot.poseSubsystem.pose.rotation.radians)),
-          RobotConfig.fromGUISettings()
+      if (ADStar.isNewPathAvailable) {
+        val newPath: PathPlannerPath? = ADStar.getCurrentPath(
+          PathConstraints(
+            AutoScoreCommandConstants.MAX_LINEAR_SPEED,
+            AutoScoreCommandConstants.MAX_ACCEL,
+            5 * 2 * Math.PI,
+            RobotConstants.ROT_RATE_LIMIT
+          ),
+          GoalEndState(0.0, endPose.rotation)
         )
-        if (newTraj == null) {
-          trajectoryNull = true
+        if (newPath == null) {
+          pathNull = true
         } else {
-          trajectory = newTraj
-          trajectoryNull = false
+          path = newPath
+          pathNull = false
         }
-        if (!trajectoryNull) {
-          expectedTime = trajectory.totalTimeSeconds
-          trajValid = (pathList[0] != endPose)
-          startTime = currentTime
+        if (!pathNull) {
+          val pathList = path.pathPoses.toTypedArray<Pose2d>()
+          val newTraj: PathPlannerTrajectory? = path.generateTrajectory(
+            robot.drive.currentSpeeds,
+            Rotation2d(MathUtil.angleModulus(robot.poseSubsystem.pose.rotation.radians)),
+            RobotConfig.fromGUISettings()
+          )
+          if (newTraj == null) {
+            trajectoryNull = true
+          } else {
+            trajectory = newTraj
+            trajectoryNull = false
+          }
+          if (!trajectoryNull) {
+            expectedTime = trajectory.totalTimeSeconds
+            pathPub.set(pathList)
+            trajValid = (pathList[0] != endPose)
+            startTime = currentTime
+          }
         }
       }
       if (!trajectoryNull && trajValid) {
@@ -230,7 +240,7 @@ class EmptyDrive(drive: SwerveDrive) : Command() {
 }
 
 // goal should be a premove state
-class AutoScoreWrapperCommand(
+class AutoscoreWrapperCommand(
   val robot: Robot,
   command: AutoScorePathfinder,
   private val goal: SuperstructureGoal.SuperstructureState
@@ -250,10 +260,9 @@ class AutoScoreWrapperCommand(
 
   override fun execute() {
     if (asPathfinder.atSetpoint && asPathfinder.atRotSetpoint() && !usingReefAlign) {
-      usingReefAlign = true
       reefAlignCommand = SimpleReefAlign(robot.drive, robot.poseSubsystem)
+      usingReefAlign = true
       reefAlignCommand.schedule()
-      //premove to goal
       robot.superstructureManager.requestGoal(goal).schedule()
     } else {
       asPathfinder.pathfind()
