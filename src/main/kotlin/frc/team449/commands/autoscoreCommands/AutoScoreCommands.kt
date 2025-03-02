@@ -61,62 +61,63 @@ class AutoScoreCommands(private val robot: Robot) {
         AutoScoreCommandConstants.CoralLevel.L4 -> SuperstructureGoal.L4
       }
       robot.poseSubsystem.autoscoreCommandPose = reefLocationPose
-      currentCommand = AutoScoreWrapperCommand(
-        robot, AutoScorePathfinder(robot, reefLocationPose), premoveGoal)
-        .andThen(
-          runOnce({
-            if (!RobotBase.isSimulation()) {
-              robot.superstructureManager.requestGoal(scoreGoal)
-            }
-          })
-        ).andThen(
-          runOnce({
-            robot.drive.defaultCommand = robot.driveCommand
-            robot.drive.set(ChassisSpeeds(0.0, 0.0, 0.0))
-          })
-        )
+
+      val scoreCommand = if (!RobotBase.isSimulation()) {
+        robot.superstructureManager.requestGoal(scoreGoal)
+      } else InstantCommand()
+
+      val premoveCommand = robot.superstructureManager.requestGoal(premoveGoal)
+
+      currentCommand =
+        AutoScoreWrapperCommand(
+        robot, AutoScorePathfinder(robot, reefLocationPose), premoveCommand
+        ).andThen(InstantCommand({
+          scoreCommand.schedule()
+          robot.drive.defaultCommand = robot.driveCommand
+        }))
       currentCommand.schedule()
     })
   }
 
   fun getProcessorCommand(): Command {
-    // set to stow because there is no processor goal
     return runOnce({
-      val reefLocationPose = if (DriverStation.getAlliance().get() == Alliance.Red) AutoScoreCommandConstants.processorPoseRed else AutoScoreCommandConstants.processorPoseBlue
-      robot.poseSubsystem.autoscoreCommandPose = reefLocationPose
-      currentCommand = AutoScoreWrapperCommand(robot, AutoScorePathfinder(robot, reefLocationPose), SuperstructureGoal.STOW)
-        .andThen(
-          runOnce({
-            if (!RobotBase.isSimulation()) {
-              robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
-            }
-          })
-        ).andThen(runOnce({ robot.drive.defaultCommand = robot.driveCommand }))
+      val processorPose = if (DriverStation.getAlliance().get() == Alliance.Red) AutoScoreCommandConstants.processorPoseRed else AutoScoreCommandConstants.processorPoseBlue
+      val scoreCommand = InstantCommand()
+      val premoveCommand = InstantCommand()
+      robot.poseSubsystem.autoscoreCommandPose = processorPose
+      currentCommand =
+        AutoScoreWrapperCommand(
+          robot, AutoScorePathfinder(robot, processorPose), premoveCommand
+        ).andThen(InstantCommand({
+          scoreCommand.schedule()
+          robot.drive.defaultCommand = robot.driveCommand
+        }))
+      currentCommand.schedule()
     })
   }
 
   fun getNetCommand(atRedSide: Boolean): Command {
-    // set to stow because there is no processor goal
     return runOnce({
-      val reefLocationPose = Pose2d(
+      val netPose = Pose2d(
         AutoScoreCommandConstants.centerOfField + AutoScoreCommandConstants.centerOfField * if (atRedSide) 1 else -1,
         robot.poseSubsystem.pose.translation.y,
         if (atRedSide) AutoScoreCommandConstants.netRotation2dRed else AutoScoreCommandConstants.netRotation2dBlue
       )
-      robot.poseSubsystem.autoscoreCommandPose = reefLocationPose
-      currentCommand = AutoScoreWrapperCommand(robot, AutoScorePathfinder(robot, reefLocationPose), SuperstructureGoal.STOW)
-        .andThen(
-          runOnce({
-            if (!RobotBase.isSimulation()) {
-              robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
-            }
-          })
-        ).andThen(runOnce({ robot.drive.defaultCommand = robot.driveCommand }))
+      val scoreCommand = InstantCommand()
+      val premoveCommand = InstantCommand()
+      currentCommand =
+        AutoScoreWrapperCommand(
+          robot, AutoScorePathfinder(robot, netPose), premoveCommand
+        ).andThen(InstantCommand({
+          scoreCommand.schedule()
+          robot.drive.defaultCommand = robot.driveCommand
+        }))
+      currentCommand.schedule()
     })
   }
 
   fun cancelCommand(): Command {
-    return runOnce({
+    return InstantCommand({
       currentCommand.cancel()
       robot.drive.defaultCommand = robot.driveCommand
     })

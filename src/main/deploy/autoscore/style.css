@@ -4,7 +4,7 @@ body {
     font-family: 'Orbitron';
 }
 
-.reefContainer, .processorContainer, .netContainer, .coralIntakeContainer {
+.reefContainer, .processorContainer, .netContainer, .coralIntakeContainer, .manualContainer {
     display: flex;
     gap: 5vw;
     justify-content: center;
@@ -16,6 +16,11 @@ body {
     height: 100%;
     align-items: center;
     gap: 1vw;
+}
+
+.pivotContainer, .wristContainer, .elevatorContainer {
+    gap: 5vw;
+    display: flex;
 }
 
 .scoringContainer, .messageContainer {
@@ -30,24 +35,13 @@ body {
     margin-top: 5vh;
 }
 
-.levelContainer, .locationContainer {
+.locationContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.levelContainer {
-    gap: 3vh;
-    width: 25%;
-    align-items: center;
-}
-
-.Level {
-    align-self: center;
-    margin: auto;
-}
-
-.levelContainer, .locationContainer, .coralLevelImage, .confirmChoice {
+.locationContainer, .coralLevelImage, .confirmChoice {
     height: inherit;
 }
 
@@ -114,7 +108,7 @@ body {
     gap: 5vw;
 }
 
-.Button, .Level {
+.Button {
     background-color: #DD0000;
     width: 25vw;
     height: 10vh;
@@ -129,21 +123,17 @@ body {
     text-align: center;
     padding: 0 1vh;
 }
-.Level {
-    width: 80%;
-    font-size: 1.8vw;
-}
 
 #confirmReefButton {
     width: 80%;
     height: 20%;
 }
 
-.Button:hover, .Level:hover {
+.Button:hover {
     background-color: rgb(255, 20, 20);
 }
 
-.Button:active, .Level:active {
+.Button:active {
     background-color: rgb(200, 0, 0);
 }
 
@@ -175,4 +165,13 @@ h1 {
 
 h1 {
     font-size: 2vw;
+}
+
+.manualContainer {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    align-content: center;
+    justify-items: center;
+    gap: 3vh;
 }

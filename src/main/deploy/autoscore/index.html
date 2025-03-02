@@ -13,8 +13,8 @@
 
 <body>
     <div class="scoringContainer" style="display: none;">
-        <div class="reefContainer">
-            <div class="levelContainer" style="display: none;">
+        <div class="reefContainer" style="display: none;">
+            <!-- <div class="levelContainer">
                 <div class="Level" id="L4">
                     Level 4 Score
                 </div>
@@ -27,7 +27,7 @@
                 <div class="Level" id="L1">
                     Level 1 Score
                 </div>
-            </div>
+            </div> -->
             <div class="coralLevelImage">
                 <img src="coralLevelImages/coralNone.png" alt="" id="coral">
             </div>
@@ -43,19 +43,16 @@
                 <div class="Button" id="confirmReefButton">
                     Choose Robot Alignment
                 </div>
-                <div class="Button" id="cancelCommand">
-                    Cancel Command
-                </div>
             </div>
         </div>
-        <div class="processorContainer">
+        <div class="processorContainer" style="display: none;">
             <div class="buttonContainer">
                 <div class="Button" id="processorScore">
                     Score Processor
                 </div>
             </div>
         </div>
-        <div class="netContainer">
+        <div class="netContainer" style="display: none;">
             <div class="buttonContainer">
                 <div class="Button" id="netScoreRed">
                     Score Net on Red Side
@@ -65,7 +62,7 @@
                 </div>
             </div>
         </div>
-        <div class="coralIntakeContainer">
+        <div class="coralIntakeContainer" style="display: none;">
             <div class="buttonContainer">
                 <div class="Button" id="coralIntakeTop">
                     Intake Coral Top
@@ -75,9 +72,50 @@
                 </div>
             </div>
         </div>
+        <div class="manualContainer" style="display: none;">
+            <div> 
+                <h1 id="manualText">
+                    Scoring on Area _ and Level _ 
+                </h1>
+            </div>
+            <div>
+                <div class="Button" id="cancel">
+                    Cancel Command
+                </div>
+            </div>
+            <div>
+                <div class="Button" id="score">
+                    Score!
+                </div>
+            </div>
+            <div class="pivotContainer">
+                <div class="Button" id="pivotForward">
+                    Move Pivot Forward
+                </div>
+                <div class="Button" id="pivotBack">
+                    Move Pivot Backwards
+                </div>
+            </div>
+            <div class="elevatorContainer">
+                <div class="Button" id="elevatorUp">
+                    Move Elevator Up
+                </div>
+                <div class="Button" id="elevatorDown">
+                    Move Elevator Down
+                </div>
+            </div>
+            <div class="wristContainer">
+                <div class="Button" id="wristForward">
+                    Move Wrist Forward
+                </div>
+                <div class="Button" id="wristBack">
+                    Move Wrist Backwards
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="messageContainer" style="display: none">
-        <h1 id="messageDisplay"></h1>
+    <div class="messageContainer" style="display: none;">
+        <h1 id="messageDisplay">NO ROBOT CONNECTION</h1>
     </div>
     <script src="ntsetup.js"></script>
     <script src="robotCommunication.js"></script>

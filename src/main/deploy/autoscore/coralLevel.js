@@ -14,15 +14,17 @@ const setCoralImg = (level) => {
     coralImage.src = `coralLevelImages/coral${level}.png`;
 }
 
-const coralImgPos = coralImage.getBoundingClientRect();
-//this is radius not actual width
-const coralWidth = (coralImgPos.right-coralImgPos.left) / 2;
-const coralHeight = (coralImgPos.bottom-coralImgPos.top) / 2;
-const coralX = coralImgPos.left + coralWidth;
-const coralY = coralImgPos.top + coralHeight;
-coralImage.addEventListener("mousemove", (event) => {
+["mousemove", "touchmove"].forEach(_ => coralImage.addEventListener(_, (event) => {
+    //this is radius not actual width
+    const coralImgPos = coralImage.getBoundingClientRect();
+    const coralHeight = (coralImgPos.bottom-coralImgPos.top) / 2;
+    const coralY = coralImgPos.top + coralHeight;
     let mouseY = event.clientY;
     let ydiff = coralY - mouseY;
+    if(_ == "touchmove") {
+        mouseY = event.changedTouches[0].clientY;
+        ydiff = coralY - mouseY;
+    }
     if(!coralSelected) {
         if(ydiff > coralHeight * 0.4) {
             setCoralImg("L4");
@@ -38,8 +40,10 @@ coralImage.addEventListener("mousemove", (event) => {
             prevCoralLevel = 1;
         }
     }   
-});
-coralImage.addEventListener("mouseleave", () => {
+}));
+
+
+["mouseleave", "touchend"].forEach(_ => coralImage.addEventListener(_, () => {
     if(coralSelected) {
         if(coralLevel == 1) {
             setCoralImg("L1");
@@ -53,7 +57,7 @@ coralImage.addEventListener("mouseleave", () => {
     } else {
         setCoralImg("None");
     }
-})
+}));
 
 coralImage.onclick = () => {
     coralSelected = !coralSelected;

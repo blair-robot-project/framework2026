@@ -98,11 +98,11 @@ let reefArea = -1;
 let coralSelected = false;
 let areaSelected = false;
 
-let reefScoreButtonClickable = true;
 const resetReefStuff = () => {
   coralSelected = false;
   areaSelected = false;
   coralLevel = -1;
+  document.getElementById("confirmReefButton").innerText = `Choose Robot Alignment`;
   document.getElementById("areaSelectionText").innerText = "Hover to the area you want to go to.";
   document.getElementById("coral").src = `coralLevelImages/coralNone.png`;
   document.getElementById("areaText").innerText = "Reef Area: None";
@@ -111,13 +111,9 @@ const resetReefStuff = () => {
 }
 
 document.getElementById("confirmReefButton").onclick = async () => {
-  if(reefScoreButtonClickable && coralSelected && areaSelected) {
-      reefScoreButtonClickable = false;
-      confirmReefButton.innerText = "Scoring...";
-      await scoreReef(reefArea, coralLevel);
-      confirmReefButton.innerText = "Choose Robot Alignment";
-      reefScoreButtonClickable = true;
-      resetReefStuff();
+  if(coralSelected && areaSelected) {
+    document.getElementById("manualText").innerText = `Scoring on Area ${numberToLetter[11-(reefArea+4)%12]} and Level ${coralLevel}`
+    showContainer("manualContainer");
   }
 }
 
@@ -149,6 +145,11 @@ const scoreReef = async (location, level) => {
   setCommand(`l${level} location${location > 3 ? location-3 : location+9}`);
 }
 
+["pivotForward", "pivotBack", "elevatorUp", "elevatorDown", "wristForward", "wristBack"].forEach(
+  id => document.getElementById(id).onclick = () => {
+    setCommand(id);
+  });
+
 const scoringContainer = document.querySelector(".scoringContainer");
 const messageContainer = document.querySelector(".messageContainer");
 const msgDisplay = document.getElementById("messageDisplay");
@@ -168,15 +169,28 @@ const connection = () => {
   messageContainer.style.display = "none";
   scoringContainer.style.display = "flex";
   msgDisplay.innerText = "";
+  showContainer("reefContainer");
 }
 
-document.getElementById("cancelCommand").onclick = () => {
+document.getElementById("cancel").onclick = () => {
   setCommand("cancel");
+  resetReefStuff();
+  showContainer("reefContainer");
 }
 
-processorContainer.style = "display: none";
-netContainer.style = "display: none";
-coralIntakeContainer.style = "display: none";
+document.getElementById("score").onclick = () => {
+  scoreReef();
+  resetReefStuff();
+  showContainer("reefContainer");
+}
+
+let currentContainer = "reefContainer";
+
+const showContainer = (container) => {
+  document.querySelector(`.${currentContainer}`).style.display = "none";	
+  currentContainer = container;
+  document.querySelector(`.${currentContainer}`).style.display = "flex";
+}
 
 noConnection();
 
@@ -191,6 +205,6 @@ const numberToLetter = [
   'H',	
   'I',	
   'J',	
-  'K',	
+  'K',
   'L'
 ];
