@@ -4,12 +4,15 @@ import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.networktables.StringPublisher
 import edu.wpi.first.networktables.StringSubscriber
 import edu.wpi.first.wpilibj.DriverStation
+import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import edu.wpi.first.wpilibj2.command.WaitCommand
 import frc.team449.Robot
 import frc.team449.commands.autoscoreCommands.AutoScoreCommandConstants
 import frc.team449.commands.autoscoreCommands.AutoScoreCommands
+import frc.team449.subsystems.superstructure.SuperstructureGoal
 
 class WebConnection(val robot: Robot) : SubsystemBase() {
   private val instance = NetworkTableInstance.getDefault()
@@ -24,11 +27,15 @@ class WebConnection(val robot: Robot) : SubsystemBase() {
   private var ntCommandInput = "none"
   private var autoScore = AutoScoreCommands(robot)
   private var webAppCommand : Command = InstantCommand()
+  private val pivotAngleIncrease = 0.035
+  private val wristAngleIncrease = 0.04
+  private val elevatorIncrease = 0.028592106
+
 
   fun setUpNT() {
     instance.startClient4("localhost")
     instance.setServerTeam(449)
-    isDonePublish.set(true)
+    isDonePublish.set(false)
     commandPublisher.set("none")
     val alliance = if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) "Red" else "Blue"
     alliancePublish.set(alliance)
@@ -42,19 +49,25 @@ class WebConnection(val robot: Robot) : SubsystemBase() {
   override fun periodic() {
     ntCommandInput = commandSubscriber.get().toString()
 
-    if (ntCommandInput != "none" && DriverStation.isDSAttached()) {
-      println("command received")
+    if (ntCommandInput != "none") {
+      println("command received: $ntCommandInput")
       isDonePublish.set(false)
 
       webAppCommand = when (ntCommandInput) {
-        "processor" -> autoScore.getProcessorCommand()
-        "intakeCoralTop" -> InstantCommand()
-        "intakeCoralBottom" -> InstantCommand()
-        "netRed" -> autoScore.getNetCommand(true)
-        "netBlue" -> autoScore.getNetCommand(false)
-        "cancel" -> autoScore.cancelCommand()
+        "processor" -> autoScore.getProcessorCommand().andThen(InstantCommand({isDonePublish.set(false)}))
+        "netRed" -> autoScore.getNetCommand(true).andThen(InstantCommand({isDonePublish.set(false)}))
+        "netBlue" -> autoScore.getNetCommand(false).andThen(InstantCommand({isDonePublish.set(false)}))
+        "cancel" -> autoScore.cancelCommand().andThen(WaitCommand(0.25)).andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
+        "score" -> autoScore.scoreCommand().andThen(WaitCommand(0.25)).andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
+        "pivotForward" -> robot.pivot.setPosition(robot.pivot.positionSupplier.get()-pivotAngleIncrease)
+        "pivotBack" -> robot.pivot.setPosition(robot.pivot.positionSupplier.get()+pivotAngleIncrease)
+        "wristForward" -> robot.wrist.setPosition(robot.wrist.positionSupplier.get()-wristAngleIncrease)
+        "wristBack" -> robot.wrist.setPosition(robot.wrist.positionSupplier.get()+wristAngleIncrease)
+        "elevatorUp" -> robot.elevator.setPosition(robot.elevator.positionSupplier.get()+elevatorIncrease)
+        "elevatorDown" -> robot.elevator.setPosition(robot.elevator.positionSupplier.get()-elevatorIncrease)
         else -> {
           //format will be l_ location__
+          isDonePublish.set(false)
           val level = ntCommandInput.slice(0..1)
           val location = ntCommandInput.slice(3..<ntCommandInput.length)
           val reefLocation = when (location) {
@@ -83,16 +96,17 @@ class WebConnection(val robot: Robot) : SubsystemBase() {
         }
       }
       webAppCommand.schedule()
-      isDonePublish.set(false)
       commandPublisher.set("none")
     } else {
       if(!isDoneSub.get()) {
-        if(!webAppCommand.isScheduled) {
+        if(autoScore.currentCommandFinished()) {
           isDonePublish.set(true)
         }
       }
+
+      if(autoScore.waitingForScore) {
+        robot.superstructureManager.holdAll()
+      }
     }
-
-
   }
 }

@@ -32,7 +32,9 @@ const confirmReefButton = document.getElementById("confirmReefButton");
 
 ["touchend", "mouseleave"].forEach(_ => {
     locationImg.addEventListener(_, () => {
-        locationImg.src = "locationSelectorImages/locationSelectorNone.png";
+        if(!areaSelected) {
+            locationImg.src = "locationSelectorImages/locationSelectorNone.png";
+        }
     });
 });
 

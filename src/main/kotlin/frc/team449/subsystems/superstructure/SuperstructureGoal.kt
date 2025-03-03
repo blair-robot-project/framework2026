@@ -1,15 +1,10 @@
 package frc.team449.subsystems.superstructure
 
-import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.Distance
-import frc.team449.Robot
 import frc.team449.subsystems.RobotConstants
 import frc.team449.subsystems.drive.swerve.SwerveDrive
-import frc.team449.subsystems.superstructure.pivot.Pivot
-import frc.team449.subsystems.superstructure.wrist.Wrist
-import frc.team449.subsystems.superstructure.elevator.Elevator
 
 object SuperstructureGoal {
   /** TODO: All placeholder guesses, need actual values */
@@ -125,59 +120,5 @@ object SuperstructureGoal {
     drive.maxLinearSpeed = dynamics.maxSpeed
     drive.accel = dynamics.maxAccel
     drive.maxRotSpeed = dynamics.maxRotSpeed
-  }
-
-  fun getPivotForward(pivotAngle : Double, elevatorDistance: Double, wristAngle : Double, changeInDegrees: Double) : SuperstructureState {
-    return SuperstructureState(
-      Degrees.of(Units.radiansToDegrees(pivotAngle) + changeInDegrees),
-      Meters.of(elevatorDistance),
-      Degrees.of(Units.radiansToDegrees(wristAngle)),
-      DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
-    )
-  }
-
-  fun getPivotBackwards(pivotAngle : Double, elevatorDistance: Double, wristAngle : Double, changeInDegrees: Double) : SuperstructureState {
-    return SuperstructureState(
-      Degrees.of(Units.radiansToDegrees(pivotAngle) - changeInDegrees),
-      Meters.of(elevatorDistance),
-      Degrees.of(Units.radiansToDegrees(wristAngle)),
-      DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
-    )
-  }
-
-  fun getWristForward(pivotAngle : Double, elevatorDistance: Double, wristAngle : Double, changeInDegrees: Double) : SuperstructureState {
-    return SuperstructureState(
-      Degrees.of(Units.radiansToDegrees(pivotAngle)),
-      Meters.of(elevatorDistance),
-      Degrees.of(Units.radiansToDegrees(wristAngle) + changeInDegrees),
-      DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
-    )
-  }
-
-  fun getElevatorUp(pivotAngle : Double, elevatorDistance: Double, wristAngle : Double, changeInCentimeters: Double) : SuperstructureState {
-    return SuperstructureState(
-      Degrees.of(Units.radiansToDegrees(pivotAngle)),
-      Meters.of(elevatorDistance + changeInCentimeters),
-      Degrees.of(Units.radiansToDegrees(wristAngle)),
-      DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
-    )
-  }
-
-  fun getElevatorDown(pivotAngle : Double, elevatorDistance: Double, wristAngle : Double, changeInCentimeters: Double) : SuperstructureState {
-    return SuperstructureState(
-      Degrees.of(Units.radiansToDegrees(pivotAngle)),
-      Meters.of(elevatorDistance + changeInCentimeters),
-      Degrees.of(Units.radiansToDegrees(wristAngle)),
-      DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
-    )
-  }
-
-  fun getWristBackwards(pivotAngle : Double, elevatorDistance: Double, wristAngle : Double, changeInDegrees: Double) : SuperstructureState {
-    return SuperstructureState(
-      Degrees.of(Units.radiansToDegrees(pivotAngle)),
-      Meters.of(elevatorDistance),
-      Degrees.of(Units.radiansToDegrees(wristAngle) - changeInDegrees),
-      DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
-    )
   }
 }

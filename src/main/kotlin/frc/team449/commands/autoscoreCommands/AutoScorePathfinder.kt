@@ -21,21 +21,18 @@ import frc.team449.Robot
 import frc.team449.commands.driveAlign.SimpleReefAlign
 import frc.team449.subsystems.RobotConstants
 import frc.team449.subsystems.drive.swerve.SwerveDrive
-import frc.team449.subsystems.superstructure.SuperstructureGoal
 import kotlin.math.PI
 import kotlin.math.abs
 
 class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
   private var ADStar = LocalADStar()
 
-  private val pathPub: StructArrayPublisher<Pose2d>
   private val velXPub: DoublePublisher
   private val velYPub: DoublePublisher
   private val velRotationPub: DoublePublisher
   private val setpointPub: BooleanPublisher
   private val rotPub: BooleanPublisher
   private val autodistancePub: BooleanPublisher
-  private val pathSub: StructArraySubscriber<Pose2d>
   private val admagpub: DoublePublisher
   private val distpub: DoublePublisher
   private lateinit var path: PathPlannerPath
@@ -64,46 +61,42 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
   private var yPIDSpeed = 0.0
   private val pidOffsetTime = 0.15
 
-  private var thetaController: PIDController = PIDController(7.0, 0.5, 0.0)
+  private var thetaController: PIDController = PIDController(10.0, 3.0, 0.1)
   private var xController = PIDController(7.0, 2.0, 0.0)
   private var yController = PIDController(7.0, 2.0, 0.0)
   var distance: Double
   private var adMag = 1.0
   private var pidMag = 0.0
-  private val rotTol = 0.0
   private val adDecRate = 0.07
   private val pidIncRate = 0.04
 
   init {
     timer.restart()
-    velXPub = NetworkTableInstance.getDefault().getDoubleTopic("/pathVelocityX").publish()
-    velYPub = NetworkTableInstance.getDefault().getDoubleTopic("/pathVelocityY").publish()
-    velRotationPub = NetworkTableInstance.getDefault().getDoubleTopic("/pathRotation").publish()
-    setpointPub = NetworkTableInstance.getDefault().getBooleanTopic("/atSetpoint").publish()
-    rotPub = NetworkTableInstance.getDefault().getBooleanTopic("/atRotSetpoint").publish()
-    autodistancePub = NetworkTableInstance.getDefault().getBooleanTopic("/inPIDDistance").publish()
-    pathPub = NetworkTableInstance.getDefault().getStructArrayTopic("/zactivePath", Pose2d.struct).publish(*arrayOf<PubSubOption>())
-    distpub = NetworkTableInstance.getDefault().getDoubleTopic("/distance").publish()
-    pathSub =
-      NetworkTableInstance.getDefault().getStructArrayTopic("/zactivePath", Pose2d.struct)
-        .subscribe(arrayOf(zeroPose, zeroPose))
+    velXPub = NetworkTableInstance.getDefault().getDoubleTopic("/pathfinder/pathVelocityX").publish()
+    velYPub = NetworkTableInstance.getDefault().getDoubleTopic("/pathfinder/pathVelocityY").publish()
+    velRotationPub = NetworkTableInstance.getDefault().getDoubleTopic("/pathfinder/pathRotation").publish()
+    setpointPub = NetworkTableInstance.getDefault().getBooleanTopic("/pathfinder/atSetpoint").publish()
+    rotPub = NetworkTableInstance.getDefault().getBooleanTopic("/pathfinder/atRotSetpoint").publish()
+    autodistancePub = NetworkTableInstance.getDefault().getBooleanTopic("/pathfinder/inPIDDistance").publish()
+    distpub = NetworkTableInstance.getDefault().getDoubleTopic("/pathfinder/distance").publish()
 
     xController.reset()
-    xController.reset()
+    yController.reset()
+    xController.setTolerance(0.0)
+    yController.setTolerance(0.0)
+
     thetaController.reset()
-
+    thetaController.setpoint = endPose.rotation.radians
     thetaController.enableContinuousInput(-PI, PI)
-    thetaController.setTolerance(rotTol)
-    xController.setTolerance(tolerance)
-    yController.setTolerance(tolerance)
+    thetaController.setTolerance(0.0)
+
     adMag = 1.0
-    admagpub = NetworkTableInstance.getDefault().getDoubleTopic("/admag").publish()
+    admagpub = NetworkTableInstance.getDefault().getDoubleTopic("/pathfinder/admag").publish()
     distance = 100.0
   }
 
   fun runSetup() {
     timer.restart()
-    PathPlannerPath.clearCache()
     ADStar.setStartPosition(robot.poseSubsystem.pose.translation)
     ADStar.setGoalPosition(endPose.translation)
     velXPub.set(velocityX)
@@ -112,8 +105,8 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
     distance = robot.poseSubsystem.pose.translation.getDistance(endPose.translation)
     adMag = 1.0
     pidMag = 0.0
-    if(distance < pidDistance) {
-      adMag = (distance/pidDistance)
+    if (distance < pidDistance) {
+      adMag = (distance / pidDistance)
       pidMag = abs(1 - adMag)
     }
   }
@@ -176,7 +169,6 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
           }
           if (!trajectoryNull) {
             expectedTime = trajectory.totalTimeSeconds
-            pathPub.set(pathList)
             trajValid = (pathList[0] != endPose)
             startTime = currentTime
           }
@@ -210,8 +202,9 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
     xPIDSpeed *= pidMag
     yPIDSpeed *= pidMag
 
-    rotation = thetaController.calculate(MathUtil.angleModulus(robot.poseSubsystem.pose.rotation.radians), endPose.rotation.radians)
-    if (thetaController.atSetpoint()) {
+    val wrappedRotation = MathUtil.angleModulus(robot.poseSubsystem.pose.rotation.radians)
+    rotation = thetaController.calculate(wrappedRotation)
+    if (wrappedRotation == endPose.rotation.radians) {
       rotation = 0.0
     }
     if (atSetpoint) {
@@ -228,7 +221,7 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
       robot.poseSubsystem.setPathMag(fieldRelative)
     }
     setpointPub.set(atSetpoint)
-    rotPub.set(thetaController.atSetpoint())
+    rotPub.set(wrappedRotation == endPose.rotation.radians)
     autodistancePub.set(inPIDDistance)
     velXPub.set(xPIDSpeed)
     velYPub.set(yPIDSpeed)
@@ -268,7 +261,7 @@ class AutoScoreWrapperCommand(
   }
 
   override fun execute() {
-    if(!hasPremoved && asPathfinder.atPremoveDistance) {
+    if (!hasPremoved && asPathfinder.atPremoveDistance) {
       goal.schedule()
       hasPremoved = true
     }
@@ -276,7 +269,7 @@ class AutoScoreWrapperCommand(
       reefAlignCommand = SimpleReefAlign(robot.drive, robot.poseSubsystem)
       reefAlignCommand.schedule()
       usingReefAlign = true
-    } else if(!usingReefAlign) {
+    } else if (!usingReefAlign) {
       asPathfinder.pathFind()
     }
   }

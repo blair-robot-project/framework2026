@@ -46,6 +46,20 @@ function valueUpdateHandler( topic, timestamp_us, value ) {
   console.log("value updated: " + topic.name);
   if(topic.name == "/webcom/Alliance") {
     setAlliance(value);
+  } else if(topic.name == "/webcom/isDone" && value===true) {
+    document.getElementById("manualText").innerText = `Scoring on Area ${numberToLetter[11-(reefArea+4)%12]} and Level ${coralLevel}`;
+    showContainer("manualContainer");
+    ["pivotForward", "pivotBack", "elevatorUp", "elevatorDown", "wristForward", "wristBack"].forEach(
+      id => {
+        const elt = document.getElementById(id);
+        const eltinterval = setInterval(() => {
+          if(window.getComputedStyle(elt).backgroundColor == "rgb(200, 0, 0)") {
+            setCommand(id);
+          }
+        }, 0.02);
+        intervalList.push(eltinterval);
+      }
+    );
   }
 }
 
@@ -97,8 +111,9 @@ let coralLevel = -1;
 let reefArea = -1;
 let coralSelected = false;
 let areaSelected = false;
+let intervalList = [];
 
-const resetReefStuff = () => {
+const resetReef = () => {
   coralSelected = false;
   areaSelected = false;
   coralLevel = -1;
@@ -108,12 +123,14 @@ const resetReefStuff = () => {
   document.getElementById("areaText").innerText = "Reef Area: None";
   document.getElementById("coralText").innerText = "Coral Level: None";
   document.getElementById("locationSelect").src = "locationSelectorImages/locationSelectorNone.png";
+  intervalList.forEach(ivl => clearInterval(ivl));
+  intervalList.length = 0;
 }
 
 document.getElementById("confirmReefButton").onclick = async () => {
   if(coralSelected && areaSelected) {
-    document.getElementById("manualText").innerText = `Scoring on Area ${numberToLetter[11-(reefArea+4)%12]} and Level ${coralLevel}`
-    showContainer("manualContainer");
+    scoreReef(reefArea, coralLevel);
+    document.getElementById("confirmReefButton").innerText = "Scoring...";
   }
 }
 
@@ -132,7 +149,6 @@ const scoreProcessor = async () => {
 }
 
 const intakeCoral = async (isAtTopSide) => {
-  console.log("intaking coral");
   if(isAtTopSide) {
     setCommand("intakeCoralTop");
   } else {
@@ -144,11 +160,6 @@ const scoreReef = async (location, level) => {
   console.log(`Scoring on level: ${level} and location: ${location}`)
   setCommand(`l${level} location${location > 3 ? location-3 : location+9}`);
 }
-
-["pivotForward", "pivotBack", "elevatorUp", "elevatorDown", "wristForward", "wristBack"].forEach(
-  id => document.getElementById(id).onclick = () => {
-    setCommand(id);
-  });
 
 const scoringContainer = document.querySelector(".scoringContainer");
 const messageContainer = document.querySelector(".messageContainer");
@@ -169,18 +180,19 @@ const connection = () => {
   messageContainer.style.display = "none";
   scoringContainer.style.display = "flex";
   msgDisplay.innerText = "";
+  resetReef();
   showContainer("reefContainer");
 }
 
 document.getElementById("cancel").onclick = () => {
   setCommand("cancel");
-  resetReefStuff();
+  resetReef();
   showContainer("reefContainer");
 }
 
 document.getElementById("score").onclick = () => {
-  scoreReef();
-  resetReefStuff();
+  setCommand("score");
+  resetReef();
   showContainer("reefContainer");
 }
 

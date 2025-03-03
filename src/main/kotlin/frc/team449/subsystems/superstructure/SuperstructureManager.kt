@@ -84,7 +84,7 @@ class SuperstructureManager(
     return lastGoal
   }
 
-  private fun holdAll(): Command {
+  fun holdAll(): Command {
     return Commands.parallel(
       pivot.hold(),
       wrist.hold(),

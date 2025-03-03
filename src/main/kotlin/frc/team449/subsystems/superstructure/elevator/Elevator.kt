@@ -94,6 +94,20 @@ open class Elevator(
     }
   }
 
+  fun webComManualUp(voltage: Double): Command {
+    return runOnce {
+      motor.setVoltage(voltage)
+      request.Position = positionSupplier.get()
+    }
+  }
+
+  fun webComManualDown(voltage: Double): Command {
+    return runOnce {
+      motor.setVoltage(-voltage)
+      request.Position = positionSupplier.get()
+    }
+  }
+
   fun hold(): Command {
     return this.runOnce {
       motor.setControl(

@@ -1,7 +1,6 @@
 package frc.team449.commands.autoscoreCommands
 
 import edu.wpi.first.math.geometry.Pose2d
-import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj.RobotBase
@@ -13,9 +12,26 @@ import frc.team449.subsystems.superstructure.SuperstructureGoal
 
 class AutoScoreCommands(private val robot: Robot) {
   private var currentCommand: Command = InstantCommand()
+  private var scoreCommand: Command = InstantCommand()
+  var waitingForScore = false
+  private var moving = false
+
+  fun scoreCommand(): Command {
+    waitingForScore = false
+    return scoreCommand
+  }
+
+  fun currentCommandFinished(): Boolean {
+    if(!currentCommand.isScheduled && moving) {
+      moving = false
+      return true
+    }
+    return false
+  }
 
   fun getReefCommand(rl: AutoScoreCommandConstants.ReefLocation, cl: AutoScoreCommandConstants.CoralLevel): Command {
     return runOnce({
+      moving = true
       val reefLocationPose =
         if (DriverStation.getAlliance().get() == Alliance.Red) {
           when (rl) {
@@ -62,64 +78,82 @@ class AutoScoreCommands(private val robot: Robot) {
       }
       robot.poseSubsystem.autoscoreCommandPose = reefLocationPose
 
-      val scoreCommand = if (!RobotBase.isSimulation()) {
+      scoreCommand = if (!RobotBase.isSimulation()) {
         robot.superstructureManager.requestGoal(scoreGoal)
-      } else InstantCommand()
+      } else {
+        InstantCommand()
+      }
 
       val premoveCommand = robot.superstructureManager.requestGoal(premoveGoal)
 
       currentCommand =
         AutoScoreWrapperCommand(
-        robot, AutoScorePathfinder(robot, reefLocationPose), premoveCommand
-        ).andThen(InstantCommand({
-          scoreCommand.schedule()
-          robot.drive.defaultCommand = robot.driveCommand
-        }))
+          robot,
+          AutoScorePathfinder(robot, reefLocationPose),
+          premoveCommand
+        ).andThen(
+          InstantCommand({
+            robot.drive.defaultCommand = robot.driveCommand
+            waitingForScore = true
+          })
+        )
       currentCommand.schedule()
     })
   }
 
   fun getProcessorCommand(): Command {
     return runOnce({
+      moving = true
       val processorPose = if (DriverStation.getAlliance().get() == Alliance.Red) AutoScoreCommandConstants.processorPoseRed else AutoScoreCommandConstants.processorPoseBlue
-      val scoreCommand = InstantCommand()
+      scoreCommand = InstantCommand()
       val premoveCommand = InstantCommand()
       robot.poseSubsystem.autoscoreCommandPose = processorPose
       currentCommand =
         AutoScoreWrapperCommand(
-          robot, AutoScorePathfinder(robot, processorPose), premoveCommand
-        ).andThen(InstantCommand({
-          scoreCommand.schedule()
-          robot.drive.defaultCommand = robot.driveCommand
-        }))
+          robot,
+          AutoScorePathfinder(robot, processorPose),
+          premoveCommand
+        ).andThen(
+          InstantCommand({
+            robot.drive.defaultCommand = robot.driveCommand
+            waitingForScore = true
+          })
+        )
       currentCommand.schedule()
     })
   }
 
   fun getNetCommand(atRedSide: Boolean): Command {
     return runOnce({
+      moving = true
       val netPose = Pose2d(
         AutoScoreCommandConstants.centerOfField + AutoScoreCommandConstants.centerOfField * if (atRedSide) 1 else -1,
         robot.poseSubsystem.pose.translation.y,
         if (atRedSide) AutoScoreCommandConstants.netRotation2dRed else AutoScoreCommandConstants.netRotation2dBlue
       )
-      val scoreCommand = InstantCommand()
+      scoreCommand = InstantCommand()
       val premoveCommand = InstantCommand()
       currentCommand =
         AutoScoreWrapperCommand(
-          robot, AutoScorePathfinder(robot, netPose), premoveCommand
-        ).andThen(InstantCommand({
-          scoreCommand.schedule()
-          robot.drive.defaultCommand = robot.driveCommand
-        }))
+          robot,
+          AutoScorePathfinder(robot, netPose),
+          premoveCommand
+        ).andThen(
+          InstantCommand({
+            robot.drive.defaultCommand = robot.driveCommand
+            waitingForScore = true
+          })
+        )
       currentCommand.schedule()
     })
   }
 
   fun cancelCommand(): Command {
     return InstantCommand({
+      moving = false
       currentCommand.cancel()
       robot.drive.defaultCommand = robot.driveCommand
+      waitingForScore = false
     })
   }
 }

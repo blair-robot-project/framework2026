@@ -84,7 +84,7 @@ class PoseSubsystem(
   private val maxMagPower = 20.0
   private var lastDistance = 0.0
   private val agreeVal = 0.15
-  private val autoDistance = 0.21
+  private val autoDistance = 0.3544921069702
   lateinit var autoscoreCurrentCommand: Command
 
   init {
@@ -144,7 +144,7 @@ class PoseSubsystem(
     dt = currTime - prevTime
     prevTime = currTime
 
-    if(dt > 0.3) {
+    if (dt > 0.3) {
       resetMagVars()
     }
 
@@ -233,7 +233,6 @@ class PoseSubsystem(
       }
       desVel.omegaRadiansPerSecond = MathUtil.clamp(desVel.omegaRadiansPerSecond, -AutoScoreCommandConstants.MAX_ROT_SPEED, AutoScoreCommandConstants.MAX_ROT_SPEED)
       drive.set(desVel)
-      println("pathfinder")
     } else {
       val controllerSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
         vel.x * directionCompensation.invoke(),
@@ -256,10 +255,10 @@ class PoseSubsystem(
 
       var controllerTranslationVector = Translation2d(controllerSpeeds.vxMetersPerSecond, controllerSpeeds.vyMetersPerSecond)
       var desiredTranslationVector = Translation2d(desVel.vxMetersPerSecond, desVel.vyMetersPerSecond)
-      if(controllerTranslationVector != Translation2d(0.0, 0.0)) {
+      if (controllerTranslationVector != Translation2d(0.0, 0.0)) {
         controllerTranslationVector /= max(abs(controllerSpeeds.vxMetersPerSecond), abs(controllerSpeeds.vyMetersPerSecond))
       }
-      if(desiredTranslationVector != Translation2d(0.0, 0.0)) {
+      if (desiredTranslationVector != Translation2d(0.0, 0.0)) {
         desiredTranslationVector /= max(abs(desVel.vxMetersPerSecond), abs(desVel.vyMetersPerSecond))
       }
       val vectorDistance = controllerTranslationVector.getDistance(desiredTranslationVector)
@@ -270,27 +269,23 @@ class PoseSubsystem(
           desVel.omegaRadiansPerSecond += rotScaled
         }
         combinedChassisSpeeds = desVel
-        println("agree")
       } else if (currentControllerPower > 16) {
         combinedChassisSpeeds = controllerSpeeds * 8.0
-        if(abs(rotScaled) < 0.05) {
+        if (abs(rotScaled) < 0.05) {
           combinedChassisSpeeds.omegaRadiansPerSecond = desVel.omegaRadiansPerSecond
         }
-        println("driver")
       } else if (abs(rotScaled) > 0.1) {
         combinedChassisSpeeds = desVel
-        if(abs(rotScaled) > 0.5) {
+        if (abs(rotScaled) > 0.5) {
           combinedChassisSpeeds.omegaRadiansPerSecond = rotScaled * (if (currentControllerPower > 5) 5.0 else currentControllerPower) / 3
         } else {
           combinedChassisSpeeds.omegaRadiansPerSecond += rotScaled
         }
-        println("combination driver rotation")
       } else {
-        println("combination")
         println(controllerSpeeds)
         println(desVel)
         println(currentControllerPower)
-        combinedChassisSpeeds = controllerSpeeds + desVel
+        combinedChassisSpeeds = controllerSpeeds * (currentControllerPower / 2) + desVel
       }
 
       combinedChassisSpeeds.vxMetersPerSecond = MathUtil.clamp(combinedChassisSpeeds.vxMetersPerSecond, -AutoScoreCommandConstants.MAX_LINEAR_SPEED, AutoScoreCommandConstants.MAX_LINEAR_SPEED)
