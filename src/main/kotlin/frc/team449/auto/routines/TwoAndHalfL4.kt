@@ -1,5 +1,7 @@
 package frc.team449.auto.routines
 
+import edu.wpi.first.units.Units.Degrees
+import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.InstantCommand
@@ -12,7 +14,9 @@ import frc.team449.auto.choreo.ChoreoRoutineStructure
 import frc.team449.auto.choreo.ChoreoTrajectory
 import frc.team449.commands.driveAlign.SimpleReefAlign
 import frc.team449.subsystems.FieldConstants
+import frc.team449.subsystems.RobotConstants
 import frc.team449.subsystems.superstructure.SuperstructureGoal
+import frc.team449.subsystems.superstructure.SuperstructureGoal.DriveDynamics
 import java.util.Optional
 
 class TwoAndHalfL4(
@@ -53,9 +57,19 @@ class TwoAndHalfL4(
   }
 
   private fun scoreL4(robot: Robot, reefSide: FieldConstants.ReefSide): Command {
-    return robot.superstructureManager.requestGoal(SuperstructureGoal.L4)
-      .alongWith(SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(reefSide), translationSpeedLim = 2.0, translationAccelLim = 1.85))
-      .andThen(WaitCommand(0.50))
+    return robot.superstructureManager.requestGoal(
+      SuperstructureGoal.SuperstructureState(
+        SuperstructureGoal.L4.pivot,
+        Meters.of(SuperstructureGoal.L4.elevator.`in`(Meters) + 0.01),
+        Degrees.of(SuperstructureGoal.L4.wrist.`in`(Degrees) + 3.75),
+        DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+      )
+    )
+      .alongWith(
+        SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(reefSide), translationSpeedLim = 2.0, translationAccelLim = 0.675)
+          .withTimeout(2.925)
+      )
+      .andThen(WaitCommand(0.675))
       .andThen(robot.intake.outtakeCoral())
       .andThen(
         WaitUntilCommand { !robot.intake.coralDetected() }

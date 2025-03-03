@@ -38,7 +38,7 @@ object WristConstants {
   const val KD = 0.096482
 
   val CRUISE_VEL = RotationsPerSecond.of(2.75) // should get to 2.5, max theoretical 2.95
-  val MAX_ACCEL = RotationsPerSecondPerSecond.of(4.9496) // should get to 3.0, max theoretical 18.842
+  val MAX_ACCEL = RotationsPerSecondPerSecond.of(4.0) // should get to 3.0, max theoretical 18.842
 
   val STARTUP_ANGLE = Degrees.of(90.0)
 }

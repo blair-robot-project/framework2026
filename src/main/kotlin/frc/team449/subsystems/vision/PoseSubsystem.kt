@@ -167,16 +167,16 @@ class PoseSubsystem(
             inHeightTolerance
           ) {
             if (enableVisionFusion) {
-              val interpolatedPose = InterpolatedVision.interpolatePose(estVisionPose, index)
+//              val interpolatedPose = InterpolatedVision.interpolatePose(estVisionPose, index)
 
               poseEstimator.addVisionMeasurement(
-                interpolatedPose,
+                estVisionPose,
                 presentResult.timestampSeconds,
                 camera.getEstimationStdDevs(numTargets[index].toInt(), tagDistance[index])
               )
+              usedVision[index] = true
+              usedVisionSights[index] += 1.toLong()
             }
-            usedVision[index] = true
-            usedVisionSights[index] += 1.toLong()
           } else {
             usedVision[index] = false
             rejectedVisionSights[index] += 1.toLong()

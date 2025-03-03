@@ -146,7 +146,7 @@ class ReefOnlyEstimator(
       )
       .transformBy(robotToCam.inverse())
 
-    val visionPose = checkBest(lastPose, bestPose, altPose) ?: bestPose
+    val visionPose = bestPose
 
     return Optional.of(
       EstimatedRobotPose(
