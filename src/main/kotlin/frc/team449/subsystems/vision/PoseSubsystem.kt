@@ -18,7 +18,6 @@ import frc.team449.control.vision.ApriltagCamera
 import frc.team449.subsystems.RobotConstants
 import frc.team449.subsystems.drive.swerve.SwerveDrive
 import frc.team449.subsystems.drive.swerve.SwerveSim
-import frc.team449.subsystems.vision.interpolation.InterpolatedVision
 import frc.team449.system.AHRS
 import kotlin.math.PI
 import kotlin.math.abs
