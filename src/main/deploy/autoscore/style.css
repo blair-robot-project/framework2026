@@ -28,7 +28,7 @@ body {
     flex-direction: column;
     gap: 2vw;
     width: 90vw;
-    height: 90vh;
+    height: 70vh;
     justify-content: center;
     align-items: center;
     margin:auto;
@@ -79,7 +79,7 @@ body {
 }
 
 #coral {
-    width: 100%;
+    width: 85%;
     aspect-ratio: 0.5;
 }
 
@@ -95,7 +95,7 @@ body {
 .locationImageContainer {
     display: flex;
     flex-direction: column;
-    width: 80%;
+    height: 90%;
     aspect-ratio: 1.15085158151;
     text-align: center;
     align-items: center;
@@ -160,7 +160,8 @@ h1 {
 }
 
 #areaSelectionText {
-    width: 80%;
+    width: 100%;
+    height: 10%;
     text-align: center;
     font-size: 2.5vw;
     margin-bottom: 0;

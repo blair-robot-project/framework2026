@@ -282,9 +282,6 @@ class PoseSubsystem(
           combinedChassisSpeeds.omegaRadiansPerSecond += rotScaled
         }
       } else {
-        println(controllerSpeeds)
-        println(desVel)
-        println(currentControllerPower)
         combinedChassisSpeeds = controllerSpeeds * (currentControllerPower / 2) + desVel
       }
 
