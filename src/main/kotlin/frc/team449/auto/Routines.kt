@@ -296,7 +296,7 @@ open class Routines(
 
   fun middleRoutine(): AutoRoutine{
     val middleRoutine=autoFactory.newRoutine("middle Test")
-    val test= middleRoutine.trajectory("Test middle")
+    val test= middleRoutine.trajectory("middle test")
 
     middleRoutine.active().onTrue(
       Commands.sequence(
@@ -439,6 +439,6 @@ open class Routines(
     autoChooser.addRoutine("l4 J,K,L", this::reefJKL) // 3 piece l4
     autoChooser.addRoutine("l4 E,D,C", this::reefEDC) // 3 piece l4
     autoChooser.addRoutine("The Goat", this::americanRoutine) // america
-    autoChooser.addRoutine("testj",this::middleRoutine)
+    autoChooser.addRoutine("testing",this::middleRoutine)
   }
 }
