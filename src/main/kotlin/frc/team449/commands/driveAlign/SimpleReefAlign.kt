@@ -33,10 +33,10 @@ class SimpleReefAlign(
   headingPID: Triple<Double, Double, Double> = Triple(6.5, 0.0, 0.0),
   private val translationTolerance: Double = Units.inchesToMeters(0.5),
   private val headingTolerance: Double = Units.degreesToRadians(0.75),
-  private val speedTol: Double = 0.10,
+  private val speedTol: Double = 0.075,
   private val speedTolRot: Double = PI / 16,
   private val ffMinRadius: Double = 0.2,
-  private val ffMaxRadius: Double = 0.65,
+  private val ffMaxRadius: Double = 0.6,
   private val leftOrRight: Optional<FieldConstants.ReefSide> = Optional.empty()
 ) : Command() {
   init {

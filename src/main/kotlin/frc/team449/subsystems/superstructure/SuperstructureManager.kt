@@ -39,14 +39,14 @@ class SuperstructureManager(
             ),
             WaitUntilCommand { wrist.elevatorReady() },
             elevator.setPosition(goal.elevator.`in`(Meters)),
-            WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() && elevator.atSetpoint() },
-//            WaitUntilCommand { wrist.atSetpoint() || pivot.atSetpoint() },
-//            pivot.hold().onlyIf { pivot.atSetpoint() },
-//            wrist.hold().onlyIf { wrist.atSetpoint() },
-//            WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() },
-//            Commands.parallel(pivot.hold(), wrist.hold())
-//              .repeatedly()
-//              .until { elevator.atSetpoint() },
+//            WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() && elevator.atSetpoint() },
+            WaitUntilCommand { wrist.atSetpoint() || pivot.atSetpoint() },
+            pivot.hold().onlyIf { pivot.atSetpoint() },
+            wrist.hold().onlyIf { wrist.atSetpoint() },
+            WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() },
+            pivot.hold(),
+            wrist.hold(),
+            WaitUntilCommand { elevator.atSetpoint() },
             holdAll()
           ),
 
@@ -57,9 +57,6 @@ class SuperstructureManager(
             wrist.setPosition(WristConstants.ELEVATOR_READY.`in`(Radians))
               .onlyIf { goal.wrist > WristConstants.ELEVATOR_READY },
             WaitUntilCommand { elevator.atSetpoint() },
-//            pivot.hold()
-//              .repeatedly()
-//              .until { elevator.atSetpoint() },
             Commands.parallel(
               pivot.setPosition(goal.pivot.`in`(Radians)),
               wrist.setPosition(goal.wrist.`in`(Radians))

@@ -18,7 +18,6 @@ import frc.team449.control.vision.ApriltagCamera
 import frc.team449.subsystems.RobotConstants
 import frc.team449.subsystems.drive.swerve.SwerveDrive
 import frc.team449.subsystems.drive.swerve.SwerveSim
-import frc.team449.subsystems.vision.interpolation.InterpolatedVision
 import frc.team449.system.AHRS
 import kotlin.math.PI
 import kotlin.math.abs
@@ -171,16 +170,16 @@ class PoseSubsystem(
             inHeightTolerance
           ) {
             if (enableVisionFusion) {
-              val interpolatedPose = InterpolatedVision.interpolatePose(estVisionPose, index)
+//              val interpolatedPose = InterpolatedVision.interpolatePose(estVisionPose, index)
 
               poseEstimator.addVisionMeasurement(
-                interpolatedPose,
+                estVisionPose,
                 presentResult.timestampSeconds,
                 camera.getEstimationStdDevs(numTargets[index].toInt(), tagDistance[index])
               )
+              usedVision[index] = true
+              usedVisionSights[index] += 1.toLong()
             }
-            usedVision[index] = true
-            usedVisionSights[index] += 1.toLong()
           } else {
             usedVision[index] = false
             rejectedVisionSights[index] += 1.toLong()
