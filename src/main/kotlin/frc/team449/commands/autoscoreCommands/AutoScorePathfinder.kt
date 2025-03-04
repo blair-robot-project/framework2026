@@ -61,7 +61,7 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
   private var yPIDSpeed = 0.0
   private val pidOffsetTime = 0.15
 
-  private var thetaController: PIDController = PIDController(10.0, 3.0, 0.1)
+  private var thetaController: PIDController = PIDController(6.5, 0.8592, 0.0)
   private var xController = PIDController(7.0, 2.0, 0.0)
   private var yController = PIDController(7.0, 2.0, 0.0)
   var distance: Double

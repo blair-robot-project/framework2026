@@ -83,7 +83,7 @@ class PoseSubsystem(
   private var magDec = 0.0004
   private val maxMagPower = 20.0
   private var lastDistance = 0.0
-  private val agreeVal = 0.15
+  private val agreeVal = 0.3
   private val autoDistance = 0.3544921069702
   lateinit var autoscoreCurrentCommand: Command
 
