@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
 import edu.wpi.first.wpilibj2.command.Command
 import frc.team449.Robot
 import frc.team449.auto.routines.DoNothing
+import frc.team449.auto.routines.OneL4
 import frc.team449.auto.routines.ThreeL4
 import frc.team449.auto.routines.TwoAndHalfL4
 
@@ -21,6 +22,8 @@ class RoutineChooser(private val robot: Robot) : SendableChooser<String>() {
       "RedBlueStage2.5L4" to TwoAndHalfL4(robot, isRedAlliance = true, isRedStage = false).createCommand(),
       "BlueRedStage2.5L4" to TwoAndHalfL4(robot, isRedAlliance = false, isRedStage = true).createCommand(),
       "BlueBlueStage2.5L4" to TwoAndHalfL4(robot, isRedAlliance = false, isRedStage = false).createCommand(),
+      "BlueOneL4" to OneL4(robot, isRedAlliance = false).createCommand(),
+      "RedOneL4" to OneL4(robot, isRedAlliance = true).createCommand(),
     )
   }
 
@@ -32,5 +35,6 @@ class RoutineChooser(private val robot: Robot) : SendableChooser<String>() {
     this.addOption("Blue Stage 3 L4", "BlueStageThreeL4")
     this.addOption("Red Stage 2.5 L4", "RedStage2.5L4")
     this.addOption("Blue Stage 2.5 L4", "BlueStage2.5L4")
+    this.addOption("One L4 Left Pole", "OneL4")
   }
 }

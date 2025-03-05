@@ -68,7 +68,7 @@ class Pivot(
 
   fun manualDown(): Command {
     return this.run {
-      motor.setVoltage(-0.75)
+      motor.setVoltage(-1.5)
       request.Position = positionSupplier.get()
     }
   }

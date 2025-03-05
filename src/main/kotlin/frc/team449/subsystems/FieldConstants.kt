@@ -21,18 +21,40 @@ object FieldConstants {
   fun configureReef(alliance: Alliance) {
     val allianceComp = alliance == Alliance.Red
 
-    val REEF_A = findPose(3.192615509033203, 4.189684867858887, 0.0, allianceComp)
-    val REEF_B = findPose(3.192615509033203, 3.8614695072174072, 0.0, allianceComp)
-    val REEF_C = findPose(3.695124626159668, 2.985105037689209, PI / 3, allianceComp)
-    val REEF_D = findPose(3.9832611083984375, 2.820899248123169, PI / 3, allianceComp)
-    val REEF_E = findPose(4.9979729652404785, 2.8225479125976562, 2 * PI / 3, allianceComp)
-    val REEF_F = findPose(5.282362937927246, 2.989065647125244, 2 * PI / 3, allianceComp)
-    val REEF_G = findPose(5.78605842590332, 3.860325813293457, PI, allianceComp)
-    val REEF_H = findPose(5.78605842590332, 4.188675880432129, PI, allianceComp)
-    val REEF_I = findPose(5.282362937927246, 5.065289497375488, -2 * PI / 3, allianceComp)
-    val REEF_J = findPose(4.9979729652404785, 5.229397296905518, -2 * PI / 3, allianceComp)
-    val REEF_K = findPose(3.9832611083984375, 5.231619358062744, -PI / 3, allianceComp)
-    val REEF_L = findPose(3.695124626159668, 5.066085338592529, -PI / 3, allianceComp)
+    val REEF_A = findPose(3.209, 4.1752, 0.0, allianceComp)
+    val REEF_B = findPose(3.1941, 3.8625, 0.0, allianceComp)
+    val REEF_C = findPose(3.725, 2.991, PI / 3, allianceComp)
+
+    val REEF_D = if (!allianceComp) {
+      Pose2d(3.989, 2.814, Rotation2d(PI / 3))
+    } else {
+      Pose2d(13.56, 5.226, Rotation2d(-2 * PI / 3))
+    }
+
+    val REEF_E = if (!allianceComp) {
+      Pose2d(5.009, 2.854, Rotation2d(2 * PI / 3))
+    } else {
+      Pose2d(12.53, 5.184, Rotation2d(-PI / 3))
+    }
+
+    val REEF_F = findPose(5.282362937927246, 2.987065647125244, 2 * PI / 3, allianceComp)
+    val REEF_G = findPose(5.7677, 3.8704, PI, allianceComp)
+    val REEF_H = findPose(5.784, 4.186, PI, allianceComp)
+    val REEF_I = findPose(5.2435, 5.0553, -2 * PI / 3, allianceComp)
+
+    val REEF_J = if (!allianceComp) {
+      Pose2d(4.9734, 5.2339, Rotation2d(-2 * PI / 3))
+    } else {
+      Pose2d(12.61, 2.791, Rotation2d(PI / 3))
+    }
+
+    val REEF_K = findPose(3.976, 5.1592, -PI / 3, allianceComp)
+
+    val REEF_L = if (!allianceComp) {
+      Pose2d(3.6780, 5.0456, Rotation2d(-PI / 3))
+    } else {
+      Pose2d(13.863, 2.992, Rotation2d(2 * PI / 3))
+    }
 
     REEF_LOCATIONS.addAll(
       listOf(
