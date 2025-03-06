@@ -26,6 +26,7 @@ import frc.team449.subsystems.drive.swerve.SwerveConstants
 import frc.team449.subsystems.drive.swerve.SwerveDrive
 import frc.team449.subsystems.drive.swerve.SwerveSim
 import frc.team449.system.AHRS
+import java.lang.Math.pow
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.*
 
@@ -82,7 +83,7 @@ class PoseSubsystem(
   private var magDec = 0.0004
   private val maxMagPower = 20.0
   private var lastDistance = 0.0
-  private val agreeVal = 0.3
+  private var agreeVal = 0.0
   private val autoDistance = 0.3544921069702
   lateinit var autoscoreCurrentCommand: Command
 
@@ -142,10 +143,6 @@ class PoseSubsystem(
     val currTime = timer.get()
     dt = currTime - prevTime
     prevTime = currTime
-
-    if (dt > 0.3) {
-      resetMagVars()
-    }
 
     val distance = pose.translation.getDistance(autoscoreCommandPose.translation)
     val ctrlX = -controller.leftY
@@ -240,8 +237,6 @@ class PoseSubsystem(
         heading
       )
 
-      val desVelAdjustedSpeeds = desVel / (20 / (1 + exp(-(currentControllerPower-12) / 1)))
-
       // this increases the users power based on how much it is going against pathmag
       if (controllerSpeeds.vxMetersPerSecond < 0 != desVel.vxMetersPerSecond < 0) {
         currentControllerPower += (abs(controllerSpeeds.vxMetersPerSecond)) / 20
@@ -290,6 +285,7 @@ class PoseSubsystem(
       drive.set(combinedChassisSpeeds)
     }
     lastDistance = distance
+    agreeVal = 0.5 - 0.5/(1 + exp(-(distance-3)*2))
   }
 
   private val isReal = RobotBase.isReal()
