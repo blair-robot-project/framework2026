@@ -41,7 +41,6 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
   private var velocityY = 0.0
   private var rotation = 0.0
   private val timer = Timer()
-  private val zeroPose = Pose2d(Translation2d(0.0, 0.0), Rotation2d(0.0))
   private var inPIDDistance = false
   private var pidDistance = 1.0
   private var tolerance = 0.15
@@ -242,13 +241,12 @@ class EmptyDrive(drive: SwerveDrive) : Command() {
 
 // goal should be a premove state
 class AutoScoreWrapperCommand(
-  val robot: Robot,
-  command: AutoScorePathfinder,
-  private val goal: Command
+  private val robot: Robot,
+  private val pathFinder: AutoScorePathfinder,
+  private val premoveGoal: Command
 ) :
   Command() {
 
-  private val asPathfinder = command
   private var reefAlignCommand: Command = InstantCommand()
   private var usingReefAlign = false
   private var hasPremoved = false
@@ -257,20 +255,20 @@ class AutoScoreWrapperCommand(
     robot.drive.defaultCommand.cancel()
     robot.drive.defaultCommand = EmptyDrive(robot.drive)
     robot.drive.defaultCommand.schedule()
-    asPathfinder.runSetup()
+    pathFinder.runSetup()
   }
 
   override fun execute() {
-    if (!hasPremoved && asPathfinder.atPremoveDistance) {
-      goal.schedule()
+    if (!hasPremoved && pathFinder.atPremoveDistance) {
+      premoveGoal.schedule()
       hasPremoved = true
     }
-    if (asPathfinder.atSetpoint && !usingReefAlign) {
+    if (pathFinder.atSetpoint && !usingReefAlign) {
       reefAlignCommand = SimpleReefAlign(robot.drive, robot.poseSubsystem)
       reefAlignCommand.schedule()
       usingReefAlign = true
     } else if (!usingReefAlign) {
-      asPathfinder.pathFind()
+      pathFinder.pathFind()
     }
   }
 

@@ -4,23 +4,33 @@ body {
     font-family: 'Orbitron';
 }
 
-.reefContainer, .processorContainer, .netContainer, .coralIntakeContainer, .manualContainer {
+.reefSelection, .reefConfirmation, .processorContainer, .netContainer, .coralIntakeContainer {
     display: flex;
-    gap: 5vw;
+    gap: 2vw;
     justify-content: center;
-    height: 10vh;
+    height: 100%;
     width: 100%;
+    align-items: center;
 }
 
 .reefContainer {
     height: 100%;
+    width: 100%;
     align-items: center;
     gap: 1vw;
+    display: flex;
+    flex-direction: column;
 }
 
-.pivotContainer, .wristContainer, .elevatorContainer {
-    gap: 5vw;
+#elevatorUp, #elevatorDown {
+    height: 8vh;
+    width: 20vw;
+}
+
+.elevatorContainer {
+    gap: 2vh;
     display: flex;
+    flex-direction: column;
 }
 
 .scoringContainer, .messageContainer {
@@ -35,22 +45,6 @@ body {
     margin-top: 5vh;
 }
 
-.locationContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.locationContainer, .coralLevelImage, .confirmChoice {
-    height: inherit;
-}
-
-.coralLevelImage {
-    width: 25%;
-    align-items: center;
-    align-content: center;
-}
-
 .reefText {
     font-size: 2vw;
     justify-self: center;
@@ -59,47 +53,20 @@ body {
     height: 10%;
 }
 
-.locationContainer {
-    width: 55%;
-    text-align: center;
-    gap: 1vh;
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-}
-.confirmChoice {
-    width: 20%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-    align-items: center;
-    justify-content: center;
-    gap: 2vh;
-}
-
 #coral {
-    width: 85%;
+    width: 20%;
+    max-height: 90%;
     aspect-ratio: 0.5;
 }
 
 #locationSelect {
     /* width 315 height 274 */
-    width: 100%;
-    height: 100%;
+    width: 40%;
+    max-height: 100%;
+    aspect-ratio: 1.15085158151;
     align-self: center;
     vertical-align: middle;
-    rotate: 120deg;
-}
-
-.locationImageContainer {
-    display: flex;
-    flex-direction: column;
-    height: 90%;
-    aspect-ratio: 1.15085158151;
-    text-align: center;
-    align-items: center;
-    justify-content: center;
+    offset-rotate: 120deg;
     margin: auto;
 }
 
@@ -128,16 +95,16 @@ body {
 }
 
 #confirmReefButton {
-    width: 80%;
-    height: 20%;
+    width: 20%;
+    height: 30%;
 }
 
 .Button:hover {
-    background-color: rgb(255, 20, 20);
+    filter: brightness(1.2);
 }
 
 .Button:active {
-    background-color: rgb(200, 0, 0);
+    filter: brightness(0.8);
 }
 
 h1 {

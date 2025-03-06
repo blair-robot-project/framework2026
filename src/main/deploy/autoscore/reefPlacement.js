@@ -20,11 +20,11 @@ const confirmReefButton = document.getElementById("confirmReefButton");
             if(angleRadians < 0) {
                 angleDegrees = 360 + angleRadians * (180 / Math.PI);
             }
-            reefArea = Math.floor(((angleDegrees-120) % 360)/30) + 5;
+            reefArea = Math.floor((angleDegrees % 360)/30) + 1;
             if(reefArea == -1) {
                 locationImg.src = `locationSelectorImages/locationSelectorNone.png`;
             } else {
-                locationImg.src = `locationSelectorImages/locationSelector${reefArea < 5 ? reefArea+8 : reefArea-4}.png`;
+                locationImg.src = `locationSelectorImages/locationSelector${reefArea}.png`;
             }
         }
     });
@@ -38,21 +38,25 @@ const confirmReefButton = document.getElementById("confirmReefButton");
     });
 });
 
-let areaText = document.getElementById("areaText");
-let areaSelectionText = document.getElementById("areaSelectionText");
 
 locationImg.onclick = () => {
     areaSelected = !areaSelected;
     if(areaSelected) {
-        areaText.innerText = `Reef Area: ${numberToLetter[11-(reefArea+4)%12]}`;
-        areaSelectionText.innerText = "Click again to reselect";
+        if(coralSelected) {
+            confirmReefButton.style.backgroundColor = "rgb(4, 189, 36)";
+            confirmReefButton.innerText = `Score at Level ${coralLevel} and Area ${numberToLetter[11-(reefArea+4)%12]}`;
+        } else {
+            confirmReefButton.innerText = `Reef Area: ${numberToLetter[11-(reefArea+4)%12]}`;
+        }
     } else {
-        confirmReefButton.innerText = `Choose Robot Alignment`;
-        areaText.innerText = `Reef Area: None`;
-        areaSelectionText.innerText = "Click the area you want to go to.";
+        reefArea = -1;
+        if(coralSelected) {
+            confirmReefButton.innerText = `Coral Level: L${coralLevel}`;
+        } else {
+            confirmReefButton.innerText = `Choose Robot Alignment`;
+        }
         locationImg.src = "locationSelectorImages/locationSelectorNone.png";
+        confirmReefButton.style.backgroundColor = "#DD0000";
     }
-    if(coralSelected) {
-        confirmReefButton.innerText = `Score at Level ${coralLevel} and Area ${numberToLetter[11-(reefArea+4)%12]}`;
-    }
+    
 }

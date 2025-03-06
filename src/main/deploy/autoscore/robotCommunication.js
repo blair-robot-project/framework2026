@@ -47,19 +47,7 @@ function valueUpdateHandler( topic, timestamp_us, value ) {
   if(topic.name == "/webcom/Alliance") {
     setAlliance(value);
   } else if(topic.name == "/webcom/isDone" && value===true) {
-    document.getElementById("manualText").innerText = `Scoring on Area ${numberToLetter[11-(reefArea+4)%12]} and Level ${coralLevel}`;
-    showContainer("manualContainer");
-    ["pivotForward", "pivotBack", "elevatorUp", "elevatorDown", "wristForward", "wristBack"].forEach(
-      id => {
-        const elt = document.getElementById(id);
-        const eltinterval = setInterval(() => {
-          if(window.getComputedStyle(elt).backgroundColor == "rgb(200, 0, 0)") {
-            setCommand(id);
-          }
-        }, 0.02);
-        intervalList.push(eltinterval);
-      }
-    );
+    document.getElementById("confirmReefButton").innerText = "At Location";
   }
 }
 
@@ -98,7 +86,6 @@ const setAlliance = (alliance) => {
 }
 
 const commandPath = "/webcom/Command";
-const isDonePath = "/webcom/isDone";
 
 const commandPublishTopic = nt4Client.publishNewTopic(commandPath, NT4_TYPESTR.STR);
 
@@ -118,19 +105,29 @@ const resetReef = () => {
   areaSelected = false;
   coralLevel = -1;
   document.getElementById("confirmReefButton").innerText = `Choose Robot Alignment`;
-  document.getElementById("areaSelectionText").innerText = "Hover to the area you want to go to.";
   document.getElementById("coral").src = `coralLevelImages/coralNone.png`;
-  document.getElementById("areaText").innerText = "Reef Area: None";
-  document.getElementById("coralText").innerText = "Coral Level: None";
   document.getElementById("locationSelect").src = "locationSelectorImages/locationSelectorNone.png";
   intervalList.forEach(ivl => clearInterval(ivl));
   intervalList.length = 0;
+  ["elevatorUp", "elevatorDown"].forEach(
+    id => {
+      const elt = document.getElementById(id);
+      const eltinterval = setInterval(() => {
+        if(window.getComputedStyle(elt).backgroundColor == "rgb(200, 0, 0)") {
+          setCommand(id);
+        }
+      }, 0.02);
+      intervalList.push(eltinterval);
+    }
+  );
+  document.getElementById("confirmReefButton").style.backgroundColor = "#DD0000";
 }
 
 document.getElementById("confirmReefButton").onclick = async () => {
   if(coralSelected && areaSelected) {
     scoreReef(reefArea, coralLevel);
     document.getElementById("confirmReefButton").innerText = "Scoring...";
+    document.getElementById("confirmReefButton").style.backgroundColor = "#DD0000";
   }
 }
 

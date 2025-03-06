@@ -5,7 +5,6 @@ const levelFour = document.getElementById("L4");
 
 const levelList = [levelOne, levelTwo, levelThree, levelFour];
 
-const coralText = document.getElementById("coralText");
 const coralImage = document.getElementById("coral");
 coralLevel = -1;
 let prevCoralLevel = -1;
@@ -64,14 +63,21 @@ coralImage.onclick = () => {
     if(coralSelected) {
         coralLevel = prevCoralLevel;
         coralImage.src = `coralLevelImages/coralL${coralLevel}.png`;
-        coralText.innerText = `Coral Level: ${coralLevel}`;
         if(areaSelected) {
+            confirmReefButton.style.backgroundColor = "rgb(4, 189, 36)";
             confirmReefButton.innerText = `Score at Level ${coralLevel} and Area ${numberToLetter[11-(reefArea+4)%12]}`;
+        } else {
+            confirmReefButton.innerText = `Coral Level: L${coralLevel}`;
         }
     } else {
         setCoralImg("None");
         coralLevel = -1;
-        coralText.innerText = "Coral Level: None";  
+        confirmReefButton.style.backgroundColor = "#DD0000";
+        if(areaSelected) {
+            confirmReefButton.innerText = `Reef Area: ${numberToLetter[11-(reefArea+4)%12]}`;
+        } else {
+            confirmReefButton.innerText = `Choose Robot Alignment`;
+        }
     }
     
 }

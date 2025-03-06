@@ -13,24 +13,36 @@
 
 <body>
     <div class="scoringContainer" style="display: none;">
+
         <div class="reefContainer" style="display: none;">
-            <div class="coralLevelImage">
+
+            <div class="reefSelection" style="height: 70%;">
                 <img src="coralLevelImages/coralNone.png" alt="" id="coral">
-            </div>
-            <div class="locationContainer">
-                <div class="locationImageContainer">
                     <img src="locationSelectorImages/locationSelectorNone.png" alt="" id="locationSelect">
-                </div>
-                <h1 id="areaSelectionText" width="100%">Click the area you want to go to.</h1>
-            </div>
-            <div class="confirmChoice">
-                <h1 class="reefText" id="coralText">Coral Level: None</h1>
-                <h1 class="reefText" id="areaText">Reef Area: None</h1>
                 <div class="Button" id="confirmReefButton">
                     Choose Robot Alignment
                 </div>
             </div>
+
+            <div class="reefConfirmation" style="height: 30%; gap: 2vw;">
+                <div class="Button" id="cancel">
+                    Cancel Command
+                </div>
+                <div class="Button" id="score">
+                    Score!
+                </div>
+                <div class="elevatorContainer">
+                    <div class="Button" id="elevatorUp">
+                        Elevator Up
+                    </div>
+                    <div class="Button" id="elevatorDown">
+                        Elevator Down
+                    </div>
+                </div>
+            </div>
+
         </div>
+
         <div class="processorContainer" style="display: none;">
             <div class="buttonContainer">
                 <div class="Button" id="processorScore">
@@ -38,6 +50,7 @@
                 </div>
             </div>
         </div>
+        
         <div class="netContainer" style="display: none;">
             <div class="buttonContainer">
                 <div class="Button" id="netScoreRed">
@@ -48,6 +61,7 @@
                 </div>
             </div>
         </div>
+
         <div class="coralIntakeContainer" style="display: none;">
             <div class="buttonContainer">
                 <div class="Button" id="coralIntakeTop">
@@ -58,51 +72,13 @@
                 </div>
             </div>
         </div>
-        <div class="manualContainer" style="display: none;">
-            <div> 
-                <h1 id="manualText">
-                    Scoring on Area _ and Level _ 
-                </h1>
-            </div>
-            <div>
-                <div class="Button" id="cancel">
-                    Cancel Command
-                </div>
-            </div>
-            <div>
-                <div class="Button" id="score">
-                    Score!
-                </div>
-            </div>
-            <div class="pivotContainer">
-                <div class="Button" id="pivotForward">
-                    Move Pivot Forward
-                </div>
-                <div class="Button" id="pivotBack">
-                    Move Pivot Backwards
-                </div>
-            </div>
-            <div class="elevatorContainer">
-                <div class="Button" id="elevatorUp">
-                    Move Elevator Up
-                </div>
-                <div class="Button" id="elevatorDown">
-                    Move Elevator Down
-                </div>
-            </div>
-            <div class="wristContainer">
-                <div class="Button" id="wristForward">
-                    Move Wrist Forward
-                </div>
-                <div class="Button" id="wristBack">
-                    Move Wrist Backwards
-                </div>
-            </div>
-        </div>
+
     </div>
+
     <div class="messageContainer" style="display: none;">
         <h1 id="messageDisplay">NO ROBOT CONNECTION</h1>
     </div>
+
     <script src="ntsetup.js"></script>
     <script src="robotCommunication.js"></script>
     <script src="processor.js"></script>
