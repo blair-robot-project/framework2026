@@ -15,9 +15,6 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import frc.team449.auto.RoutineChooser
-import frc.team449.commands.light.BlairChasing
-import frc.team449.commands.light.BreatheHue
-import frc.team449.commands.light.Rainbow
 import frc.team449.subsystems.FieldConstants
 import frc.team449.subsystems.drive.swerve.SwerveSim
 import frc.team449.subsystems.superstructure.SuperstructureGoal
@@ -89,8 +86,6 @@ class RobotLoop : TimedRobot() {
     SmartDashboard.putData("Routine Chooser", routineChooser)
     SmartDashboard.putData("Command Scheduler", CommandScheduler.getInstance())
 
-    robot.light.defaultCommand = BlairChasing(robot.light)
-
     controllerBinder.bindButtons()
 
     DogLog.setOptions(
@@ -114,6 +109,8 @@ class RobotLoop : TimedRobot() {
     if (RobotBase.isReal()) {
       robot.wrist.startupZero()
     }
+
+    robot.light.defaultCommand = robot.light.progressMask({ robot.elevator.positionSupplier.get() })
   }
 
   override fun driverStationConnected() {
@@ -134,12 +131,6 @@ class RobotLoop : TimedRobot() {
     /** Every time auto starts, we update the chosen auto command. */
     this.autoCommand = routineMap[if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) "Red" + routineChooser.selected else "Blue" + routineChooser.selected]
     CommandScheduler.getInstance().schedule(this.autoCommand)
-
-    if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) {
-      BreatheHue(robot.light, 0).schedule()
-    } else {
-      BreatheHue(robot.light, 95).schedule()
-    }
   }
 
   override fun autonomousPeriodic() {}
@@ -163,7 +154,6 @@ class RobotLoop : TimedRobot() {
     robot.drive.stop()
 
     (robot.light.currentCommand ?: InstantCommand()).cancel()
-    Rainbow(robot.light).schedule()
   }
 
   override fun disabledPeriodic() {}

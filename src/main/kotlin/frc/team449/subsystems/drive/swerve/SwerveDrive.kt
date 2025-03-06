@@ -17,7 +17,6 @@ import kotlin.math.hypot
 /**
  * A Swerve Drive chassis.
  * @param modules An array of [SwerveModule]s that are on the drivetrain.
- * @param ahrs The gyro that is mounted on the chassis.
  * @param maxLinearSpeed The maximum translation speed of the chassis.
  * @param maxRotSpeed The maximum rotation speed of the chassis.
  * @param field The SmartDashboard [Field2d] widget that shows the robot's pose.
