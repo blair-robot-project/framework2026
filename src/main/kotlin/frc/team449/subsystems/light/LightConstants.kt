@@ -12,4 +12,5 @@ object LightConstants {
   // number of LEDs per meter (for WPILib calc)
   // todo(buscalo este numero)
   const val LED_PER_METER: Int = 120
+  const val LED_TRANSLATION_SPEED: Double = 0.5 // m/s
 }

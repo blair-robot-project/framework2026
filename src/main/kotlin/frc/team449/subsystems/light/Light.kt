@@ -34,9 +34,12 @@ class Light(
   }
 
   fun rainbow(): Command {
-    return this.runOnce {
+    return this.run {
       val rainbow: LEDPattern = LEDPattern.rainbow(255, 128)
-      val scrollingRainbow = rainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(1.0), ledSpacing)
+      val scrollingRainbow = rainbow.scrollAtAbsoluteSpeed(
+        MetersPerSecond.of(LightConstants.LED_TRANSLATION_SPEED),
+        ledSpacing
+      )
 
       scrollingRainbow.applyTo(lightBuffer)
 
@@ -45,7 +48,7 @@ class Light(
   }
 
   fun solidColor(color: Color): Command {
-    return this.runOnce {
+    return this.run {
       val colorSolid: LEDPattern = LEDPattern.solid(color)
 
       colorSolid.applyTo(lightBuffer)
@@ -55,7 +58,7 @@ class Light(
   }
 
   fun gradient(continuous: Boolean = true, speedMetersPerSecond: Double, vararg colors: Color): Command {
-    return this.runOnce {
+    return this.run {
       // continuous is optimal for scrolling, discontinuous for static
       val continuousness: GradientType = if (continuous) GradientType.kContinuous else GradientType.kDiscontinuous
       val gradient: LEDPattern = LEDPattern.gradient(continuousness, *colors)
@@ -68,7 +71,7 @@ class Light(
   }
 
   fun progressMask(maskValue: DoubleSupplier): Command {
-    return this.runOnce {
+    return this.run {
       val base: LEDPattern = LEDPattern.gradient(GradientType.kDiscontinuous, Color.kRed, Color.kGreen)
       val maskAmount: LEDPattern = LEDPattern.progressMaskLayer(maskValue)
       val heightDisplay: LEDPattern = base.mask(maskAmount)

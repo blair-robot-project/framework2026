@@ -110,7 +110,7 @@ class RobotLoop : TimedRobot() {
       robot.wrist.startupZero()
     }
 
-    robot.light.defaultCommand = robot.light.progressMask({ robot.elevator.positionSupplier.get() })
+//    robot.light.defaultCommand = robot.light.progressMask({ robot.elevator.positionSupplier.get() })
   }
 
   override fun driverStationConnected() {

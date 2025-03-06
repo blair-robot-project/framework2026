@@ -200,7 +200,9 @@ class ControllerBindings(
 
   private fun score_l4() {
     driveController.y().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.L4)
+      robot.superstructureManager.requestGoal(SuperstructureGoal.L4).andThen(
+        robot.light.rainbow()
+      )
     )
   }
 
