@@ -5,10 +5,7 @@ import edu.wpi.first.networktables.StringPublisher
 import edu.wpi.first.networktables.StringSubscriber
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.Timer
-import edu.wpi.first.wpilibj2.command.Command
-import edu.wpi.first.wpilibj2.command.InstantCommand
-import edu.wpi.first.wpilibj2.command.SubsystemBase
-import edu.wpi.first.wpilibj2.command.WaitCommand
+import edu.wpi.first.wpilibj2.command.*
 import frc.team449.Robot
 import frc.team449.commands.autoscoreCommands.AutoScoreCommandConstants
 import frc.team449.commands.autoscoreCommands.AutoScoreCommands
@@ -58,13 +55,13 @@ class WebConnection(val robot: Robot) : SubsystemBase() {
         "netRed" -> autoScore.getNetCommand(true).andThen(InstantCommand({isDonePublish.set(false)}))
         "netBlue" -> autoScore.getNetCommand(false).andThen(InstantCommand({isDonePublish.set(false)}))
         "cancel" -> autoScore.cancelCommand().andThen(WaitCommand(0.25)).andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
-        "score" -> autoScore.scoreCommand().andThen(WaitCommand(0.25)).andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
+        "score" -> autoScore.scoreCommand().andThen(WaitCommand(0.25)).andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)).andThen(PrintCommand("finished scoring"))
         "pivotForward" -> robot.pivot.setPosition(robot.pivot.positionSupplier.get()-pivotAngleIncrease)
         "pivotBack" -> robot.pivot.setPosition(robot.pivot.positionSupplier.get()+pivotAngleIncrease)
         "wristForward" -> robot.wrist.setPosition(robot.wrist.positionSupplier.get()-wristAngleIncrease)
         "wristBack" -> robot.wrist.setPosition(robot.wrist.positionSupplier.get()+wristAngleIncrease)
-        "elevatorUp" -> robot.elevator.setPosition(robot.elevator.positionSupplier.get()+elevatorIncrease)
-        "elevatorDown" -> robot.elevator.setPosition(robot.elevator.positionSupplier.get()-elevatorIncrease)
+        "elevatorUp" -> robot.elevator.setPosition(robot.elevator.positionSupplier.get()+elevatorIncrease).andThen(PrintCommand("elevator up"))
+        "elevatorDown" -> robot.elevator.setPosition(robot.elevator.positionSupplier.get()-elevatorIncrease).andThen(PrintCommand("elevator down"))
         else -> {
           //format will be l_ location__
           isDonePublish.set(false)

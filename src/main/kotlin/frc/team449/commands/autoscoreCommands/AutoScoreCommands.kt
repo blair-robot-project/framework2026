@@ -152,6 +152,7 @@ class AutoScoreCommands(private val robot: Robot) {
     return InstantCommand({
       moving = false
       currentCommand.cancel()
+      //robot.drive.set(robot.drive.currentSpeeds)
       robot.drive.defaultCommand = robot.driveCommand
       waitingForScore = false
     })

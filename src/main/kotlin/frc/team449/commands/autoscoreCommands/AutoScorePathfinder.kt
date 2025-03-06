@@ -25,6 +25,8 @@ import kotlin.math.PI
 import kotlin.math.abs
 
 class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
+  var endingPose = endPose
+
   private var ADStar = LocalADStar()
 
   private val velXPub: DoublePublisher
@@ -43,7 +45,7 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
   private val timer = Timer()
   private var inPIDDistance = false
   private var pidDistance = 1.0
-  private var tolerance = 0.15
+  private var tolerance = 0.05
   private val premoveDistance = 0.3
 
   var atSetpoint = false
@@ -61,8 +63,8 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
   private val pidOffsetTime = 0.15
 
   private var thetaController: PIDController = PIDController(6.5, 0.8592, 0.0)
-  private var xController = PIDController(7.0, 2.0, 0.0)
-  private var yController = PIDController(7.0, 2.0, 0.0)
+  private var xController = PIDController(5.0, 0.0, 0.0)
+  private var yController = PIDController(5.0, 0.0, 0.0)
   var distance: Double
   private var adMag = 1.0
   private var pidMag = 0.0
@@ -129,9 +131,14 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
         pidMag = 1.0
       }
       if (distance < tolerance) {
+        println("at setpoint in periodic")
         atSetpoint = true
       } else if (distance < premoveDistance) {
         atPremoveDistance = true
+      }
+      if (!(distance < tolerance)) {
+        println("not at setpoint in periodic")
+        atSetpoint = false
       }
     } else {
       inPIDDistance = false
@@ -263,16 +270,29 @@ class AutoScoreWrapperCommand(
       premoveGoal.schedule()
       hasPremoved = true
     }
-    if (pathFinder.atSetpoint && !usingReefAlign) {
-      reefAlignCommand = SimpleReefAlign(robot.drive, robot.poseSubsystem)
-      reefAlignCommand.schedule()
-      usingReefAlign = true
-    } else if (!usingReefAlign) {
+//    if (pathFinder.atSetpoint && !usingReefAlign) {
+//      reefAlignCommand = SimpleReefAlign(robot.drive, robot.poseSubsystem)
+//      reefAlignCommand.schedule()
+//      usingReefAlign = true
+//    } else if (!usingReefAlign) {
+//      pathFinder.pathFind()
+//    }
+    if (!pathFinder.atSetpoint) {
       pathFinder.pathFind()
+    }
+    if (pathFinder.atSetpoint) {
+      println("at setpoint")
+      println("x away: ${pathFinder.endingPose.translation.x - robot.poseSubsystem.pose.translation.x}")
+      println("y away: ${pathFinder.endingPose.translation.y - robot.poseSubsystem.pose.translation.y}")
+      println("radians away: ${pathFinder.endingPose.rotation.radians - robot.poseSubsystem.pose.rotation.radians}")
+      println("distance: ${pathFinder.distance}")
+      robot.drive.set(ChassisSpeeds(0.0,0.0,0.0))
+      this.end(true)
     }
   }
 
   override fun isFinished(): Boolean {
-    return usingReefAlign && reefAlignCommand.isFinished
+    //return usingReefAlign && reefAlignCommand.isFinished
+    return pathFinder.atSetpoint
   }
 }
