@@ -46,6 +46,7 @@ function topicUnannounceHandler( removedTopic ) {
 */
 function valueUpdateHandler( topic, timestamp_us, value ) {
   console.log("value updated: " + topic.name);
+  console.log("value: " + value);
   if(topic.name == "/webcom/Alliance") {
     setAlliance(value);
   } else if(topic.name == "/webcom/isDone") {

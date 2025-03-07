@@ -4,10 +4,8 @@ import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.networktables.StringPublisher
 import edu.wpi.first.networktables.StringSubscriber
 import edu.wpi.first.wpilibj.DriverStation
-import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.*
 import frc.team449.Robot
-import frc.team449.commands.autoscoreCommands.AutoScoreCommandConstants
 import frc.team449.commands.autoscoreCommands.AutoScoreCommands
 import frc.team449.subsystems.superstructure.SuperstructureGoal
 
@@ -48,23 +46,19 @@ class WebConnection(val robot: Robot) : SubsystemBase() {
 
     if (ntCommandInput != "none") {
       println("command received: $ntCommandInput")
-      isDonePublish.set(false)
-
+      if(ntCommandInput != "elevatorUp" && ntCommandInput != "elevatorDown") {
+        isDonePublish.set(false)
+      }
       webAppCommand = when (ntCommandInput) {
-        "processor" -> autoScore.getProcessorCommand().andThen(InstantCommand({isDonePublish.set(false)}))
-        "netRed" -> autoScore.getNetCommand(true).andThen(InstantCommand({isDonePublish.set(false)}))
-        "netBlue" -> autoScore.getNetCommand(false).andThen(InstantCommand({isDonePublish.set(false)}))
+        "processor" -> autoScore.getProcessorCommand()
+        "netRed" -> autoScore.getNetCommand(true)
+        "netBlue" -> autoScore.getNetCommand(false)
         "cancel" -> autoScore.cancelCommand().andThen(WaitCommand(0.25)).andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
-        "score" -> autoScore.scoreCommand().andThen(WaitCommand(0.25)).andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)).andThen(PrintCommand("finished scoring"))
-        "pivotForward" -> robot.pivot.setPosition(robot.pivot.positionSupplier.get()-pivotAngleIncrease)
-        "pivotBack" -> robot.pivot.setPosition(robot.pivot.positionSupplier.get()+pivotAngleIncrease)
-        "wristForward" -> robot.wrist.setPosition(robot.wrist.positionSupplier.get()-wristAngleIncrease)
-        "wristBack" -> robot.wrist.setPosition(robot.wrist.positionSupplier.get()+wristAngleIncrease)
-        "elevatorUp" -> robot.elevator.setPosition(robot.elevator.positionSupplier.get()+elevatorIncrease).andThen(PrintCommand("elevator up"))
-        "elevatorDown" -> robot.elevator.setPosition(robot.elevator.positionSupplier.get()-elevatorIncrease).andThen(PrintCommand("elevator down"))
+        "score" -> autoScore.scoreCommand().andThen(WaitCommand(0.25)).andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
+        "elevatorUp" -> robot.elevator.setPosition(robot.elevator.positionSupplier.get()+elevatorIncrease)
+        "elevatorDown" -> robot.elevator.setPosition(robot.elevator.positionSupplier.get()-elevatorIncrease)
         else -> {
           //format will be l_ location__
-          isDonePublish.set(false)
           val level = ntCommandInput.slice(0..1)
           val location = ntCommandInput.slice(3..<ntCommandInput.length)
           val reefLocation = when (location) {
@@ -88,6 +82,12 @@ class WebConnection(val robot: Robot) : SubsystemBase() {
             "l3" -> SuperstructureGoal.L3
             "l4" -> SuperstructureGoal.L4
             else -> SuperstructureGoal.L1
+          }
+          when (level) {
+            "l1" -> robot.superstructureManager.requestGoal(SuperstructureGoal.L1_PREMOVE).schedule()
+            "l2" -> robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PREMOVE).schedule()
+            "l3" -> robot.superstructureManager.requestGoal(SuperstructureGoal.L3_PREMOVE).schedule()
+            "l4" -> robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).schedule()
           }
           autoScore.getReefCommand(reefLocation, coralLevel)
         }

@@ -17,6 +17,8 @@ class AutoScoreCommands(private val robot: Robot) {
 
   fun scoreCommand(): Command {
     waitingForScore = false
+    moving = false
+    robot.drive.defaultCommand = robot.driveCommand
     return scoreCommand
   }
 
@@ -31,7 +33,7 @@ class AutoScoreCommands(private val robot: Robot) {
   fun getReefCommand(reefLocation: Pose2d, coralGoal: SuperstructureGoal.SuperstructureState): Command {
     return runOnce({
       moving = true
-      val premoveCommand = robot.superstructureManager.requestGoal(coralGoal).andThen(robot.intake.holdCoral())
+      val superstructureMoveCommand = robot.superstructureManager.requestGoal(coralGoal).andThen(robot.intake.holdCoral())
       scoreCommand = robot.intake.outtakeCoral()
       robot.poseSubsystem.autoscoreCommandPose = reefLocation
 
@@ -39,10 +41,9 @@ class AutoScoreCommands(private val robot: Robot) {
         AutoScoreWrapperCommand(
           robot,
           AutoScorePathfinder(robot, reefLocation),
-          premoveCommand
+          superstructureMoveCommand
         ).andThen(
           InstantCommand({
-            robot.drive.defaultCommand = robot.driveCommand
             waitingForScore = true
           })
         )
@@ -104,7 +105,6 @@ class AutoScoreCommands(private val robot: Robot) {
     return InstantCommand({
       moving = false
       currentCommand.cancel()
-      //robot.drive.set(robot.drive.currentSpeeds)
       robot.drive.defaultCommand = robot.driveCommand
       waitingForScore = false
     })
