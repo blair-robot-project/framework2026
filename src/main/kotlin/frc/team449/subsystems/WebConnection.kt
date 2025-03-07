@@ -68,26 +68,26 @@ class WebConnection(val robot: Robot) : SubsystemBase() {
           val level = ntCommandInput.slice(0..1)
           val location = ntCommandInput.slice(3..<ntCommandInput.length)
           val reefLocation = when (location) {
-            "location1" -> (AutoScoreCommandConstants.ReefLocation.Location1)
-            "location2" -> (AutoScoreCommandConstants.ReefLocation.Location2)
-            "location3" -> (AutoScoreCommandConstants.ReefLocation.Location3)
-            "location4" -> (AutoScoreCommandConstants.ReefLocation.Location4)
-            "location5" -> (AutoScoreCommandConstants.ReefLocation.Location5)
-            "location6" -> (AutoScoreCommandConstants.ReefLocation.Location6)
-            "location7" -> (AutoScoreCommandConstants.ReefLocation.Location7)
-            "location8" -> (AutoScoreCommandConstants.ReefLocation.Location8)
-            "location9" -> (AutoScoreCommandConstants.ReefLocation.Location9)
-            "location10" -> (AutoScoreCommandConstants.ReefLocation.Location10)
-            "location11" -> (AutoScoreCommandConstants.ReefLocation.Location11)
-            "location12" -> (AutoScoreCommandConstants.ReefLocation.Location12)
-            else -> (AutoScoreCommandConstants.ReefLocation.Location1)
+            "locationA" -> FieldConstants.REEF_LOCATIONS[0]
+            "locationB" -> FieldConstants.REEF_LOCATIONS[1]
+            "locationC" -> FieldConstants.REEF_LOCATIONS[2]
+            "locationD" -> FieldConstants.REEF_LOCATIONS[3]
+            "locationE" -> FieldConstants.REEF_LOCATIONS[4]
+            "locationF" -> FieldConstants.REEF_LOCATIONS[5]
+            "locationG" -> FieldConstants.REEF_LOCATIONS[6]
+            "locationH" -> FieldConstants.REEF_LOCATIONS[7]
+            "locationI" -> FieldConstants.REEF_LOCATIONS[8]
+            "locationJ" -> FieldConstants.REEF_LOCATIONS[9]
+            "locationK" -> FieldConstants.REEF_LOCATIONS[10]
+            "locationL" -> FieldConstants.REEF_LOCATIONS[11]
+            else -> FieldConstants.REEF_LOCATIONS[0]
           }
           val coralLevel = when (level) {
-            "l1" -> (AutoScoreCommandConstants.CoralLevel.L1)
-            "l2" -> (AutoScoreCommandConstants.CoralLevel.L2)
-            "l3" -> (AutoScoreCommandConstants.CoralLevel.L3)
-            "l4" -> (AutoScoreCommandConstants.CoralLevel.L4)
-            else -> (AutoScoreCommandConstants.CoralLevel.L1)
+            "l1" -> SuperstructureGoal.L1
+            "l2" -> SuperstructureGoal.L2
+            "l3" -> SuperstructureGoal.L3
+            "l4" -> SuperstructureGoal.L4
+            else -> SuperstructureGoal.L1
           }
           autoScore.getReefCommand(reefLocation, coralLevel)
         }

@@ -25,6 +25,8 @@ function topicAnnounceHandler( newTopic ) {
 
 }
 
+let isDone = false;
+
 /**
 * Topic UnAnnounce Handler
 * The NT4_Client will call this function whenever the server un-announces a topic.
@@ -46,8 +48,14 @@ function valueUpdateHandler( topic, timestamp_us, value ) {
   console.log("value updated: " + topic.name);
   if(topic.name == "/webcom/Alliance") {
     setAlliance(value);
-  } else if(topic.name == "/webcom/isDone" && value===true) {
-    document.getElementById("confirmReefButton").innerText = "At Location";
+  } else if(topic.name == "/webcom/isDone") {
+    if(value===true) {
+      document.getElementById("confirmReefButton").innerText = "At Location";
+      document.getElementById("score").innerText = "Score!";
+    } else {
+      isDone = false;
+      document.getElementById("score").innerText = "Not Yet";
+    }
   }
 }
 
@@ -101,11 +109,11 @@ let areaSelected = false;
 let intervalList = [];
 
 const resetReef = () => {
-  coralSelected = false;
   areaSelected = false;
-  coralLevel = -1;
   document.getElementById("confirmReefButton").innerText = `Choose Robot Alignment`;
-  document.getElementById("coral").src = `coralLevelImages/coralNone.png`;
+  if(coralLevel != -1) {
+    `Coral Level: L${coralLevel}`
+  }
   document.getElementById("locationSelect").src = "locationSelectorImages/locationSelectorNone.png";
   intervalList.forEach(ivl => clearInterval(ivl));
   intervalList.length = 0;
@@ -113,7 +121,7 @@ const resetReef = () => {
     id => {
       const elt = document.getElementById(id);
       const eltinterval = setInterval(() => {
-        if(window.getComputedStyle(elt).backgroundColor == "rgb(200, 0, 0)") {
+        if(window.getComputedStyle(elt).filter == "brightness(0.8)") {
           setCommand(id);
         }
       }, 0.02);
@@ -125,7 +133,7 @@ const resetReef = () => {
 
 document.getElementById("confirmReefButton").onclick = async () => {
   if(coralSelected && areaSelected) {
-    scoreReef(reefArea, coralLevel);
+    moveToReef(reefArea, coralLevel);
     document.getElementById("confirmReefButton").innerText = "Scoring...";
     document.getElementById("confirmReefButton").style.backgroundColor = "#DD0000";
   }
@@ -153,9 +161,9 @@ const intakeCoral = async (isAtTopSide) => {
   }
 }
 
-const scoreReef = async (location, level) => {
-  console.log(`Scoring on level: ${level} and location: ${location}`)
-  setCommand(`l${level} location${location > 3 ? location-3 : location+9}`);
+const moveToReef = async (location, level) => {
+  console.log(`Scoring on level: ${level} and location: ${numberToLetter[11-(location+4)%12]}`)
+  setCommand(`l${level} location${numberToLetter[11-(location+4)%12]}`);
 }
 
 const scoringContainer = document.querySelector(".scoringContainer");
@@ -188,9 +196,11 @@ document.getElementById("cancel").onclick = () => {
 }
 
 document.getElementById("score").onclick = () => {
-  setCommand("score");
-  resetReef();
-  showContainer("reefContainer");
+  if(document.getElementById("score").innerText == "Score!") {
+    setCommand("score");
+    resetReef();
+    showContainer("reefContainer");
+  }
 }
 
 let currentContainer = "reefContainer";
