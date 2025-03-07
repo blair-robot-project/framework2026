@@ -8,10 +8,13 @@ import com.pathplanner.lib.pathfinding.LocalADStar
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.controller.PIDController
+import edu.wpi.first.math.controller.ProfiledPIDController
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.kinematics.ChassisSpeeds.fromFieldRelativeSpeeds
+import edu.wpi.first.math.trajectory.TrapezoidProfile
 import edu.wpi.first.networktables.*
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.Command
@@ -21,6 +24,8 @@ import frc.team449.commands.driveAlign.SimpleReefAlign
 import frc.team449.subsystems.RobotConstants
 import frc.team449.subsystems.drive.swerve.SwerveDrive
 import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.min
 
 class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
   private var ADStar = LocalADStar()
@@ -40,9 +45,8 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
   private var rotation = 0.0
   private val timer = Timer()
   private var inPIDDistance = false
-  private var pidDistance = 0.45
-  private var PIDSetpointMagnitude = 0.1
-  private var tolerance = 0.15
+  private var pidDistance = 0.75
+  private var tolerance = 0.02
   private val premoveDistance = 0.3
 
   var atSetpoint = false
@@ -57,14 +61,19 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
 
   private var xPIDSpeed = 0.0
   private var yPIDSpeed = 0.0
-  private val pidOffsetTime = 0.1
+  private val pidOffsetTime = 0.05
 
-  private var thetaController: PIDController = PIDController(6.5, 0.8592, 0.0)
-  private var xController = PIDController(7.0, 2.0, 0.2)
-  private var yController = PIDController(7.0, 2.0, 0.2)
-  var distance: Double
-  private var ADStarPower = 0.75
-  private val ADStarDecrease = 0.07
+  private var thetaController = ProfiledPIDController(6.5, 0.8592, 0.0, TrapezoidProfile.Constraints(AutoScoreCommandConstants.MAX_ROT_SPEED, AutoScoreCommandConstants.MAX_ROT_ACCEL))
+  private var xController = ProfiledPIDController(3.0, 0.0, 0.0, TrapezoidProfile.Constraints(AutoScoreCommandConstants.MAX_LINEAR_SPEED, AutoScoreCommandConstants.MAX_ACCEL))
+  private var yController = ProfiledPIDController(3.0, 0.0, 0.0, TrapezoidProfile.Constraints(AutoScoreCommandConstants.MAX_LINEAR_SPEED, AutoScoreCommandConstants.MAX_ACCEL))
+  var distance: Double = 100.0
+  private var ADStarPower = 0.9
+  private val ADStarDecrease = 0.04
+
+  private val speedTol: Double = 0.075
+  private val speedTolRot: Double = PI / 16
+  private val ffMinRadius: Double = 0.02
+  private val ffMaxRadius: Double = 0.1
 
   init {
     timer.restart()
@@ -74,21 +83,38 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
     setpointPub = NetworkTableInstance.getDefault().getBooleanTopic("/pathfinder/atSetpoint").publish()
     rotPub = NetworkTableInstance.getDefault().getBooleanTopic("/pathfinder/atRotSetpoint").publish()
     autodistancePub = NetworkTableInstance.getDefault().getBooleanTopic("/pathfinder/inPIDDistance").publish()
+
     distpub = NetworkTableInstance.getDefault().getDoubleTopic("/pathfinder/distance").publish()
+    val fieldRelative = ChassisSpeeds.fromRobotRelativeSpeeds(
+      robot.drive.currentSpeeds.vxMetersPerSecond,
+      robot.drive.currentSpeeds.vyMetersPerSecond,
+      robot.drive.currentSpeeds.omegaRadiansPerSecond,
+      robot.poseSubsystem.pose.rotation
+    )
 
-    xController.reset()
-    yController.reset()
-    xController.setTolerance(0.0)
-    yController.setTolerance(0.0)
+    xController.reset(
+      robot.poseSubsystem.pose.x,
+      fieldRelative.vxMetersPerSecond
+    )
+    yController.reset(
+      robot.poseSubsystem.pose.y,
+      fieldRelative.vyMetersPerSecond
+    )
+    thetaController.reset(robot.poseSubsystem.pose.rotation.radians,
+      fieldRelative.omegaRadiansPerSecond)
 
-    thetaController.reset()
-    thetaController.setpoint = endPose.rotation.radians
+    //second tolerance is speed tolerance
+    xController.setTolerance(0.0, speedTol)
+    yController.setTolerance(0.0, speedTol)
+    thetaController.setTolerance(0.0, speedTolRot)
+
     thetaController.enableContinuousInput(-PI, PI)
-    thetaController.setTolerance(0.0)
 
-    ADStarPower = 1.0
+    thetaController.goal = TrapezoidProfile.State(endPose.rotation.radians, 0.0)
+    xController.goal = TrapezoidProfile.State(endPose.x, 0.0)
+    yController.goal = TrapezoidProfile.State(endPose.y, 0.0)
+
     admagpub = NetworkTableInstance.getDefault().getDoubleTopic("/pathfinder/admag").publish()
-    distance = 100.0
   }
 
   fun runSetup() {
@@ -99,7 +125,6 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
     velYPub.set(velocityY)
     velRotationPub.set(rotation)
     distance = robot.poseSubsystem.pose.translation.getDistance(endPose.translation)
-    ADStarPower = 1.0
     if (distance < pidDistance) {
       ADStarPower = (distance / pidDistance)
     }
@@ -113,6 +138,7 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
       inPIDDistance = true
       ADStarPower -= ADStarDecrease
       if (ADStarPower < 0) {
+        println(distance)
         ADStarPower = 0.0
       }
       if (distance < tolerance) {
@@ -163,18 +189,27 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
         }
       }
       if (!trajectoryNull && trajValid) {
-        expectedTime = trajectory.totalTimeSeconds
-        trajectory.sample(currentTime - startTime + pidOffsetTime).pose.let {
-          if(it.translation.getDistance(endPose.translation) < PIDSetpointMagnitude) {
-            xController.setpoint = endPose.translation.x
-            yController.setpoint = endPose.translation.y
-          } else {
-            xController.setpoint = (it.translation.x)
-            yController.setpoint = (it.translation.y)
+        if(currentTime - startTime + pidOffsetTime*2 > expectedTime) {
+          xController.goal = TrapezoidProfile.State(endPose.x, 0.0)
+          yController.goal = TrapezoidProfile.State(endPose.y, 0.0)
+        } else {
+          trajectory.sample(currentTime - startTime + pidOffsetTime).pose.let {
+            xController.goal = TrapezoidProfile.State(it.x, 0.1)
+            yController.goal = TrapezoidProfile.State(it.y, 0.1)
           }
-          xPIDSpeed = xController.calculate(robot.poseSubsystem.pose.translation.x)
-          yPIDSpeed = yController.calculate(robot.poseSubsystem.pose.translation.y)
         }
+        val ffXScaler = MathUtil.clamp(
+          (abs(robot.poseSubsystem.pose.x-endPose.x) - ffMinRadius) / (ffMaxRadius - ffMinRadius),
+          0.0,
+          1.0
+        )
+        val ffYScaler = MathUtil.clamp(
+          (abs(robot.poseSubsystem.pose.y-endPose.y) - ffMinRadius) / (ffMaxRadius - ffMinRadius),
+          0.0,
+          1.0
+        )
+        xPIDSpeed = (xController.setpoint.velocity * ffXScaler + xController.calculate(robot.poseSubsystem.pose.x, endPose.x))
+        yPIDSpeed = (yController.setpoint.velocity * ffYScaler + yController.calculate(robot.poseSubsystem.pose.y, endPose.y))
         trajectory.sample(currentTime - startTime).fieldSpeeds.let {
           val trajSpeeds = ChassisSpeeds(
             it.vxMetersPerSecond,
@@ -183,7 +218,6 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
           )
           velocityX = trajSpeeds.vxMetersPerSecond * ADStarPower
           velocityY = trajSpeeds.vyMetersPerSecond * ADStarPower
-          rotation = 0.0
         }
       }
     }
@@ -191,11 +225,17 @@ class AutoScorePathfinder(val robot: Robot, private val endPose: Pose2d) {
     xPIDSpeed *= (1-ADStarPower)
     yPIDSpeed *= (1-ADStarPower)
 
+    val ffRotScaler = MathUtil.clamp(
+      (abs(MathUtil.angleModulus(robot.poseSubsystem.pose.rotation.radians)-endPose.rotation.radians)) / (PI),
+      0.0,
+      1.0
+    )
     val wrappedRotation = MathUtil.angleModulus(robot.poseSubsystem.pose.rotation.radians)
-    rotation = thetaController.calculate(wrappedRotation)
+    rotation = thetaController.setpoint.velocity * ffRotScaler + thetaController.calculate(wrappedRotation, TrapezoidProfile.State(endPose.rotation.radians, 0.0))
     if (wrappedRotation == endPose.rotation.radians) {
       rotation = 0.0
     }
+
     if (atSetpoint) {
       robot.poseSubsystem.setPathMag(ChassisSpeeds(0.0, 0.0, rotation))
     } else {
@@ -237,8 +277,6 @@ class AutoScoreWrapperCommand(
 ) :
   Command() {
 
-  private var reefAlignCommand: Command = InstantCommand()
-  private var usingReefAlign = false
   private var hasPremoved = false
 
   override fun initialize() {
@@ -253,16 +291,12 @@ class AutoScoreWrapperCommand(
       premoveGoal.schedule()
       hasPremoved = true
     }
-    if (pathFinder.atSetpoint && !usingReefAlign) {
-      reefAlignCommand = SimpleReefAlign(robot.drive, robot.poseSubsystem)
-      reefAlignCommand.schedule()
-      usingReefAlign = true
-    } else if (!usingReefAlign) {
+    if (!pathFinder.atSetpoint) {
       pathFinder.pathFind()
     }
   }
 
   override fun isFinished(): Boolean {
-    return usingReefAlign && reefAlignCommand.isFinished
+    return pathFinder.atSetpoint
   }
 }

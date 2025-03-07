@@ -52,9 +52,11 @@ function valueUpdateHandler( topic, timestamp_us, value ) {
     if(value===true) {
       document.getElementById("confirmReefButton").innerText = "At Location";
       document.getElementById("score").innerText = "Score!";
+      document.getElementById("score").style.backgroundColor = "rgb(4, 189, 36)";
     } else {
       isDone = false;
       document.getElementById("score").innerText = "Not Yet";
+      document.getElementById("score").style.backgroundColor = "#DD0000";
     }
   }
 }

@@ -9,13 +9,6 @@ import kotlin.math.PI
 
 class AutoScoreCommandConstants {
 
-  enum class CoralLevel {
-    L1,
-    L2,
-    L3,
-    L4
-  }
-
   companion object {
     /**
      * syntactic sugar method
@@ -69,9 +62,9 @@ class AutoScoreCommandConstants {
     // RED
     val netRotation2dRed = Rotation2d(Math.PI) // in radians
 
-    const val ROT_MAX_ACCEL = PI
-    const val MAX_ACCEL = 8.0
-    const val MAX_ROT_SPEED = 5 * PI / 4 // r ad/s
+    val MAX_ACCEL = 8.0
+    val MAX_ROT_ACCEL = 2 * PI // rad/s/s
+    val MAX_ROT_SPEED = 2 * PI // rad/s
     val MAX_LINEAR_SPEED = SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED * 4 / 5 // m/s
   }
 }
