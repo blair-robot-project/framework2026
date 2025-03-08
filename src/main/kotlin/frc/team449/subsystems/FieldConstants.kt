@@ -3,7 +3,9 @@ package frc.team449.subsystems
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.wpilibj.DriverStation.Alliance
+import frc.team449.commands.autoscoreCommands.AutoScoreCommandConstants.Companion.centerOfField
 import kotlin.math.PI
 
 object FieldConstants {
@@ -12,6 +14,7 @@ object FieldConstants {
 
   val REEF_LOCATIONS = arrayListOf<Pose2d>()
   val REEF_CENTER_LOCATIONS = arrayListOf<Pose2d>()
+  lateinit var REEF_CENTER : Translation2d
 
   enum class ReefSide {
     LEFT,
@@ -90,6 +93,10 @@ object FieldConstants {
         REEF_6,
       )
     )
+
+    val RED_REEF_CENTER = Translation2d(13.0758, 4.0325)
+    val BLUE_REEF_CENTER = Translation2d(centerOfField - (RED_REEF_CENTER.x - centerOfField), RED_REEF_CENTER.y)
+    REEF_CENTER = (if (allianceComp) RED_REEF_CENTER else BLUE_REEF_CENTER)
   }
 
   private fun findPose(x: Double, y: Double, angle: Double, isRed: Boolean): Pose2d {

@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import frc.team449.Robot
+import frc.team449.subsystems.FieldConstants
 import frc.team449.subsystems.superstructure.SuperstructureGoal
 
 class AutoScoreCommands(private val robot: Robot) {
@@ -40,7 +41,7 @@ class AutoScoreCommands(private val robot: Robot) {
       currentCommand =
         AutoScoreWrapperCommand(
           robot,
-          AutoScorePathfinder(robot, reefLocation),
+          AutoScorePathfinder(robot, reefLocation,true),
           superstructureMoveCommand
         ).andThen(
           InstantCommand({
@@ -62,7 +63,7 @@ class AutoScoreCommands(private val robot: Robot) {
       currentCommand =
         AutoScoreWrapperCommand(
           robot,
-          AutoScorePathfinder(robot, processorPose),
+          AutoScorePathfinder(robot, processorPose, false),
           premoveCommand
         ).andThen(
           InstantCommand({
@@ -89,7 +90,7 @@ class AutoScoreCommands(private val robot: Robot) {
       currentCommand =
         AutoScoreWrapperCommand(
           robot,
-          AutoScorePathfinder(robot, netPose),
+          AutoScorePathfinder(robot, netPose, false),
           premoveCommand
         ).andThen(
           InstantCommand({
