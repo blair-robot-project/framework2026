@@ -10,6 +10,9 @@ java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
+kotlin {
+    jvmToolchain(17)
+}
 
 def ROBOT_MAIN_CLASS = "frc.team449.Main"
 

@@ -1,9 +1,15 @@
 package frc.team449.subsystems.light
 
+import edu.wpi.first.units.Units.*
+import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.wpilibj.AddressableLED
 import edu.wpi.first.wpilibj.AddressableLEDBuffer
-import edu.wpi.first.wpilibj.RobotBase
+import edu.wpi.first.wpilibj.LEDPattern
+import edu.wpi.first.wpilibj.LEDPattern.GradientType
+import edu.wpi.first.wpilibj.util.Color
+import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import java.util.function.DoubleSupplier
 
 /**
  * Controls an LED strip.
@@ -17,62 +23,67 @@ class Light(
 ) : SubsystemBase() {
 
   private val lightStrip = AddressableLED(port)
-  val buffer = AddressableLEDBuffer(length)
+  private val lightBuffer = AddressableLEDBuffer(length)
+
+  val ledSpacing: Distance = Meters.of(1.0 / LightConstants.LED_PER_METER)
 
   init {
-    lightStrip.setLength(buffer.length)
-    lightStrip.setData(buffer)
+    lightStrip.setLength(lightBuffer.length)
+    lightStrip.setData(lightBuffer)
     lightStrip.start()
   }
 
+  fun rainbow(): Command {
+    return this.run {
+      val rainbow: LEDPattern = LEDPattern.rainbow(255, 128)
+      val scrollingRainbow = rainbow.scrollAtAbsoluteSpeed(
+        MetersPerSecond.of(LightConstants.LED_TRANSLATION_SPEED),
+        ledSpacing
+      )
+
+      scrollingRainbow.applyTo(lightBuffer)
+
+//      PrintCommand("Applied Rainbow Pattern to LEDs.")
+    }
+  }
+
+  fun solidColor(color: Color): Command {
+    return this.run {
+      val colorSolid: LEDPattern = LEDPattern.solid(color)
+
+      colorSolid.applyTo(lightBuffer)
+
+//      PrintCommand("Applied Solid Color '$color' to LEDs.").schedule()
+    }
+  }
+
+  fun gradient(continuous: Boolean = true, speedMetersPerSecond: Double, vararg colors: Color): Command {
+    return this.run {
+      // continuous is optimal for scrolling, discontinuous for static
+      val continuousness: GradientType = if (continuous) GradientType.kContinuous else GradientType.kDiscontinuous
+      val gradient: LEDPattern = LEDPattern.gradient(continuousness, *colors)
+      gradient.scrollAtAbsoluteSpeed(MetersPerSecond.of(speedMetersPerSecond), ledSpacing)
+
+      gradient.applyTo(lightBuffer)
+
+//    PrintCommand("Applied [continuous -> $continuous] gradient of colors [$colors] at speed $speedMetersPerSecond m/s to LEDs.").schedule()
+    }
+  }
+
+  fun progressMask(maskValue: DoubleSupplier): Command {
+    return this.run {
+      val base: LEDPattern = LEDPattern.gradient(GradientType.kDiscontinuous, Color.kRed, Color.kGreen)
+      val maskAmount: LEDPattern = LEDPattern.progressMaskLayer(maskValue)
+      val heightDisplay: LEDPattern = base.mask(maskAmount)
+
+      heightDisplay.applyTo(lightBuffer)
+
+//      PrintCommand("Applied value mask of $maskValue to LEDs.").schedule()
+    }
+  }
+
   override fun periodic() {
-    lightStrip.setData(buffer)
-  }
-
-  /** Copy the AddressableLEDBuffer setHsv() except to support
-   * GRB LED strips */
-  fun setHSV(index: Int, h: Int, s: Int, v: Int) {
-    if (RobotBase.isReal()) {
-      if (s == 0) {
-        buffer.setRGB(index, v, v, v)
-        return
-      }
-
-      // Difference between highest and lowest value of any rgb component
-      val chroma = s * v / 255
-
-      // Because hue is 0-180 rather than 0-360 use 30 not 60
-      val region = h / 30 % 6
-
-      // Remainder converted from 0-30 to 0-255
-      val remainder = Math.round(h % 30 * (255 / 30.0)).toInt()
-
-      // Value of the lowest rgb component
-      val m = v - chroma
-
-      // Goes from 0 to chroma as hue increases
-      val X = chroma * remainder shr 8
-      when (region) {
-        0 -> buffer.setRGB(index, X + m, v, m)
-        1 -> buffer.setRGB(index, v, v - X, m)
-        2 -> buffer.setRGB(index, v, m, X + m)
-        3 -> buffer.setRGB(index, v - X, m, v)
-        4 -> buffer.setRGB(index, m, X + m, v)
-        else -> buffer.setRGB(index, m, v, v - X)
-      }
-    } else {
-      buffer.setHSV(index, h, s, v)
-    }
-  }
-
-  /** Copy the AddressableLEDBuffer setRGB() except to support
-   * GRB LED strips */
-  fun setRGB(index: Int, r: Int, g: Int, b: Int) {
-    if (RobotBase.isReal()) {
-      buffer.setRGB(index, g, r, b)
-    } else {
-      buffer.setRGB(index, r, g, b)
-    }
+    lightStrip.setData(lightBuffer)
   }
 
   companion object {
