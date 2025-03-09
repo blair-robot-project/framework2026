@@ -6,15 +6,12 @@ import edu.wpi.first.units.measure.LinearVelocity
 import edu.wpi.first.units.measure.Time
 import edu.wpi.first.wpilibj.AddressableLED
 import edu.wpi.first.wpilibj.AddressableLEDBuffer
-import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.LEDPattern
 import edu.wpi.first.wpilibj.LEDPattern.GradientType
 import edu.wpi.first.wpilibj.util.Color
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
-import frc.team449.subsystems.superstructure.SuperstructureGoal
 import java.util.function.DoubleSupplier
-import kotlin.jvm.optionals.getOrNull
 
 /**
  * Controls an LED strip.

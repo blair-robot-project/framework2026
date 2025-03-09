@@ -5,7 +5,6 @@ import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.Distance
 import frc.team449.subsystems.RobotConstants
 import frc.team449.subsystems.drive.swerve.SwerveDrive
-import frc.team449.subsystems.superstructure.pivot.PivotConstants
 import frc.team449.subsystems.superstructure.wrist.WristConstants
 
 object SuperstructureGoal {

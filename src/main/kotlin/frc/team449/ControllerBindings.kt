@@ -165,9 +165,12 @@ class ControllerBindings(
         .deadlineFor(robot.light.gradient(MetersPerSecond.of(0.5), Color.kYellow, Color.kLightCoral, Color.kIndianRed))
         .andThen(
           robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
-            .alongWith(robot.light.blink(Seconds.of(0.25), Color.kWhite)
-              .withTimeout(1.5))
-        )    )
+            .alongWith(
+              robot.light.blink(Seconds.of(0.25), Color.kWhite)
+                .withTimeout(1.5)
+            )
+        )
+    )
   }
 
   private fun coralBlockSubstationIntake() {
@@ -179,8 +182,10 @@ class ControllerBindings(
         .deadlineFor(robot.light.gradient(MetersPerSecond.of(0.5), Color.kYellow, Color.kLightCoral, Color.kIndianRed))
         .andThen(
           robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
-            .alongWith(robot.light.blink(Seconds.of(0.25), Color.kWhite)
-              .withTimeout(1.5))
+            .alongWith(
+              robot.light.blink(Seconds.of(0.25), Color.kWhite)
+                .withTimeout(1.5)
+            )
         )
     )
   }

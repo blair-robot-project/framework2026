@@ -119,7 +119,8 @@ class RobotLoop : TimedRobot() {
     when (DriverStation.getAlliance().getOrNull()) {
       DriverStation.Alliance.Red -> robot.light.defaultCommand = robot.light.gradient(
         MetersPerSecond.of(0.25),
-        Color.kRed, Color.kWhite
+        Color.kRed,
+        Color.kWhite
       )
       DriverStation.Alliance.Blue -> robot.light.defaultCommand = robot.light.gradient(
         MetersPerSecond.of(0.25),
