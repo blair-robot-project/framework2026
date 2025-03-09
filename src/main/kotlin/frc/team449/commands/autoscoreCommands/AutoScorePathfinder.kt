@@ -5,7 +5,9 @@ import com.pathplanner.lib.path.GoalEndState
 import com.pathplanner.lib.path.PathConstraints
 import com.pathplanner.lib.path.PathPlannerPath
 import com.pathplanner.lib.pathfinding.LocalADStar
+import com.pathplanner.lib.pathfinding.RemoteADStar
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory
+import dev.doglog.DogLog
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.controller.ProfiledPIDController
@@ -184,11 +186,13 @@ class AutoScorePathfinder(private val robot: Robot, private val endPose: Pose2d,
         if(currentTime - startTime + pidOffsetTime*2 > expectedTime) {
           xController.goal = TrapezoidProfile.State(endPose.x, 0.0)
           yController.goal = TrapezoidProfile.State(endPose.y, 0.0)
+          DogLog.log("pathfinder/pidGoal", endPose)
         } else {
           trajectory.sample(currentTime - startTime + pidOffsetTime).pose.let {
             val speedScalar = hypot(robot.drive.currentSpeeds.vxMetersPerSecond, robot.drive.currentSpeeds.vyMetersPerSecond)
             xController.goal = TrapezoidProfile.State(it.x, speedScalar)
             yController.goal = TrapezoidProfile.State(it.y, speedScalar)
+            DogLog.log("pathfinder/pidGoal", it)
           }
         }
         val ffXScaler = MathUtil.clamp(
