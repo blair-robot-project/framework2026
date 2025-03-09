@@ -29,7 +29,7 @@ class SimpleReefAlign(
   translationAccelLim: Double = 2.35,
   headingSpeedLim: Double = PI,
   headingAccelLim: Double = 4 * PI,
-  translationPID: Triple<Double, Double, Double> = Triple(5.0, 0.0, 0.0),
+  translationPID: Triple<Double, Double, Double> = Triple(6.25, 0.0, 0.0),
   headingPID: Triple<Double, Double, Double> = Triple(6.5, 0.0, 0.0),
   private val translationTolerance: Double = Units.inchesToMeters(0.5),
   private val headingTolerance: Double = Units.degreesToRadians(0.75),
