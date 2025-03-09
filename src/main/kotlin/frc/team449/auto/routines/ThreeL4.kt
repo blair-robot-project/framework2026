@@ -1,8 +1,11 @@
 package frc.team449.auto.routines
 
+import edu.wpi.first.units.Units.Degrees
+import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.InstantCommand
+import edu.wpi.first.wpilibj2.command.PrintCommand
 import edu.wpi.first.wpilibj2.command.WaitCommand
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand
 import frc.team449.Robot
@@ -12,7 +15,9 @@ import frc.team449.auto.choreo.ChoreoRoutineStructure
 import frc.team449.auto.choreo.ChoreoTrajectory
 import frc.team449.commands.driveAlign.SimpleReefAlign
 import frc.team449.subsystems.FieldConstants
+import frc.team449.subsystems.RobotConstants
 import frc.team449.subsystems.superstructure.SuperstructureGoal
+import frc.team449.subsystems.superstructure.SuperstructureGoal.DriveDynamics
 import java.util.Optional
 
 class ThreeL4(
@@ -28,9 +33,9 @@ class ThreeL4(
       parallelEventMap = hashMapOf(
         0 to premoveL4(robot),
         1 to premoveSubstation(robot),
-        2 to premoveL4(robot),
+        2 to WaitCommand(0.5).andThen(premoveL4(robot)),
         3 to premoveSubstation(robot),
-        4 to premoveL4(robot),
+        4 to WaitCommand(0.5).andThen(premoveL4(robot)),
       ),
       stopEventMap = hashMapOf(
         1 to scoreL4(robot, if (isRedAlliance && isRedStage || !isRedAlliance && !isRedStage) FieldConstants.ReefSide.RIGHT else FieldConstants.ReefSide.LEFT),
@@ -55,14 +60,26 @@ class ThreeL4(
   }
 
   private fun scoreL4(robot: Robot, reefSide: FieldConstants.ReefSide): Command {
-    return robot.superstructureManager.requestGoal(SuperstructureGoal.L4)
-      .alongWith(SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(reefSide), translationSpeedLim = 2.0))
+    return robot.superstructureManager.requestGoal(
+      SuperstructureGoal.SuperstructureState(
+        SuperstructureGoal.L4.pivot,
+        Meters.of(SuperstructureGoal.L4.elevator.`in`(Meters) + 0.01),
+        Degrees.of(SuperstructureGoal.L4.wrist.`in`(Degrees) + 3.75),
+        DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+      )
+    )
+      .alongWith(
+        SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(reefSide), translationSpeedLim = 2.0, translationAccelLim = 0.775)
+          .andThen(PrintCommand("Actually reached auto tolerance!"))
+          .withTimeout(2.25)
+      )
+      .andThen(WaitCommand(0.10))
       .andThen(robot.intake.outtakeCoral())
       .andThen(
         WaitUntilCommand { !robot.intake.coralDetected() }
           .onlyIf { RobotBase.isReal() }
       )
-      .andThen(WaitCommand(0.15))
+      .andThen(WaitCommand(0.050))
       .andThen(robot.intake.stop())
 //    return SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(reefSide), translationSpeedLim = 2.0)
 //      .andThen(WaitCommand(1.0))
@@ -76,7 +93,6 @@ class ThreeL4(
         WaitUntilCommand { robot.intake.coralDetected() }
           .onlyIf { RobotBase.isReal() }
       )
-      .andThen(WaitCommand(0.15))
       .andThen(robot.intake.holdCoral())
 //    return InstantCommand(robot.drive::stop).andThen(
 //      WaitCommand(1.5)
