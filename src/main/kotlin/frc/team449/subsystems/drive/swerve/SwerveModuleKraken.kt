@@ -1,5 +1,6 @@
 package frc.team449.subsystems.drive.swerve
 
+import com.ctre.phoenix6.BaseStatusSignal
 import com.ctre.phoenix6.StatusCode
 import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.controls.VelocityVoltage
@@ -157,11 +158,12 @@ open class SwerveModuleKraken(
         println("Could not apply configs, error code: $status")
       }
 
-      drivingMotor.statorCurrent.setUpdateFrequency(SwerveConstants.KRAKEN_UPDATE_RATE)
-      drivingMotor.supplyCurrent.setUpdateFrequency(SwerveConstants.KRAKEN_UPDATE_RATE)
-      drivingMotor.velocity.setUpdateFrequency(SwerveConstants.KRAKEN_UPDATE_RATE)
-      drivingMotor.motorVoltage.setUpdateFrequency(SwerveConstants.KRAKEN_UPDATE_RATE)
-      drivingMotor.closedLoopError.setUpdateFrequency(SwerveConstants.KRAKEN_UPDATE_RATE)
+      drivingMotor.statorCurrent.setUpdateFrequency(SwerveConstants.VALUE_UPDATE_RATE)
+      drivingMotor.supplyCurrent.setUpdateFrequency(SwerveConstants.VALUE_UPDATE_RATE)
+      drivingMotor.position.setUpdateFrequency(SwerveConstants.VALUE_UPDATE_RATE)
+      drivingMotor.velocity.setUpdateFrequency(SwerveConstants.VALUE_UPDATE_RATE)
+      drivingMotor.motorVoltage.setUpdateFrequency(SwerveConstants.VALUE_UPDATE_RATE)
+      drivingMotor.closedLoopError.setUpdateFrequency(SwerveConstants.VALUE_UPDATE_RATE)
       drivingMotor.optimizeBusUtilization()
 
       val turnMotor = createSparkMax(

@@ -27,8 +27,8 @@ object ElevatorConstants {
   const val FOLLOWER_INVERTED_TO_MASTER = true
   val BRAKE_MODE = NeutralModeValue.Brake
 
-  const val STATOR_LIM = 80.0
-  const val SUPPLY_LIM = 40.0
+  const val STATOR_LIM = 90.0
+  const val SUPPLY_LIM = 50.0
 
   val VALUE_UPDATE_RATE: Frequency = Hertz.of(50.0)
   val REQUEST_UPDATE_RATE: Frequency = Hertz.of(100.0)
@@ -52,6 +52,6 @@ object ElevatorConstants {
   const val KD = 0.00015
 
   // Motion Magic
-  const val CRUISE_VEL = 2.5 // max theoretical 2.66 m/s, max practical ? m/s from feedforward
-  const val MAX_ACCEL = 5.90 // should get to 15.0, max theoretical ? m/s/s at 4kg and no gravity
+  const val CRUISE_VEL = 2.375 // max theoretical 2.66 m/s, max practical ? m/s from feedforward
+  const val MAX_ACCEL = 6.25 // should get to 15.0, max theoretical ? m/s/s at 4kg and no gravity
 }
