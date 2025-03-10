@@ -41,8 +41,8 @@ class ControllerBindings(
      * Operator: https://docs.google.com/drawings/d/1lF4Roftk6932jMCQthgKfoJVPuTVSgnGZSHs5j68uo4/edit
      */
     score_l1()
-    score_l2()
-    score_l3()
+    scoreDescore_l2()
+    scoreDescore_l3()
     score_l4()
 
     autoScoreLeft()
@@ -213,21 +213,27 @@ class ControllerBindings(
     )
   }
 
-  private fun score_l2() {
+  private fun scoreDescore_l2() {
     driveController.x().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.L2)
+      ConditionalCommand(
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L2),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L2_ALGAE_DESCORE)
+      ) { robot.intake.coralDetected() }
     )
   }
 
-  private fun score_l3() {
+  private fun scoreDescore_l3() {
     driveController.b().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.L3)
+      ConditionalCommand(
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L3),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L3_ALGAE_DESCORE)
+      ) { robot.intake.coralDetected() }
     )
   }
 
   private fun score_l4() {
     driveController.y().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.L4)
+      robot.superstructureManager.requestL4()
     )
   }
 

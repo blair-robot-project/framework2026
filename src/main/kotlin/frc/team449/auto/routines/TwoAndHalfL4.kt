@@ -57,7 +57,7 @@ class TwoAndHalfL4(
   }
 
   private fun scoreL4(robot: Robot, reefSide: FieldConstants.ReefSide): Command {
-    return robot.superstructureManager.requestGoal(
+    return robot.superstructureManager.requestL4(
       SuperstructureGoal.SuperstructureState(
         SuperstructureGoal.L4.pivot,
         Meters.of(SuperstructureGoal.L4.elevator.`in`(Meters) + 0.01),

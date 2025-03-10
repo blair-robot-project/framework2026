@@ -40,7 +40,7 @@ class OneL4(
   }
 
   private fun scoreL4(robot: Robot, reefSide: FieldConstants.ReefSide): Command {
-    return robot.superstructureManager.requestGoal(SuperstructureGoal.L4)
+    return robot.superstructureManager.requestL4()
       .alongWith(SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(reefSide), translationSpeedLim = 1.0, translationAccelLim = 1.5))
       .andThen(WaitCommand(1.75))
       .andThen(robot.intake.outtakeCoral())
