@@ -33,7 +33,7 @@ class ChoreoRoutine(
   private val parallelEventMap: HashMap<Int, Command> = HashMap(),
   private val poseTol: Pose2d = Pose2d(0.05, 0.05, Rotation2d.fromDegrees(1.5)),
   private val resetPosition: Boolean = false,
-  private val resetPositionTolerance: Pose2d = Pose2d(0.10, 0.10, Rotation2d.fromDegrees(5.0)),
+  private val resetPositionTolerance: Pose2d = Pose2d(0.10, 0.10, Rotation2d.fromDegrees(2.0)),
   private val timeout: Double = 0.65,
   private val debug: Boolean = false,
   private val stopDriveAfterTraj: Boolean = true
