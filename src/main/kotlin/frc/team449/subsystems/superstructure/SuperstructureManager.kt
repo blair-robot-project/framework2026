@@ -73,6 +73,60 @@ class SuperstructureManager(
       .andThen(InstantCommand({ ready = true }))
   }
 
+  fun requestL4(goal: SuperstructureGoal.SuperstructureState = SuperstructureGoal.L4): Command {
+    return InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) })
+      .andThen(InstantCommand({ ready = false }))
+      .andThen(InstantCommand({ lastGoal = goal }))
+      .andThen(
+        ConditionalCommand(
+          // if extending
+          Commands.sequence(
+            InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) }),
+            Commands.parallel(
+              wrist.setPosition(goal.wrist.`in`(Radians)),
+              pivot.setPosition(goal.pivot.`in`(Radians))
+            ),
+            WaitUntilCommand { wrist.elevatorReady() },
+            elevator.setPositionCarriage(goal.elevator.`in`(Meters)),
+//            WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() && elevator.atSetpoint() },
+            WaitUntilCommand { wrist.atSetpoint() || pivot.atSetpoint() },
+            pivot.hold().onlyIf { pivot.atSetpoint() },
+            wrist.hold().onlyIf { wrist.atSetpoint() },
+            WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() },
+            pivot.hold(),
+            wrist.hold(),
+            WaitUntilCommand { elevator.atSetpoint() },
+            Commands.parallel(
+              pivot.hold(),
+              wrist.hold(),
+              elevator.holdCarriage()
+            )
+          ),
+
+          // if retracting
+          Commands.sequence(
+            elevator.setPositionCarriage(goal.elevator.`in`(Meters)),
+            wrist.hold(),
+            wrist.setPosition(WristConstants.ELEVATOR_READY.`in`(Radians))
+              .onlyIf { goal.wrist > WristConstants.ELEVATOR_READY },
+            WaitUntilCommand { elevator.atSetpoint() },
+            Commands.parallel(
+              pivot.setPosition(goal.pivot.`in`(Radians)),
+              wrist.setPosition(goal.wrist.`in`(Radians))
+            ),
+            WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() },
+            InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) }),
+            Commands.parallel(
+              pivot.hold(),
+              wrist.hold(),
+              elevator.holdCarriage()
+            )
+          )
+        ) { goal.elevator.`in`(Meters) >= elevator.positionSupplier.get() }
+      )
+      .andThen(InstantCommand({ ready = true }))
+  }
+
   fun isAtPos(): Boolean {
     return ready
   }
