@@ -339,23 +339,21 @@ open class Routines(
     middleRoutine.active().onTrue(
       Commands.sequence(
         test.resetOdometry(),
-        Commands.sequence(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PREMOVE),
-          test.cmd()
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PREMOVE).andThen(
+          test.cmd())
         )
       )
 
-    )
     test.done().onTrue(
-      Commands.sequence(
-        Commands.parallel(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.L2),
-          SimpleReefAlign(robot.drive,robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT))
-        ),
+        Commands.sequence(
+          SimpleReefAlign(robot.drive,robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT)).alongWith(
+            robot.superstructureManager.requestGoal(SuperstructureGoal.L2)
+          ),
         robot.drive.driveStop(),
         WaitCommand(0.15),
         robot.intake.outtakeCoral().andThen(WaitUntilCommand{!robot.intake.coralDetected()}),
-        WaitCommand(0.15).onlyIf { RobotBase.isReal() }
+        WaitCommand(0.15).onlyIf { RobotBase.isReal() },
+          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
       )
     )
 
