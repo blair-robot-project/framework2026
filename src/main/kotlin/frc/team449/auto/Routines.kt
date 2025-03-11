@@ -346,7 +346,7 @@ open class Routines(
 
     test.done().onTrue(
         Commands.sequence(
-          SimpleReefAlign(robot.drive,robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT)).alongWith(
+          SimpleReefAlign(robot.drive,robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT), translationSpeedLim = 1.5, translationAccelLim =0.7 ).alongWith(
             robot.superstructureManager.requestGoal(SuperstructureGoal.L2)
           ),
         robot.drive.driveStop(),
