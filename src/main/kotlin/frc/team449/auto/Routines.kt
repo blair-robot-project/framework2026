@@ -275,16 +275,61 @@ open class Routines(
     return E_D_C
   }
 
-  fun l2Routine() {
-    val autoRoutine = autoFactory.newRoutine("L4 Routine")
+  fun l2Routine(): AutoRoutine{
+    val l2autoRoutine = autoFactory.newRoutine("L4 Routine")
 
-    val l4fTrajectory = autoRoutine.trajectory("Go To L4F")
-    val rightStationTrajectory = autoRoutine.trajectory("Go To Right Station(2)")
-    val l4ETrajectory = autoRoutine.trajectory("Go to L4E")
-    val rightStationTrajectory2 = autoRoutine.trajectory("Go To Right Station(Again)")
-    val l4DTrajectory = autoRoutine.trajectory("Go To L4D")
-    val rightStationTrajectory3 = autoRoutine.trajectory("Go To Rightstation(3)")
-    val l4CTrajectory = autoRoutine.trajectory("Go To L4C")
+    val l2fTrajectory = l2autoRoutine.trajectory("Go To L4F")
+    val rightStationTrajectory = l2autoRoutine.trajectory("Go To Right Station(2)")
+    val l2ETrajectory = l2autoRoutine.trajectory("Go to L4E")
+    val rightStationTrajectory2 = l2autoRoutine.trajectory("Go To Right Station(Again)")
+    val l2DTrajectory = l2autoRoutine.trajectory("Go To L4D")
+    val rightStationTrajectory3 = l2autoRoutine.trajectory("Go To Rightstation(3)")
+    val l2CTrajectory = l2autoRoutine.trajectory("Go To L4C")
+
+
+
+    l2autoRoutine.active().onTrue(
+      Commands.parallel(
+        l2fTrajectory.resetOdometry(),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PREMOVE)).andThen(
+        l2fTrajectory.cmd())
+      )
+
+
+    l2fTrajectory.done().onTrue(
+      Commands.sequence(
+        SimpleReefAlign(robot.drive,robot.poseSubsystem,
+          leftOrRight = Optional.of(FieldConstants.ReefSide.RIGHT)).
+        alongWith(
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L2)),
+          robot.drive.driveStop().alongWith(
+           robot.intake.outtakeCoral()).andThen(WaitUntilCommand{!robot.intake.coralDetected()}),
+          WaitCommand(0.15).onlyIf { RobotBase.isReal() },
+          rightStationTrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.SUBSTATION_INTAKE))
+          )
+        )
+    rightStationTrajectory.done().onTrue(Commands.sequence(
+      robot.drive.driveStop(),
+      robot.intake.intakeCoral().andThen(
+        WaitUntilCommand{robot.intake.coralDetected()},
+        WaitCommand(0.15).onlyIf { RobotBase.isReal() },
+        l2ETrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(
+          SuperstructureGoal.L2_PREMOVE 
+        ))
+      )
+
+    )
+
+    )
+
+
+
+
+
+
+    return l2autoRoutine
+
+
   }
 
   fun middleRoutine(): AutoRoutine {
@@ -294,7 +339,7 @@ open class Routines(
     middleRoutine.active().onTrue(
       Commands.sequence(
         test.resetOdometry(),
-        Commands.parallel(
+        Commands.sequence(
           robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PREMOVE),
           test.cmd()
         )
@@ -435,5 +480,6 @@ open class Routines(
     autoChooser.addRoutine("l4 E,D,C", this::reefEDC) // 3 piece l4
     autoChooser.addRoutine("The Goat", this::americanRoutine) // america
     autoChooser.addRoutine("testing", this::middleRoutine)
+    autoChooser.addRoutine("jwoj",this::l2Routine)
   }
 }
