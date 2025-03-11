@@ -149,8 +149,10 @@ class ControllerBindings(
             .andThen(WaitCommand(0.10))
             .andThen(robot.intake.stop())
             .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
-            .onlyIf { robot.superstructureManager.lastRequestedGoal() == SuperstructureGoal.L3 ||
-              robot.superstructureManager.lastRequestedGoal() == SuperstructureGoal.L2 },
+            .onlyIf {
+              robot.superstructureManager.lastRequestedGoal() == SuperstructureGoal.L3 ||
+                robot.superstructureManager.lastRequestedGoal() == SuperstructureGoal.L2
+            },
           robot.light.blink(Seconds.of(0.20), Color.kWhite)
             .withTimeout(1.5)
         )
@@ -181,8 +183,10 @@ class ControllerBindings(
             .andThen(WaitCommand(0.10))
             .andThen(robot.intake.stop())
             .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
-            .onlyIf { robot.superstructureManager.lastRequestedGoal() == SuperstructureGoal.L3 ||
-              robot.superstructureManager.lastRequestedGoal() == SuperstructureGoal.L2 },
+            .onlyIf {
+              robot.superstructureManager.lastRequestedGoal() == SuperstructureGoal.L3 ||
+                robot.superstructureManager.lastRequestedGoal() == SuperstructureGoal.L2
+            },
           robot.light.blink(Seconds.of(0.20), Color.kWhite)
             .withTimeout(1.5)
         )
