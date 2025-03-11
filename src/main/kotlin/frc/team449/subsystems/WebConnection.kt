@@ -13,25 +13,21 @@ class WebConnection(val robot: Robot) : SubsystemBase() {
   private val instance = NetworkTableInstance.getDefault()
   private val webComTable = instance.getTable("webcom")
   private val allianceTopic = webComTable.getStringTopic("Alliance")
-  private val isDoneTopic = webComTable.getBooleanTopic("isDone")
   private val commandSubscriber: StringSubscriber = webComTable.getStringTopic("Command").subscribe("none")
   private val commandPublisher: StringPublisher = webComTable.getStringTopic("Command").publish()
-  private val isDonePublish = isDoneTopic.publish()
-  private val isDoneSub = isDoneTopic.subscribe(true)
   private val alliancePublish = allianceTopic.publish()
+  private val movingPublish = webComTable.getBooleanTopic("Moving").publish()
   private var ntCommandInput = "none"
   private var autoScore = AutoScoreCommands(robot)
   private var webAppCommand : Command = InstantCommand()
-  private val pivotAngleIncrease = 0.035
-  private val wristAngleIncrease = 0.04
   private val elevatorIncrease = 0.028592106
 
 
   fun setUpNT() {
     instance.startClient4("localhost")
     instance.setServerTeam(449)
-    isDonePublish.set(false)
     commandPublisher.set("none")
+    movingPublish.set(false)
     val alliance = if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) "Red" else "Blue"
     alliancePublish.set(alliance)
   }
@@ -46,35 +42,47 @@ class WebConnection(val robot: Robot) : SubsystemBase() {
 
     if (ntCommandInput != "none") {
       println("command received: $ntCommandInput")
-      if(ntCommandInput != "elevatorUp" && ntCommandInput != "elevatorDown") {
-        isDonePublish.set(false)
-      }
       webAppCommand = when (ntCommandInput) {
         "processor" -> autoScore.getProcessorCommand()
         "netRed" -> autoScore.getNetCommand(true)
         "netBlue" -> autoScore.getNetCommand(false)
         "cancel" -> autoScore.cancelCommand().andThen(WaitCommand(0.25)).andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
-        "score" -> autoScore.scoreCommand().andThen(WaitCommand(0.25)).andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
         "elevatorUp" -> robot.elevator.setPosition(robot.elevator.positionSupplier.get()+elevatorIncrease)
         "elevatorDown" -> robot.elevator.setPosition(robot.elevator.positionSupplier.get()-elevatorIncrease)
         else -> {
           //format will be l_ location__
           val level = ntCommandInput.slice(0..1)
           val location = ntCommandInput.slice(3..<ntCommandInput.length)
-          val reefLocation = when (location) {
-            "locationA" -> FieldConstants.REEF_LOCATIONS[0]
-            "locationB" -> FieldConstants.REEF_LOCATIONS[1]
-            "locationC" -> FieldConstants.REEF_LOCATIONS[2]
-            "locationD" -> FieldConstants.REEF_LOCATIONS[3]
-            "locationE" -> FieldConstants.REEF_LOCATIONS[4]
-            "locationF" -> FieldConstants.REEF_LOCATIONS[5]
-            "locationG" -> FieldConstants.REEF_LOCATIONS[6]
-            "locationH" -> FieldConstants.REEF_LOCATIONS[7]
-            "locationI" -> FieldConstants.REEF_LOCATIONS[8]
-            "locationJ" -> FieldConstants.REEF_LOCATIONS[9]
-            "locationK" -> FieldConstants.REEF_LOCATIONS[10]
-            "locationL" -> FieldConstants.REEF_LOCATIONS[11]
-            else -> FieldConstants.REEF_LOCATIONS[0]
+          println(location)
+          val reefLocations = when (location) {
+            "pair1" -> listOf(
+              FieldConstants.REEF_LOCATIONS[0],
+              FieldConstants.REEF_LOCATIONS[1]
+            )
+            "pair2" -> listOf(
+              FieldConstants.REEF_LOCATIONS[2],
+              FieldConstants.REEF_LOCATIONS[3]
+            )
+            "pair3" -> listOf(
+              FieldConstants.REEF_LOCATIONS[4],
+              FieldConstants.REEF_LOCATIONS[5]
+            )
+            "pair4" -> listOf(
+              FieldConstants.REEF_LOCATIONS[6],
+              FieldConstants.REEF_LOCATIONS[7]
+            )
+            "pair5" -> listOf(
+              FieldConstants.REEF_LOCATIONS[8],
+              FieldConstants.REEF_LOCATIONS[9]
+            )
+            "pair6" -> listOf(
+              FieldConstants.REEF_LOCATIONS[10],
+              FieldConstants.REEF_LOCATIONS[11]
+            )
+            else -> listOf(
+              FieldConstants.REEF_LOCATIONS[0],
+              FieldConstants.REEF_LOCATIONS[1]
+            )
           }
           val coralLevel = when (level) {
             "l1" -> SuperstructureGoal.L1
@@ -89,21 +97,12 @@ class WebConnection(val robot: Robot) : SubsystemBase() {
             "l3" -> robot.superstructureManager.requestGoal(SuperstructureGoal.L3_PREMOVE).schedule()
             "l4" -> robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).schedule()
           }
-          autoScore.getReefCommand(reefLocation, coralLevel)
+          autoScore.getReefCommand(reefLocations, coralLevel)
         }
       }
       webAppCommand.schedule()
       commandPublisher.set("none")
-    } else {
-      if(!isDoneSub.get()) {
-        if(autoScore.currentCommandFinished()) {
-          isDonePublish.set(true)
-        }
-      }
-
-      if(autoScore.waitingForScore) {
-        robot.superstructureManager.holdAll()
-      }
     }
+    movingPublish.set(autoScore.moving)
   }
 }

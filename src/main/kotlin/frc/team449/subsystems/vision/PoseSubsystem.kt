@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Transform2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
+import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
@@ -27,7 +28,6 @@ import frc.team449.subsystems.drive.swerve.SwerveConstants
 import frc.team449.subsystems.drive.swerve.SwerveDrive
 import frc.team449.subsystems.drive.swerve.SwerveSim
 import frc.team449.system.AHRS
-import java.lang.Math.pow
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.*
 
@@ -62,11 +62,12 @@ class PoseSubsystem(
   private val directionCompensation = { if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) -1.0 else 1.0 }
 
   private var rotRamp = SlewRateLimiter(RobotConstants.ROT_RATE_LIMIT)
+  private val directionSub = NetworkTableInstance.getDefault().getStringTopic("autoscore/direction").subscribe("left")
 
   private val timer = Timer()
 
-  //  lateinit var endPose: Pose2d
-  var autoscoreCommandPose = Pose2d(0.0, 0.0, Rotation2d(0.0))
+  var autoscoreCommandPoseList = listOf(Pose2d(0.0, 0.0, Rotation2d(0.0)), Pose2d(0.0, 0.0, Rotation2d(0.0)))
+  var autoscoreScoringReef = false
 
   private val rotCtrl = PIDController(
     RobotConstants.SNAP_KP,
@@ -129,7 +130,7 @@ class PoseSubsystem(
     currentControllerPower = 15.0
     magMultiply = 1.00
     magDec = 0.0004
-    lastDistance = 0.0
+    agreeVal = 0.0
   }
 
   private fun clampCP() {
@@ -145,6 +146,11 @@ class PoseSubsystem(
     dt = currTime - prevTime
     prevTime = currTime
 
+    var autoscoreCommandPose = autoscoreCommandPoseList[0]
+    if(autoscoreScoringReef && (directionSub.get() == "right"
+        )) {
+      autoscoreCommandPose = autoscoreCommandPoseList[1]
+    }
     val distance = pose.translation.getDistance(autoscoreCommandPose.translation)
     val ctrlX = -controller.leftY
     val ctrlY = -controller.leftX

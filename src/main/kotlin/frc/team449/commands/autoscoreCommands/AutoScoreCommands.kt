@@ -7,47 +7,29 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import frc.team449.Robot
-import frc.team449.subsystems.FieldConstants
 import frc.team449.subsystems.superstructure.SuperstructureGoal
 
 class AutoScoreCommands(private val robot: Robot) {
   private var currentCommand: Command = InstantCommand()
   private var scoreCommand: Command = InstantCommand()
-  var waitingForScore = false
-  private var moving = false
+  var moving = false
 
-  fun scoreCommand(): Command {
-    waitingForScore = false
-    moving = false
-    robot.drive.defaultCommand = robot.driveCommand
-    return scoreCommand
-  }
-
-  fun currentCommandFinished(): Boolean {
-    if(!currentCommand.isScheduled && moving) {
-      moving = false
-      return true
-    }
-    return false
-  }
-
-  fun getReefCommand(reefLocation: Pose2d, coralGoal: SuperstructureGoal.SuperstructureState): Command {
+  fun getReefCommand(reefLocations: List<Pose2d>, coralGoal: SuperstructureGoal.SuperstructureState): Command {
     return runOnce({
       moving = true
       val superstructureMoveCommand = robot.superstructureManager.requestGoal(coralGoal).andThen(robot.intake.holdCoral())
       scoreCommand = robot.intake.outtakeCoral()
-      robot.poseSubsystem.autoscoreCommandPose = reefLocation
-
+      robot.poseSubsystem.autoscoreCommandPoseList = reefLocations
+      robot.poseSubsystem.autoscoreScoringReef = true
       currentCommand =
         AutoScoreWrapperCommand(
           robot,
-          AutoScorePathfinder(robot, reefLocation,true),
+          AutoScorePathfinder(robot, reefLocations),
           superstructureMoveCommand
-        ).andThen(
-          InstantCommand({
-            waitingForScore = true
-          })
-        )
+        ).andThen(InstantCommand({
+          robot.drive.defaultCommand = robot.driveCommand
+          moving = false
+        }))
       currentCommand.schedule()
     })
   }
@@ -59,16 +41,17 @@ class AutoScoreCommands(private val robot: Robot) {
         AutoScoreCommandConstants.processorPoseRed else AutoScoreCommandConstants.processorPoseBlue
       scoreCommand = InstantCommand()
       val premoveCommand = InstantCommand()
-      robot.poseSubsystem.autoscoreCommandPose = processorPose
+      robot.poseSubsystem.autoscoreCommandPoseList = listOf(processorPose)
+      robot.poseSubsystem.autoscoreScoringReef = false
       currentCommand =
         AutoScoreWrapperCommand(
           robot,
-          AutoScorePathfinder(robot, processorPose, false),
+          AutoScorePathfinder(robot, listOf(processorPose)),
           premoveCommand
         ).andThen(
           InstantCommand({
             robot.drive.defaultCommand = robot.driveCommand
-            waitingForScore = true
+            moving = false
           })
         )
       currentCommand.schedule()
@@ -87,15 +70,17 @@ class AutoScoreCommands(private val robot: Robot) {
       )
       scoreCommand = InstantCommand()
       val premoveCommand = InstantCommand()
+      robot.poseSubsystem.autoscoreCommandPoseList = listOf(netPose)
+      robot.poseSubsystem.autoscoreScoringReef = false
       currentCommand =
         AutoScoreWrapperCommand(
           robot,
-          AutoScorePathfinder(robot, netPose, false),
+          AutoScorePathfinder(robot, listOf(netPose)),
           premoveCommand
         ).andThen(
           InstantCommand({
             robot.drive.defaultCommand = robot.driveCommand
-            waitingForScore = true
+            moving = false
           })
         )
       currentCommand.schedule()
@@ -107,7 +92,7 @@ class AutoScoreCommands(private val robot: Robot) {
       moving = false
       currentCommand.cancel()
       robot.drive.defaultCommand = robot.driveCommand
-      waitingForScore = false
+
     })
   }
 }

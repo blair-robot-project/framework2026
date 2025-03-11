@@ -3,6 +3,7 @@ package frc.team449
 import com.ctre.phoenix6.SignalLogger
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.DriverStation
@@ -35,6 +36,7 @@ class ControllerBindings(
 ) {
 
   var STOW_AFTER_AUTOSCORE = false
+  private var autoscoreDirectionPub = NetworkTableInstance.getDefault().getStringTopic("autoscore/direction").publish()
 
   private fun robotBindings() {
     /** Call robot functions you create below */
@@ -46,6 +48,7 @@ class ControllerBindings(
     score_l3()
     score_l4()
 
+    autoscoreDirectionPub.set("left")
     autoScoreLeft()
     autoScoreRight()
 //    autoScoreStowTrigger()
@@ -83,7 +86,7 @@ class ControllerBindings(
     /** NOTE: If you want to see simulated vision convergence times with this function, go to simulationPeriodic in
      * RobotBase and change the passed in pose to it.simulationPeriodic to robot.drive.odometryPose
      */
-//    if (RobotBase.isSimulation()) resetOdometrySim()
+    if (RobotBase.isSimulation()) resetOdometrySim()
 
     resetGyro()
   }
@@ -125,7 +128,7 @@ class ControllerBindings(
 
   private fun autoScoreLeft() {
     driveController.leftTrigger().onTrue(
-      SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT))
+      InstantCommand({autoscoreDirectionPub.set("left")})
     ).onFalse(
       robot.driveCommand
     )
@@ -140,7 +143,7 @@ class ControllerBindings(
 
   private fun autoScoreRight() {
     driveController.rightTrigger().onTrue(
-      SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.RIGHT))
+      InstantCommand({autoscoreDirectionPub.set("right")})
     ).onFalse(
       robot.driveCommand
     )
@@ -278,6 +281,7 @@ class ControllerBindings(
   private fun resetOdometrySim() {
     driveController.a().onTrue(
       InstantCommand({
+        println("reset odometry")
         robot.drive as SwerveSim
         robot.drive.resetOdometryOnly(
           Pose2d(
