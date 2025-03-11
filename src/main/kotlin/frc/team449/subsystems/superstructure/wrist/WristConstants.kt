@@ -29,6 +29,8 @@ object WristConstants {
   val VALUE_UPDATE_RATE: Frequency = Hertz.of(50.0)
   val REQUEST_UPDATE_RATE: Frequency = Hertz.of(100.0)
 
+  val CLIMB_DOWN = Degrees.of(50.0)
+
   const val KS = 0.020
   const val KG = 0.25
   const val KV = 0.63027

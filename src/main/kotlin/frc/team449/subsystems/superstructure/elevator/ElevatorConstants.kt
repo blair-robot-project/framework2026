@@ -40,6 +40,8 @@ object ElevatorConstants {
   val GEARING_MOTOR_TO_ELEVATOR = 1 / (GEARING_MOTOR_TO_PULLEY * UPR)
   const val CARRIAGE_MASS = 4.0
 
+  const val CLIMB_HEIGHT = 0.198824
+
   const val TOLERANCE = 0.05 // TODO(Adjust tolerance.)
 
   // TODO(Adjust gains.)
@@ -50,10 +52,10 @@ object ElevatorConstants {
 
   const val KP = 19.8532
   const val KI = 0.0
-  const val L4_KI = 0.0 // 7.0
+  const val L4_KI = 7.0
   const val KD = 0.00015
 
   // Motion Magic
   const val CRUISE_VEL = 2.325 // max theoretical 2.66 m/s, max practical ? m/s from feedforward
-  const val MAX_ACCEL = 6.75 // should get to 15.0, max theoretical ? m/s/s at 4kg and no gravity
+  const val MAX_ACCEL = 7.5 // should get to 15.0, max theoretical ? m/s/s at 4kg and no gravity
 }

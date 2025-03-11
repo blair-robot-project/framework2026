@@ -36,16 +36,16 @@ object SuperstructureGoal {
   )
 
   val L4 = SuperstructureState(
-    Degrees.of(75.036644895),
+    Degrees.of(74.436644895),
     Meters.of(1.169903),
     Radians.of(-2.518555), // -138.5
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
   val SUBSTATION_INTAKE = SuperstructureState(
-    Degrees.of(62.75),
+    Radians.of(1.01),
     Inches.of(MIN_ELEVATOR_HEIGHT_IN),
-    Degrees.of(72.66886741),
+    Radians.of(1.399902),
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
@@ -63,10 +63,17 @@ object SuperstructureGoal {
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
-  val CLIMB = SuperstructureState(
-    Degrees.of(60.0),
+  val CLIMB_BEFORE = SuperstructureState(
+    Degrees.of(90.0),
     Meters.of(0.0),
-    Degrees.of(-90.0),
+    Degrees.of(-139.0),
+    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+  )
+
+  val CLIMB_INTERMEDIATE = SuperstructureState(
+    Degrees.of(65.0),
+    Meters.of(0.228824),
+    Degrees.of(-139.0),
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
