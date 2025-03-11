@@ -339,7 +339,7 @@ open class Routines(
     middleRoutine.active().onTrue(
       Commands.sequence(
         test.resetOdometry(),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PREMOVE).andThen(
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).andThen(
           test.cmd())
         )
       )
@@ -347,7 +347,7 @@ open class Routines(
     test.done().onTrue(
         Commands.sequence(
           SimpleReefAlign(robot.drive,robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT), translationSpeedLim = 1.5, translationAccelLim =0.7 ).alongWith(
-            robot.superstructureManager.requestGoal(SuperstructureGoal.L2)
+            robot.superstructureManager.requestGoal(SuperstructureGoal.L4)
           ),
         robot.drive.driveStop(),
         WaitCommand(0.15),
