@@ -87,7 +87,7 @@ open class Elevator(
         request
           .withPosition(position)
           .withUpdateFreqHz(ElevatorConstants.REQUEST_UPDATE_RATE)
-          .withFeedForward(elevatorFeedForward.calculateGravity())
+          .withFeedForward(ElevatorConstants.L4_FF)
           .withSlot(1)
       )
     }
@@ -122,7 +122,7 @@ open class Elevator(
       motor.setControl(
         PositionVoltage(request.Position)
           .withUpdateFreqHz(ElevatorConstants.REQUEST_UPDATE_RATE)
-          .withFeedForward(elevatorFeedForward.calculateGravity())
+          .withFeedForward(ElevatorConstants.L4_FF)
           .withSlot(1)
       )
     }
@@ -184,7 +184,7 @@ open class Elevator(
       config.Slot1.kI = ElevatorConstants.L4_KI
       config.Slot1.kD = ElevatorConstants.KD
 
-      config.Slot1.kS = ElevatorConstants.L4_KS
+      config.Slot1.kS = ElevatorConstants.KS
       config.Slot1.kV = ElevatorConstants.KV
 
       config.MotionMagic.MotionMagicCruiseVelocity = ElevatorConstants.CRUISE_VEL
