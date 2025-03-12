@@ -65,6 +65,6 @@ class AutoScoreCommandConstants {
     val MAX_ACCEL = 11.0 //m/s/s
     val MAX_ROT_ACCEL = 2 * PI // rad/s/s
     val MAX_ROT_SPEED = 2 * PI // rad/s
-    val MAX_LINEAR_SPEED = SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED * 4 / 5 // m/s
+    val MAX_LINEAR_SPEED = SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED * 9 / 10 // m/s
   }
 }
