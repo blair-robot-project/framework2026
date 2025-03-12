@@ -445,6 +445,90 @@ open class Routines(
     return autoRoutine
   }
 
+
+
+  fun LeftamericanRoutine(): AutoRoutine {
+    val leftAutoRoutine = autoFactory.newRoutine("Left L4 Routine")
+
+    val l4jTrajectory = leftAutoRoutine.trajectory("left j")
+    val lefStationTrajectory = leftAutoRoutine.trajectory("leftStation1")
+    val l4kTrajectory = leftAutoRoutine.trajectory("L4kT")
+    val leftStationTraj2 = leftAutoRoutine.trajectory("leftTraj 2")
+    val l4LTrajectory = leftAutoRoutine.trajectory("Go To  L4L real")
+
+
+    leftAutoRoutine.active().onTrue(
+      Commands.sequence(
+        l4jTrajectory.resetOdometry(),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).andThen(
+          l4jTrajectory.cmd()
+        ),
+        PrintCommand("Traveling to L4")
+      )
+    )
+
+
+    l4jTrajectory.done().onTrue(
+      Commands.sequence(
+        SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT), translationSpeedLim = 1.5, translationAccelLim = 0.5),
+        robot.drive.driveStop(),
+        robot.intake.outtakeCoral().andThen(WaitUntilCommand { !robot.intake.coralDetected() }),
+        WaitCommand(0.15).onlyIf { RobotBase.isReal() },
+        lefStationTrajectory.cmd().beforeStarting(robot.superstructureManager.requestGoal(SuperstructureGoal.SUBSTATION_INTAKE))
+      )
+    )
+
+    lefStationTrajectory.done().onTrue(
+      Commands.sequence(
+        robot.drive.driveStop(),
+        (robot.intake.intakeCoral())
+          .andThen(WaitUntilCommand { robot.intake.coralDetected() })
+          .onlyIf { RobotBase.isReal() }
+          .andThen(WaitCommand(0.15)),
+        l4kTrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE))
+      )
+    )
+
+    l4kTrajectory.done().onTrue(
+      Commands.sequence(
+        SimpleReefAlign(
+          robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT), translationSpeedLim =
+          1.5, translationAccelLim = 0.5
+        ).alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4)),
+        robot.drive.driveStop(),
+        robot.intake.outtakeCoral().andThen(WaitUntilCommand { !robot.intake.coralDetected() }),
+        WaitCommand(0.15).onlyIf { RobotBase.isReal() },
+        robot.superstructureManager.requestGoal(SuperstructureGoal.SUBSTATION_INTAKE).andThen(
+          leftStationTraj2.cmd()
+        )
+      )
+    )
+
+    leftStationTraj2.done().onTrue(
+      Commands.sequence(
+        robot.drive.driveStop(),
+        robot.intake.intakeCoral().andThen(WaitUntilCommand { robot.intake.coralDetected() }.onlyIf { RobotBase.isReal() },
+          WaitCommand(0.15).onlyIf { RobotBase.isReal() },
+          l4LTrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE))
+        )
+      )
+    )
+
+
+    l4LTrajectory.done().onTrue(
+      Commands.sequence(
+        SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.RIGHT), translationSpeedLim = 1.5, translationAccelLim = 0.7),
+        robot.drive.driveStop(),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L4),
+        robot.intake.outtakeCoral().andThen(WaitUntilCommand { !robot.intake.coralDetected() }),
+        WaitCommand(0.15).onlyIf { RobotBase.isReal() },
+        robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
+
+      )
+    )
+    return leftAutoRoutine
+  }
+
   // Elevator is cooked!
   // autoChooser that will be displayed on dashboard
   fun addOptions(autoChooser: AutoChooser) {
@@ -460,5 +544,6 @@ open class Routines(
     autoChooser.addRoutine("The Goat", this::americanRoutine) // america
     autoChooser.addRoutine("testing", this::middleRoutine)
     autoChooser.addRoutine("jwoj",this::l2Routine)
+    autoChooser.addRoutine("Left Goat",this::LeftamericanRoutine)
   }
 }
