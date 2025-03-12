@@ -386,6 +386,7 @@ open class Routines(
       Commands.sequence(
         SimpleReefAlign(robot.drive,robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT), translationSpeedLim = 1.5, translationAccelLim = 0.5),
         robot.drive.driveStop(),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L4),
         robot.intake.outtakeCoral().andThen(WaitUntilCommand { !robot.intake.coralDetected() }),
         WaitCommand(0.15).onlyIf { RobotBase.isReal() },
         rightStationTrajectory.cmd().beforeStarting(robot.superstructureManager.requestGoal(SuperstructureGoal.SUBSTATION_INTAKE))
