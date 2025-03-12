@@ -65,9 +65,6 @@ class PoseSubsystem(
 
   private val timer = Timer()
 
-  //  lateinit var endPose: Pose2d
-  var autoscoreCommandPose = Pose2d(0.0, 0.0, Rotation2d(0.0))
-
   private val rotCtrl = PIDController(
     RobotConstants.SNAP_KP,
     RobotConstants.SNAP_KI,
@@ -86,7 +83,8 @@ class PoseSubsystem(
   private var lastDistance = 0.0
   private var agreeVal = 0.0
   private val autoDistance = 0.3544921069702
-  lateinit var autoscoreCurrentCommand: Command
+  private val maxAgreeVal = 0.75
+  var autoscoreCommandPose = Pose2d(0.0, 0.0, Rotation2d(0.0))
 
   init {
     xController.reset()
@@ -286,7 +284,7 @@ class PoseSubsystem(
       drive.set(combinedChassisSpeeds)
     }
     lastDistance = distance
-    agreeVal = 0.5 - 0.5/(1 + exp(-(distance-3)*2))
+    agreeVal = maxAgreeVal - maxAgreeVal/(1 + exp(-(distance-0.5)*10))
   }
 
   private val isReal = RobotBase.isReal()
