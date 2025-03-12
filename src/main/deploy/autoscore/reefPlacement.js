@@ -11,6 +11,7 @@ const confirmReefButton = document.getElementById("confirmReefButton");
             let x = event.clientX-imageCenterX;
             let y = imageCenterY-event.clientY;
             if(_ == "touchmove") {
+                event.preventDefault();
                 x = event.changedTouches[0].clientX-imageCenterX;
                 y = imageCenterY-event.changedTouches[0].clientY;
             }

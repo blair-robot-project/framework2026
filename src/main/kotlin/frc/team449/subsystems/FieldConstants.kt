@@ -15,6 +15,7 @@ object FieldConstants {
   val REEF_LOCATIONS = arrayListOf<Pose2d>()
   val REEF_CENTER_LOCATIONS = arrayListOf<Pose2d>()
   lateinit var REEF_CENTER : Translation2d
+  val CORAL_INTAKE_LOCATIONS = arrayListOf<Translation2d>()
 
   enum class ReefSide {
     LEFT,
@@ -97,6 +98,21 @@ object FieldConstants {
     val RED_REEF_CENTER = Translation2d(13.0758, 4.0325)
     val BLUE_REEF_CENTER = Translation2d(centerOfField - (RED_REEF_CENTER.x - centerOfField), RED_REEF_CENTER.y)
     REEF_CENTER = (if (allianceComp) RED_REEF_CENTER else BLUE_REEF_CENTER)
+
+    val CORAL_INTAKE_BLUE_TOP = Translation2d(1.4578, 7.1276)
+    val CORAL_INTAKE_BLUE_BOTTOM = Translation2d(1.4578, 1.1276)
+
+    val CORAL_INTAKE_RED_TOP = Translation2d(16.1578, 7.1276)
+    val CORAL_INTAKE_RED_BOTTOM = Translation2d(16.1578, 1.1276)
+    CORAL_INTAKE_LOCATIONS.addAll(
+      if (allianceComp) listOf(
+        CORAL_INTAKE_RED_TOP,
+        CORAL_INTAKE_RED_BOTTOM
+      ) else listOf(
+        CORAL_INTAKE_BLUE_TOP,
+        CORAL_INTAKE_BLUE_BOTTOM
+      )
+    )
   }
 
   private fun findPose(x: Double, y: Double, angle: Double, isRed: Boolean): Pose2d {

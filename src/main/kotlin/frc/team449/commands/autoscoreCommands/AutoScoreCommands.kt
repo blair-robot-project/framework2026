@@ -13,23 +13,7 @@ import frc.team449.subsystems.superstructure.SuperstructureGoal
 class AutoScoreCommands(private val robot: Robot) {
   private var currentCommand: Command = InstantCommand()
   private var scoreCommand: Command = InstantCommand()
-  var waitingForScore = false
-  private var moving = false
-
-  fun scoreCommand(): Command {
-    waitingForScore = false
-    moving = false
-    robot.drive.defaultCommand = robot.driveCommand
-    return scoreCommand
-  }
-
-  fun currentCommandFinished(): Boolean {
-    if(!currentCommand.isScheduled && moving) {
-      moving = false
-      return true
-    }
-    return false
-  }
+  var moving = false
 
   fun getReefCommand(reefLocation: Pose2d, coralGoal: SuperstructureGoal.SuperstructureState): Command {
     return runOnce({
@@ -45,7 +29,8 @@ class AutoScoreCommands(private val robot: Robot) {
           superstructureMoveCommand
         ).andThen(
           InstantCommand({
-            waitingForScore = true
+            robot.drive.defaultCommand = robot.driveCommand
+            moving = false
           })
         )
       currentCommand.schedule()
@@ -68,7 +53,7 @@ class AutoScoreCommands(private val robot: Robot) {
         ).andThen(
           InstantCommand({
             robot.drive.defaultCommand = robot.driveCommand
-            waitingForScore = true
+            moving = false
           })
         )
       currentCommand.schedule()
@@ -95,7 +80,7 @@ class AutoScoreCommands(private val robot: Robot) {
         ).andThen(
           InstantCommand({
             robot.drive.defaultCommand = robot.driveCommand
-            waitingForScore = true
+            moving = false
           })
         )
       currentCommand.schedule()
@@ -107,7 +92,6 @@ class AutoScoreCommands(private val robot: Robot) {
       moving = false
       currentCommand.cancel()
       robot.drive.defaultCommand = robot.driveCommand
-      waitingForScore = false
     })
   }
 }

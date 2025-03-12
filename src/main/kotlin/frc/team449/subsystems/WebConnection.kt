@@ -13,11 +13,10 @@ class WebConnection(val robot: Robot) : SubsystemBase() {
   private val instance = NetworkTableInstance.getDefault()
   private val webComTable = instance.getTable("webcom")
   private val allianceTopic = webComTable.getStringTopic("Alliance")
-  private val isDoneTopic = webComTable.getBooleanTopic("isDone")
+  private val movingTopic = webComTable.getBooleanTopic("Moving")
   private val commandSubscriber: StringSubscriber = webComTable.getStringTopic("Command").subscribe("none")
   private val commandPublisher: StringPublisher = webComTable.getStringTopic("Command").publish()
-  private val isDonePublish = isDoneTopic.publish()
-  private val isDoneSub = isDoneTopic.subscribe(true)
+  private val movingPublish = movingTopic.publish()
   private val alliancePublish = allianceTopic.publish()
   private var ntCommandInput = "none"
   private var autoScore = AutoScoreCommands(robot)
@@ -30,7 +29,7 @@ class WebConnection(val robot: Robot) : SubsystemBase() {
   fun setUpNT() {
     instance.startClient4("localhost")
     instance.setServerTeam(449)
-    isDonePublish.set(false)
+    movingPublish.set(false)
     commandPublisher.set("none")
     val alliance = if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) "Red" else "Blue"
     alliancePublish.set(alliance)
@@ -46,15 +45,11 @@ class WebConnection(val robot: Robot) : SubsystemBase() {
 
     if (ntCommandInput != "none") {
       println("command received: $ntCommandInput")
-      if(ntCommandInput != "elevatorUp" && ntCommandInput != "elevatorDown") {
-        isDonePublish.set(false)
-      }
       webAppCommand = when (ntCommandInput) {
         "processor" -> autoScore.getProcessorCommand()
         "netRed" -> autoScore.getNetCommand(true)
         "netBlue" -> autoScore.getNetCommand(false)
         "cancel" -> autoScore.cancelCommand().andThen(WaitCommand(0.25)).andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
-        "score" -> autoScore.scoreCommand().andThen(WaitCommand(0.25)).andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
         "elevatorUp" -> robot.elevator.setPosition(robot.elevator.positionSupplier.get()+elevatorIncrease)
         "elevatorDown" -> robot.elevator.setPosition(robot.elevator.positionSupplier.get()-elevatorIncrease)
         else -> {
@@ -94,16 +89,7 @@ class WebConnection(val robot: Robot) : SubsystemBase() {
       }
       webAppCommand.schedule()
       commandPublisher.set("none")
-    } else {
-      if(!isDoneSub.get()) {
-        if(autoScore.currentCommandFinished()) {
-          isDonePublish.set(true)
-        }
-      }
-
-      if(autoScore.waitingForScore) {
-        robot.superstructureManager.holdAll()
-      }
     }
+    movingPublish.set(autoScore.moving)
   }
 }

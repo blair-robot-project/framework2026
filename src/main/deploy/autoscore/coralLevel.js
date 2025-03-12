@@ -21,6 +21,7 @@ const setCoralImg = (level) => {
     let mouseY = event.clientY;
     let ydiff = coralY - mouseY;
     if(_ == "touchmove") {
+        event.preventDefault();
         mouseY = event.changedTouches[0].clientY;
         ydiff = coralY - mouseY;
     }

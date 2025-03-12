@@ -49,15 +49,13 @@ function valueUpdateHandler( topic, timestamp_us, value ) {
   console.log("value: " + value);
   if(topic.name == "/webcom/Alliance") {
     setAlliance(value);
-  } else if(topic.name == "/webcom/isDone") {
+  } else if(topic.name == "/webcom/Moving") {
     if(value===true) {
-      document.getElementById("confirmReefButton").innerText = "At Location";
-      document.getElementById("score").innerText = "Score!";
-      document.getElementById("score").style.backgroundColor = "rgb(4, 189, 36)";
+      document.getElementById("confirmReefButton").innerText = "Moving...";
+      document.getElementById("confirmReefButton").style.backgroundColor = "#DD0000";
     } else {
-      isDone = false;
-      document.getElementById("score").innerText = "Not Yet";
-      document.getElementById("score").style.backgroundColor = "#DD0000";
+      resetReef();
+      document.getElementById("confirmReefButton").innerText = "Choose Robot Alignment";
     }
   }
 }
@@ -137,8 +135,7 @@ const resetReef = () => {
 document.getElementById("confirmReefButton").onclick = async () => {
   if(coralSelected && areaSelected) {
     moveToReef(reefArea, coralLevel);
-    document.getElementById("confirmReefButton").innerText = "Scoring...";
-    document.getElementById("confirmReefButton").style.backgroundColor = "#DD0000";
+    document.getElementById("confirmReefButton").innerText = "Moving...";
   }
 }
 
@@ -196,14 +193,6 @@ document.getElementById("cancel").onclick = () => {
   setCommand("cancel");
   resetReef();
   showContainer("reefContainer");
-}
-
-document.getElementById("score").onclick = () => {
-  if(document.getElementById("score").innerText == "Score!") {
-    setCommand("score");
-    resetReef();
-    showContainer("reefContainer");
-  }
 }
 
 let currentContainer = "reefContainer";

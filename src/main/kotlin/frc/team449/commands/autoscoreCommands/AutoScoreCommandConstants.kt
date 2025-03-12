@@ -62,7 +62,7 @@ class AutoScoreCommandConstants {
     // RED
     val netRotation2dRed = Rotation2d(Math.PI) // in radians
 
-    val MAX_ACCEL = 8.0
+    val MAX_ACCEL = 11.0 //m/s/s
     val MAX_ROT_ACCEL = 2 * PI // rad/s/s
     val MAX_ROT_SPEED = 2 * PI // rad/s
     val MAX_LINEAR_SPEED = SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED * 4 / 5 // m/s
