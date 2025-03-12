@@ -50,11 +50,10 @@ class WebConnection(val robot: Robot) : SubsystemBase() {
         "elevatorUp" -> robot.elevator.setPosition(robot.elevator.positionSupplier.get()+elevatorIncrease)
         "elevatorDown" -> robot.elevator.setPosition(robot.elevator.positionSupplier.get()-elevatorIncrease)
         else -> {
-          //format will be l_ location__
+          //format will be l_ pair_
           val level = ntCommandInput.slice(0..1)
-          val location = ntCommandInput.slice(3..<ntCommandInput.length)
-          println(location)
-          val reefLocations = when (location) {
+          val pair = ntCommandInput.slice(3..<ntCommandInput.length)
+          val reefLocations = when (pair) {
             "pair1" -> listOf(
               FieldConstants.REEF_LOCATIONS[0],
               FieldConstants.REEF_LOCATIONS[1]

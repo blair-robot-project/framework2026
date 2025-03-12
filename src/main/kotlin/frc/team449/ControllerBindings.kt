@@ -48,7 +48,7 @@ class ControllerBindings(
     score_l3()
     score_l4()
 
-    autoscoreDirectionPub.set("left")
+    autoscoreDirectionPub.set("right")
     autoScoreLeft()
     autoScoreRight()
 //    autoScoreStowTrigger()
