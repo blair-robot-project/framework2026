@@ -81,6 +81,18 @@ open class Elevator(
     }
   }
 
+  fun setPositionCarriage(position: Double): Command {
+    return this.runOnce {
+      motor.setControl(
+        request
+          .withPosition(position)
+          .withUpdateFreqHz(ElevatorConstants.REQUEST_UPDATE_RATE)
+          .withFeedForward(elevatorFeedForward.calculateGravity())
+          .withSlot(1)
+      )
+    }
+  }
+
   fun manualDown(): Command {
     return this.run {
       motor.setVoltage(-2.0)
@@ -115,6 +127,17 @@ open class Elevator(
         PositionVoltage(request.Position)
           .withUpdateFreqHz(ElevatorConstants.REQUEST_UPDATE_RATE)
           .withFeedForward(elevatorFeedForward.calculateGravity())
+      )
+    }
+  }
+
+  fun holdCarriage(): Command {
+    return this.runOnce {
+      motor.setControl(
+        PositionVoltage(request.Position)
+          .withUpdateFreqHz(ElevatorConstants.REQUEST_UPDATE_RATE)
+          .withFeedForward(elevatorFeedForward.calculateGravity())
+          .withSlot(1)
       )
     }
   }
@@ -170,6 +193,13 @@ open class Elevator(
 
       config.Slot0.kS = ElevatorConstants.KS
       config.Slot0.kV = ElevatorConstants.KV
+
+      config.Slot1.kP = ElevatorConstants.KP
+      config.Slot1.kI = ElevatorConstants.L4_KI
+      config.Slot1.kD = ElevatorConstants.KD
+
+      config.Slot1.kS = ElevatorConstants.L4_KS
+      config.Slot1.kV = ElevatorConstants.KV
 
       config.MotionMagic.MotionMagicCruiseVelocity = ElevatorConstants.CRUISE_VEL
       config.MotionMagic.MotionMagicAcceleration = ElevatorConstants.MAX_ACCEL

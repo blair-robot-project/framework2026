@@ -104,6 +104,16 @@ class Pivot(
     }
   }
 
+  fun holdClimb(): Command {
+    return this.runOnce {
+      motor.setControl(
+        PositionVoltage(request.Position)
+          .withUpdateFreqHz(PivotConstants.REQUEST_UPDATE_RATE)
+          .withFeedForward(-0.875)
+      )
+    }
+  }
+
   fun testVoltage(): Command {
     return this.run {
       motor.setVoltage(SmartDashboard.getNumber("Pivot Test Voltage", 0.0))
@@ -113,8 +123,9 @@ class Pivot(
   fun climbDown(): Command {
     return this.runOnce { motor.setVoltage(PivotConstants.CLIMB_VOLTAGE.`in`(Volt)) }
       .andThen(WaitUntilCommand { positionSupplier.get() < PivotConstants.CLIMB_MIN_ANGLE.`in`(Radians) })
-      .andThen(runOnce { request.Position = positionSupplier.get() })
-      .andThen(hold())
+      .andThen(runOnce { request.Position = PivotConstants.CLIMB_MIN_ANGLE.`in`(Radians) })
+      .andThen(runOnce { motor.stopMotor() })
+      .andThen(holdClimb())
   }
 
   fun setVoltageChar(voltage: Double) {
