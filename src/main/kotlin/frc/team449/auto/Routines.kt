@@ -374,12 +374,11 @@ open class Routines(
     autoRoutine.active().onTrue(
       Commands.sequence(
         l4ETrajectory.resetOdometry(),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).andThen(
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE),
           l4ETrajectory.cmd()
         ),
-          PrintCommand("Traveling to L4")
         )
-      )
+
 
 
     l4ETrajectory.done().onTrue(
@@ -387,7 +386,7 @@ open class Routines(
         SimpleReefAlign(robot.drive,robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT), translationSpeedLim = 1.5, translationAccelLim = 0.5),
         robot.drive.driveStop(),
         robot.superstructureManager.requestGoal(SuperstructureGoal.L4),
-        robot.intake.outtakeCoral().andThen(WaitUntilCommand { !robot.intake.coralDetected() }),
+        robot.intake.outtakeCoral().andThen(WaitUntilCommand {robot.intake.coralNotDetected() }),
         WaitCommand(0.15).onlyIf { RobotBase.isReal() },
         rightStationTrajectory.cmd().beforeStarting(robot.superstructureManager.requestGoal(SuperstructureGoal.SUBSTATION_INTAKE))
       )

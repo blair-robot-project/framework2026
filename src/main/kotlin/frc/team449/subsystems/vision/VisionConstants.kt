@@ -80,12 +80,12 @@ object VisionConstants {
   /** List of cameras that we want to use */
   val ESTIMATORS: ArrayList<ApriltagCamera> = arrayListOf(
 // Disabled for sim, reenable during merge
-  //    ApriltagCamera(
-//      "reefCam",
-//      TAG_LAYOUT,
-//      front,
-//      VISION_SIM
-//    )
+      ApriltagCamera(
+      "reef_cam",
+      TAG_LAYOUT,
+      front,
+      VISION_SIM
+    )
 //    ApriltagCamera(
 //      "Camera_03",
 //      TAG_LAYOUT,
