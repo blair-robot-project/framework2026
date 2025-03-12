@@ -45,13 +45,14 @@ class AutoScorePathfinder(private val robot: Robot, private val endPoseList: Lis
   private var rotation = 0.0
   private val timer = Timer()
   private var inPIDDistance = false
-  var inPremoveDistance = false
   private var pidDistance = 0.75
   private val tolerance = 0.02
   private val rotTol = 0.01
+  private val premoveDistance = 0.3
   private val reefCenter = FieldConstants.REEF_CENTER
 
   var atSetpoint = false
+  var atPremoveDistance = false
 
   private var trajValid = true
   private var startTime = 0.0
@@ -126,7 +127,6 @@ class AutoScorePathfinder(private val robot: Robot, private val endPoseList: Lis
 
     coralTranslation = currentPose.translation.nearest(FieldConstants.CORAL_INTAKE_LOCATIONS)
     rotationSetpoint = reefCenter.minus(coralTranslation).angle.radians
-    println("setup run")
   }
 
   fun pathFind() {
@@ -149,12 +149,13 @@ class AutoScorePathfinder(private val robot: Robot, private val endPoseList: Lis
       }
       if (distance < tolerance) {
         atSetpoint = true
+      } else if (distance < premoveDistance) {
+        atPremoveDistance = true
       }
     } else {
       inPIDDistance = false
     }
     if(distance < pidDistance*2) {
-      inPremoveDistance = true
       rotationSetpoint = endPose.rotation.radians
     }
 
@@ -199,10 +200,12 @@ class AutoScorePathfinder(private val robot: Robot, private val endPoseList: Lis
         if(currentTime - startTime + pidOffsetTime*2 > expectedTime) {
           xController.goal = TrapezoidProfile.State(endPose.x, 0.0)
           yController.goal = TrapezoidProfile.State(endPose.y, 0.0)
+          DogLog.log("autoscore/pidGoal", endPose)
         } else {
           trajectory.sample(currentTime - startTime + pidOffsetTime).pose.let {
             xController.goal = TrapezoidProfile.State(it.x, AutoScoreCommandConstants.MAX_LINEAR_SPEED * 3/4)
             yController.goal = TrapezoidProfile.State(it.y, AutoScoreCommandConstants.MAX_LINEAR_SPEED * 3/4)
+            DogLog.log("autoscore/pidGoal", it)
           }
         }
         val ffXScaler = MathUtil.clamp(
@@ -315,7 +318,7 @@ class AutoScoreWrapperCommand(
   }
 
   override fun execute() {
-    if (!hasPremoved && pathFinder.inPremoveDistance) {
+    if (!hasPremoved && pathFinder.atPremoveDistance) {
       premoveGoal.schedule()
       hasPremoved = true
     }
