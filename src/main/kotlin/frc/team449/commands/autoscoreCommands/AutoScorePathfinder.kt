@@ -44,8 +44,8 @@ class AutoScorePathfinder(private val robot: Robot, private val endPose: Pose2d,
   private val timer = Timer()
   private var inPIDDistance = false
   private var pidDistance = 0.75
-  private val tolerance = 0.02
-  private val rotTol = 0.01
+  private val tolerance = 0.04
+  private val rotTol = 0.025
   private val premoveDistance = 1.0
   private val reefCenter = FieldConstants.REEF_CENTER
 
@@ -63,7 +63,7 @@ class AutoScorePathfinder(private val robot: Robot, private val endPose: Pose2d,
   private var yPIDSpeed = 0.0
   private val pidOffsetTime = 0.04
 
-  private var thetaController = ProfiledPIDController(5.0, 0.0, 0.0, TrapezoidProfile.Constraints(AutoScoreCommandConstants.MAX_ROT_SPEED, AutoScoreCommandConstants.MAX_ROT_ACCEL))
+  private var thetaController = ProfiledPIDController(3.0, 0.0, 0.3, TrapezoidProfile.Constraints(AutoScoreCommandConstants.MAX_ROT_SPEED, AutoScoreCommandConstants.MAX_ROT_ACCEL))
   private var xController = ProfiledPIDController(5.0, 0.0, 0.0, TrapezoidProfile.Constraints(AutoScoreCommandConstants.MAX_LINEAR_SPEED, AutoScoreCommandConstants.MAX_ACCEL))
   private var yController = ProfiledPIDController(4.0, 0.0, 0.0, TrapezoidProfile.Constraints(AutoScoreCommandConstants.MAX_LINEAR_SPEED, AutoScoreCommandConstants.MAX_ACCEL))
   var distance: Double = 100.0
@@ -224,7 +224,6 @@ class AutoScorePathfinder(private val robot: Robot, private val endPose: Pose2d,
     //rotation shenanigans
     if(atRotSetpoint(rotationSetpoint, 0.25) && !atIntakeRotation) {
       atIntakeRotation = true
-      thetaController.p = 6.592
       rotationSetpoint = MathUtil.angleModulus(reefCenter.minus(currentPose.translation).angle.radians)
     }
 
@@ -283,6 +282,10 @@ class AutoScorePathfinder(private val robot: Robot, private val endPose: Pose2d,
     return abs(robot.poseSubsystem.pose.rotation.radians - setpoint) < tolerance
   }
 
+  fun isDone() : Boolean {
+    return distance < tolerance && atRotSetpoint(endPose.rotation.radians, rotTol)
+  }
+
 }
 
 
@@ -324,6 +327,6 @@ class AutoScoreWrapperCommand(
   }
 
   override fun isFinished(): Boolean {
-    return pathFinder.atSetpoint && rotSub.get()
+    return pathFinder.isDone()
   }
 }
