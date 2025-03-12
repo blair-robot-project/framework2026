@@ -73,10 +73,10 @@ class ControllerBindings(
   }
 
   private fun characterizationBindings() {
-    testVoltagePivot()
+//    testVoltagePivot()
 //    runClimbWheels()
 
-    pivotCharacterizaton()
+//    pivotCharacterizaton()
   }
 
   private fun nonRobotBindings() {
