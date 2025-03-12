@@ -1184,7 +1184,7 @@ class NT4_Client {
         var port = 5810;
         var prefix = "ws://";
 
-        this.serverAddr = prefix + this.serverBaseAddr + ":" + port.toString() + "/nt/" + "JSClient_" + this.clientIdx.toString();
+        this.serverAddr = prefix + "10.4.49.2" + ":" + port.toString() + "/nt/" + "JSClient_" + this.clientIdx.toString();
 
         this.ws = new WebSocket(this.serverAddr, "networktables.first.wpi.edu");
         this.ws.binaryType = "arraybuffer";

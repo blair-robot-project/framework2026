@@ -130,7 +130,6 @@ class RobotLoop : TimedRobot() {
       )
       null -> robot.light.defaultCommand = robot.light.solidColor(Color.kWhite)
     }
-    robot.webCom.setUpNT()
   }
 
   override fun robotPeriodic() {
@@ -142,6 +141,7 @@ class RobotLoop : TimedRobot() {
 
     logAdvScopeComponents()
   }
+
 
   override fun autonomousInit() {
     /** Every time auto starts, we update the chosen auto command. */
@@ -163,6 +163,7 @@ class RobotLoop : TimedRobot() {
     (robot.light.currentCommand ?: InstantCommand()).cancel()
 
     robot.drive.defaultCommand = robot.driveCommand
+    robot.webCom.setUpNT()
   }
 
   override fun teleopPeriodic() {
