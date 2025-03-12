@@ -32,7 +32,7 @@ object WristConstants {
   val CLIMB_DOWN = Degrees.of(50.0)
 
   const val KS = 0.020
-  const val KG = 0.25
+  const val KG = 0.258
   const val KV = 0.63027
 
   const val KP = 5.9119
