@@ -21,7 +21,6 @@ const setCoralImg = (level) => {
     let mouseY = event.clientY;
     let ydiff = coralY - mouseY;
     if(_ == "touchmove") {
-        event.preventDefault();
         mouseY = event.changedTouches[0].clientY;
         ydiff = coralY - mouseY;
     }
@@ -64,9 +63,9 @@ coralImage.onclick = () => {
     if(coralSelected) {
         coralLevel = prevCoralLevel;
         coralImage.src = `coralLevelImages/coralL${coralLevel}.png`;
-        if(pairSelected) {
+        if(areaSelected) {
             confirmReefButton.style.backgroundColor = "rgb(4, 189, 36)";
-            confirmReefButton.innerText = `Score at Level ${coralLevel} and Pair ${reefPair}`;
+            confirmReefButton.innerText = `Score at Level ${coralLevel} and Area ${numberToLetter[11-(reefArea+4)%12]}`;
         } else {
             confirmReefButton.innerText = `Coral Level: L${coralLevel}`;
         }
@@ -74,8 +73,8 @@ coralImage.onclick = () => {
         setCoralImg("None");
         coralLevel = -1;
         confirmReefButton.style.backgroundColor = "#DD0000";
-        if(pairSelected) {
-            confirmReefButton.innerText = `Reef Pair: ${reefPair}`;
+        if(areaSelected) {
+            confirmReefButton.innerText = `Reef Area: ${numberToLetter[11-(reefArea+4)%12]}`;
         } else {
             confirmReefButton.innerText = `Choose Robot Alignment`;
         }

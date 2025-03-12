@@ -25,6 +25,8 @@ function topicAnnounceHandler( newTopic ) {
 
 }
 
+let isDone = false;
+
 /**
 * Topic UnAnnounce Handler
 * The NT4_Client will call this function whenever the server un-announces a topic.
@@ -47,13 +49,15 @@ function valueUpdateHandler( topic, timestamp_us, value ) {
   console.log("value: " + value);
   if(topic.name == "/webcom/Alliance") {
     setAlliance(value);
-  } else if (topic.name == "/webcom/Moving") {
+  } else if(topic.name == "/webcom/isDone") {
     if(value===true) {
-      document.getElementById("confirmReefButton").innerText = "Moving...";
-      document.getElementById("confirmReefButton").style.backgroundColor = "#DD0000";
+      document.getElementById("confirmReefButton").innerText = "At Location";
+      document.getElementById("score").innerText = "Score!";
+      document.getElementById("score").style.backgroundColor = "rgb(4, 189, 36)";
     } else {
-      resetReef();
-      document.getElementById("confirmReefButton").innerText = "Choose Robot Alignment";
+      isDone = false;
+      document.getElementById("score").innerText = "Not Yet";
+      document.getElementById("score").style.backgroundColor = "#DD0000";
     }
   }
 }
@@ -102,13 +106,13 @@ setCommand = (command) => {
 
 
 let coralLevel = -1;
-let reefPair = -1;
+let reefArea = -1;
 let coralSelected = false;
-let pairSelected = false;
+let areaSelected = false;
 let intervalList = [];
 
 const resetReef = () => {
-  pairSelected = false;
+  areaSelected = false;
   document.getElementById("confirmReefButton").innerText = `Choose Robot Alignment`;
   if(coralLevel != -1) {
     `Coral Level: L${coralLevel}`
@@ -131,13 +135,15 @@ const resetReef = () => {
 }
 
 document.getElementById("confirmReefButton").onclick = async () => {
-  if(coralSelected && pairSelected) {
-    moveToReef(coralLevel, reefPair);
+  if(coralSelected && areaSelected) {
+    moveToReef(reefArea, coralLevel);
+    document.getElementById("confirmReefButton").innerText = "Scoring...";
+    document.getElementById("confirmReefButton").style.backgroundColor = "#DD0000";
   }
 }
 
 
-const moveToNet = async (isOnRedAllianceSide) => {
+const scoreNet = async (isOnRedAllianceSide) => {
   if(isOnRedAllianceSide) {
     setCommand("netRed");
   } else {
@@ -145,7 +151,7 @@ const moveToNet = async (isOnRedAllianceSide) => {
   }
 }
 
-const moveToProcessor = async () => {
+const scoreProcessor = async () => {
   console.log("scoring processor");
   setCommand("processor");
 }
@@ -158,9 +164,9 @@ const intakeCoral = async (isAtTopSide) => {
   }
 }
 
-const moveToReef = async (level, pair) => {
-  console.log(`Scoring on level: ${level} and pair: ${pair}`)
-  setCommand(`l${level} pair${pair}`);
+const moveToReef = async (location, level) => {
+  console.log(`Scoring on level: ${level} and location: ${numberToLetter[11-(location+4)%12]}`)
+  setCommand(`l${level} location${numberToLetter[11-(location+4)%12]}`);
 }
 
 const scoringContainer = document.querySelector(".scoringContainer");
@@ -190,6 +196,14 @@ document.getElementById("cancel").onclick = () => {
   setCommand("cancel");
   resetReef();
   showContainer("reefContainer");
+}
+
+document.getElementById("score").onclick = () => {
+  if(document.getElementById("score").innerText == "Score!") {
+    setCommand("score");
+    resetReef();
+    showContainer("reefContainer");
+  }
 }
 
 let currentContainer = "reefContainer";
