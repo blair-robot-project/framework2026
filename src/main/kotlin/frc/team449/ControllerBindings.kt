@@ -63,8 +63,8 @@ class ControllerBindings(
     climbBefore()
     climbIntermediate()
     climb()
-    algaeDescoreL2()
-    algaeDescoreL3()
+    scoreL2()
+    scoreL3()
     stopReefAlign()
 
     manualElevator()
@@ -109,15 +109,15 @@ class ControllerBindings(
     )
   }
 
-  private fun algaeDescoreL2() {
+  private fun scoreL2() {
     mechanismController.x().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.L2_ALGAE_DESCORE)
+      robot.superstructureManager.requestGoal(SuperstructureGoal.L2)
     )
   }
 
-  private fun algaeDescoreL3() {
+  private fun scoreL3() {
     mechanismController.y().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.L3_ALGAE_DESCORE)
+      robot.superstructureManager.requestGoal(SuperstructureGoal.L3)
     )
   }
 
@@ -285,7 +285,6 @@ class ControllerBindings(
         robot.superstructureManager.requestGoal(SuperstructureGoal.L2),
         robot.superstructureManager.requestGoal(SuperstructureGoal.L2_ALGAE_DESCORE)
       ) { robot.intake.coralDetected() }
-//      robot.superstructureManager.requestGoal(SuperstructureGoal.L2)
     )
   }
 
@@ -295,7 +294,6 @@ class ControllerBindings(
         robot.superstructureManager.requestGoal(SuperstructureGoal.L3),
         robot.superstructureManager.requestGoal(SuperstructureGoal.L3_ALGAE_DESCORE)
       ) { robot.intake.coralDetected() }
-//      robot.superstructureManager.requestGoal(SuperstructureGoal.L3)
     )
   }
 
