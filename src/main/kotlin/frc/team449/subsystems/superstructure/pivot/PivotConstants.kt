@@ -27,8 +27,8 @@ object PivotConstants {
   const val FOLLOWER_INVERTED_TO_MASTER = true
   val BRAKE_MODE = NeutralModeValue.Brake
 
-  val CLIMB_MIN_ANGLE = Degrees.of(10.0)
-  val CLIMB_VOLTAGE = Volts.of(-3.0)
+  val CLIMB_MIN_ANGLE = Degrees.of(18.5)
+  val CLIMB_VOLTAGE = Volts.of(-7.0)
 
   const val STATOR_LIM = 80.0
   const val SUPPLY_LIM = 40.0
@@ -45,14 +45,14 @@ object PivotConstants {
   // TODO(Adjust gains.)
   const val KS = 0.085813
   const val KV = 4.4941
-  const val KG_MIN = 0.15239 // (KG when elevator is fully retracted.)
-  const val KG_MAX = 0.57876 // (KG when elevator is fully extended.)
+  const val KG_MIN = 0.15939 // (KG when elevator is fully retracted.)
+  const val KG_MAX = 0.58676 // (KG when elevator is fully extended.)
   const val KG_MAX_EXTENSION = 1.36934
 
   val CRUISE_VEL = RotationsPerSecond.of(0.325) // max theoretical 0.392
   val MAX_ACCEL = RotationsPerSecondPerSecond.of(0.75) // 5.0, heavily limited by robot tipping
 
-  val RESET_ENC_LIMIT = Degrees.of(0.05)
+  val RESET_ENC_LIMIT = Degrees.of(0.25)
 
   /** Encoder Values */
   const val ABS_ENC_DIO_PORT = 4

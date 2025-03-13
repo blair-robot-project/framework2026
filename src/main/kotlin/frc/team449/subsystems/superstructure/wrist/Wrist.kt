@@ -9,7 +9,6 @@ import com.ctre.phoenix6.hardware.TalonFX
 import com.ctre.phoenix6.sim.ChassisReference
 import dev.doglog.DogLog
 import edu.wpi.first.units.Units.*
-import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.subsystems.superstructure.SuperstructureGoal
@@ -28,8 +27,6 @@ class Wrist(
   private val request = MotionMagicVoltage(
     SuperstructureGoal.STOW.wrist.`in`(Radians)
   ).withEnableFOC(false)
-
-  private val isReal = RobotBase.isReal()
 
   lateinit var wristFeedForward: WristFeedForward
 
