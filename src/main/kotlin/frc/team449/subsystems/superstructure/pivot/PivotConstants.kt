@@ -52,7 +52,7 @@ object PivotConstants {
   val CRUISE_VEL = RotationsPerSecond.of(0.325) // max theoretical 0.392
   val MAX_ACCEL = RotationsPerSecondPerSecond.of(0.75) // 5.0, heavily limited by robot tipping
 
-  val RESET_ENC_LIMIT = Degrees.of(0.5)
+  val RESET_ENC_LIMIT = Degrees.of(0.25)
 
   /** Encoder Values */
   const val ABS_ENC_DIO_PORT = 4
