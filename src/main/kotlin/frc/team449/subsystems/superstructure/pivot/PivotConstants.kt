@@ -28,7 +28,7 @@ object PivotConstants {
   val BRAKE_MODE = NeutralModeValue.Brake
 
   val CLIMB_MIN_ANGLE = Degrees.of(18.5)
-  val CLIMB_VOLTAGE = Volts.of(-7.0)
+  val CLIMB_VOLTAGE = Volts.of(-4.0)
 
   const val STATOR_LIM = 80.0
   const val SUPPLY_LIM = 40.0
