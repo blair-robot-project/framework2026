@@ -15,9 +15,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers
 import frc.team449.auto.Routines
-import frc.team449.commands.light.BlairChasing
-import frc.team449.commands.light.BreatheHue
-import frc.team449.commands.light.Rainbow
+
 import frc.team449.subsystems.FieldConstants
 import frc.team449.subsystems.drive.swerve.SwerveSim
 import frc.team449.subsystems.superstructure.SuperstructureGoal
@@ -88,7 +86,6 @@ class RobotLoop : TimedRobot() {
     println("DONE Generating Auto Routines : ${Timer.getFPGATimestamp()}")
     SmartDashboard.putData("Command Scheduler", CommandScheduler.getInstance())
 
-    robot.light.defaultCommand = BlairChasing(robot.light)
 
     controllerBinder.bindButtons()
 
@@ -132,11 +129,7 @@ class RobotLoop : TimedRobot() {
   override fun autonomousInit() {
     /** Every time auto starts, we update the chosen auto command. */
 
-    if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) {
-      BreatheHue(robot.light, 0).schedule()
-    } else {
-      BreatheHue(robot.light, 95).schedule()
-    }
+
   }
 
   override fun autonomousPeriodic() {}
@@ -155,8 +148,7 @@ class RobotLoop : TimedRobot() {
   override fun disabledInit() {
     robot.drive.stop()
 
-    (robot.light.currentCommand ?: InstantCommand()).cancel()
-    Rainbow(robot.light).schedule()
+
   }
 
   override fun disabledPeriodic() {}
