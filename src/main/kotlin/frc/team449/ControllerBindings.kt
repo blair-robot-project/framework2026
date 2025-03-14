@@ -325,7 +325,8 @@ class ControllerBindings(
     )
   }
 
-  private fun manualPivot() {
+  private fun
+    manualPivot() {
     // up
     mechanismController.povLeft().onTrue(
       robot.pivot.manualUp()
