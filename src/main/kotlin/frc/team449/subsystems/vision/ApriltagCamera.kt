@@ -36,7 +36,7 @@ class ApriltagCamera(
   private var cameraSim: PhotonCameraSim? = null
 
   init {
-    if (RobotBase.isSimulation()) {
+   /* if (RobotBase.isSimulation()) {
       visionSystemSim!!.addAprilTags(tagLayout)
 
       val cameraProp = SimCameraProperties()
@@ -50,9 +50,9 @@ class ApriltagCamera(
 
       cameraSim!!.enableDrawWireframe(VisionConstants.ENABLE_WIREFRAME)
 
-      visionSystemSim.addCamera(cameraSim, robotToCam)
+      visionSystemSim.addCamera(cameraSim, robotToCam) */
     }
-  }
+  /*}*/
 
   private fun getSimDebugField(): Field2d? {
     return if (!RobotBase.isSimulation()) null else visionSystemSim!!.debugField
