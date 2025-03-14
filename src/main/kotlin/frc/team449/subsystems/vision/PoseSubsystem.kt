@@ -281,6 +281,11 @@ class PoseSubsystem(
       combinedChassisSpeeds.vxMetersPerSecond = MathUtil.clamp(combinedChassisSpeeds.vxMetersPerSecond, -AutoScoreCommandConstants.MAX_LINEAR_SPEED, AutoScoreCommandConstants.MAX_LINEAR_SPEED)
       combinedChassisSpeeds.vyMetersPerSecond = MathUtil.clamp(combinedChassisSpeeds.vyMetersPerSecond, -AutoScoreCommandConstants.MAX_LINEAR_SPEED, AutoScoreCommandConstants.MAX_LINEAR_SPEED)
       combinedChassisSpeeds.omegaRadiansPerSecond = MathUtil.clamp(combinedChassisSpeeds.omegaRadiansPerSecond, -AutoScoreCommandConstants.MAX_ROT_SPEED, AutoScoreCommandConstants.MAX_ROT_SPEED)
+
+      combinedChassisSpeeds.vxMetersPerSecond = MathUtil.clamp(combinedChassisSpeeds.vxMetersPerSecond, -SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED, SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED)
+      combinedChassisSpeeds.vyMetersPerSecond = MathUtil.clamp(combinedChassisSpeeds.vyMetersPerSecond, -SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED, SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED)
+      combinedChassisSpeeds.omegaRadiansPerSecond = MathUtil.clamp(combinedChassisSpeeds.omegaRadiansPerSecond, -AutoScoreCommandConstants.MAX_ROT_SPEED, AutoScoreCommandConstants.MAX_ROT_SPEED)
+
       drive.set(combinedChassisSpeeds)
     }
     lastDistance = distance

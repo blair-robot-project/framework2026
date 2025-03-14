@@ -63,9 +63,9 @@ class AutoScorePathfinder(private val robot: Robot, private val endPose: Pose2d,
   private var yPIDSpeed = 0.0
   private val pidOffsetTime = 0.02
 
-  private var thetaController = ProfiledPIDController(7.0, 0.0, 0.0, TrapezoidProfile.Constraints(AutoScoreCommandConstants.MAX_ROT_SPEED, AutoScoreCommandConstants.MAX_ROT_ACCEL))
-  private var xController = ProfiledPIDController(6.0, 0.0, 0.0, TrapezoidProfile.Constraints(AutoScoreCommandConstants.MAX_LINEAR_SPEED, AutoScoreCommandConstants.MAX_ACCEL))
-  private var yController = ProfiledPIDController(6.0, 0.0, 0.0, TrapezoidProfile.Constraints(AutoScoreCommandConstants.MAX_LINEAR_SPEED, AutoScoreCommandConstants.MAX_ACCEL))
+  private var thetaController = ProfiledPIDController(5.0, 0.0, 0.0, TrapezoidProfile.Constraints(AutoScoreCommandConstants.MAX_ROT_SPEED, AutoScoreCommandConstants.MAX_ROT_ACCEL))
+  private var xController = ProfiledPIDController(4.0, 0.0, 0.0, TrapezoidProfile.Constraints(AutoScoreCommandConstants.MAX_LINEAR_SPEED, AutoScoreCommandConstants.MAX_ACCEL))
+  private var yController = ProfiledPIDController(4.0, 0.0, 0.0, TrapezoidProfile.Constraints(AutoScoreCommandConstants.MAX_LINEAR_SPEED, AutoScoreCommandConstants.MAX_ACCEL))
   var distance: Double = 100.0
   private var ADStarPower = 0.95
   private val ADStarDecrease = 0.04

@@ -1,6 +1,7 @@
 package frc.team449
 
 import com.ctre.phoenix6.SignalLogger
+import com.pathplanner.lib.commands.PathfindingCommand
 import dev.doglog.DogLog
 import dev.doglog.DogLogOptions
 import edu.wpi.first.hal.FRCNetComm
@@ -112,6 +113,8 @@ class RobotLoop : TimedRobot() {
     }
 
     robot.light.breath(Seconds.of(3.0), Color.kHotPink).schedule()
+
+    PathfindingCommand.warmupCommand().schedule()
   }
 
   override fun driverStationConnected() {
