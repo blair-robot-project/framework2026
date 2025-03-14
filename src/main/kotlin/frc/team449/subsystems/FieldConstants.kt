@@ -3,7 +3,9 @@ package frc.team449.subsystems
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.wpilibj.DriverStation.Alliance
+import frc.team449.commands.autoscoreCommands.AutoScoreCommandConstants.Companion.centerOfField
 import kotlin.math.PI
 
 object FieldConstants {
@@ -12,6 +14,9 @@ object FieldConstants {
 
   val REEF_LOCATIONS = arrayListOf<Pose2d>()
   val REEF_CENTER_LOCATIONS = arrayListOf<Pose2d>()
+  lateinit var REEF_CENTER : Translation2d
+  val CORAL_INTAKE_LOCATIONS = arrayListOf<Translation2d>()
+  val APRIL_TAG_LOCATIONS = arrayListOf<Translation2d>()
 
   enum class ReefSide {
     LEFT,
@@ -90,6 +95,40 @@ object FieldConstants {
         REEF_6,
       )
     )
+
+    val RED_REEF_CENTER = Translation2d(13.0758, 4.0325)
+    val BLUE_REEF_CENTER = Translation2d(centerOfField - (RED_REEF_CENTER.x - centerOfField), RED_REEF_CENTER.y)
+    REEF_CENTER = (if (allianceComp) RED_REEF_CENTER else BLUE_REEF_CENTER)
+
+    val CORAL_INTAKE_BLUE_TOP = Translation2d(1.4578, 7.1276)
+    val CORAL_INTAKE_BLUE_BOTTOM = Translation2d(1.4578, 1.1276)
+
+    val CORAL_INTAKE_RED_TOP = Translation2d(16.1578, 7.1276)
+    val CORAL_INTAKE_RED_BOTTOM = Translation2d(16.1578, 1.1276)
+    CORAL_INTAKE_LOCATIONS.addAll(
+      if (allianceComp) listOf(
+        CORAL_INTAKE_RED_TOP,
+        CORAL_INTAKE_RED_BOTTOM
+      ) else listOf(
+        CORAL_INTAKE_BLUE_TOP,
+        CORAL_INTAKE_BLUE_BOTTOM
+      )
+    )
+    val APRIL_TAGS_RED = listOf(
+      Translation2d(12.215, 3.995),
+      Translation2d(12.6488, 4.772),
+      Translation2d(13.501, 4.754),
+      Translation2d(13.9364, 4.006),
+      Translation2d(13.518, 3.258),
+      Translation2d(12.631, 3.275)
+    )
+    val APRIL_TAGS_BLUE = arrayListOf<Translation2d>()
+    val distanceBetweenReefs = RED_REEF_CENTER.getDistance(BLUE_REEF_CENTER)
+    for(translation in APRIL_TAGS_RED) {
+      APRIL_TAGS_BLUE.add(Translation2d(translation.x - distanceBetweenReefs, translation.y))
+    }
+    APRIL_TAG_LOCATIONS.addAll(if(allianceComp) APRIL_TAGS_RED else APRIL_TAGS_BLUE)
+
   }
 
   private fun findPose(x: Double, y: Double, angle: Double, isRed: Boolean): Pose2d {

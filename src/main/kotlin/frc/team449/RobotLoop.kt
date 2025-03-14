@@ -1,6 +1,7 @@
 package frc.team449
 
 import com.ctre.phoenix6.SignalLogger
+import com.pathplanner.lib.commands.PathfindingCommand
 import dev.doglog.DogLog
 import dev.doglog.DogLogOptions
 import edu.wpi.first.hal.FRCNetComm
@@ -8,6 +9,7 @@ import edu.wpi.first.hal.HAL
 import edu.wpi.first.math.geometry.Pose3d
 import edu.wpi.first.math.geometry.Rotation3d
 import edu.wpi.first.math.util.Units
+import edu.wpi.first.units.Units.MetersPerSecond
 import edu.wpi.first.units.Units.MetersPerSecond
 import edu.wpi.first.units.Units.Seconds
 import edu.wpi.first.wpilibj.*
@@ -113,6 +115,8 @@ class RobotLoop : TimedRobot() {
     }
 
     robot.light.breath(Seconds.of(3.0), Color.kHotPink).schedule()
+
+    PathfindingCommand.warmupCommand().schedule()
   }
 
   override fun driverStationConnected() {
@@ -143,6 +147,7 @@ class RobotLoop : TimedRobot() {
     logAdvScopeComponents()
   }
 
+
   override fun autonomousInit() {
     /** Every time auto starts, we update the chosen auto command. */
     this.autoCommand = routineMap[if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) "Red" + routineChooser.selected else "Blue" + routineChooser.selected]
@@ -163,6 +168,7 @@ class RobotLoop : TimedRobot() {
     (robot.light.currentCommand ?: InstantCommand()).cancel()
 
     robot.drive.defaultCommand = robot.driveCommand
+    robot.webCom.setUpNT()
   }
 
   override fun teleopPeriodic() {
