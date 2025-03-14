@@ -79,9 +79,9 @@ object SuperstructureGoal {
 
   /** Actually find these positions*/
   val L2_ALGAE_DESCORE = SuperstructureState(
-    Radians.of(0.736328125),
+    Degrees.of(42.188493899386),
     Inches.of(MIN_ELEVATOR_HEIGHT_IN),
-    Radians.of(-1.01025390625),
+    Degrees.of(-57.88328506487372),
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
