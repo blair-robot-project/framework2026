@@ -71,7 +71,7 @@ class ThreeL4(
       .alongWith(
         SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(reefSide), translationSpeedLim = 1.0, translationAccelLim = 2.0)
           .andThen(PrintCommand("Actually reached auto tolerance!"))
-          .withTimeout(2.25)
+          .withTimeout(2.0)
       )
       .andThen(WaitCommand(0.10))
       .andThen(robot.intake.outtakeCoral())

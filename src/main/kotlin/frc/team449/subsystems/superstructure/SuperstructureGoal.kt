@@ -72,7 +72,7 @@ object SuperstructureGoal {
 
   val CLIMB_INTERMEDIATE = SuperstructureState(
     Degrees.of(65.0),
-    Meters.of(0.228824),
+    Meters.of(0.234824),
     Degrees.of(-139.0),
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
