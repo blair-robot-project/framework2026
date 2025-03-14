@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers
 import frc.team449.auto.Routines
-
 import frc.team449.subsystems.FieldConstants
 import frc.team449.subsystems.drive.swerve.SwerveSim
 import frc.team449.subsystems.superstructure.SuperstructureGoal
@@ -27,7 +26,6 @@ import frc.team449.subsystems.vision.VisionConstants
 import frc.team449.system.encoder.QuadCalibration
 import org.littletonrobotics.urcl.URCL
 import kotlin.jvm.optionals.getOrDefault
-import kotlin.jvm.optionals.getOrNull
 import kotlin.math.*
 
 /** The main class of the robot, constructs all the subsystems
@@ -86,7 +84,6 @@ class RobotLoop : TimedRobot() {
     println("DONE Generating Auto Routines : ${Timer.getFPGATimestamp()}")
     SmartDashboard.putData("Command Scheduler", CommandScheduler.getInstance())
 
-
     controllerBinder.bindButtons()
 
     DogLog.setOptions(
@@ -128,8 +125,6 @@ class RobotLoop : TimedRobot() {
 
   override fun autonomousInit() {
     /** Every time auto starts, we update the chosen auto command. */
-
-
   }
 
   override fun autonomousPeriodic() {}
@@ -147,8 +142,6 @@ class RobotLoop : TimedRobot() {
 
   override fun disabledInit() {
     robot.drive.stop()
-
-
   }
 
   override fun disabledPeriodic() {}

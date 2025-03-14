@@ -71,11 +71,11 @@ open class Routines(
       Commands.sequence(
         Commands.parallel(
           robot.superstructureManager.requestGoal(SuperstructureGoal.L2),
-          SimpleReefAlign(robot.drive,robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.RIGHT))
+          SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.RIGHT))
         ),
         robot.drive.driveStop(),
         WaitCommand(0.15),
-        robot.intake.outtakeCoral().andThen(WaitUntilCommand{!robot.intake.coralDetected()}),
+        robot.intake.outtakeCoral().andThen(WaitUntilCommand { !robot.intake.coralDetected() }),
         WaitCommand(0.15).onlyIf { RobotBase.isReal() }
       )
     )
@@ -94,7 +94,7 @@ open class Routines(
         reefETrajectory.resetOdometry(),
 
         // to reef
-       reefETrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
+        reefETrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
         frc.team449.commands.Commands.ScoreL4(robot, FieldConstants.ReefSide.LEFT),
 
         // to coral station
@@ -104,7 +104,7 @@ open class Routines(
         frc.team449.commands.Commands.Intake(robot),
 
         // to reef
-    stationToDTrajectory.cmd().alongWith( robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
+        stationToDTrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
         frc.team449.commands.Commands.ScoreL4(robot, FieldConstants.ReefSide.RIGHT),
       )
     )
@@ -123,7 +123,7 @@ open class Routines(
         reefETrajectory.resetOdometry(),
 
         // to reef
-        reefETrajectory.cmd().alongWith( robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
+        reefETrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
         frc.team449.commands.Commands.ScoreL4(robot, FieldConstants.ReefSide.LEFT),
 
         // to coral station
@@ -158,7 +158,7 @@ open class Routines(
         reefJTrajectory.resetOdometry(),
 
         // to reef
-       reefJTrajectory.cmd().alongWith( robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
+        reefJTrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
         frc.team449.commands.Commands.ScoreL4(robot, FieldConstants.ReefSide.LEFT),
 
         // to coral station
@@ -168,7 +168,7 @@ open class Routines(
         frc.team449.commands.Commands.Intake(robot),
 
         // to reef
-        stationToLTrajectory.cmd().alongWith( robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
+        stationToLTrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
         frc.team449.commands.Commands.ScoreL4(robot, FieldConstants.ReefSide.RIGHT),
       )
     )
@@ -189,7 +189,7 @@ open class Routines(
         reefJTrajectory.resetOdometry(),
 
         // to reef
-        reefJTrajectory.cmd().alongWith( robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
+        reefJTrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
         frc.team449.commands.Commands.ScoreL4(robot, FieldConstants.ReefSide.LEFT),
 
         // to coral station
@@ -199,7 +199,7 @@ open class Routines(
         frc.team449.commands.Commands.Intake(robot),
 
         // to reef
-        stationToLTrajectory.cmd().alongWith( robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
+        stationToLTrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
         frc.team449.commands.Commands.ScoreL4(robot, FieldConstants.ReefSide.RIGHT),
 
         // to coral station
@@ -226,7 +226,7 @@ open class Routines(
         reefJTrajectory.resetOdometry(),
 
         // to reef
-       reefJTrajectory.cmd().alongWith( robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
+        reefJTrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
         frc.team449.commands.Commands.ScoreL4(robot, FieldConstants.ReefSide.RIGHT),
 
         // to coral station
@@ -236,7 +236,7 @@ open class Routines(
         frc.team449.commands.Commands.Intake(robot),
 
         // to reef
-        stationToKTrajectory.cmd().alongWith( robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
+        stationToKTrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
         frc.team449.commands.Commands.ScoreL4(robot, FieldConstants.ReefSide.LEFT),
 
         // to coral station
@@ -246,7 +246,7 @@ open class Routines(
         frc.team449.commands.Commands.Intake(robot),
 
         // to reef
-        stationToLTrajectory.cmd().alongWith( robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
+        stationToLTrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
         frc.team449.commands.Commands.ScoreL4(robot, FieldConstants.ReefSide.RIGHT)
 
       )
@@ -269,7 +269,7 @@ open class Routines(
         reefETrajectory.resetOdometry(),
 
         // to reef
-        reefETrajectory.cmd().alongWith( robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
+        reefETrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
         frc.team449.commands.Commands.ScoreL4(robot, FieldConstants.ReefSide.RIGHT),
 
         // to coral station
@@ -279,7 +279,7 @@ open class Routines(
         frc.team449.commands.Commands.Intake(robot),
 
         // to reef
-        stationToDTrajectory.cmd().alongWith( robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
+        stationToDTrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
         frc.team449.commands.Commands.ScoreL4(robot, FieldConstants.ReefSide.LEFT),
 
         // to coral station
@@ -289,7 +289,7 @@ open class Routines(
         frc.team449.commands.Commands.Intake(robot),
 
         // to reef
-       stationToCTrajectory.cmd().alongWith( robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
+        stationToCTrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)),
         frc.team449.commands.Commands.ScoreL4(robot, FieldConstants.ReefSide.RIGHT),
 
       )
@@ -298,7 +298,7 @@ open class Routines(
     return E_D_C
   }
 
-  fun l2Routine(): AutoRoutine{
+  fun l2Routine(): AutoRoutine {
     val l2autoRoutine = autoFactory.newRoutine("L4 Routine")
 
     val l2fTrajectory = l2autoRoutine.trajectory("Go To L4F")
@@ -309,50 +309,50 @@ open class Routines(
     val rightStationTrajectory3 = l2autoRoutine.trajectory("Go To Rightstation(3)")
     val l2CTrajectory = l2autoRoutine.trajectory("Go To L4C")
 
-
-
     l2autoRoutine.active().onTrue(
       Commands.parallel(
         l2fTrajectory.resetOdometry(),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PREMOVE)).andThen(
-        l2fTrajectory.cmd())
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PREMOVE)
+      ).andThen(
+        l2fTrajectory.cmd()
       )
-
+    )
 
     l2fTrajectory.done().onTrue(
       Commands.sequence(
-        SimpleReefAlign(robot.drive,robot.poseSubsystem,
-          leftOrRight = Optional.of(FieldConstants.ReefSide.RIGHT)).
-        alongWith(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.L2)),
-          robot.drive.driveStop().alongWith(
-           robot.intake.outtakeCoral()).andThen(WaitUntilCommand{!robot.intake.coralDetected()}),
+        SimpleReefAlign(
+          robot.drive,
+          robot.poseSubsystem,
+          leftOrRight = Optional.of(FieldConstants.ReefSide.RIGHT)
+        )
+          .alongWith(
+            robot.superstructureManager.requestGoal(SuperstructureGoal.L2)
+          ),
+        robot.drive.driveStop().alongWith(
+          robot.intake.outtakeCoral()
+        ).andThen(WaitUntilCommand { !robot.intake.coralDetected() }),
+        WaitCommand(0.15).onlyIf { RobotBase.isReal() },
+        rightStationTrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.SUBSTATION_INTAKE))
+      )
+    )
+    rightStationTrajectory.done().onTrue(
+      Commands.sequence(
+        robot.drive.driveStop(),
+        robot.intake.intakeCoral().andThen(
+          WaitUntilCommand { robot.intake.coralDetected() },
           WaitCommand(0.15).onlyIf { RobotBase.isReal() },
-          rightStationTrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.SUBSTATION_INTAKE))
+          l2ETrajectory.cmd().alongWith(
+            robot.superstructureManager.requestGoal(
+              SuperstructureGoal.L2_PREMOVE
+            )
           )
         )
-    rightStationTrajectory.done().onTrue(Commands.sequence(
-      robot.drive.driveStop(),
-      robot.intake.intakeCoral().andThen(
-        WaitUntilCommand{robot.intake.coralDetected()},
-        WaitCommand(0.15).onlyIf { RobotBase.isReal() },
-        l2ETrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(
-          SuperstructureGoal.L2_PREMOVE 
-        ))
+
       )
 
     )
 
-    )
-
-
-
-
-
-
     return l2autoRoutine
-
-
   }
 
   fun middleRoutine(): AutoRoutine {
@@ -362,20 +362,20 @@ open class Routines(
     middleRoutine.active().onTrue(
       Commands.sequence(
         test.resetOdometry(),
-          test.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE) )
-        )
+        test.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE))
       )
+    )
 
     test.done().onTrue(
-        Commands.sequence(
-          SimpleReefAlign(robot.drive,robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT), translationSpeedLim = 2.0, translationAccelLim =1.4).alongWith(
-            robot.superstructureManager.requestGoal(SuperstructureGoal.L4)
-          ),
+      Commands.sequence(
+        SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT), translationSpeedLim = 2.0, translationAccelLim = 1.4).alongWith(
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L4)
+        ),
         robot.drive.driveStop(),
         WaitCommand(0.15),
-        robot.intake.outtakeCoral().andThen(WaitUntilCommand{!robot.intake.coralDetected()}),
+        robot.intake.outtakeCoral().andThen(WaitUntilCommand { !robot.intake.coralDetected() }),
         WaitCommand(0.15).onlyIf { RobotBase.isReal() },
-          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
+        robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
       )
     )
 
@@ -392,7 +392,6 @@ open class Routines(
     val l4CTrajectory = autoRoutine.trajectory("Go To L4C real")
     val rightStationTrajectory3 = autoRoutine.trajectory("Go To Rightstation(3)")
 
-
     autoRoutine.active().onTrue(
       Commands.sequence(
         l4ETrajectory.resetOdometry(),
@@ -400,17 +399,15 @@ open class Routines(
           l4ETrajectory.cmd()
 
         )
-        ),
-        )
-
-
+      ),
+    )
 
     l4ETrajectory.done().onTrue(
       Commands.sequence(
-        SimpleReefAlign(robot.drive,robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT), translationSpeedLim = 2.0, translationAccelLim = 1.5)
+        SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT), translationSpeedLim = 2.0, translationAccelLim = 1.5)
           .alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4)),
         robot.drive.driveStop(),
-        robot.intake.outtakeCoral().andThen(WaitUntilCommand {robot.intake.coralNotDetected() }),
+        robot.intake.outtakeCoral().andThen(WaitUntilCommand { robot.intake.coralNotDetected() }),
         WaitCommand(0.15).onlyIf { RobotBase.isReal() },
         rightStationTrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.SUBSTATION_INTAKE))
       )
@@ -429,31 +426,42 @@ open class Routines(
 
     l4DTrajectory.done().onTrue(
       Commands.sequence(
-        SimpleReefAlign(robot.drive,robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.RIGHT), translationSpeedLim =
-        2.0, translationAccelLim = 1.5).
-          alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4)),
+        SimpleReefAlign(
+          robot.drive,
+          robot.poseSubsystem,
+          leftOrRight = Optional.of(FieldConstants.ReefSide.RIGHT),
+          translationSpeedLim =
+          2.0,
+          translationAccelLim = 1.5
+        )
+          .alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4)),
         robot.drive.driveStop(),
-        robot.intake.outtakeCoral().andThen(WaitUntilCommand {robot.intake.coralNotDetected() }),
+        robot.intake.outtakeCoral().andThen(WaitUntilCommand { robot.intake.coralNotDetected() }),
         WaitCommand(0.15).onlyIf { RobotBase.isReal() },
         robot.superstructureManager.requestGoal(SuperstructureGoal.SUBSTATION_INTAKE).alongWith(
-        rightStationTrajectory2.cmd())
+          rightStationTrajectory2.cmd()
+        )
       )
     )
 
     rightStationTrajectory2.done().onTrue(
       Commands.sequence(
         robot.drive.driveStop(),
-        robot.intake.intakeCoral().andThen(WaitUntilCommand{robot.intake.coralDetected()}.onlyIf { RobotBase.isReal() },
+        robot.intake.intakeCoral().andThen(
+          WaitUntilCommand { robot.intake.coralDetected() }.onlyIf { RobotBase.isReal() },
           WaitCommand(0.15).onlyIf { RobotBase.isReal() },
-          l4CTrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).beforeStarting(WaitCommand(0.5)
-          )))
+          l4CTrajectory.cmd().alongWith(
+            robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).beforeStarting(
+              WaitCommand(0.5)
+            )
           )
+        )
       )
-
+    )
 
     l4CTrajectory.done().onTrue(
       Commands.sequence(
-        SimpleReefAlign(robot.drive,robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT), translationSpeedLim = 2.0, translationAccelLim = 1.5)
+        SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT), translationSpeedLim = 2.0, translationAccelLim = 1.5)
           .alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4)),
         robot.drive.driveStop(),
 
@@ -464,14 +472,8 @@ open class Routines(
       )
     )
 
-
-
-
-
     return autoRoutine
   }
-
-
 
   fun LeftamericanRoutine(): AutoRoutine {
     val leftAutoRoutine = autoFactory.newRoutine("Left L4 Routine")
@@ -482,7 +484,6 @@ open class Routines(
     val leftStationTraj2 = leftAutoRoutine.trajectory("leftTraj 2")
     val l4LTrajectory = leftAutoRoutine.trajectory("Go To  L4L real")
 
-
     leftAutoRoutine.active().onTrue(
       Commands.sequence(
         l4jTrajectory.resetOdometry(),
@@ -492,7 +493,6 @@ open class Routines(
         PrintCommand("Traveling to L4")
       )
     )
-
 
     l4jTrajectory.done().onTrue(
       Commands.sequence(
@@ -518,8 +518,12 @@ open class Routines(
     l4kTrajectory.done().onTrue(
       Commands.sequence(
         SimpleReefAlign(
-          robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT), translationSpeedLim =
-          2.0, translationAccelLim = 1.5
+          robot.drive,
+          robot.poseSubsystem,
+          leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT),
+          translationSpeedLim =
+          2.0,
+          translationAccelLim = 1.5
         ).alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4)),
         robot.drive.driveStop(),
         robot.intake.outtakeCoral().andThen(WaitUntilCommand { !robot.intake.coralDetected() }),
@@ -533,13 +537,13 @@ open class Routines(
     leftStationTraj2.done().onTrue(
       Commands.sequence(
         robot.drive.driveStop(),
-        robot.intake.intakeCoral().andThen(WaitUntilCommand { robot.intake.coralDetected() }.onlyIf { RobotBase.isReal() },
+        robot.intake.intakeCoral().andThen(
+          WaitUntilCommand { robot.intake.coralDetected() }.onlyIf { RobotBase.isReal() },
           WaitCommand(0.15).onlyIf { RobotBase.isReal() },
           l4LTrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).beforeStarting(WaitCommand(0.5)))
         )
       )
     )
-
 
     l4LTrajectory.done().onTrue(
       Commands.sequence(
@@ -570,7 +574,7 @@ open class Routines(
     autoChooser.addRoutine("l4 E,D,C", this::reefEDC) // 3 piece l4
     autoChooser.addRoutine("The Goat", this::americanRoutine) // america
     autoChooser.addRoutine("testing", this::middleRoutine)
-    autoChooser.addRoutine("jwoj",this::l2Routine)
-    autoChooser.addRoutine("Left Goat",this::LeftamericanRoutine)
+    autoChooser.addRoutine("jwoj", this::l2Routine)
+    autoChooser.addRoutine("Left Goat", this::LeftamericanRoutine)
   }
 }
