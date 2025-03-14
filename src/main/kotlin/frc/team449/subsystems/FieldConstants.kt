@@ -14,7 +14,7 @@ object FieldConstants {
 
   val REEF_LOCATIONS = arrayListOf<Pose2d>()
   val REEF_CENTER_LOCATIONS = arrayListOf<Pose2d>()
-  lateinit var REEF_CENTER : Translation2d
+  lateinit var REEF_CENTER: Translation2d
   val CORAL_INTAKE_LOCATIONS = arrayListOf<Translation2d>()
   val APRIL_TAG_LOCATIONS = arrayListOf<Translation2d>()
 
@@ -106,13 +106,17 @@ object FieldConstants {
     val CORAL_INTAKE_RED_TOP = Translation2d(16.1578, 7.1276)
     val CORAL_INTAKE_RED_BOTTOM = Translation2d(16.1578, 1.1276)
     CORAL_INTAKE_LOCATIONS.addAll(
-      if (allianceComp) listOf(
-        CORAL_INTAKE_RED_TOP,
-        CORAL_INTAKE_RED_BOTTOM
-      ) else listOf(
-        CORAL_INTAKE_BLUE_TOP,
-        CORAL_INTAKE_BLUE_BOTTOM
-      )
+      if (allianceComp) {
+        listOf(
+          CORAL_INTAKE_RED_TOP,
+          CORAL_INTAKE_RED_BOTTOM
+        )
+      } else {
+        listOf(
+          CORAL_INTAKE_BLUE_TOP,
+          CORAL_INTAKE_BLUE_BOTTOM
+        )
+      }
     )
     val APRIL_TAGS_RED = listOf(
       Translation2d(12.215, 3.995),
@@ -124,11 +128,10 @@ object FieldConstants {
     )
     val APRIL_TAGS_BLUE = arrayListOf<Translation2d>()
     val distanceBetweenReefs = RED_REEF_CENTER.getDistance(BLUE_REEF_CENTER)
-    for(translation in APRIL_TAGS_RED) {
+    for (translation in APRIL_TAGS_RED) {
       APRIL_TAGS_BLUE.add(Translation2d(translation.x - distanceBetweenReefs, translation.y))
     }
-    APRIL_TAG_LOCATIONS.addAll(if(allianceComp) APRIL_TAGS_RED else APRIL_TAGS_BLUE)
-
+    APRIL_TAG_LOCATIONS.addAll(if (allianceComp) APRIL_TAGS_RED else APRIL_TAGS_BLUE)
   }
 
   private fun findPose(x: Double, y: Double, angle: Double, isRed: Boolean): Pose2d {

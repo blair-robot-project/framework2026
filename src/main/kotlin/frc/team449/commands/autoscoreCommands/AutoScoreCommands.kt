@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import frc.team449.Robot
-import frc.team449.subsystems.FieldConstants
 import frc.team449.subsystems.superstructure.SuperstructureGoal
 
 class AutoScoreCommands(private val robot: Robot) {
@@ -25,7 +24,7 @@ class AutoScoreCommands(private val robot: Robot) {
       currentCommand =
         AutoScoreWrapperCommand(
           robot,
-          AutoScorePathfinder(robot, reefLocation,true),
+          AutoScorePathfinder(robot, reefLocation, true),
           superstructureMoveCommand
         ).andThen(
           InstantCommand({
@@ -40,8 +39,11 @@ class AutoScoreCommands(private val robot: Robot) {
   fun getProcessorCommand(): Command {
     return runOnce({
       moving = true
-      val processorPose = if (DriverStation.getAlliance().get() == Alliance.Red)
-        AutoScoreCommandConstants.processorPoseRed else AutoScoreCommandConstants.processorPoseBlue
+      val processorPose = if (DriverStation.getAlliance().get() == Alliance.Red) {
+        AutoScoreCommandConstants.processorPoseRed
+      } else {
+        AutoScoreCommandConstants.processorPoseBlue
+      }
       scoreCommand = InstantCommand()
       val premoveCommand = InstantCommand()
       robot.poseSubsystem.autoscoreCommandPose = processorPose
@@ -67,8 +69,11 @@ class AutoScoreCommands(private val robot: Robot) {
         AutoScoreCommandConstants.centerOfField + AutoScoreCommandConstants.centerOfField *
           if (atRedSide) 1 else -1,
         robot.poseSubsystem.pose.translation.y,
-        if (atRedSide) AutoScoreCommandConstants.netRotation2dRed
-        else AutoScoreCommandConstants.netRotation2dBlue
+        if (atRedSide) {
+          AutoScoreCommandConstants.netRotation2dRed
+        } else {
+          AutoScoreCommandConstants.netRotation2dBlue
+        }
       )
       scoreCommand = InstantCommand()
       val premoveCommand = InstantCommand()

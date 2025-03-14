@@ -43,7 +43,7 @@ class Robot : RobotBase() {
 
   val autoChooser = AutoChooser()
 
-  override val poseSubsystem: PoseSubsystem = createPoseSubsystem(ahrs, drive, field)
+  override val poseSubsystem: PoseSubsystem = createPoseSubsystem(ahrs, drive, field, driveController)
 
   override val driveCommand: SwerveOrthogonalCommand = SwerveOrthogonalCommand(drive, poseSubsystem, driveController.hid)
 

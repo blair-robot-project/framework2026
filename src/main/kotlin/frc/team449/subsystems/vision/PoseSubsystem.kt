@@ -26,12 +26,12 @@ import frc.team449.subsystems.drive.swerve.SwerveConstants
 import frc.team449.subsystems.drive.swerve.SwerveDrive
 import frc.team449.subsystems.drive.swerve.SwerveSim
 import frc.team449.system.AHRS
+import kotlin.jvm.optionals.getOrNull
+import kotlin.math.*
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
-import kotlin.jvm.optionals.getOrNull
-import kotlin.math.*
 
 class PoseSubsystem(
   private val ahrs: AHRS,
@@ -287,7 +287,7 @@ class PoseSubsystem(
       drive.set(combinedChassisSpeeds)
     }
     lastDistance = distance
-    agreeVal = maxAgreeVal - maxAgreeVal/(1 + exp(-(distance-0.5)*10))
+    agreeVal = maxAgreeVal - maxAgreeVal / (1 + exp(-(distance-0.5) * 10))
   }
 
   private val isReal = RobotBase.isReal()
@@ -366,8 +366,6 @@ class PoseSubsystem(
   fun resetOdometry(newPose: Pose2d) {
     this.poseEstimator.resetPose(newPose)
   }
-
-
 
 //  fun setMagnetizePathplanning(desState: Pose2d) {
 //
@@ -505,7 +503,7 @@ class PoseSubsystem(
   private fun setRobotPose() {
     this.field.robotPose = this.pose
 
-    //drive.pose = this.pose
+    // drive.pose = this.pose
 
     this.field.getObject("FL").pose = this.pose.plus(
       Transform2d(
@@ -584,7 +582,6 @@ class PoseSubsystem(
     DogLog.log("PoseSubsystem/AHRS Values/Navx Connected", ahrs.connected())
     DogLog.log("PoseSubsystem/AHRS Values/Navx Calibrated", ahrs.calibrated())
   }
-
 
   companion object {
     fun createPoseSubsystem(ahrs: AHRS, drive: SwerveDrive, field: Field2d, controller: CommandXboxController): PoseSubsystem {
