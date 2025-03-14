@@ -26,6 +26,10 @@ import frc.team449.subsystems.drive.swerve.SwerveConstants
 import frc.team449.subsystems.drive.swerve.SwerveDrive
 import frc.team449.subsystems.drive.swerve.SwerveSim
 import frc.team449.system.AHRS
+import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.pow
+import kotlin.math.sqrt
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.*
 
@@ -363,6 +367,8 @@ class PoseSubsystem(
     this.poseEstimator.resetPose(newPose)
   }
 
+
+
 //  fun setMagnetizePathplanning(desState: Pose2d) {
 //
 //
@@ -498,6 +504,8 @@ class PoseSubsystem(
 
   private fun setRobotPose() {
     this.field.robotPose = this.pose
+
+    //drive.pose = this.pose
 
     this.field.getObject("FL").pose = this.pose.plus(
       Transform2d(

@@ -1,7 +1,6 @@
 package frc.team449
 
 import com.ctre.phoenix6.SignalLogger
-import com.pathplanner.lib.commands.PathfindingCommand
 import dev.doglog.DogLog
 import dev.doglog.DogLogOptions
 import edu.wpi.first.hal.FRCNetComm
@@ -9,17 +8,13 @@ import edu.wpi.first.hal.HAL
 import edu.wpi.first.math.geometry.Pose3d
 import edu.wpi.first.math.geometry.Rotation3d
 import edu.wpi.first.math.util.Units
-import edu.wpi.first.units.Units.MetersPerSecond
-import edu.wpi.first.units.Units.MetersPerSecond
-import edu.wpi.first.units.Units.Seconds
 import edu.wpi.first.wpilibj.*
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
-import edu.wpi.first.wpilibj.util.Color
-import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.InstantCommand
-import frc.team449.auto.RoutineChooser
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers
+import frc.team449.auto.Routines
 import frc.team449.subsystems.FieldConstants
 import frc.team449.subsystems.drive.swerve.SwerveSim
 import frc.team449.subsystems.superstructure.SuperstructureGoal
@@ -31,7 +26,6 @@ import frc.team449.subsystems.vision.VisionConstants
 import frc.team449.system.encoder.QuadCalibration
 import org.littletonrobotics.urcl.URCL
 import kotlin.jvm.optionals.getOrDefault
-import kotlin.jvm.optionals.getOrNull
 import kotlin.math.*
 
 /** The main class of the robot, constructs all the subsystems
@@ -39,12 +33,8 @@ import kotlin.math.*
 class RobotLoop : TimedRobot() {
 
   private val robot = Robot()
-
-  private val routineChooser: RoutineChooser = RoutineChooser(robot)
-
-  private var autoCommand: Command? = null
-  private var routineMap = hashMapOf<String, Command>()
-  private val controllerBinder = ControllerBindings(robot.driveController, robot.mechController, robot.characController, robot)
+  val routines = Routines(robot)
+  private val field = robot.field
 
   private var componentStorage: Array<Pose3d> = arrayOf(
     Pose3d(),
@@ -58,6 +48,8 @@ class RobotLoop : TimedRobot() {
       Rotation3d(0.0, 0.0, 0.0)
     )
   )
+
+  private val controllerBinder = ControllerBindings(robot.driveController, robot.mechController, robot.characController, robot)
 
   override fun robotInit() {
     // Yes this should be a print statement, it's useful to know that robotInit started.
@@ -83,22 +75,21 @@ class RobotLoop : TimedRobot() {
 
     // Generate Auto Routines
     println("Generating Auto Routines : ${Timer.getFPGATimestamp()}")
-    routineMap = routineChooser.routineMap()
+
+    routines.addOptions(robot.autoChooser)
+
+    SmartDashboard.putData("Auto Chooser", robot.autoChooser)
+
+    RobotModeTriggers.autonomous().whileTrue(robot.autoChooser.selectedCommandScheduler())
     println("DONE Generating Auto Routines : ${Timer.getFPGATimestamp()}")
-
-    routineChooser.createOptions()
-
-    SmartDashboard.putData("Routine Chooser", routineChooser)
     SmartDashboard.putData("Command Scheduler", CommandScheduler.getInstance())
 
     controllerBinder.bindButtons()
 
     DogLog.setOptions(
       DogLogOptions()
-        .withNtPublish(true)
         .withCaptureDs(true)
         .withCaptureNt(true)
-        .withCaptureConsole(false)
     )
 
     SmartDashboard.putData("Field", robot.field)
@@ -110,31 +101,16 @@ class RobotLoop : TimedRobot() {
       .ignoringDisable(true)
       .schedule()
 
+//    QuadCalibration(robot.wrist, robot.wrist.absoluteEncoder, robot.wrist.quadEncoder, name = "Wrist")
+//      .ignoringDisable(true)
+//      .schedule()
     if (RobotBase.isReal()) {
       robot.wrist.startupZero()
     }
-
-    robot.light.breath(Seconds.of(3.0), Color.kHotPink).schedule()
-
-    PathfindingCommand.warmupCommand().schedule()
   }
 
   override fun driverStationConnected() {
     FieldConstants.configureReef(DriverStation.getAlliance().getOrDefault(DriverStation.Alliance.Blue))
-
-    when (DriverStation.getAlliance().getOrNull()) {
-      DriverStation.Alliance.Red -> robot.light.defaultCommand = robot.light.gradient(
-        MetersPerSecond.of(0.25),
-        Color.kRed,
-        Color.kWhite
-      )
-      DriverStation.Alliance.Blue -> robot.light.defaultCommand = robot.light.gradient(
-        MetersPerSecond.of(0.25),
-        Color.kBlue,
-        Color.kWhite
-      )
-      null -> robot.light.defaultCommand = robot.light.solidColor(Color.kWhite)
-    }
   }
 
   override fun robotPeriodic() {
@@ -147,28 +123,18 @@ class RobotLoop : TimedRobot() {
     logAdvScopeComponents()
   }
 
-
   override fun autonomousInit() {
     /** Every time auto starts, we update the chosen auto command. */
-    this.autoCommand = routineMap[if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) "Red" + routineChooser.selected else "Blue" + routineChooser.selected]
-    CommandScheduler.getInstance().schedule(this.autoCommand)
-
-    (robot.light.currentCommand ?: InstantCommand()).cancel()
   }
 
   override fun autonomousPeriodic() {}
 
   override fun teleopInit() {
-    if (autoCommand != null) {
-      CommandScheduler.getInstance().cancel(autoCommand)
-    }
-
     robot.superstructureManager.requestGoal(SuperstructureGoal.STOW).schedule()
 
     (robot.light.currentCommand ?: InstantCommand()).cancel()
 
     robot.drive.defaultCommand = robot.driveCommand
-    robot.webCom.setUpNT()
   }
 
   override fun teleopPeriodic() {
@@ -176,19 +142,11 @@ class RobotLoop : TimedRobot() {
 
   override fun disabledInit() {
     robot.drive.stop()
-
-    (robot.light.currentCommand ?: InstantCommand()).cancel()
-
-    robot.light.breath(Seconds.of(3.0), Color.kHotPink).schedule()
   }
 
   override fun disabledPeriodic() {}
 
-  override fun testInit() {
-    if (autoCommand != null) {
-      CommandScheduler.getInstance().cancel(autoCommand)
-    }
-  }
+  override fun testInit() {}
 
   override fun testPeriodic() {}
 
@@ -207,7 +165,7 @@ class RobotLoop : TimedRobot() {
     robot.drive as SwerveSim
 
     VisionConstants.ESTIMATORS.forEach {
-      it.simulationPeriodic(robot.poseSubsystem.pose)
+      it.simulationPeriodic(robot.drive.odometryPose)
     }
 
     VisionConstants.VISION_SIM.debugField.getObject("EstimatedRobot").pose = robot.poseSubsystem.pose
