@@ -45,10 +45,11 @@ object ElevatorConstants {
   const val TOLERANCE = 0.05 // TODO(Adjust tolerance.)
 
   // TODO(Adjust gains.)
-  val KS = if (RobotBase.isReal()) 0.105 else 0.0
-  val L4_KS = if (RobotBase.isReal()) 0.87975 else 0.0
+  val KS = if (RobotBase.isReal()) 0.0612 else 0.0
   const val KV = 4.5112 // theoretical 4.5112
   val KG = if (RobotBase.isReal()) 0.27951 else 0.0 // was 0.26233
+
+  const val L4_FF = 0.80
 
   const val KP = 19.8532
   const val KI = 0.0

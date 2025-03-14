@@ -73,10 +73,10 @@ class ControllerBindings(
   }
 
   private fun characterizationBindings() {
-    testVoltagePivot()
+//    testVoltagePivot()
 //    runClimbWheels()
 
-    pivotCharacterizaton()
+//    pivotCharacterizaton()
   }
 
   private fun nonRobotBindings() {
@@ -281,21 +281,21 @@ class ControllerBindings(
 
   private fun scoreDescore_l2() {
     driveController.x().onTrue(
-//      ConditionalCommand(
-//        robot.superstructureManager.requestGoal(SuperstructureGoal.L2),
-//        robot.superstructureManager.requestGoal(SuperstructureGoal.L2_ALGAE_DESCORE)
-//      ) { robot.intake.coralDetected() }
-      robot.superstructureManager.requestGoal(SuperstructureGoal.L2)
+      ConditionalCommand(
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L2),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L2_ALGAE_DESCORE)
+      ) { robot.intake.coralDetected() }
+//      robot.superstructureManager.requestGoal(SuperstructureGoal.L2)
     )
   }
 
   private fun scoreDescore_l3() {
     driveController.b().onTrue(
-//      ConditionalCommand(
-//        robot.superstructureManager.requestGoal(SuperstructureGoal.L3),
-//        robot.superstructureManager.requestGoal(SuperstructureGoal.L3_ALGAE_DESCORE)
-//      ) { robot.intake.coralDetected() }
-      robot.superstructureManager.requestGoal(SuperstructureGoal.L3)
+      ConditionalCommand(
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L3),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L3_ALGAE_DESCORE)
+      ) { robot.intake.coralDetected() }
+//      robot.superstructureManager.requestGoal(SuperstructureGoal.L3)
     )
   }
 
@@ -327,7 +327,8 @@ class ControllerBindings(
     )
   }
 
-  private fun manualPivot() {
+  private fun
+    manualPivot() {
     // up
     mechanismController.povLeft().onTrue(
       robot.pivot.manualUp()

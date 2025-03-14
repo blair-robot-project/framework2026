@@ -30,15 +30,15 @@ object SuperstructureGoal {
 
   val L3 = SuperstructureState(
     Radians.of(1.184814),
-    Meters.of(0.349797),
+    Meters.of(0.364797),
     Radians.of(-1.823730),
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
   val L4 = SuperstructureState(
-    Degrees.of(74.436644895),
-    Meters.of(1.169903),
-    Radians.of(-2.518555), // -138.5
+    Degrees.of(73.436644895),
+    Meters.of(1.175903),
+    Radians.of(-2.502555), // -138.5
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
@@ -79,9 +79,9 @@ object SuperstructureGoal {
 
   /** Actually find these positions*/
   val L2_ALGAE_DESCORE = SuperstructureState(
-    Degrees.of(48.776928424),
+    Radians.of(0.736328125),
     Inches.of(MIN_ELEVATOR_HEIGHT_IN),
-    Degrees.of(-82.908196167),
+    Radians.of(-1.01025390625),
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 

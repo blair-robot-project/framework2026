@@ -95,8 +95,10 @@ class RobotLoop : TimedRobot() {
 
     DogLog.setOptions(
       DogLogOptions()
+        .withNtPublish(true)
         .withCaptureDs(true)
         .withCaptureNt(true)
+        .withCaptureConsole(false)
     )
 
     SmartDashboard.putData("Field", robot.field)
