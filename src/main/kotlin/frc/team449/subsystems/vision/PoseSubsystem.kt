@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj.smartdashboard.Field2d
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
-import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.team449.auto.AutoConstants
@@ -27,7 +26,6 @@ import frc.team449.subsystems.drive.swerve.SwerveConstants
 import frc.team449.subsystems.drive.swerve.SwerveDrive
 import frc.team449.subsystems.drive.swerve.SwerveSim
 import frc.team449.system.AHRS
-import java.lang.Math.pow
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.*
 
@@ -226,7 +224,7 @@ class PoseSubsystem(
           desVel.omegaRadiansPerSecond += rotScaled
         }
       }
-      desVel.omegaRadiansPerSecond = MathUtil.clamp(desVel.omegaRadiansPerSecond, -AutoScoreCommandConstants.MAX_ROT_SPEED, AutoScoreCommandConstants.MAX_ROT_SPEED)
+      desVel.omegaRadiansPerSecond = MathUtil.clamp(desVel.omegaRadiansPerSecond, -AutoScoreCommandConstants.MAX_PATHFINDING_ROT_SPEED, AutoScoreCommandConstants.MAX_PATHFINDING_ROT_SPEED)
       drive.set(desVel)
     } else {
       val controllerSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -280,10 +278,6 @@ class PoseSubsystem(
 
       combinedChassisSpeeds.vxMetersPerSecond = MathUtil.clamp(combinedChassisSpeeds.vxMetersPerSecond, -AutoScoreCommandConstants.MAX_LINEAR_SPEED, AutoScoreCommandConstants.MAX_LINEAR_SPEED)
       combinedChassisSpeeds.vyMetersPerSecond = MathUtil.clamp(combinedChassisSpeeds.vyMetersPerSecond, -AutoScoreCommandConstants.MAX_LINEAR_SPEED, AutoScoreCommandConstants.MAX_LINEAR_SPEED)
-      combinedChassisSpeeds.omegaRadiansPerSecond = MathUtil.clamp(combinedChassisSpeeds.omegaRadiansPerSecond, -AutoScoreCommandConstants.MAX_ROT_SPEED, AutoScoreCommandConstants.MAX_ROT_SPEED)
-
-      combinedChassisSpeeds.vxMetersPerSecond = MathUtil.clamp(combinedChassisSpeeds.vxMetersPerSecond, -SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED, SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED)
-      combinedChassisSpeeds.vyMetersPerSecond = MathUtil.clamp(combinedChassisSpeeds.vyMetersPerSecond, -SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED, SwerveConstants.MAX_ATTAINABLE_MK4I_SPEED)
       combinedChassisSpeeds.omegaRadiansPerSecond = MathUtil.clamp(combinedChassisSpeeds.omegaRadiansPerSecond, -AutoScoreCommandConstants.MAX_ROT_SPEED, AutoScoreCommandConstants.MAX_ROT_SPEED)
 
       drive.set(combinedChassisSpeeds)
