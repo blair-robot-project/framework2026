@@ -27,10 +27,11 @@ object PivotConstants {
   const val FOLLOWER_INVERTED_TO_MASTER = true
   val BRAKE_MODE = NeutralModeValue.Brake
 
-  val CLIMB_MIN_ANGLE = Radians.of(17.95314300431867)
-  val CLIMB_VOLTAGE = Volts.of(-4.5)
+  val CLIMB_MIN_ANGLE = Degrees.of(17.95314300431867)
+  val CLIMB_VOLTAGE = Volts.of(-2.0)
 
   const val STATOR_LIM = 80.0
+
   const val SUPPLY_LIM = 40.0
 
   val VALUE_UPDATE_RATE: Frequency = Hertz.of(50.0)
