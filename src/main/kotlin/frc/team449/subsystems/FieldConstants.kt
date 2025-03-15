@@ -47,11 +47,10 @@ object FieldConstants {
       Pose2d(14.335, 4.182, Rotation2d(PI))
     }
 
-
     val REEF_C = if (!allianceComp) {
       Pose2d(3.739, 2.981, Rotation2d(PI / 3))
     } else {
-      Pose2d(13.826, 5.05, Rotation2d(-2 * PI / 3 ))
+      Pose2d(13.826, 5.05, Rotation2d(-2 * PI / 3))
     }
 
     val REEF_D = if (!allianceComp) {
