@@ -28,7 +28,7 @@ object PivotConstants {
   val BRAKE_MODE = NeutralModeValue.Brake
 
   val CLIMB_MIN_ANGLE = Degrees.of(17.95314300431867)
-  val CLIMB_VOLTAGE = Volts.of(-2.0)
+  val CLIMB_VOLTAGE = Volts.of(-4.5)
 
   const val STATOR_LIM = 80.0
 
@@ -46,8 +46,8 @@ object PivotConstants {
   // TODO(Adjust gains.)
   const val KS = 0.085813
   const val KV = 4.4941
-  const val KG_MIN = 0.15939 // (KG when elevator is fully retracted.)
-  const val KG_MAX = 0.58676 // (KG when elevator is fully extended.)
+  const val KG_MIN = 0.15439 // (KG when elevator is fully retracted.)
+  const val KG_MAX = 0.58076 // (KG when elevator is fully extended.)
   const val KG_MAX_EXTENSION = 1.36934
 
   val CRUISE_VEL = RotationsPerSecond.of(0.325) // max theoretical 0.392
