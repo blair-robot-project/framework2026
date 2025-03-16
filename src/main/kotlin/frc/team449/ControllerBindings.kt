@@ -228,19 +228,19 @@ class ControllerBindings(
         .alongWith(robot.intake.intakeCoral())
         .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
         .andThen(robot.intake.holdCoral())
-        .deadlineFor(robot.light.gradient(MetersPerSecond.of(0.5), Color.kYellow, Color.kLightCoral, Color.kIndianRed))
+//        .deadlineFor(robot.light.gradient(MetersPerSecond.of(0.5), Color.kYellow, Color.kLightCoral, Color.kIndianRed))
         .andThen(
           robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
-            .alongWith(
-              robot.light.blink(Seconds.of(0.25), Color.kWhite)
-                .withTimeout(1.5)
-            )
+//            .alongWith(
+//              robot.light.blink(Seconds.of(0.25), Color.kWhite)
+//                .withTimeout(1.5)
+//            )
         )
     )
   }
 
   private fun coralBlockSubstationIntake() {
-    driveController.a().onTrue(
+    driveController.povDown().onTrue(
       robot.superstructureManager.requestGoal(SuperstructureGoal.SUBSTATION_INTAKE_CORAL_IN_FRONT)
         .alongWith(robot.intake.intakeCoral())
         .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
@@ -274,7 +274,7 @@ class ControllerBindings(
   }
 
   private fun score_l1() {
-    driveController.povDown().onTrue(
+    driveController.a().onTrue(
       robot.superstructureManager.requestGoal(SuperstructureGoal.L1)
     )
   }

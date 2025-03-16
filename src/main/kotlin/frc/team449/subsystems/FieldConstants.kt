@@ -98,13 +98,13 @@ object FieldConstants {
     val REEF_K = if (!allianceComp) {
       Pose2d(3.982, 5.199, Rotation2d(-PI / 3))
     } else {
-      Pose2d(13.850, 2.850, Rotation2d(2 * PI / 3))
+      Pose2d(13.575, 2.850, Rotation2d(2 * PI / 3))
     }
 
     val REEF_L = if (!allianceComp) {
       Pose2d(3.700, 5.060, Rotation2d(-PI / 3))
     } else {
-      Pose2d(13.863, 2.980, Rotation2d(2 * PI / 3))
+      Pose2d(13.850, 2.980, Rotation2d(2 * PI / 3))
     }
 
     REEF_LOCATIONS.addAll(
