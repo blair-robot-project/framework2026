@@ -385,12 +385,11 @@ open class Routines(
   fun americanRoutine(): AutoRoutine {
     val autoRoutine = autoFactory.newRoutine("L4 Routine")
 
-    val l4ETrajectory = autoRoutine.trajectory("Go To L4E")
-    val rightStationTrajectory = autoRoutine.trajectory("Go To Right Station(2)")
-    val l4DTrajectory = autoRoutine.trajectory("Go To L4D")
-    val rightStationTrajectory2 = autoRoutine.trajectory("rightTraj 2")
-    val l4CTrajectory = autoRoutine.trajectory("Go To L4C real")
-    val rightStationTrajectory3 = autoRoutine.trajectory("Go To Rightstation(3)")
+    val l4ETrajectory = autoRoutine.trajectory("ThreeL4Right/1")
+    val rightStationTrajectory = autoRoutine.trajectory("ThreeL4Right/2")
+    val l4DTrajectory = autoRoutine.trajectory("ThreeL4Right/3")
+    val rightStationTrajectory2 = autoRoutine.trajectory("ThreeL4Right/4")
+    val l4CTrajectory = autoRoutine.trajectory("ThreeL4Right/5")
 
     autoRoutine.active().onTrue(
       Commands.sequence(
@@ -404,7 +403,7 @@ open class Routines(
 
     l4ETrajectory.done().onTrue(
       Commands.sequence(
-        SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT), translationSpeedLim = 2.0, translationAccelLim = 1.5)
+        SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT), translationSpeedLim = 1.0, translationAccelLim = 2.0)
           .alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4)),
         robot.drive.driveStop(),
         robot.intake.outtakeCoral().andThen(WaitUntilCommand { robot.intake.coralNotDetected() }),
@@ -431,8 +430,8 @@ open class Routines(
           robot.poseSubsystem,
           leftOrRight = Optional.of(FieldConstants.ReefSide.RIGHT),
           translationSpeedLim =
-          2.0,
-          translationAccelLim = 1.5
+          1.0,
+          translationAccelLim = 2.0
         )
           .alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4)),
         robot.drive.driveStop(),
@@ -461,7 +460,7 @@ open class Routines(
 
     l4CTrajectory.done().onTrue(
       Commands.sequence(
-        SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT), translationSpeedLim = 2.0, translationAccelLim = 1.5)
+        SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT), translationSpeedLim = 1.0, translationAccelLim = 2.0)
           .alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4)),
         robot.drive.driveStop(),
 
@@ -496,7 +495,7 @@ open class Routines(
 
     l4jTrajectory.done().onTrue(
       Commands.sequence(
-        SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT), translationSpeedLim = 2.0, translationAccelLim = 1.5),
+        SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT), translationSpeedLim = 1.0, translationAccelLim = 2.0),
         robot.drive.driveStop(),
         robot.intake.outtakeCoral().andThen(WaitUntilCommand { robot.intake.coralNotDetected() }),
         WaitCommand(0.15).onlyIf { RobotBase.isReal() },
@@ -522,8 +521,8 @@ open class Routines(
           robot.poseSubsystem,
           leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT),
           translationSpeedLim =
-          2.0,
-          translationAccelLim = 1.5
+          1.0,
+          translationAccelLim = 2.0
         ).alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4)),
         robot.drive.driveStop(),
         robot.intake.outtakeCoral().andThen(WaitUntilCommand { !robot.intake.coralDetected() }),
@@ -547,7 +546,7 @@ open class Routines(
 
     l4LTrajectory.done().onTrue(
       Commands.sequence(
-        SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.RIGHT), translationSpeedLim = 2.0, translationAccelLim = 1.5)
+        SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.RIGHT), translationSpeedLim = 1.0, translationAccelLim = 2.0)
           .alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4)),
         robot.drive.driveStop(),
 
