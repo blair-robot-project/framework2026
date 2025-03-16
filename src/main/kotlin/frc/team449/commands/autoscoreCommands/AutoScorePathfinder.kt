@@ -71,7 +71,7 @@ class AutoScorePathfinder(private val robot: Robot, private val endPose: Pose2d,
   var distance: Double = 100.0
   private var ADStarPower = 0.95
   private val ADStarDecrease = 0.04
-  private val pushbackMultiply = 0.5
+  private val pushbackMultiply = 0.35
 
   private val speedTol: Double = 0.075
   private val speedTolRot: Double = PI / 16
@@ -253,8 +253,8 @@ class AutoScorePathfinder(private val robot: Robot, private val endPose: Pose2d,
       thetaController.calculate(currentPose.rotation.radians)
 
     val distanceToReef = currentPose.translation.getDistance(reefCenter)
-    val reefPushbackTranslation = if (scoringReef && distanceToReef < 1.5 && distance > 0.6505 && expectedTime > 1.5) {
-      currentPose.translation.minus(reefCenter) * (distance - 0.6505) * pushbackMultiply
+    val reefPushbackTranslation = if (expectedTime > 0.5 && distanceToReef < 1.75 && distance > 0.6505 && scoringReef) {
+      currentPose.translation.minus(reefCenter) * (distance - 0.6505) * pushbackMultiply * (if (expectedTime > 1.0) 1.0 else (expectedTime - 0.5)*2)
     } else {
       Translation2d(0.0, 0.0)
     }
