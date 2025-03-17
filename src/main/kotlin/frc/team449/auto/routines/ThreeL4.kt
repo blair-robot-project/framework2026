@@ -61,15 +61,15 @@ class ThreeL4(
 
   private fun scoreL4(robot: Robot, reefSide: FieldConstants.ReefSide): Command {
     return robot.superstructureManager.requestL4(
-      SuperstructureGoal.SuperstructureState(
-        SuperstructureGoal.L4.pivot,
-        Meters.of(SuperstructureGoal.L4.elevator.`in`(Meters) + 0.01),
-        Degrees.of(SuperstructureGoal.L4.wrist.`in`(Degrees) + 3.75),
-        DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
-      )
+//      SuperstructureGoal.SuperstructureState(
+//        SuperstructureGoal.L4.pivot,
+//        Meters.of(SuperstructureGoal.L4.elevator.`in`(Meters) + 0.01),
+//        Degrees.of(SuperstructureGoal.L4.wrist.`in`(Degrees) + 3.75),
+//        DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+//      )
     )
       .alongWith(
-        SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(reefSide), translationSpeedLim = 1.0, translationAccelLim = 2.0)
+        SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(reefSide), translationSpeedLim = 1.0, translationAccelLim = 1.95)
           .andThen(PrintCommand("Actually reached auto tolerance!"))
           .withTimeout(2.0)
       )

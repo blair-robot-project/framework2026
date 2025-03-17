@@ -36,8 +36,8 @@ object SuperstructureGoal {
   )
 
   val L4 = SuperstructureState(
-    Degrees.of(74.836644895),
-    Meters.of(1.178903),
+    Degrees.of(74.136644895),
+    Meters.of(1.166903),
     Radians.of(-2.502555), // -138.5
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
