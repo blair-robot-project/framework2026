@@ -49,7 +49,7 @@ object ElevatorConstants {
   const val KV = 4.5112 // theoretical 4.5112
   val KG = if (RobotBase.isReal()) 0.27951 else 0.0 // was 0.26233
 
-  const val L4_FF = 1.10
+  const val L4_FF = 0.920
 
   const val KP = 19.8532
   const val KI = 0.0
