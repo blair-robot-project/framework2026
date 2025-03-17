@@ -5,6 +5,7 @@ import com.pathplanner.lib.path.GoalEndState
 import com.pathplanner.lib.path.PathConstraints
 import com.pathplanner.lib.path.PathPlannerPath
 import com.pathplanner.lib.pathfinding.LocalADStar
+import com.pathplanner.lib.pathfinding.RemoteADStar
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.controller.ProfiledPIDController
@@ -26,7 +27,7 @@ import kotlin.math.abs
 import kotlin.properties.Delegates
 
 class AutoScorePathfinder(private val robot: Robot, private val endPose: Pose2d, private val scoringReef: Boolean) {
-  private var ADStar = LocalADStar()
+  private var ADStar = RemoteADStar()
 
   private val velXPub: DoublePublisher = NetworkTableInstance.getDefault().getDoubleTopic("/autoscore/pathVelocityX").publish()
   private val velYPub: DoublePublisher = NetworkTableInstance.getDefault().getDoubleTopic("/autoscore/pathVelocityY").publish()
