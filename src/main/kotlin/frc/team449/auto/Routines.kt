@@ -401,8 +401,9 @@ open class Routines(
 
     l4ETrajectory.done().onTrue(
       ScoreL4(robot, FieldConstants.ReefSide.LEFT)
-        .andThen(rightStationTrajectory.cmd()
-          .alongWith(PremoveIntake(robot))
+        .andThen(
+          rightStationTrajectory.cmd()
+            .alongWith(PremoveIntake(robot))
         )
     )
 
@@ -503,12 +504,8 @@ open class Routines(
     return leftAutoRoutine
   }
 
-
-
-
   fun rightGround4L4(): AutoRoutine {
     val groundAuto = autoFactory.newRoutine("Left L4 Routine")
-
     val preloadScore = groundAuto.trajectory("Ground4L4right/1")
     val firstPickup = groundAuto.trajectory("Ground4L4right/2")
     val firstScore = groundAuto.trajectory("Ground4L4right/3")
@@ -530,7 +527,7 @@ open class Routines(
     preloadScore.done().onTrue(
       Commands.sequence(
         ScoreL4(robot, FieldConstants.ReefSide.LEFT),
-        firstPickup.cmd().alongWith(PremoveIntake(robot)) //replace with new ground intake command
+        firstPickup.cmd().alongWith(PremoveIntake(robot)) // replace with new ground intake command
       )
     )
 
@@ -545,7 +542,7 @@ open class Routines(
       Commands.sequence(
         ScoreL4(robot, FieldConstants.ReefSide.LEFT),
         PremoveIntake(robot).alongWith(
-          secondPickup.cmd() //replace with new ground intake command
+          secondPickup.cmd() // replace with new ground intake command
         )
       )
     )
@@ -562,11 +559,10 @@ open class Routines(
       Commands.sequence(
         ScoreL4(robot, FieldConstants.ReefSide.RIGHT),
         PremoveIntake(robot).alongWith(
-          thirdPickup.cmd() //replace with new ground intake command
+          thirdPickup.cmd() // replace with new ground intake command
         )
       )
     )
-
 
     thirdPickup.done().onTrue(
       Commands.sequence(
@@ -603,7 +599,6 @@ open class Routines(
     autoChooser.addRoutine("jwoj", this::l2Routine)
     autoChooser.addRoutine("Left Goat", this::LeftamericanRoutine)
     autoChooser.addRoutine("right 4l4 Ground", this::rightGround4L4)
-
   }
 
   fun ScoreL4(robot: Robot, reefSide: FieldConstants.ReefSide): Command {
