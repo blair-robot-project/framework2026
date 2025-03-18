@@ -1,7 +1,5 @@
 package frc.team449.auto.routines
 
-import edu.wpi.first.units.Units.Degrees
-import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.InstantCommand
@@ -15,9 +13,7 @@ import frc.team449.auto.choreo.ChoreoRoutineStructure
 import frc.team449.auto.choreo.ChoreoTrajectory
 import frc.team449.commands.driveAlign.SimpleReefAlign
 import frc.team449.subsystems.FieldConstants
-import frc.team449.subsystems.RobotConstants
 import frc.team449.subsystems.superstructure.SuperstructureGoal
-import frc.team449.subsystems.superstructure.SuperstructureGoal.DriveDynamics
 import java.util.Optional
 
 class ThreeL4(
