@@ -503,6 +503,89 @@ open class Routines(
     return leftAutoRoutine
   }
 
+
+
+
+  fun rightGround4L4(): AutoRoutine {
+    val groundAuto = autoFactory.newRoutine("Left L4 Routine")
+
+    val preloadScore = groundAuto.trajectory("Ground4L4right/1")
+    val firstPickup = groundAuto.trajectory("Ground4L4right/2")
+    val firstScore = groundAuto.trajectory("Ground4L4right/3")
+    val secondPickup = groundAuto.trajectory("Ground4L4right/4")
+    val secondScore = groundAuto.trajectory("Ground4L4right/5")
+    val thirdPickup = groundAuto.trajectory("Ground4L4right/6")
+    val thirdScore = groundAuto.trajectory("Ground4L4right/7")
+
+    groundAuto.active().onTrue(
+      Commands.sequence(
+        preloadScore.resetOdometry(),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).alongWith(
+          robot.intake.holdCoral(),
+          preloadScore.cmd()
+        )
+      )
+    )
+
+    preloadScore.done().onTrue(
+      Commands.sequence(
+        ScoreL4(robot, FieldConstants.ReefSide.LEFT),
+        firstPickup.cmd().alongWith(PremoveIntake(robot)) //replace with new ground intake command
+      )
+    )
+
+    firstPickup.done().onTrue(
+      Commands.sequence(
+        Intake(robot),
+        firstScore.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).beforeStarting(WaitCommand(0.5)))
+      )
+    )
+
+    firstScore.done().onTrue(
+      Commands.sequence(
+        ScoreL4(robot, FieldConstants.ReefSide.LEFT),
+        PremoveIntake(robot).alongWith(
+          secondPickup.cmd() //replace with new ground intake command
+        )
+      )
+    )
+
+    secondPickup.done().onTrue(
+      Commands.sequence(
+        Intake(robot),
+        secondScore.cmd()
+          .alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).beforeStarting(WaitCommand(0.5)))
+      )
+    )
+
+    secondScore.done().onTrue(
+      Commands.sequence(
+        ScoreL4(robot, FieldConstants.ReefSide.RIGHT),
+        PremoveIntake(robot).alongWith(
+          thirdPickup.cmd() //replace with new ground intake command
+        )
+      )
+    )
+
+
+    thirdPickup.done().onTrue(
+      Commands.sequence(
+        Intake(robot),
+        thirdScore.cmd()
+          .alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).beforeStarting(WaitCommand(0.5)))
+      )
+    )
+
+    thirdScore.done().onTrue(
+      Commands.sequence(
+        ScoreL4(robot, FieldConstants.ReefSide.LEFT),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
+      )
+    )
+
+    return groundAuto
+  }
+
   // Elevator is cooked!
   // autoChooser that will be displayed on dashboard
   fun addOptions(autoChooser: AutoChooser) {
@@ -519,6 +602,8 @@ open class Routines(
     autoChooser.addRoutine("testing", this::middleRoutine)
     autoChooser.addRoutine("jwoj", this::l2Routine)
     autoChooser.addRoutine("Left Goat", this::LeftamericanRoutine)
+    autoChooser.addRoutine("right 4l4 Ground", this::rightGround4L4)
+
   }
 
   fun ScoreL4(robot: Robot, reefSide: FieldConstants.ReefSide): Command {
