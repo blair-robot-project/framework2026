@@ -51,11 +51,13 @@ class Intake(
   }
 
   fun readyPivotScore(): Command {
-    timer.restart()
-    return setVoltage(IntakeConstants.CORAL_HOLD_VOLTAGE).until {
-      if(IntakeConstants.HAS_PIVOT_SIDE_IR_SENSOR)
-        pivotInfrared.get() else
+    return runOnce {
+      timer.restart()
+      setVoltage(IntakeConstants.CORAL_HOLD_VOLTAGE).until {
+        if (IntakeConstants.HAS_PIVOT_SIDE_IR_SENSOR)
+          pivotInfrared.get() else
           timer.get() >= IntakeConstants.READY_PIVOT_CORAL_TIME
+      }.schedule()
     }
   }
 
