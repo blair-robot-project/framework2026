@@ -123,10 +123,10 @@ class SimpleReefAlign(
 
     val headingError = currentPose.rotation.minus(targetPose.rotation).radians
     var headingVelocity: Double = (
-      headingController.setpoint.velocity * ffScaler + headingController.calculate(
+      headingController.setpoint.velocity * ffScaler /*+ headingController.calculate(
         currentPose.rotation.radians,
         targetPose.rotation.radians
-      )
+      )*/
       )
 
     if (abs(headingError) < headingController.positionTolerance) {
