@@ -584,10 +584,10 @@ open class Routines(
     val scorePreloadA = twoL4removeAlgae.trajectory("Left2L4Algae2L3/1")
     val pickupMiddle = twoL4removeAlgae.trajectory("Left2L4Algae2L3/2")
     val scoreMiddleB = twoL4removeAlgae.trajectory("Left2L4Algae2L3/3")
-    val pickupLeft = twoL4removeAlgae.trajectory("Left2L4Algae2L3/4")
-    val scoreLeftA = twoL4removeAlgae.trajectory("Left2L4Algae2L3/5")
-    val pickupRight = twoL4removeAlgae.trajectory("Left2L4Algae2L3/6")
+    val pickupLeft = twoL4removeAlgae.trajectory("Left2L4Algae2L3/6")
     val scoreRightB = twoL4removeAlgae.trajectory("Left2L4Algae2L3/7")
+    val pickupRight = twoL4removeAlgae.trajectory("Left2L4Algae2L3/4")
+    val scoreLeftA = twoL4removeAlgae.trajectory("Left2L4Algae2L3/5")
 
     twoL4removeAlgae.active().onTrue(
       Commands.sequence(
@@ -627,14 +627,14 @@ open class Routines(
     pickupLeft.done().onTrue(
       Commands.sequence(
         Intake(robot),
-        scoreLeftA.cmd()
+        scoreRightB.cmd()
           .alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L3_PREMOVE).beforeStarting(WaitCommand(0.5)))
       )
     )
 
-    scoreLeftA.done().onTrue(
+    scoreRightB.done().onTrue(
       Commands.sequence(
-        ScoreL3(robot, FieldConstants.ReefSide.LEFT),
+        ScoreL3(robot, FieldConstants.ReefSide.RIGHT),
         PremoveIntake(robot).alongWith(
           pickupRight.cmd() // replace with new ground intake command
         )
@@ -644,14 +644,14 @@ open class Routines(
     pickupRight.done().onTrue(
       Commands.sequence(
         Intake(robot),
-        scoreRightB.cmd()
+        scoreLeftA.cmd()
           .alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L3_PREMOVE).beforeStarting(WaitCommand(0.5)))
       )
     )
 
-    scoreRightB.done().onTrue(
+    scoreLeftA.done().onTrue(
       Commands.sequence(
-        ScoreL3(robot, FieldConstants.ReefSide.RIGHT),
+        ScoreL3(robot, FieldConstants.ReefSide.LEFT),
         robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
       )
     )
