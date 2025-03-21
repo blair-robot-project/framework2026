@@ -579,11 +579,11 @@ open class Routines(
     return ground4piece
   }
 
-  fun leftCoralAlgae(): AutoRoutine {
+  fun rightCoralAlgae(): AutoRoutine {
     val twoL4removeAlgae = autoFactory.newRoutine("AB l4 + algae descore + A l3")
-    val scorePreloadA = twoL4removeAlgae.trajectory("Left2L4Algae2L3/1")
+    val scorePreloadB = twoL4removeAlgae.trajectory("Left2L4Algae2L3/1")
     val pickupMiddle = twoL4removeAlgae.trajectory("Left2L4Algae2L3/2")
-    val scoreMiddleB = twoL4removeAlgae.trajectory("Left2L4Algae2L3/3")
+    val scoreMiddleA = twoL4removeAlgae.trajectory("Left2L4Algae2L3/3")
     val pickupLeft = twoL4removeAlgae.trajectory("Left2L4Algae2L3/6")
     val scoreRightB = twoL4removeAlgae.trajectory("Left2L4Algae2L3/7")
     val pickupRight = twoL4removeAlgae.trajectory("Left2L4Algae2L3/4")
@@ -591,15 +591,15 @@ open class Routines(
 
     twoL4removeAlgae.active().onTrue(
       Commands.sequence(
-        scorePreloadA.resetOdometry(),
+        scorePreloadB.resetOdometry(),
         robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).alongWith(
           robot.intake.holdCoral(),
-          scorePreloadA.cmd()
+          scorePreloadB.cmd()
         )
       )
     )
 
-    scorePreloadA.done().onTrue(
+    scorePreloadB.done().onTrue(
       Commands.sequence(
         ScoreL4(robot, FieldConstants.ReefSide.LEFT),
         pickupMiddle.cmd().alongWith(PremoveIntake(robot)) // replace with new ground intake command
@@ -609,20 +609,19 @@ open class Routines(
     pickupMiddle.done().onTrue(
       Commands.sequence(
         Intake(robot),
-        scoreMiddleB.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).beforeStarting(WaitCommand(0.5)))
+        scoreMiddleA.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).beforeStarting(WaitCommand(0.5)))
       )
     )
 
-    scoreMiddleB.done().onTrue(
+    scoreMiddleA.done().onTrue(
       Commands.sequence(
         ScoreL4(robot, FieldConstants.ReefSide.RIGHT),
         PremoveIntake(robot).alongWith(
-          pickupLeft.cmd() // replace with new ground intake command
+          pickupLeft.cmd()
         )
       )
     )
 
-    // commands for removing algae
 
     pickupLeft.done().onTrue(
       Commands.sequence(
@@ -663,7 +662,7 @@ open class Routines(
   // autoChooser that will be displayed on dashboard
   fun addOptions(autoChooser: AutoChooser) {
     autoChooser.addRoutine("right 4l4 Ground", this::rightGround4L4)
-    autoChooser.addRoutine("left 2l4 +algae+ 2l3 ", this::leftCoralAlgae)
+    autoChooser.addRoutine("left 2l4 +algae+ 2l3 ", this::rightCoralAlgae)
     autoChooser.addRoutine("RightTaxi", this::rightTaxi)
     autoChooser.addRoutine("LeftTaxi", this::leftTaxi)
     autoChooser.addRoutine("l2 G", this::l2reefG) // middle l2
