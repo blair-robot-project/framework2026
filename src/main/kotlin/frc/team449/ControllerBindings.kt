@@ -66,6 +66,7 @@ class ControllerBindings(
     manualPivot()
     manualWrist()
     intakeAlgae()
+    intakeCoral()
   }
 
   private fun characterizationBindings() {
@@ -364,9 +365,17 @@ class ControllerBindings(
     ).onFalse(robot.wrist.hold())
   }
 
-  private fun intakeAlgae() {
-    mechanismController.povCenter().onTrue(
+  private fun intakeCoral() {
+    mechanismController.leftStick().onTrue(
       robot.intake.intakeAlgae()
+    ).toggleOnFalse(
+      robot.intake.stop()
+    )
+  }
+
+  private fun intakeAlgae() {
+    mechanismController.rightStick().onTrue(
+      robot.intake.intakeCoral()
     ).toggleOnFalse(
       robot.intake.stop()
     )
