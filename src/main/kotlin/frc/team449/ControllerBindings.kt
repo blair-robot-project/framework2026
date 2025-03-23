@@ -365,15 +365,16 @@ class ControllerBindings(
     ).onFalse(robot.wrist.hold())
   }
 
-  private fun intakeCoral() {
+  private fun intakeAlgae() {
     mechanismController.leftStick().onTrue(
-      robot.intake.intakeAlgae()
+      robot.intake.intakeAlgae().until {robot.intake.algaeDetected()}
+        .andThen(robot.intake.holdAlgae())
     ).toggleOnFalse(
       robot.intake.stop()
     )
   }
 
-  private fun intakeAlgae() {
+  private fun intakeCoral() {
     mechanismController.rightStick().onTrue(
       robot.intake.intakeCoral()
     ).toggleOnFalse(
