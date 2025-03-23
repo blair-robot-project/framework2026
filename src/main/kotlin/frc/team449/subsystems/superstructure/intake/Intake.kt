@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.DigitalInput
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import edu.wpi.first.wpilibj2.command.WaitCommand
 import frc.team449.system.motor.createSparkMax
 
 class Intake(
@@ -16,14 +17,14 @@ class Intake(
   private val timer: Timer = Timer()
 ) : SubsystemBase() {
 
-  private fun setVoltage(voltage: Double) : Command {
+  private fun setVoltage(voltage: Double): Command {
     return runOnce {
       motor.setVoltage(voltage)
     }
   }
 
   fun intakeCoral(): Command {
-   return setVoltage(IntakeConstants.CORAL_INTAKE_VOLTAGE)
+    return setVoltage(IntakeConstants.CORAL_INTAKE_VOLTAGE)
   }
 
   fun intakeAlgae(): Command {
@@ -43,7 +44,7 @@ class Intake(
   }
 
   fun outtakeCoralPivot(): Command {
-    return setVoltage(IntakeConstants.CORAL_OUTTAKE_VOLTAGE)
+    return setVoltage(IntakeConstants.CORAL_OUTTAKE_PIVOT_SIDE_VOLTAGE)
   }
 
   fun outtakeAlgae(): Command {
@@ -54,9 +55,11 @@ class Intake(
     return runOnce {
       timer.restart()
       setVoltage(IntakeConstants.CORAL_HOLD_VOLTAGE).until {
-        if (IntakeConstants.HAS_PIVOT_SIDE_IR_SENSOR)
-          pivotInfrared.get() else
+        if (IntakeConstants.HAS_PIVOT_SIDE_IR_SENSOR) {
+          pivotInfrared.get()
+        } else {
           timer.get() >= IntakeConstants.READY_PIVOT_CORAL_TIME
+        }
       }.schedule()
     }
   }
@@ -65,10 +68,27 @@ class Intake(
     return !coralInfrared.get()
   }
 
+  fun algaeDetected(): Boolean {
+    return !algaeInfrared.get()
+  }
+
+  fun hold(): Command {
+    return if (coralDetected()) holdCoral() else holdAlgae()
+  }
+
+  fun pivotCoralDetected(): Boolean {
+    return if (IntakeConstants.HAS_PIVOT_SIDE_IR_SENSOR) !pivotInfrared.get() else false
+  }
+
   fun stop(): Command {
     return runOnce {
       motor.stopMotor()
     }
+  }
+
+  fun autoIntakeAlgae(): Command {
+    return intakeAlgae().until { algaeDetected() }
+      .andThen(WaitCommand(IntakeConstants.WAIT_AFTER_ALGAE_DETECTED)).andThen(stop())
   }
 
   override fun periodic() {

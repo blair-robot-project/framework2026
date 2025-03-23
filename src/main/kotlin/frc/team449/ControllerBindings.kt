@@ -52,12 +52,7 @@ class ControllerBindings(
 
     substationIntake()
     coralBlockSubstationIntake()
-    coralOuttake()
-
-//    premove_l1()
-//    premove_l2()
-//    premove_l3()
-//    premove_l4()
+    outtake()
 
     stow()
     climbBefore()
@@ -70,6 +65,7 @@ class ControllerBindings(
     manualElevator()
     manualPivot()
     manualWrist()
+    intakeAlgae()
   }
 
   private fun characterizationBindings() {
@@ -131,7 +127,7 @@ class ControllerBindings(
     mechanismController.a().onTrue(
       robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
         .deadlineFor(robot.light.progressMaskGradient(percentageElevatorPosition))
-        .andThen(robot.intake.holdCoral())
+        .andThen(robot.intake.hold())
     )
   }
 
@@ -256,17 +252,25 @@ class ControllerBindings(
     )
   }
 
-  private fun coralOuttake() {
+  private fun outtake() {
     driveController.rightBumper().onTrue(
       ConditionalCommand(
-        robot.intake.outtakeCoral()
-          .andThen(WaitUntilCommand { !robot.intake.coralDetected() && RobotBase.isReal() })
+
+        ConditionalCommand(
+          robot.intake.outtakeCoral()
+            .andThen(WaitUntilCommand { !robot.intake.coralDetected() }),
+          robot.intake.outtakeAlgae()
+            .andThen(WaitUntilCommand { !robot.intake.algaeDetected() })
+        ) {
+          robot.intake.coralDetected()
+        }
           .andThen(WaitCommand(0.10))
           .andThen(robot.intake.stop())
           .andThen(
             robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
               .deadlineFor(robot.light.progressMaskGradient(percentageElevatorPosition))
           ),
+
         WaitCommand(0.15)
           .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
       ) { RobotBase.isReal() }
@@ -358,6 +362,14 @@ class ControllerBindings(
     mechanismController.leftBumper().onTrue(
       robot.wrist.manualDown()
     ).onFalse(robot.wrist.hold())
+  }
+
+  private fun intakeAlgae() {
+    mechanismController.povCenter().onTrue(
+      robot.intake.intakeAlgae()
+    ).toggleOnFalse(
+      robot.intake.stop()
+    )
   }
 
   private fun slowDrive() {
