@@ -12,8 +12,8 @@ import frc.team449.system.motor.createSparkMax
 class Intake(
   private val motor: SparkMax,
   private val coralInfrared: DigitalInput,
-  private val algaeInfrared: DigitalInput,
-  private val pivotInfrared: DigitalInput,
+//  private val algaeInfrared: DigitalInput,
+//  private val pivotInfrared: DigitalInput,
   private val timer: Timer = Timer()
 ) : SubsystemBase() {
 
@@ -29,10 +29,6 @@ class Intake(
 
   fun intakeAlgae(): Command {
     return setVoltage(IntakeConstants.ALGAE_INTAKE_VOLTAGE)
-  }
-
-  fun holdCoral(): Command {
-    return stop()
   }
 
   fun holdAlgae(): Command {
@@ -51,34 +47,34 @@ class Intake(
     return setVoltage(IntakeConstants.ALGAE_OUTTAKE_VOLTAGE)
   }
 
-  fun readyPivotScore(): Command {
-    return runOnce {
-      timer.restart()
-      setVoltage(IntakeConstants.CORAL_HOLD_VOLTAGE).until {
-        if (IntakeConstants.HAS_PIVOT_SIDE_IR_SENSOR) {
-          pivotInfrared.get()
-        } else {
-          timer.get() >= IntakeConstants.READY_PIVOT_CORAL_TIME
-        }
-      }.schedule()
-    }
-  }
+//  fun readyPivotScore(): Command {
+//    return runOnce {
+//      timer.restart()
+//      setVoltage(IntakeConstants.CORAL_HOLD_VOLTAGE).until {
+//        if (IntakeConstants.HAS_PIVOT_SIDE_IR_SENSOR) {
+//          pivotInfrared.get()
+//        } else {
+//          timer.get() >= IntakeConstants.READY_PIVOT_CORAL_TIME
+//        }
+//      }.schedule()
+//    }
+//  }
 
   fun coralDetected(): Boolean {
     return !coralInfrared.get()
   }
+//
+//  fun algaeDetected(): Boolean {
+//    return !algaeInfrared.get()
+//  }
 
-  fun algaeDetected(): Boolean {
-    return !algaeInfrared.get()
-  }
-
-  fun hold(): Command {
-    return if (coralDetected()) holdCoral() else holdAlgae()
-  }
-
-  fun pivotCoralDetected(): Boolean {
-    return if (IntakeConstants.HAS_PIVOT_SIDE_IR_SENSOR) !pivotInfrared.get() else false
-  }
+//  fun hold(): Command {
+//    return if (coralDetected()) holdCoral() else holdAlgae()
+//  }
+//
+//  fun pivotCoralDetected(): Boolean {
+//    return if (IntakeConstants.HAS_PIVOT_SIDE_IR_SENSOR) !pivotInfrared.get() else false
+//  }
 
   fun stop(): Command {
     return runOnce {
@@ -86,10 +82,10 @@ class Intake(
     }
   }
 
-  fun autoIntakeAlgae(): Command {
-    return intakeAlgae().until { algaeDetected() }
-      .andThen(WaitCommand(IntakeConstants.WAIT_AFTER_ALGAE_DETECTED)).andThen(stop())
-  }
+//  fun autoIntakeAlgae(): Command {
+//    return intakeAlgae().until { algaeDetected() }
+//      .andThen(WaitCommand(IntakeConstants.WAIT_AFTER_ALGAE_DETECTED)).andThen(stop())
+//  }
 
   override fun periodic() {
     logData()
@@ -98,7 +94,7 @@ class Intake(
   private fun logData() {
     DogLog.log("Intake/Motor Voltage", motor.appliedOutput * 12.0)
     DogLog.log("Intake/Coral IR sensor", !coralInfrared.get())
-    DogLog.log("Intake/Algae IR sensor", !algaeInfrared.get())
+//    DogLog.log("Intake/Algae IR sensor", !algaeInfrared.get())
   }
 
   companion object {
@@ -113,7 +109,7 @@ class Intake(
       val coralSensor = DigitalInput(IntakeConstants.CORAL_SENSOR_DIO_PORT)
       val algaeSensor = DigitalInput(IntakeConstants.ALGAE_SENSOR_DIO_PORT)
       val pivotSensor = DigitalInput(IntakeConstants.PIVOT_SENSOR_DIO_PORT)
-      return Intake(motor, coralSensor, algaeSensor, pivotSensor)
+      return Intake(motor, coralSensor)//, algaeSensor, pivotSensor)
     }
   }
 }

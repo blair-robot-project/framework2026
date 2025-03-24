@@ -50,7 +50,8 @@ class ControllerBindings(
     autoScoreRight()
 //    autoScoreStowTrigger()
 
-    substationIntake()
+//    substationIntake() // replace with groundIntake() soon
+    groundIntake()
     coralBlockSubstationIntake()
     outtake()
 
@@ -65,8 +66,9 @@ class ControllerBindings(
     manualElevator()
     manualPivot()
     manualWrist()
-    intakeAlgae()
+//    intakeAlgae()
     intakeCoral()
+    outtakeCoral()
   }
 
   private fun characterizationBindings() {
@@ -128,7 +130,7 @@ class ControllerBindings(
     mechanismController.a().onTrue(
       robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
         .deadlineFor(robot.light.progressMaskGradient(percentageElevatorPosition))
-        .andThen(robot.intake.hold())
+        .andThen(robot.intake.stop())
     )
   }
 
@@ -224,7 +226,7 @@ class ControllerBindings(
       robot.superstructureManager.requestGoal(SuperstructureGoal.SUBSTATION_INTAKE)
         .alongWith(robot.intake.intakeCoral())
         .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
-        .andThen(robot.intake.holdCoral())
+        .andThen(robot.intake.stop())
 //        .deadlineFor(robot.light.gradient(MetersPerSecond.of(0.5), Color.kYellow, Color.kLightCoral, Color.kIndianRed))
         .andThen(
           robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
@@ -236,12 +238,25 @@ class ControllerBindings(
     )
   }
 
+  private fun groundIntake() {
+    driveController.leftBumper().onTrue(
+      robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE)
+        .alongWith(robot.intake.intakeCoral())
+        .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
+        .andThen(WaitCommand(0.25))
+        .andThen(robot.intake.stop())
+        .andThen(
+          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
+        )
+    )
+  }
+
   private fun coralBlockSubstationIntake() {
     driveController.povDown().onTrue(
       robot.superstructureManager.requestGoal(SuperstructureGoal.SUBSTATION_INTAKE_CORAL_IN_FRONT)
         .alongWith(robot.intake.intakeCoral())
         .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
-        .andThen(robot.intake.holdCoral())
+        .andThen(robot.intake.stop())
         .deadlineFor(robot.light.gradient(MetersPerSecond.of(0.5), Color.kYellow, Color.kLightCoral, Color.kIndianRed))
         .andThen(
           robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
@@ -256,15 +271,14 @@ class ControllerBindings(
   private fun outtake() {
     driveController.rightBumper().onTrue(
       ConditionalCommand(
-
-        ConditionalCommand(
+//        ConditionalCommand(
           robot.intake.outtakeCoral()
-            .andThen(WaitUntilCommand { !robot.intake.coralDetected() }),
-          robot.intake.outtakeAlgae()
-            .andThen(WaitUntilCommand { !robot.intake.algaeDetected() })
-        ) {
-          robot.intake.coralDetected()
-        }
+            .andThen(WaitUntilCommand { !robot.intake.coralDetected() })
+//          robot.intake.outtakeAlgae()
+//            .andThen(WaitUntilCommand { !robot.intake.algaeDetected() })
+//        ) {
+//          robot.intake.coralDetected()
+//        }
           .andThen(WaitCommand(0.10))
           .andThen(robot.intake.stop())
           .andThen(
@@ -280,14 +294,20 @@ class ControllerBindings(
 
   private fun score_l1() {
     driveController.a().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.L1)
+      ConditionalCommand(
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L1_PIVOT),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L1)
+      ) { robot.poseSubsystem.isPivotSide() }
     )
   }
 
   private fun scoreDescore_l2() {
     driveController.x().onTrue(
       ConditionalCommand(
-        robot.superstructureManager.requestGoal(SuperstructureGoal.L2),
+        ConditionalCommand(
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT),
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L2)
+        ) { robot.poseSubsystem.isPivotSide() },
         robot.superstructureManager.requestGoal(SuperstructureGoal.L2_ALGAE_DESCORE)
       ) { robot.intake.coralDetected() }
     )
@@ -296,7 +316,10 @@ class ControllerBindings(
   private fun scoreDescore_l3() {
     driveController.b().onTrue(
       ConditionalCommand(
-        robot.superstructureManager.requestGoal(SuperstructureGoal.L3),
+        ConditionalCommand(
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L3_PIVOT),
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L3)
+        ) { robot.poseSubsystem.isPivotSide() },
         robot.superstructureManager.requestGoal(SuperstructureGoal.L3_ALGAE_DESCORE)
       ) { robot.intake.coralDetected() }
     )
@@ -304,7 +327,10 @@ class ControllerBindings(
 
   private fun score_l4() {
     driveController.y().onTrue(
-      robot.superstructureManager.requestL4()
+      ConditionalCommand(
+        robot.superstructureManager.requestL4(SuperstructureGoal.L4_PIVOT),
+        robot.superstructureManager.requestL4(SuperstructureGoal.L4)
+      ) { robot.poseSubsystem.isPivotSide() }
     )
   }
 
@@ -365,18 +391,25 @@ class ControllerBindings(
     ).onFalse(robot.wrist.hold())
   }
 
-  private fun intakeAlgae() {
+  private fun intakeCoral() {
     mechanismController.leftStick().onTrue(
-      robot.intake.intakeAlgae().until {robot.intake.algaeDetected()}
-        .andThen(robot.intake.holdAlgae())
+      robot.intake.intakeCoral()
     ).toggleOnFalse(
       robot.intake.stop()
     )
   }
 
-  private fun intakeCoral() {
+  private fun outtakeCoral() {
     mechanismController.rightStick().onTrue(
-      robot.intake.intakeCoral()
+      robot.intake.outtakeCoral()
+    ).toggleOnFalse(
+      robot.intake.stop()
+    )
+  }
+
+  private fun intakeAlgae() {
+    mechanismController.rightStick().onTrue(
+      robot.intake.intakeAlgae()
     ).toggleOnFalse(
       robot.intake.stop()
     )

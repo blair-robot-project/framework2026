@@ -13,7 +13,7 @@ object IntakeConstants {
 
   const val MOTOR_INVERTED = false
 
-  const val CORAL_INTAKE_VOLTAGE = 6.0
+  const val CORAL_INTAKE_VOLTAGE = 11.0
   const val ALGAE_INTAKE_VOLTAGE = 9.0
 
   const val ALGAE_HOLD_VOLTAGE = 4.15
