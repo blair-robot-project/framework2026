@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand
+import frc.team449.subsystems.superstructure.wrist.WristConstants
 import frc.team449.system.encoder.AbsoluteEncoder
 import frc.team449.system.encoder.QuadEncoder
 import frc.team449.system.motor.KrakenDogLog
@@ -63,6 +64,10 @@ class Pivot(
           .withFeedForward(pivotFeedForward.calculateWithLength(position))
       )
     }
+  }
+
+  fun elevatorReady(): Boolean {
+    return positionSupplier.get() < PivotConstants.ELEVATOR_READY.`in`(Radians)
   }
 
   fun manualDown(): Command {
