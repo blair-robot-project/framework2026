@@ -89,7 +89,7 @@ class ThreeL4(
         WaitUntilCommand { robot.intake.coralDetected() }
           .onlyIf { RobotBase.isReal() }
       )
-      .andThen(robot.intake.holdCoral())
+      .andThen(robot.intake.stop())
 //    return InstantCommand(robot.drive::stop).andThen(
 //      WaitCommand(1.5)
 //    )

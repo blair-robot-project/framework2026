@@ -91,7 +91,7 @@ class TwoAndHalfL4(
           .onlyIf { RobotBase.isReal() }
       )
       .andThen(WaitCommand(0.15))
-      .andThen(robot.intake.holdCoral())
+      .andThen(robot.intake.stop())
 //    return InstantCommand(robot.drive::stop).andThen(
 //      WaitCommand(1.5)
 //    )
