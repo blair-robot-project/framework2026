@@ -57,7 +57,7 @@ object VisionConstants {
 
   /** Filtering Constants */
   const val MAX_AMBIGUITY = 0.40
-  var MAX_DISTANCE_SINGLE_TAG = 5.0
+  var MAX_DISTANCE_SINGLE_TAG = 3.75
   var MAX_DISTANCE_MULTI_TAG = 6.0
   val TAG_HEADING_MAX_DEV_RAD = Units.degreesToRadians(360.0)
   var MAX_HEIGHT_ERR_METERS = 0.275
@@ -72,7 +72,7 @@ object VisionConstants {
   )
 
   /** Vision Sim Setup Constants */
-  const val SIM_FPS = 25.0
+  const val SIM_FPS = 8.0
   const val SIM_CAMERA_HEIGHT_PX = 800 // 1200 // 800
   const val SIM_CAMERA_WIDTH_PX = 1280 // 1600 // 1280
   const val SIM_FOV_DEG = 77.92 // 87.6115 // 79.09
@@ -88,6 +88,18 @@ object VisionConstants {
       "reef_cam",
       TAG_LAYOUT,
       front,
+      VISION_SIM
+    ),
+    ApriltagCamera(
+      "back_left",
+      TAG_LAYOUT,
+      back_left,
+      VISION_SIM
+    ),
+    ApriltagCamera(
+      "back_right",
+      TAG_LAYOUT,
+      back_right,
       VISION_SIM
     )
   )
