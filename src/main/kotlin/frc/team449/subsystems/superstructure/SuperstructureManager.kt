@@ -37,7 +37,7 @@ class SuperstructureManager(
               wrist.setPosition(goal.wrist.`in`(Radians)),
               pivot.setPosition(goal.pivot.`in`(Radians))
             ),
-            WaitUntilCommand { wrist.elevatorReady() },
+            WaitUntilCommand { wrist.elevatorReady() && pivot.elevatorReady() },
             elevator.setPosition(goal.elevator.`in`(Meters)),
 //            WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() && elevator.atSetpoint() },
             WaitUntilCommand { wrist.atSetpoint() || pivot.atSetpoint() },
@@ -86,7 +86,7 @@ class SuperstructureManager(
               wrist.setPosition(goal.wrist.`in`(Radians)),
               pivot.setPosition(goal.pivot.`in`(Radians))
             ),
-            WaitUntilCommand { wrist.elevatorReady() },
+            WaitUntilCommand { wrist.elevatorReady() && pivot.elevatorReady() },
             elevator.setPositionCarriage(goal.elevator.`in`(Meters)),
 //            WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() && elevator.atSetpoint() },
             WaitUntilCommand { wrist.atSetpoint() || pivot.atSetpoint() },
@@ -133,6 +133,13 @@ class SuperstructureManager(
 
   fun lastRequestedGoal(): SuperstructureGoal.SuperstructureState {
     return lastGoal
+  }
+
+  fun isPivotSide(): Boolean {
+    return lastGoal == SuperstructureGoal.L1_PIVOT ||
+      lastGoal == SuperstructureGoal.L2_PIVOT ||
+      lastGoal == SuperstructureGoal.L3_PIVOT ||
+      lastGoal == SuperstructureGoal.L4_PIVOT
   }
 
   private fun holdAll(): Command {
