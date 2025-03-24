@@ -42,5 +42,5 @@ object WristConstants {
   val CRUISE_VEL = RotationsPerSecond.of(2.75) // should get to 2.5, max theoretical 2.95
   val MAX_ACCEL = RotationsPerSecondPerSecond.of(5.0) // should get to 3.0, max theoretical 18.842
 
-  val STARTUP_ANGLE = Degrees.of(90.0)
+  val STARTUP_ANGLE = Degrees.of(-90.0) // TODO: Change to back hardstop angle
 }
