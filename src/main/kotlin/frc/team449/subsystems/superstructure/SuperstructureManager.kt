@@ -135,7 +135,7 @@ class SuperstructureManager(
     return lastGoal
   }
 
-  fun isPivotSide(): Boolean {
+  fun requestedPivotSide(): Boolean {
     return lastGoal == SuperstructureGoal.L1_PIVOT ||
       lastGoal == SuperstructureGoal.L2_PIVOT ||
       lastGoal == SuperstructureGoal.L3_PIVOT ||

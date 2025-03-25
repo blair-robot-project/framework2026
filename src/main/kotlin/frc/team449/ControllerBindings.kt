@@ -57,7 +57,6 @@ class ControllerBindings(
 
     stow()
     climbBefore()
-    climbIntermediate()
     climb()
     scoreL2()
     scoreL3()
@@ -90,21 +89,17 @@ class ControllerBindings(
   }
 
   private fun climb() {
-    mechanismController.b().onTrue(
+    mechanismController.rightTrigger().onTrue(
       robot.wrist.setPosition(WristConstants.CLIMB_DOWN.`in`(Radians))
         .alongWith(robot.pivot.climbDown())
-    )
-  }
-
-  private fun climbIntermediate() {
-    mechanismController.rightTrigger().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.CLIMB_INTERMEDIATE)
+        .andThen(robot.elevator.climbDown())
     )
   }
 
   private fun climbBefore() {
     mechanismController.leftTrigger().onTrue(
       robot.superstructureManager.requestGoal(SuperstructureGoal.CLIMB_BEFORE)
+        .alongWith(robot.climb.runClimbWheels())
     )
   }
 
@@ -402,14 +397,6 @@ class ControllerBindings(
   private fun outtakeCoral() {
     mechanismController.rightStick().onTrue(
       robot.intake.outtakeCoral()
-    ).toggleOnFalse(
-      robot.intake.stop()
-    )
-  }
-
-  private fun intakeAlgae() {
-    mechanismController.rightStick().onTrue(
-      robot.intake.intakeAlgae()
     ).toggleOnFalse(
       robot.intake.stop()
     )

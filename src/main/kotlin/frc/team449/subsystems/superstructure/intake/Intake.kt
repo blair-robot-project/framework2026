@@ -27,12 +27,16 @@ class Intake(
     return setVoltage(IntakeConstants.CORAL_INTAKE_VOLTAGE)
   }
 
-  fun intakeAlgae(): Command {
-    return setVoltage(IntakeConstants.ALGAE_INTAKE_VOLTAGE)
-  }
+//  fun intakeAlgae(): Command {
+//    return setVoltage(IntakeConstants.ALGAE_INTAKE_VOLTAGE)
+//  }
 
-  fun holdAlgae(): Command {
-    return setVoltage(IntakeConstants.ALGAE_HOLD_VOLTAGE)
+//  fun holdAlgae(): Command {
+//    return setVoltage(IntakeConstants.ALGAE_HOLD_VOLTAGE)
+//  }
+
+  fun descoreAlgae(): Command {
+    return setVoltage(IntakeConstants.DESCORE_ALGAE_VOLTAGE)
   }
 
   fun outtakeCoral(): Command {
@@ -43,9 +47,9 @@ class Intake(
     return setVoltage(IntakeConstants.CORAL_OUTTAKE_PIVOT_SIDE_VOLTAGE)
   }
 
-  fun outtakeAlgae(): Command {
-    return setVoltage(IntakeConstants.ALGAE_OUTTAKE_VOLTAGE)
-  }
+//  fun outtakeAlgae(): Command {
+//    return setVoltage(IntakeConstants.ALGAE_OUTTAKE_VOLTAGE)
+//  }
 
 //  fun readyPivotScore(): Command {
 //    return runOnce {

@@ -20,8 +20,10 @@ object IntakeConstants {
   const val CORAL_HOLD_VOLTAGE = 0.35
 
   const val CORAL_OUTTAKE_VOLTAGE = -4.0
-  const val CORAL_OUTTAKE_PIVOT_SIDE_VOLTAGE = -4.0
+  const val CORAL_OUTTAKE_PIVOT_SIDE_VOLTAGE = 4.0
   const val ALGAE_OUTTAKE_VOLTAGE = -10.0
+
+  const val DESCORE_ALGAE_VOLTAGE = -7.0
 
   const val WAIT_AFTER_ALGAE_DETECTED = 0.5
 

@@ -9,8 +9,10 @@ import frc.team449.subsystems.superstructure.wrist.WristConstants
 
 object SuperstructureGoal {
   /** TODO: All placeholder guesses, need actual values */
-  private const val SCORING_SPEED = 2.6672
+  private const val SCORING_SPEED = 2.6329
   private const val SCORING_ACCEL = 12.5
+
+  private const val GROUND_INTAKE_SPEED = 3.5804
 
   private const val MIN_ELEVATOR_HEIGHT_IN = -0.75
 
@@ -81,7 +83,7 @@ object SuperstructureGoal {
     Degrees.of(-5.0),
     Inches.of(MIN_ELEVATOR_HEIGHT_IN),
     Degrees.of(-92.0),
-    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+    DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
   val SUBSTATION_INTAKE_CORAL_IN_FRONT = SuperstructureState(
@@ -100,8 +102,8 @@ object SuperstructureGoal {
 
   val CLIMB_BEFORE = SuperstructureState(
     Degrees.of(90.0),
-    Meters.of(0.0),
-    Degrees.of(-139.0),
+    Meters.of(0.375),
+    Degrees.of(-92.0),
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
