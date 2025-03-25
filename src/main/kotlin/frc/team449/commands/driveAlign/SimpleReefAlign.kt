@@ -25,8 +25,8 @@ import kotlin.math.min
 class SimpleReefAlign(
   private val drive: SwerveDrive,
   private val poseSubsystem: PoseSubsystem,
-  translationSpeedLim: Double = 0.65 * RobotConstants.MAX_LINEAR_SPEED,
-  translationAccelLim: Double = 2.5,
+  translationSpeedLim: Double = 0.75 * RobotConstants.MAX_LINEAR_SPEED,
+  translationAccelLim: Double = 2.25,
   headingSpeedLim: Double = PI,
   headingAccelLim: Double = 4 * PI,
   translationPID: Triple<Double, Double, Double> = Triple(6.25, 0.0, 0.0),
@@ -70,11 +70,27 @@ class SimpleReefAlign(
 
     if (leftOrRight.isEmpty) {
       targetPose = if (FieldConstants.REEF_LOCATIONS.isNotEmpty()) currentPose.nearest(FieldConstants.REEF_LOCATIONS) else Pose2d()
+
+      if (poseSubsystem.isPivotSide()) {
+        targetPose = Pose2d(
+          targetPose.x,
+          targetPose.y,
+          Rotation2d(MathUtil.angleModulus(PI + targetPose.rotation.radians))
+        )
+      }
     } else {
       val closestReef = if (FieldConstants.REEF_LOCATIONS.isNotEmpty()) currentPose.nearest(FieldConstants.REEF_CENTER_LOCATIONS) else Pose2d()
       val index = FieldConstants.REEF_CENTER_LOCATIONS.indexOf(closestReef)
 
       targetPose = FieldConstants.REEF_LOCATIONS[2 * index + if (leftOrRight.get() == FieldConstants.ReefSide.LEFT) 0 else 1]
+
+      if (poseSubsystem.isPivotSide()) {
+        targetPose = Pose2d(
+          targetPose.x,
+          targetPose.y,
+          Rotation2d(MathUtil.angleModulus(PI + targetPose.rotation.radians))
+        )
+      }
     }
 
     val fieldRelative = ChassisSpeeds.fromRobotRelativeSpeeds(

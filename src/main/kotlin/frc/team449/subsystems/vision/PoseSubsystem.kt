@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.control.vision.ApriltagCamera
+import frc.team449.subsystems.FieldConstants
 import frc.team449.subsystems.RobotConstants
 import frc.team449.subsystems.drive.swerve.SwerveDrive
 import frc.team449.subsystems.drive.swerve.SwerveSim
@@ -101,6 +102,13 @@ class PoseSubsystem(
 
       builder.addDoubleProperty("Robot Angle", { poseEstimator.estimatedPosition.rotation.radians }, null)
     }
+  }
+
+  fun isPivotSide(): Boolean {
+    val closestReefRadians = pose.nearest(FieldConstants.REEF_CENTER_LOCATIONS).rotation.radians
+
+    return !(abs(MathUtil.angleModulus(closestReefRadians - heading.radians)) <
+      abs(MathUtil.angleModulus(MathUtil.angleModulus(PI + closestReefRadians) - heading.radians)))
   }
 
   override fun periodic() {
