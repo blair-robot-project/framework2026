@@ -266,14 +266,11 @@ class ControllerBindings(
   private fun outtake() {
     driveController.rightBumper().onTrue(
       ConditionalCommand(
-//        ConditionalCommand(
+        ConditionalCommand(
+          robot.intake.outtakeCoralPivot(),
           robot.intake.outtakeCoral()
-            .andThen(WaitUntilCommand { !robot.intake.coralDetected() })
-//          robot.intake.outtakeAlgae()
-//            .andThen(WaitUntilCommand { !robot.intake.algaeDetected() })
-//        ) {
-//          robot.intake.coralDetected()
-//        }
+        ) { robot.superstructureManager.requestedPivotSide() }
+          .andThen(WaitUntilCommand { !robot.intake.coralDetected() })
           .andThen(WaitCommand(0.10))
           .andThen(robot.intake.stop())
           .andThen(

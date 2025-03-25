@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.DigitalInput
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
-import edu.wpi.first.wpilibj2.command.WaitCommand
 import frc.team449.system.motor.createSparkMax
 
 class Intake(
@@ -113,7 +112,7 @@ class Intake(
       val coralSensor = DigitalInput(IntakeConstants.CORAL_SENSOR_DIO_PORT)
       val algaeSensor = DigitalInput(IntakeConstants.ALGAE_SENSOR_DIO_PORT)
       val pivotSensor = DigitalInput(IntakeConstants.PIVOT_SENSOR_DIO_PORT)
-      return Intake(motor, coralSensor)//, algaeSensor, pivotSensor)
+      return Intake(motor, coralSensor) // , algaeSensor, pivotSensor)
     }
   }
 }

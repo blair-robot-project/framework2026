@@ -2,10 +2,8 @@ package frc.team449.subsystems.superstructure.climb
 
 import com.revrobotics.spark.SparkMax
 import dev.doglog.DogLog
-import edu.wpi.first.wpilibj.DigitalInput
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
-import frc.team449.system.motor.createFollowerSpark
 import frc.team449.system.motor.createSparkMax
 
 // TODO(the entire class bru)
