@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.team449.auto.AutoConstants
 import frc.team449.commands.autoscoreCommands.AutoScoreCommandConstants
 import frc.team449.control.vision.ApriltagCamera
+import frc.team449.subsystems.FieldConstants
 import frc.team449.subsystems.RobotConstants
 import frc.team449.subsystems.drive.swerve.SwerveConstants
 import frc.team449.subsystems.drive.swerve.SwerveDrive
@@ -382,6 +383,13 @@ class PoseSubsystem(
 //
 //    ChassisSpeeds.fromFieldRelativeSpeeds(xPID, yPID, angPID, desState.rotation)
 //  }
+
+  fun isPivotSide(): Boolean {
+    val closestReefRadians = pose.nearest(FieldConstants.REEF_CENTER_LOCATIONS).rotation.radians
+
+    return !(abs(MathUtil.angleModulus(closestReefRadians - heading.radians)) < abs(MathUtil.angleModulus(MathUtil.angleModulus(PI + closestReefRadians) - heading.radians)))
+  }
+
 
   override fun periodic() {
     oldPose = pose

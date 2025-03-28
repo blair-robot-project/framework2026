@@ -270,13 +270,13 @@ open class Routines(
   }
   fun rightCoralAlgae(): AutoRoutine {
     val twoL4removeAlgae = autoFactory.newRoutine("AB l4 + algae descore + A l3")
-    val scorePreloadB = twoL4removeAlgae.trajectory("Left2L4Algae2L3/1")
-    val pickupMiddle = twoL4removeAlgae.trajectory("Left2L4Algae2L3/2")
-    val scoreMiddleA = twoL4removeAlgae.trajectory("Left2L4Algae2L3/3")
-    val pickupLeft = twoL4removeAlgae.trajectory("Left2L4Algae2L3/6")
-    val scoreRightB = twoL4removeAlgae.trajectory("Left2L4Algae2L3/7")
-    val pickupRight = twoL4removeAlgae.trajectory("Left2L4Algae2L3/4")
-    val scoreLeftA = twoL4removeAlgae.trajectory("Left2L4Algae2L3/5")
+    val scorePreloadB = twoL4removeAlgae.trajectory("Right2L41L3/1")
+    val pickupMiddle = twoL4removeAlgae.trajectory("Right2L41L3/2")
+    val scoreMiddleA = twoL4removeAlgae.trajectory("Right2L41L3/3")
+    val pickupLeft = twoL4removeAlgae.trajectory("Right2L41L3/6")
+    val scoreRightB = twoL4removeAlgae.trajectory("Right2L41L3/7")
+    val pickupRight = twoL4removeAlgae.trajectory("Right2L41L3/4")
+    val scoreLeftA = twoL4removeAlgae.trajectory("Right2L41L3/5")
 
     twoL4removeAlgae.active().onTrue(
       Commands.sequence(
@@ -305,7 +305,8 @@ open class Routines(
       )
     )
 
-    scoreRightB.done().onTrue(
+    scoreRightB.done()
+  /*    .onTrue(
       Commands.sequence(
         ScoreL3PivotSide(robot, FieldConstants.ReefSide.RIGHT),
         pickupRight.cmd().alongWith(GroundIntake(robot)),
@@ -314,9 +315,10 @@ open class Routines(
       )
     )
 
-    scoreLeftA.done().onTrue(
+    scoreLeftA.done()*/
+      .onTrue(
       Commands.sequence(
-        ScoreL3PivotSide(robot, FieldConstants.ReefSide.LEFT),
+        ScoreL3PivotSide(robot, FieldConstants.ReefSide.RIGHT),
         robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
       )
     )
