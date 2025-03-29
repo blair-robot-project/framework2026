@@ -129,11 +129,12 @@ class ControllerBindings(
         WaitCommand(0.125),
         Commands.parallel(
           robot.wrist.setPosition(WristConstants.CLIMB_DOWN.`in`(Radians)),
-          robot.climb.holdClimbWheels(),
+          robot.climb.stop(),
           robot.pivot.climbDown(),
           WaitUntilCommand { robot.pivot.climbReady() }
             .andThen(robot.elevator.climbDown())
-        )
+        ),
+        robot.climb.holdClimbWheels()
       )
     )
   }

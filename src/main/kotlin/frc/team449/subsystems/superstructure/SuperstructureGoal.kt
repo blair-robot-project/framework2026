@@ -17,9 +17,9 @@ object SuperstructureGoal {
   private const val MIN_ELEVATOR_HEIGHT_IN = -0.35
 
   val L1 = SuperstructureState(
-    Radians.of(0.527538),
+    Radians.of(0.187714),
     Inches.of(MIN_ELEVATOR_HEIGHT_IN),
-    Radians.of(-1.347656),
+    Radians.of(-0.426758),
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
@@ -59,9 +59,9 @@ object SuperstructureGoal {
   )
 
   val L4_PIVOT = SuperstructureState(
-    Radians.of(1.459688),
-    Meters.of(1.030762),
-    Radians.of(1.625244), // -138.5
+    Degrees.of(87.352549),
+    Inches.of(40.420148),
+    Degrees.of(92.647451), // -138.5
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
@@ -73,7 +73,7 @@ object SuperstructureGoal {
   )
 
   val GROUND_INTAKE = SuperstructureState(
-    Degrees.of(-2.0),
+    Degrees.of(-5.0),
     Inches.of(MIN_ELEVATOR_HEIGHT_IN),
     Degrees.of(-85.5), // true angle is -84.87
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)

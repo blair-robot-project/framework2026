@@ -16,7 +16,7 @@ object WristConstants {
   const val MOTOR_ID = 41
 
   val TOLERANCE = Degrees.of(5.0)
-  val ELEVATOR_READY = Degrees.of(105.0)
+  val ELEVATOR_READY = Degrees.of(95.0)
   const val GEARING = 17.0 / 576.0
   const val UPR = 2 * PI
 
@@ -40,7 +40,7 @@ object WristConstants {
   const val KD = 0.096482
 
   val CRUISE_VEL = RotationsPerSecond.of(2.75) // should get to 2.5, max theoretical 2.95
-  val MAX_ACCEL = RotationsPerSecondPerSecond.of(7.0) // should get to 3.0, max theoretical 18.842
+  val MAX_ACCEL = RotationsPerSecondPerSecond.of(7.5) // should get to 3.0, max theoretical 18.842
 
   val STARTUP_ANGLE = Degrees.of(129.7339) // TODO: Change to back hardstop angle
 }
