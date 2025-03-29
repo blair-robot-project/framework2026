@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand
 import frc.team449.subsystems.superstructure.SuperstructureGoal
+import frc.team449.subsystems.superstructure.pivot.PivotConstants
 import frc.team449.subsystems.superstructure.wrist.WristConstants
 import frc.team449.system.motor.KrakenDogLog
 import java.util.function.Supplier
@@ -90,12 +91,17 @@ open class Elevator(
       .andThen(holdClimb())
   }
 
+  fun pivotReady(): Boolean {
+    return positionSupplier.get() < ElevatorConstants.PIVOT_READY.`in`(Meters) ||
+      request.Position > ElevatorConstants.PIVOT_READY.`in`(Meters)
+  }
+
   fun holdClimb(): Command {
     return this.runOnce {
       motor.setControl(
         PositionVoltage(request.Position)
           .withUpdateFreqHz(ElevatorConstants.REQUEST_UPDATE_RATE)
-          .withFeedForward(-0.5)
+          .withFeedForward(-0.375)
       )
     }
   }
