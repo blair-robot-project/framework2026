@@ -91,13 +91,13 @@ object VisionConstants {
       VISION_SIM
     ),
     ApriltagCamera(
-      "back_left",
+      "jojocam",
       TAG_LAYOUT,
       back_left,
       VISION_SIM
     ),
     ApriltagCamera(
-      "back_right",
+      "edzmjr",
       TAG_LAYOUT,
       back_right,
       VISION_SIM
