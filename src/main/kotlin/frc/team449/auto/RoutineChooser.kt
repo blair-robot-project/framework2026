@@ -3,10 +3,7 @@ package frc.team449.auto
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
 import edu.wpi.first.wpilibj2.command.Command
 import frc.team449.Robot
-import frc.team449.auto.routines.DoNothing
-import frc.team449.auto.routines.OneL4
-import frc.team449.auto.routines.ThreeL4
-import frc.team449.auto.routines.TwoAndHalfL4
+import frc.team449.auto.routines.*
 
 class RoutineChooser(private val robot: Robot) : SendableChooser<String>() {
 
@@ -14,6 +11,10 @@ class RoutineChooser(private val robot: Robot) : SendableChooser<String>() {
     return hashMapOf(
       "RedDoNothing" to DoNothing(robot).createCommand(),
       "BlueDoNothing" to DoNothing(robot).createCommand(),
+      "RedRedStageThreeL4G" to ThreeL4Ground(robot, isRedAlliance = true, isRedStage = true).createCommand(),
+      "RedBlueStageThreeL4G" to ThreeL4Ground(robot, isRedAlliance = true, isRedStage = false).createCommand(),
+      "BlueRedStageThreeL4G" to ThreeL4Ground(robot, isRedAlliance = false, isRedStage = true).createCommand(),
+      "BlueBlueStageThreeL4G" to ThreeL4Ground(robot, isRedAlliance = false, isRedStage = false).createCommand(),
       "RedRedStageThreeL4" to ThreeL4(robot, isRedAlliance = true, isRedStage = true).createCommand(),
       "RedBlueStageThreeL4" to ThreeL4(robot, isRedAlliance = true, isRedStage = false).createCommand(),
       "BlueRedStageThreeL4" to ThreeL4(robot, isRedAlliance = false, isRedStage = true).createCommand(),
@@ -33,6 +34,8 @@ class RoutineChooser(private val robot: Robot) : SendableChooser<String>() {
 
     this.addOption("Red Stage 3 L4", "RedStageThreeL4")
     this.addOption("Blue Stage 3 L4", "BlueStageThreeL4")
+    this.addOption("Red Stage 3 L4 Ground", "RedStageThreeL4G")
+    this.addOption("Blue Stage 3 L4 Ground", "BlueStageThreeL4G")
     this.addOption("Red Stage 2.5 L4", "RedStage2.5L4")
     this.addOption("Blue Stage 2.5 L4", "BlueStage2.5L4")
     this.addOption("One L4 Left Pole", "OneL4")
