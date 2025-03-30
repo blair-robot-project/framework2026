@@ -17,51 +17,51 @@ object SuperstructureGoal {
   private const val MIN_ELEVATOR_HEIGHT_IN = -0.35
 
   val L1 = SuperstructureState(
-    Radians.of(0.187714),
+    Radians.of(0.527538),
     Inches.of(MIN_ELEVATOR_HEIGHT_IN),
-    Radians.of(-0.426758),
+    Radians.of(-1.347656),
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
   val L2 = SuperstructureState(
-    Degrees.of(46.718),
+    Radians.of(0.839355),
     Inches.of(MIN_ELEVATOR_HEIGHT_IN),
-    Degrees.of(-17.931876),
+    Radians.of(-0.193115),
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
   val L3 = SuperstructureState(
-    Degrees.of(55.806755),
-    Inches.of(9.172129),
-    Degrees.of(0.806755),
+    Radians.of(1.044059),
+    Meters.of(0.249023),
+    Radians.of(0.037354),
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
   val L4 = SuperstructureState(
-    Degrees.of(71.236875),
-    Inches.of(41.090751),
-    Degrees.of(-71.236875), // -138.5
+    Radians.of(1.249023),
+    Meters.of(0.967773),
+    Radians.of(-0.699707), // -138.5
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
   val L2_PIVOT = SuperstructureState(
-    Degrees.of(78.531296),
+    Radians.of(1.211914),
     Inches.of(MIN_ELEVATOR_HEIGHT_IN),
-    Degrees.of(83.54776),
+    Radians.of(1.503662),
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
   val L3_PIVOT = SuperstructureState(
-    Degrees.of(80.382074),
-    Inches.of(5.845821),
-    Degrees.of(44.617926),
+    Radians.of(1.269531),
+    Meters.of(0.148438),
+    Radians.of(0.859375),
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
   val L4_PIVOT = SuperstructureState(
-    Degrees.of(87.352549),
-    Inches.of(40.420148),
-    Degrees.of(92.647451), // -138.5
+    Radians.of(1.459688),
+    Meters.of(1.030762),
+    Radians.of(1.625244), // -138.5
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
@@ -73,7 +73,7 @@ object SuperstructureGoal {
   )
 
   val GROUND_INTAKE = SuperstructureState(
-    Degrees.of(-5.0),
+    Degrees.of(-2.0),
     Inches.of(MIN_ELEVATOR_HEIGHT_IN),
     Degrees.of(-85.5), // true angle is -84.87
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
@@ -116,9 +116,9 @@ object SuperstructureGoal {
   )
 
   val L3_ALGAE_DESCORE = SuperstructureState(
-    Degrees.of(53.630854977),
-    Meters.of(0.209473),
-    Degrees.of(-49.798111102),
+    Radians.of(0.979492),
+    Meters.of(0.310547),
+    Radians.of(-1.119629),
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
