@@ -38,6 +38,10 @@ class Intake(
     return setVoltage(IntakeConstants.DESCORE_ALGAE_VOLTAGE)
   }
 
+  fun outtakeL1(): Command {
+    return setVoltage(IntakeConstants.L1_OUTTAKE)
+  }
+
   fun outtakeCoral(): Command {
     return setVoltage(IntakeConstants.CORAL_OUTTAKE_VOLTAGE)
   }
@@ -114,8 +118,8 @@ class Intake(
       )
 
       val coralSensor = DigitalInput(IntakeConstants.CORAL_SENSOR_DIO_PORT)
-      val algaeSensor = DigitalInput(IntakeConstants.ALGAE_SENSOR_DIO_PORT)
-      val pivotSensor = DigitalInput(IntakeConstants.PIVOT_SENSOR_DIO_PORT)
+//      val algaeSensor = DigitalInput(IntakeConstants.ALGAE_SENSOR_DIO_PORT)
+//      val pivotSensor = DigitalInput(IntakeConstants.PIVOT_SENSOR_DIO_PORT)
       return Intake(motor, coralSensor) // , algaeSensor, pivotSensor)
     }
   }

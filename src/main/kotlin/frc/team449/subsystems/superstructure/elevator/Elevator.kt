@@ -90,12 +90,17 @@ open class Elevator(
       .andThen(holdClimb())
   }
 
+  fun pivotReady(): Boolean {
+    return positionSupplier.get() < ElevatorConstants.PIVOT_READY.`in`(Meters) ||
+      request.Position > ElevatorConstants.PIVOT_READY.`in`(Meters)
+  }
+
   fun holdClimb(): Command {
     return this.runOnce {
       motor.setControl(
         PositionVoltage(request.Position)
           .withUpdateFreqHz(ElevatorConstants.REQUEST_UPDATE_RATE)
-          .withFeedForward(-0.5)
+          .withFeedForward(-0.375)
       )
     }
   }
