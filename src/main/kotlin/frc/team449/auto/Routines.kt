@@ -80,7 +80,7 @@ open class Routines(
         l4ETrajectory.resetOdometry(),
         robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)
           .alongWith(
-            robot.intake.holdCoral(),
+            robot.intake.stop(),
             l4ETrajectory.cmd()
           )
       ),
@@ -143,7 +143,7 @@ open class Routines(
       Commands.sequence(
         l4jTrajectory.resetOdometry(),
         robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).alongWith(
-          robot.intake.holdCoral(),
+          robot.intake.stop(),
           l4jTrajectory.cmd()
         ),
         PrintCommand("Traveling to L4")
@@ -204,8 +204,8 @@ open class Routines(
     ground3half.active().onTrue(
       Commands.sequence(
         preloadScore.resetOdometry(),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).alongWith(
-          robot.intake.holdCoral(),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PIVOT_PREMOVE).alongWith(
+          robot.intake.stop(),
           preloadScore.cmd()
         )
       )
@@ -221,7 +221,7 @@ open class Routines(
     firstPickup.done().onTrue(
       Commands.sequence(
         Intake(robot),
-        firstPresagedScore.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).beforeStarting(WaitCommand(0.5)))
+        firstPresagedScore.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PIVOT_PREMOVE).beforeStarting(WaitCommand(0.5)))
       )
     )
 
@@ -238,7 +238,7 @@ open class Routines(
       Commands.sequence(
         Intake(robot),
         secondPresagedScore.cmd()
-          .alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).beforeStarting(WaitCommand(0.5)))
+          .alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PIVOT_PREMOVE).beforeStarting(WaitCommand(0.5)))
       )
     )
 
@@ -278,7 +278,7 @@ open class Routines(
     back2l4l2.active().onTrue(
       Commands.sequence(
         scorePreloadB.resetOdometry(),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).alongWith(
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PIVOT_PREMOVE).alongWith(
           robot.intake.stop(),
           scorePreloadB.cmd()
         )
@@ -289,7 +289,7 @@ open class Routines(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT),
         pickupMiddle.cmd().alongWith(GroundIntake(robot)),
-        scoreMiddleA.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).beforeStarting(WaitCommand(0.5)))
+        scoreMiddleA.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PIVOT_PREMOVE).beforeStarting(WaitCommand(0.5)))
       )
     )
 
@@ -298,7 +298,7 @@ open class Routines(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
         pickupLeft.cmd().alongWith(GroundIntake(robot)),
         scoreRightB.cmd()
-          .alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PREMOVE).beforeStarting(WaitCommand(0.5)))
+          .alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT_PREMOVE).beforeStarting(WaitCommand(0.5)))
       )
     )
 
@@ -340,6 +340,7 @@ open class Routines(
   fun addOptions(autoChooser: AutoChooser) {
     autoChooser.addRoutine("rightThreeHalfL4", this::rightGround3L4Half)
     autoChooser.addRoutine("BackCenterL4+L2", this::leftGroundBack2L4l2)
+
     autoChooser.addRoutine("RightTaxi", this::taxi)
     autoChooser.addRoutine("The Goat", this::americanRoutine)
     autoChooser.addRoutine("testing", this::middleRoutine)
@@ -368,7 +369,7 @@ open class Routines(
   fun ScoreL3PivotSide(robot: Robot, reefSide: FieldConstants.ReefSide): Command {
     return robot.superstructureManager.requestGoal(SuperstructureGoal.L3)
       .alongWith(
-        robot.intake.outtakeAlgae(),
+       // robot.intake.outtakeAlgae(),
         SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(reefSide), translationSpeedLim = 1.0, translationAccelLim = 1.95)
           .andThen(PrintCommand("Actually reached auto tolerance!"))
           .withTimeout(2.0)
@@ -386,7 +387,6 @@ open class Routines(
   fun ScoreL2PivotSide(robot: Robot, reefSide: FieldConstants.ReefSide): Command {
     return robot.superstructureManager.requestGoal(SuperstructureGoal.L2)
       .alongWith(
-        robot.intake.outtakeAlgae(),
         SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(reefSide), translationSpeedLim = 1.0, translationAccelLim = 1.95)
           .andThen(PrintCommand("Actually reached auto tolerance!"))
           .withTimeout(2.0)
@@ -409,7 +409,7 @@ open class Routines(
         WaitUntilCommand { robot.intake.coralDetected() }
           .onlyIf { RobotBase.isReal() }
       )
-      .andThen(robot.intake.holdCoral())
+      .andThen(robot.intake.stop())
   }
 
   fun PremoveIntake(robot: Robot): Command {
@@ -418,7 +418,7 @@ open class Routines(
   }
 
   fun GroundIntake(robot: Robot): Command {
-    return robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
+    return robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE)
       .alongWith(robot.intake.intakeCoral())
       .andThen(WaitUntilCommand { robot.intake.coralDetected() }
           .onlyIf { RobotBase.isReal() }

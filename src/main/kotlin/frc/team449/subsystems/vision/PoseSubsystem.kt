@@ -376,11 +376,6 @@ class PoseSubsystem(
     this.poseEstimator.resetPose(newPose)
   }
 
-  fun isPivotSide(): Boolean {
-    val closestReefRadians = pose.nearest(FieldConstants.REEF_CENTER_LOCATIONS).rotation.radians
-
-    return !(abs(MathUtil.angleModulus(closestReefRadians - heading.radians)) < abs(MathUtil.angleModulus(MathUtil.angleModulus(PI + closestReefRadians) - heading.radians)))
-  }
 
 
   override fun periodic() {

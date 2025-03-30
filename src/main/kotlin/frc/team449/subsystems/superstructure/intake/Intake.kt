@@ -66,6 +66,10 @@ class Intake(
   fun coralDetected(): Boolean {
     return !coralInfrared.get()
   }
+
+  fun coralNotDetected(): Boolean {
+    return coralInfrared.get()
+  }
 //
 //  fun algaeDetected(): Boolean {
 //    return !algaeInfrared.get()
