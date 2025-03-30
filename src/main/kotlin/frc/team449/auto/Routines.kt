@@ -265,7 +265,7 @@ open class Routines(
     return ground3half
   }
 
-  fun leftGroundBack2L4l2(): AutoRoutine {
+  fun rightGroundBack2L4l2(): AutoRoutine {
     val back2l4l2 = autoFactory.newRoutine("2 l4 and l2")
     val scorePreloadB = back2l4l2.trajectory("Left2L4L2/1")
     val pickupMiddle = back2l4l2.trajectory("Left2L4L2/2")
@@ -339,7 +339,7 @@ open class Routines(
   // autoChooser that will be displayed on dashboard
   fun addOptions(autoChooser: AutoChooser) {
     autoChooser.addRoutine("rightThreeHalfL4", this::rightGround3L4Half)
-    autoChooser.addRoutine("BackCenterL4+L2", this::leftGroundBack2L4l2)
+    autoChooser.addRoutine("BackCenterL4+L2", this::rightGroundBack2L4l2)
 
     autoChooser.addRoutine("RightTaxi", this::taxi)
     autoChooser.addRoutine("The Goat", this::americanRoutine)
