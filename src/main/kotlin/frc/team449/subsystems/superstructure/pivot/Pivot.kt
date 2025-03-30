@@ -65,6 +65,10 @@ class Pivot(
     }
   }
 
+  fun elevatorReady(): Boolean {
+    return positionSupplier.get() < PivotConstants.ELEVATOR_READY.`in`(Radians)
+  }
+
   fun manualDown(): Command {
     return this.run {
       motor.setVoltage(-1.5)

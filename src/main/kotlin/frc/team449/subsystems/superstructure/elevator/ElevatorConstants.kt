@@ -40,7 +40,8 @@ object ElevatorConstants {
   val GEARING_MOTOR_TO_ELEVATOR = 1 / (GEARING_MOTOR_TO_PULLEY * UPR)
   const val CARRIAGE_MASS = 4.0
 
-  const val CLIMB_HEIGHT = 0.198824
+  const val CLIMB_HEIGHT = 0.025
+  val CLIMB_VOLTAGE = -3.0
 
   const val TOLERANCE = 0.05 // TODO(Adjust tolerance.)
 
