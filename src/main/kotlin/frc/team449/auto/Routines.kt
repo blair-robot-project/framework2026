@@ -436,10 +436,42 @@ open class Routines(
 
   fun american_routine_optimal(): AutoRoutine {
     val opt_american = autoFactory.newRoutine("opt Ameriacn")
-    val l4A_traj = opt_american.trajectory("L4A (I)")
-    val l4B_traj = opt_american.trajectory("l4B")
-    val loli1_traj = opt_american.trajectory("Loli 1")
-    val loli2_traj = opt_american.trajectory("Loli 2")
+    val l4A_traj = opt_american.trajectory("GroundThreeHalfRight/L4A (I)")
+    val l4B_traj = opt_american.trajectory("GroundThreeHalfRight/l4B")
+    val loli1_traj = opt_american.trajectory("GroundThreeHalfRight/Loli 1")
+    val loli2_traj = opt_american.trajectory("GroundThreeHalfRight/Loli 2")
+    val l3_traj=opt_american.trajectory("GroundThreeHalfRight/l3B")
+    val loli3_traj=opt_american.trajectory("GroundThreeHalfRight/Loli 3")
+
+    opt_american.active().onTrue(
+      l4A_traj.resetOdometry().andThen(l4A_traj.cmd())
+
+      )
+
+    l4A_traj.done().onTrue(
+      Commands.sequence(
+        ScoreL4PivotSide(robot,FieldConstants.ReefSide.LEFT),
+        loli1_traj.cmd().alongWith(GroundIntake(robot)),
+        l4B_traj.cmd(),
+        ScoreL4PivotSide(robot,FieldConstants.ReefSide.RIGHT),
+        GroundIntake(robot).alongWith(loli2_traj.cmd()),
+        l3_traj.cmd().andThen(ScoreL2PivotSide(robot,FieldConstants.ReefSide.RIGHT)),
+        loli3_traj.cmd().alongWith(GroundIntake(robot))
+
+
+      )
+    )
+
+
+
+
+
+
+
+
+
+
+
     return opt_american
   }
 
@@ -537,3 +569,5 @@ open class Routines(
       .andThen(robot.intake.stop())
   }
 }
+
+
