@@ -8,10 +8,10 @@ object ClimbConstants {
   val CURRENT_LIMIT = Amps.of(30.0)
   const val BRAKE_MODE = true
 
-  const val INVERTED = true
+  const val INVERTED = false
 
   const val RUN_VOLTAGE = 12.0
+  const val HOLD_VOLTAGE = 1.5
 
-  const val SENSOR_DIO_PORT = 1
-  const val SENSOR2_DIO_PORT = 5
+  const val SENSOR_DIO_PORT = 5
 }

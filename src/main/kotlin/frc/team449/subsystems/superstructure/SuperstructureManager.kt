@@ -56,15 +56,12 @@ class SuperstructureManager(
             wrist.hold(),
             wrist.setPosition(WristConstants.ELEVATOR_READY.`in`(Radians))
               .onlyIf { goal.wrist > WristConstants.ELEVATOR_READY },
-            WaitUntilCommand { elevator.atSetpoint() },
+            WaitUntilCommand { elevator.pivotReady() },
             Commands.parallel(
               pivot.setPosition(goal.pivot.`in`(Radians)),
               wrist.setPosition(goal.wrist.`in`(Radians))
             ),
-            WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() },
-//            elevator.hold()
-//              .repeatedly()
-//              .until { wrist.atSetpoint() && pivot.atSetpoint() },
+            WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() && elevator.atSetpoint() },
             InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) }),
             holdAll()
           )
@@ -109,12 +106,12 @@ class SuperstructureManager(
             wrist.hold(),
             wrist.setPosition(WristConstants.ELEVATOR_READY.`in`(Radians))
               .onlyIf { goal.wrist > WristConstants.ELEVATOR_READY },
-            WaitUntilCommand { elevator.atSetpoint() },
+            WaitUntilCommand { elevator.pivotReady() },
             Commands.parallel(
               pivot.setPosition(goal.pivot.`in`(Radians)),
               wrist.setPosition(goal.wrist.`in`(Radians))
             ),
-            WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() },
+            WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() && elevator.atSetpoint() },
             InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) }),
             Commands.parallel(
               pivot.hold(),
@@ -136,8 +133,7 @@ class SuperstructureManager(
   }
 
   fun requestedPivotSide(): Boolean {
-    return lastGoal == SuperstructureGoal.L1_PIVOT ||
-      lastGoal == SuperstructureGoal.L2_PIVOT ||
+    return lastGoal == SuperstructureGoal.L2_PIVOT ||
       lastGoal == SuperstructureGoal.L3_PIVOT ||
       lastGoal == SuperstructureGoal.L4_PIVOT
   }
