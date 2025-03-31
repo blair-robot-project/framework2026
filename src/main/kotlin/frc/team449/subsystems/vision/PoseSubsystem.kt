@@ -379,8 +379,6 @@ class PoseSubsystem(
     this.poseEstimator.resetPose(newPose)
   }
 
-
-
   override fun periodic() {
     oldPose = pose
     if (isReal) {
