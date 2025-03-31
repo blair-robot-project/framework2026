@@ -27,9 +27,9 @@ object PivotConstants {
   const val FOLLOWER_INVERTED_TO_MASTER = true
   val BRAKE_MODE = NeutralModeValue.Brake
 
-  val CLIMB_MIN_ANGLE = Degrees.of(5.0)
-  val CLIMB_READY = Degrees.of(20.0)
-  val CLIMB_VOLTAGE = Volts.of(-8.0)
+  val CLIMB_MIN_ANGLE = Degrees.of(-1.0)
+  val CLIMB_READY = Degrees.of(10.0)
+  val CLIMB_VOLTAGE = Volts.of(-10.0)
 
   const val STATOR_LIM = 80.0
 

@@ -42,7 +42,7 @@ object ElevatorConstants {
   const val CARRIAGE_MASS = 4.0
 
   const val CLIMB_HEIGHT = 0.035
-  val CLIMB_VOLTAGE = -7.0
+  val CLIMB_VOLTAGE = -3.75
   val PIVOT_READY = Inches.of(6.0)
 
   const val TOLERANCE = 0.05 // TODO(Adjust tolerance.)
@@ -52,7 +52,7 @@ object ElevatorConstants {
   const val KV = 4.5112 // theoretical 4.5112
   val KG = if (RobotBase.isReal()) 0.27951 else 0.0 // was 0.26233
 
-  const val L4_FF = 0.920
+  const val L4_FF = 0.90
 
   const val KP = 19.8532
   const val KI = 0.0

@@ -2,6 +2,7 @@ package frc.team449.subsystems.superstructure.intake
 
 import com.revrobotics.spark.SparkMax
 import dev.doglog.DogLog
+import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.wpilibj.DigitalInput
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.Command
@@ -16,6 +17,8 @@ class Intake(
   private val timer: Timer = Timer()
 ) : SubsystemBase() {
 
+  private val controller = PIDController(2.5804, 0.0, 0.010)
+
   private fun setVoltage(voltage: Double): Command {
     return runOnce {
       motor.setVoltage(voltage)
@@ -24,6 +27,14 @@ class Intake(
 
   fun intakeCoral(): Command {
     return setVoltage(IntakeConstants.CORAL_INTAKE_VOLTAGE)
+  }
+
+  fun holdCoral(): Command {
+    return runOnce {
+      controller.reset()
+      controller.setpoint = motor.encoder.position
+    }
+      .andThen(run { motor.setVoltage(controller.calculate(motor.encoder.position)) })
   }
 
 //  fun intakeAlgae(): Command {
@@ -100,6 +111,7 @@ class Intake(
 
   private fun logData() {
     DogLog.log("Intake/Motor Voltage", motor.appliedOutput * 12.0)
+    DogLog.log("Intake/Motor Position", motor.encoder.position)
     DogLog.log("Intake/Coral IR sensor", !coralInfrared.get())
 //    DogLog.log("Intake/Algae IR sensor", !algaeInfrared.get())
   }
