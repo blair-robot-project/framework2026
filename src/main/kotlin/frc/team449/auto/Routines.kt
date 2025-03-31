@@ -214,7 +214,8 @@ open class Routines(
     preloadScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT),
-        firstPickup.cmd().alongWith(GroundIntake(robot)) // replace with new ground intake command
+        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+        firstPickup.cmd().alongWith(GroundIntake(robot))
       )
     )
 
@@ -229,8 +230,9 @@ open class Routines(
     firstPresagedScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         GroundIntake(robot).alongWith(
-          secondPickup.cmd() // replace with new ground intake command
+          secondPickup.cmd()
         )
       )
     )
@@ -248,8 +250,9 @@ open class Routines(
     secondPresagedScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         GroundIntake(robot).alongWith(
-          thirdPickup.cmd() // replace with new ground intake command
+          thirdPickup.cmd()
         )
       )
     )
@@ -267,7 +270,6 @@ open class Routines(
 
     return ground3half
   }
-
 
   fun right3L4(): AutoRoutine {
     val middlesides = autoFactory.newRoutine("3 l4")
@@ -290,7 +292,8 @@ open class Routines(
     preloadScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
-        firstPickup.cmd().alongWith(GroundIntake(robot)) // replace with new ground intake command
+        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+        firstPickup.cmd().alongWith(GroundIntake(robot))
       )
     )
 
@@ -300,12 +303,13 @@ open class Routines(
         (
           firstPresagedScore.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT).beforeStarting(WaitCommand(0.5)))
           )
-      ).onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+      )//.onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
     )
 
     firstPresagedScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         GroundIntake(robot).alongWith(
           secondPickup.cmd() // replace with new ground intake command
         )
@@ -319,7 +323,7 @@ open class Routines(
           secondPresagedScore.cmd()
             .alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOT).beforeStarting(WaitCommand(0.5)))
           )
-      ).onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+      )//.onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
     )
 
     secondPresagedScore.done().onTrue(
@@ -354,6 +358,7 @@ open class Routines(
     scorePreloadB.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         pickupMiddle.cmd().alongWith(GroundIntake(robot)),
         (
           scoreMiddleA.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT).beforeStarting(WaitCommand(0.95)))
@@ -364,6 +369,7 @@ open class Routines(
     scoreMiddleA.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         pickupLeft.cmd().alongWith(GroundIntake(robot)),
         (
           scoreRightB.cmd()
@@ -416,6 +422,7 @@ open class Routines(
     scorePreloadB.done().onTrue(
       Commands.sequence(
         ScoreL2PivotSide(robot, FieldConstants.ReefSide.LEFT),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         pickupMiddle.cmd().alongWith(GroundIntake(robot)),
         (
           scoreMiddleA.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PREMOVE_PIVOT).beforeStarting(WaitCommand(0.95)))
@@ -426,8 +433,8 @@ open class Routines(
     scoreMiddleA.done().onTrue(
       Commands.sequence(
         ScoreL2PivotSide(robot, FieldConstants.ReefSide.RIGHT),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
-        )
+        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+        pickupLeft.cmd().alongWith(GroundIntake(robot)),        )
       )
 
     return twol2

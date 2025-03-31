@@ -178,6 +178,13 @@ object SuperstructureGoal {
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
+  val PRE_GROUND = SuperstructureState(
+    STOW.pivot,
+    GROUND_INTAKE.elevator,
+    STOW.wrist,
+    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+  )
+
   data class SuperstructureState(
     val pivot: Angle,
     val elevator: Distance,
