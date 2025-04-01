@@ -5,7 +5,6 @@ import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.Distance
 import frc.team449.subsystems.RobotConstants
 import frc.team449.subsystems.drive.swerve.SwerveDrive
-import frc.team449.subsystems.superstructure.wrist.WristConstants
 
 object SuperstructureGoal {
   /** TODO: All placeholder guesses, need actual values */
@@ -172,7 +171,7 @@ object SuperstructureGoal {
   )
 
   val L4_PREMOVE_PIVOTT = SuperstructureState(
-    L4_PIVOT.pivot,
+    Degrees.of(79.3),
     CLIMB_BEFORE.elevator,
     STOW.wrist,
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
