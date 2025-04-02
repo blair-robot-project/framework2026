@@ -94,7 +94,8 @@ object SuperstructureGoal {
 
   val CLIMB_BEFORE = SuperstructureState(
     Degrees.of(75.0),
-    Inches.of(6.15),
+    Inches.of(5.9),
+
     Degrees.of(-70.0),
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )

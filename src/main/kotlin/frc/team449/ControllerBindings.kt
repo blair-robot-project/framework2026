@@ -133,7 +133,8 @@ class ControllerBindings(
           robot.pivot.climbDown(),
           WaitUntilCommand { robot.pivot.climbReady() }
             .andThen(robot.elevator.climbDown())
-        )
+        ),
+        robot.climb.holdClimbWheels()
       )
     )
   }
