@@ -513,7 +513,7 @@ while testing on a real robot
         Commands.sequence(
           ScoreL2PivotSide(robot, FieldConstants.ReefSide.RIGHT),
          // robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
-          pickupRight.cmd().alongWith(GroundIntake(robot)),
+         /* pickupRight.cmd().alongWith(GroundIntake(robot)),
           robot.drive.driveStop(),
           (
             scoreLeftA.cmd().alongWith(
@@ -528,7 +528,8 @@ while testing on a real robot
     scoreLeftA.done()
       .onTrue(
         Commands.sequence(
-          ScoreL2PivotSide(robot, FieldConstants.ReefSide.LEFT),
+          ScoreL2PivotSide(robot, FieldConstants.ReefSide.LEFT),*/
+
           robot.superstructureManager.requestGoal(SuperstructureGoal.STOW),
           robot.drive.driveStop(),
 
