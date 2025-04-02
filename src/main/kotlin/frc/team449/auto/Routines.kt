@@ -190,11 +190,13 @@ open class Routines(
     return leftAutoRoutine
   }
 
-
-
-
   /**Ground Intake Autos**/
 
+/******
+   uncomment all the
+"//.onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }"
+while testing on a real robot
+   *****/
 
   // three l4 starting from a side then the back two reefs then half
   fun rightGround3L4Half(): AutoRoutine {
@@ -229,7 +231,7 @@ open class Routines(
               robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
             )
           )
-          )//.onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+          ) // .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
       )
     )
 
@@ -245,7 +247,7 @@ open class Routines(
               robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
             )
           )
-          )//.onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+          ) // .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
       )
     )
 
@@ -296,7 +298,7 @@ open class Routines(
               robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
             )
           )
-          )//.onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+          ) // .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
       )
     )
 
@@ -312,7 +314,7 @@ open class Routines(
               robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
             )
           )
-          )//.onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+          ) // .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
       )
     )
 
@@ -332,7 +334,6 @@ open class Routines(
 
     return ground3halfLeft
   }
-
 
   // back l4 and then sides 2 l4
   fun left3L4(): AutoRoutine {
@@ -365,7 +366,7 @@ open class Routines(
               robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
             )
           )
-          )//.onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+          ) // .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
       )
     )
 
@@ -381,7 +382,7 @@ open class Routines(
               robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
             )
           )
-          )//.onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+          ) // .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
       )
     )
     secondPresagedScore.done().onTrue(
@@ -423,7 +424,7 @@ open class Routines(
               robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
             )
           )
-          )//.onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+          ) // .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
       )
     )
 
@@ -439,7 +440,7 @@ open class Routines(
               robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
             )
           )
-          )//.onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+          ) // .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
       )
     )
     secondPresagedScore.done().onTrue(
@@ -452,19 +453,18 @@ open class Routines(
     return middlesides
   }
 
-
-
+  // two l4 and two l2 on the back reef branches
   fun rightGroundBack2L4l2(): AutoRoutine {
-    val back2l4l2 = autoFactory.newRoutine("2 l4 and l2")
-    val scorePreloadB = back2l4l2.trajectory("Left2L4L2/1")
-    val pickupMiddle = back2l4l2.trajectory("Left2L4L2/2")
-    val scoreMiddleA = back2l4l2.trajectory("Left2L4L2/3")
-    val pickupLeft = back2l4l2.trajectory("Left2L4L2/4")
-    val scoreRightB = back2l4l2.trajectory("Left2L4L2/5")
-    val pickupRight = back2l4l2.trajectory("Left2L4L2/6")
-    val scoreLeftA = back2l4l2.trajectory("Left2L4L2/7")
+    val rightBack2l4l2 = autoFactory.newRoutine("2 l4 and l2")
+    val scorePreloadB = rightBack2l4l2.trajectory("TwoL4L2/1r")
+    val pickupMiddle = rightBack2l4l2.trajectory("TwoL4L2/2r")
+    val scoreMiddleA = rightBack2l4l2.trajectory("TwoL4L2/3r")
+    val pickupLeft = rightBack2l4l2.trajectory("TwoL4L2/4r")
+    val scoreRightB = rightBack2l4l2.trajectory("TwoL4L2/5r")
+    val pickupRight = rightBack2l4l2.trajectory("TwoL4L2/6r")
+    val scoreLeftA = rightBack2l4l2.trajectory("TwoL4L2/7r")
 
-    back2l4l2.active().onTrue(
+    rightBack2l4l2.active().onTrue(
       Commands.sequence(
         scorePreloadB.resetOdometry().alongWith(
           robot.intake.stop()
@@ -489,7 +489,7 @@ open class Routines(
             )
           )
 
-          )//.onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+          ) // .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
       )
     )
 
@@ -506,7 +506,7 @@ open class Routines(
               robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
             )
           )
-          )//.onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+          ) // .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
       )
     )
 
@@ -523,7 +523,7 @@ open class Routines(
                 robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
               )
             )
-            )//.onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+            ) // .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
         )
       )
 
@@ -537,11 +537,93 @@ open class Routines(
         )
       )
 
-    return back2l4l2
+    return rightBack2l4l2
   }
+  fun leftGroundBack2L4l2(): AutoRoutine {
+    val leftBack2l4l2 = autoFactory.newRoutine("2 l4 and l2")
+    val scorePreloadB = leftBack2l4l2.trajectory("TwoL4L2/1l")
+    val pickupMiddle = leftBack2l4l2.trajectory("TwoL4L2/2l")
+    val scoreMiddleA = leftBack2l4l2.trajectory("TwoL4L2/3l")
+    val pickupLeft = leftBack2l4l2.trajectory("TwoL4L2/4l")
+    val scoreRightB = leftBack2l4l2.trajectory("TwoL4L2/5l")
+    val pickupRight = leftBack2l4l2.trajectory("TwoL4L2/6l")
+    val scoreLeftA = leftBack2l4l2.trajectory("TwoL4L2/7l")
 
+    leftBack2l4l2.active().onTrue(
+      Commands.sequence(
+        scorePreloadB.resetOdometry().alongWith(
+          robot.intake.stop()
+        ),
+        scorePreloadB.cmd().alongWith(
+          WaitCommand(2.0),
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+        )
+      )
+    )
 
+    scorePreloadB.done().onTrue(
+      Commands.sequence(
+        ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+        pickupMiddle.cmd().alongWith(GroundIntake(robot)),
+        robot.drive.driveStop(),
+        (
+          scoreMiddleA.cmd().alongWith(
+            WaitCommand(0.52).andThen(
+              robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+            )
+          )
 
+          ) // .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+      )
+    )
+
+    scoreMiddleA.done().onTrue(
+      Commands.sequence(
+        ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+        pickupLeft.cmd().alongWith(GroundIntake(robot)),
+        robot.drive.driveStop(),
+
+        (
+          scoreRightB.cmd().alongWith(
+            WaitCommand(0.74).andThen(
+              robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+            )
+          )
+          ) // .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+      )
+    )
+
+    scoreRightB.done()
+      .onTrue(
+        Commands.sequence(
+          ScoreL2PivotSide(robot, FieldConstants.ReefSide.RIGHT),
+          robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+          pickupRight.cmd().alongWith(GroundIntake(robot)),
+          robot.drive.driveStop(),
+          (
+            scoreLeftA.cmd().alongWith(
+              WaitCommand(0.68).andThen(
+                robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+              )
+            )
+            ) // .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+        )
+      )
+
+    scoreLeftA.done()
+      .onTrue(
+        Commands.sequence(
+          ScoreL2PivotSide(robot, FieldConstants.ReefSide.LEFT),
+          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW),
+          robot.drive.driveStop(),
+
+        )
+      )
+
+    return leftBack2l4l2
+  }
 
   fun american_routine_optimal(): AutoRoutine {
     val opt_american = autoFactory.newRoutine("opt Ameriacn")
@@ -576,16 +658,18 @@ open class Routines(
   // Elevator is cooked!
   // autoChooser that will be displayed on dashboard
   fun addOptions(autoChooser: AutoChooser) {
-    autoChooser.addRoutine("rightThreeHalfL4", this::rightGround3L4Half)
-    autoChooser.addRoutine("leftThreeHalfL4", this::leftGround3L4Half)
+    autoChooser.addRoutine("right 3.5 L4", this::rightGround3L4Half)
+    autoChooser.addRoutine("left 3.5 fL4", this::leftGround3L4Half)
 
-    autoChooser.addRoutine("BackCenterL4+L2", this::rightGroundBack2L4l2)
+    autoChooser.addRoutine("RightBackL4+L2", this::rightGroundBack2L4l2)
+    autoChooser.addRoutine("LeftBackL4+L2", this::leftGroundBack2L4l2)
+
     autoChooser.addRoutine("Left Middle&Sides", this::left3L4)
     autoChooser.addRoutine("Right Middle&Sides", this::right3L4)
 
-    autoChooser.addRoutine("RightTaxi", this::taxi)
+    autoChooser.addRoutine("Taxi", this::taxi)
     autoChooser.addRoutine("The Goat", this::americanRoutine)
-    autoChooser.addRoutine("testing", this::middleRoutine)
+    // autoChooser.addRoutine("testing", this::middleRoutine)
 
     autoChooser.addRoutine("Left Goat", this::LeftamericanRoutine)
     autoChooser.addRoutine("optimal stuff", this::american_routine_optimal)
