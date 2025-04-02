@@ -194,17 +194,20 @@ open class Routines(
 
 
   /**Ground Intake Autos**/
-  fun rightGround3L4Half(): AutoRoutine {
-    val ground3half = autoFactory.newRoutine("3 l4 and half")
-    val preloadScore = ground3half.trajectory("GroundThreeHalfRight/1")
-    val firstPickup = ground3half.trajectory("GroundThreeHalfRight/2")
-    val firstPresagedScore = ground3half.trajectory("GroundThreeHalfRight/3")
-    val secondPickup = ground3half.trajectory("GroundThreeHalfRight/4")
-    val secondPresagedScore = ground3half.trajectory("GroundThreeHalfRight/5")
-    val thirdPickup = ground3half.trajectory("GroundThreeHalfRight/6")
-    val thirdPresagedScore = ground3half.trajectory("GroundThreeHalfRight/7")
 
-    ground3half.active().onTrue(
+
+  // three l4 starting from a side then the back two reefs then half
+  fun rightGround3L4Half(): AutoRoutine {
+    val ground3halfRight = autoFactory.newRoutine("3 l4 and half")
+    val preloadScore = ground3halfRight.trajectory("GroundThreeHalf/1r")
+    val firstPickup = ground3halfRight.trajectory("GroundThreeHalf/2r")
+    val firstPresagedScore = ground3halfRight.trajectory("GroundThreeHalf/3r")
+    val secondPickup = ground3halfRight.trajectory("GroundThreeHalf/4r")
+    val secondPresagedScore = ground3halfRight.trajectory("GroundThreeHalf/5r")
+    val thirdPickup = ground3halfRight.trajectory("GroundThreeHalf/6r")
+    val thirdPresagedScore = ground3halfRight.trajectory("GroundThreeHalf/7r")
+
+    ground3halfRight.active().onTrue(
       Commands.sequence(
         preloadScore.resetOdometry().alongWith(robot.intake.stop()),
         preloadScore.cmd().alongWith(
@@ -226,7 +229,7 @@ open class Routines(
               robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
             )
           )
-          ).onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+          )//.onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
       )
     )
 
@@ -242,7 +245,7 @@ open class Routines(
               robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
             )
           )
-          ).onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+          )//.onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
       )
     )
 
@@ -262,7 +265,73 @@ open class Routines(
 
     return ground3halfRight
   }
+  fun leftGround3L4Half(): AutoRoutine {
+    val ground3halfLeft = autoFactory.newRoutine("3 l4 and half")
+    val preloadScore = ground3halfLeft.trajectory("GroundThreeHalf/1l")
+    val firstPickup = ground3halfLeft.trajectory("GroundThreeHalf/2l")
+    val firstPresagedScore = ground3halfLeft.trajectory("GroundThreeHalf/3l")
+    val secondPickup = ground3halfLeft.trajectory("GroundThreeHalf/4l")
+    val secondPresagedScore = ground3halfLeft.trajectory("GroundThreeHalf/5l")
+    val thirdPickup = ground3halfLeft.trajectory("GroundThreeHalf/6l")
 
+    ground3halfLeft.active().onTrue(
+      Commands.sequence(
+        preloadScore.resetOdometry().alongWith(robot.intake.stop()),
+        preloadScore.cmd().alongWith(
+          WaitCommand(1.5),
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+        )
+      )
+    )
+
+    preloadScore.done().onTrue(
+      Commands.sequence(
+        ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+        firstPickup.cmd().alongWith(GroundIntake(robot)),
+        robot.drive.driveStop(),
+        (
+          firstPresagedScore.cmd().alongWith(
+            WaitCommand(0.52).andThen(
+              robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+            )
+          )
+          )//.onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+      )
+    )
+
+    firstPresagedScore.done().onTrue(
+      Commands.sequence(
+        ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+        secondPickup.cmd().alongWith(GroundIntake(robot)),
+        robot.drive.driveStop(),
+        (
+          secondPresagedScore.cmd().alongWith(
+            WaitCommand(0.52).andThen(
+              robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+            )
+          )
+          )//.onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+      )
+    )
+
+    secondPresagedScore.done().onTrue(
+      Commands.sequence(
+        ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+        GroundIntake(robot).alongWith(
+          thirdPickup.cmd()
+        )
+      )
+    )
+
+    thirdPickup.done().onTrue(
+      robot.drive.driveStop()
+    )
+
+    return ground3halfLeft
+  }
 
 
   // back l4 and then sides 2 l4
@@ -354,7 +423,7 @@ open class Routines(
               robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
             )
           )
-          ).onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+          )//.onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
       )
     )
 
@@ -370,7 +439,7 @@ open class Routines(
               robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
             )
           )
-          ).onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+          )//.onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
       )
     )
     secondPresagedScore.done().onTrue(
@@ -382,7 +451,6 @@ open class Routines(
 
     return middlesides
   }
-
 
 
 
@@ -421,7 +489,7 @@ open class Routines(
             )
           )
 
-          ).onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+          )//.onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
       )
     )
 
@@ -438,7 +506,7 @@ open class Routines(
               robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
             )
           )
-          ).onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+          )//.onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
       )
     )
 
@@ -455,7 +523,7 @@ open class Routines(
                 robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
               )
             )
-            ).onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+            )//.onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
         )
       )
 
@@ -477,12 +545,12 @@ open class Routines(
 
   fun american_routine_optimal(): AutoRoutine {
     val opt_american = autoFactory.newRoutine("opt Ameriacn")
-    val l4A_traj = opt_american.trajectory("GroundThreeHalfRight/L4A (I)")
-    val l4B_traj = opt_american.trajectory("GroundThreeHalfRight/l4B")
-    val loli1_traj = opt_american.trajectory("GroundThreeHalfRight/Loli 1")
-    val loli2_traj = opt_american.trajectory("GroundThreeHalfRight/Loli 2")
-    val l3_traj = opt_american.trajectory("GroundThreeHalfRight/l3B")
-    val loli3_traj = opt_american.trajectory("GroundThreeHalfRight/Loli 3")
+    val l4A_traj = opt_american.trajectory("GroundThreeHalf/L4A (I)")
+    val l4B_traj = opt_american.trajectory("GroundThreeHalf/l4B")
+    val loli1_traj = opt_american.trajectory("GroundThreeHalf/Loli 1")
+    val loli2_traj = opt_american.trajectory("GroundThreeHalf/Loli 2")
+    val l3_traj = opt_american.trajectory("GroundThreeHalf/l3B")
+    val loli3_traj = opt_american.trajectory("GroundThreeHalf/Loli 3")
 
     opt_american.active().onTrue(
       l4A_traj.resetOdometry().andThen(l4A_traj.cmd())
@@ -509,6 +577,8 @@ open class Routines(
   // autoChooser that will be displayed on dashboard
   fun addOptions(autoChooser: AutoChooser) {
     autoChooser.addRoutine("rightThreeHalfL4", this::rightGround3L4Half)
+    autoChooser.addRoutine("leftThreeHalfL4", this::leftGround3L4Half)
+
     autoChooser.addRoutine("BackCenterL4+L2", this::rightGroundBack2L4l2)
     autoChooser.addRoutine("Left Middle&Sides", this::left3L4)
     autoChooser.addRoutine("Right Middle&Sides", this::right3L4)
