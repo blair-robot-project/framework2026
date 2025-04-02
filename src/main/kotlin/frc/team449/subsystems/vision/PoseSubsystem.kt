@@ -104,6 +104,10 @@ class PoseSubsystem(
     }
   }
 
+  fun resetOdometry(pose: Pose2d) {
+    poseEstimator.resetPose(pose)
+  }
+
   fun isPivotSide(): Boolean {
     val closestReefRadians = pose.nearest(FieldConstants.REEF_CENTER_LOCATIONS).rotation.radians
 
