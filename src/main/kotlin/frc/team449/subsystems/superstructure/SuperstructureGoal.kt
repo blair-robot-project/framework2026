@@ -178,9 +178,9 @@ object SuperstructureGoal {
   )
 
   val PRE_GROUND = SuperstructureState(
-    STOW.pivot,
+    L4_PIVOT.pivot,
     GROUND_INTAKE.elevator,
-    STOW.wrist,
+    L4_PIVOT.wrist,
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 

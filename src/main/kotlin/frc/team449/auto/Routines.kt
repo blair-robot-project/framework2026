@@ -213,8 +213,8 @@ while testing on a real robot
       Commands.sequence(
         preloadScore.resetOdometry().alongWith(robot.intake.stop()),
         preloadScore.cmd().alongWith(
-          WaitCommand(1.5),
           robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+            .withDeadline(WaitCommand(1.5))
         )
       )
     )
@@ -222,7 +222,7 @@ while testing on a real robot
     preloadScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+      //  robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         firstPickup.cmd().alongWith(GroundIntake(robot)),
         robot.drive.driveStop(),
         (
@@ -238,7 +238,7 @@ while testing on a real robot
     firstPresagedScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+       // robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         secondPickup.cmd().alongWith(GroundIntake(robot)),
         robot.drive.driveStop(),
         (
@@ -254,7 +254,7 @@ while testing on a real robot
     secondPresagedScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+     //   robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         GroundIntake(robot).alongWith(
           thirdPickup.cmd()
         )
@@ -280,8 +280,8 @@ while testing on a real robot
       Commands.sequence(
         preloadScore.resetOdometry().alongWith(robot.intake.stop()),
         preloadScore.cmd().alongWith(
-          WaitCommand(1.5),
           robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+            .withDeadline(WaitCommand(1.5))
         )
       )
     )
@@ -289,7 +289,7 @@ while testing on a real robot
     preloadScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+    //    robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         firstPickup.cmd().alongWith(GroundIntake(robot)),
         robot.drive.driveStop(),
         (
@@ -305,7 +305,7 @@ while testing on a real robot
     firstPresagedScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+       // robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         secondPickup.cmd().alongWith(GroundIntake(robot)),
         robot.drive.driveStop(),
         (
@@ -321,7 +321,7 @@ while testing on a real robot
     secondPresagedScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+     //   robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         GroundIntake(robot).alongWith(
           thirdPickup.cmd()
         )
@@ -348,8 +348,8 @@ while testing on a real robot
       Commands.sequence(
         preloadScore.resetOdometry().alongWith(robot.intake.stop()),
         preloadScore.cmd().alongWith(
-          WaitCommand(1.5),
           robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+            .withDeadline(WaitCommand(1.5))
         )
       )
     )
@@ -357,7 +357,7 @@ while testing on a real robot
     preloadScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+      //  robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         firstPickup.cmd().alongWith(GroundIntake(robot)),
         robot.drive.driveStop(),
         (
@@ -373,7 +373,7 @@ while testing on a real robot
     firstPresagedScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+       // robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         secondPickup.cmd().alongWith(GroundIntake(robot)),
         robot.drive.driveStop(),
         (
@@ -406,8 +406,8 @@ while testing on a real robot
       Commands.sequence(
         preloadScore.resetOdometry().alongWith(robot.intake.stop()),
         preloadScore.cmd().alongWith(
-          WaitCommand(1.5),
           robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+            .withDeadline(WaitCommand(1.5))
         )
       )
     )
@@ -415,7 +415,7 @@ while testing on a real robot
     preloadScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+       // robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         firstPickup.cmd().alongWith(GroundIntake(robot)),
         robot.drive.driveStop(),
         (
@@ -431,7 +431,7 @@ while testing on a real robot
     firstPresagedScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+        //robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         secondPickup.cmd().alongWith(GroundIntake(robot)),
         robot.drive.driveStop(),
         (
@@ -466,12 +466,10 @@ while testing on a real robot
 
     rightBack2l4l2.active().onTrue(
       Commands.sequence(
-        scorePreloadB.resetOdometry().alongWith(
-          robot.intake.stop()
-        ),
+        scorePreloadB.resetOdometry().alongWith(robot.intake.stop()),
         scorePreloadB.cmd().alongWith(
-          WaitCommand(2.0),
           robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+            .withDeadline(WaitCommand(1.5))
         )
       )
     )
@@ -479,7 +477,7 @@ while testing on a real robot
     scorePreloadB.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+       // robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         pickupMiddle.cmd().alongWith(GroundIntake(robot)),
         robot.drive.driveStop(),
         (
@@ -496,7 +494,7 @@ while testing on a real robot
     scoreMiddleA.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+       // robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         pickupLeft.cmd().alongWith(GroundIntake(robot)),
         robot.drive.driveStop(),
 
@@ -514,7 +512,7 @@ while testing on a real robot
       .onTrue(
         Commands.sequence(
           ScoreL2PivotSide(robot, FieldConstants.ReefSide.RIGHT),
-          robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+         // robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
           pickupRight.cmd().alongWith(GroundIntake(robot)),
           robot.drive.driveStop(),
           (
@@ -555,8 +553,8 @@ while testing on a real robot
           robot.intake.stop()
         ),
         scorePreloadB.cmd().alongWith(
-          WaitCommand(2.0),
           robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+            .withDeadline(WaitCommand(1.5))
         )
       )
     )
@@ -564,7 +562,7 @@ while testing on a real robot
     scorePreloadB.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+       // robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         pickupMiddle.cmd().alongWith(GroundIntake(robot)),
         robot.drive.driveStop(),
         (
@@ -581,7 +579,7 @@ while testing on a real robot
     scoreMiddleA.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+       // robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         pickupLeft.cmd().alongWith(GroundIntake(robot)),
         robot.drive.driveStop(),
 
@@ -599,7 +597,7 @@ while testing on a real robot
       .onTrue(
         Commands.sequence(
           ScoreL2PivotSide(robot, FieldConstants.ReefSide.RIGHT),
-          robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+         // robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
           pickupRight.cmd().alongWith(GroundIntake(robot)),
           robot.drive.driveStop(),
           (
