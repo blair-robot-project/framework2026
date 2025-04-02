@@ -164,9 +164,9 @@ object SuperstructureGoal {
   )
 
   val L4_PREMOVE_PIVOT = SuperstructureState(
-    L4_PIVOT.pivot,
-    STOW.elevator,
-    STOW.wrist,
+    Radians.of(1.0),
+    Inches.of(16.5),
+    L4_PIVOT.wrist,
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 

@@ -29,10 +29,9 @@ object PivotConstants {
 
   val CLIMB_MIN_ANGLE = Degrees.of(-1.0)
   val CLIMB_READY = Degrees.of(10.0)
-  val CLIMB_VOLTAGE = Volts.of(-10.0)
+  val CLIMB_VOLTAGE = Volts.of(-8.0)
 
   const val STATOR_LIM = 80.0
-
   const val SUPPLY_LIM = 40.0
 
   val VALUE_UPDATE_RATE: Frequency = Hertz.of(50.0)
