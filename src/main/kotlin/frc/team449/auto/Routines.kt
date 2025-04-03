@@ -487,7 +487,7 @@ while testing on a real robot
             )
           )
 
-          ) // .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+          )  .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
       )
     )
 
@@ -504,7 +504,7 @@ while testing on a real robot
               robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
             )
           )
-          ) // .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+          )  .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
       )
     )
 
