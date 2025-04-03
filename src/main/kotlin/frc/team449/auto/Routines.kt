@@ -222,7 +222,6 @@ while testing on a real robot
     preloadScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT),
-      //  robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         firstPickup.cmd().alongWith(GroundIntake(robot)),
         robot.drive.driveStop(),
         (
@@ -238,7 +237,6 @@ while testing on a real robot
     firstPresagedScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
-       // robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         secondPickup.cmd().alongWith(GroundIntake(robot)),
         robot.drive.driveStop(),
         (
@@ -254,7 +252,6 @@ while testing on a real robot
     secondPresagedScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT),
-     //   robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         GroundIntake(robot).alongWith(
           thirdPickup.cmd()
         )
@@ -289,7 +286,6 @@ while testing on a real robot
     preloadScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
-    //    robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         firstPickup.cmd().alongWith(GroundIntake(robot)),
         robot.drive.driveStop(),
         (
@@ -305,7 +301,6 @@ while testing on a real robot
     firstPresagedScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT),
-       // robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         secondPickup.cmd().alongWith(GroundIntake(robot)),
         robot.drive.driveStop(),
         (
@@ -321,7 +316,6 @@ while testing on a real robot
     secondPresagedScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
-     //   robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         GroundIntake(robot).alongWith(
           thirdPickup.cmd()
         )
@@ -334,6 +328,8 @@ while testing on a real robot
 
     return ground3halfLeft
   }
+
+
 
 
   // back l4 and then sides 2 l4
@@ -453,10 +449,6 @@ while testing on a real robot
 
     return middlesides
   }
-
-
-
-
 
   // two l4 and two l2 on the back reef branches
   fun rightGroundBack2L4l2(): AutoRoutine {
