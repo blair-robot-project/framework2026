@@ -131,20 +131,6 @@ open class Elevator(
     }
   }
 
-  fun webComManualUp(voltage: Double): Command {
-    return runOnce {
-      motor.setVoltage(voltage)
-      request.Position = positionSupplier.get()
-    }
-  }
-
-  fun webComManualDown(voltage: Double): Command {
-    return runOnce {
-      motor.setVoltage(-voltage)
-      request.Position = positionSupplier.get()
-    }
-  }
-
   fun hold(): Command {
     return this.runOnce {
       motor.setControl(
@@ -170,12 +156,20 @@ open class Elevator(
     return motor.setVoltage(voltage)
   }
 
+  fun getMotorVoltage(): Double {
+    return motor.motorVoltage.valueAsDouble
+  }
+
   fun stop(): Command {
     return this.runOnce { motor.stopMotor() }
   }
 
   fun atSetpoint(): Boolean {
     return (abs(positionSupplier.get() - request.Position) < ElevatorConstants.TOLERANCE)
+  }
+
+  fun atSetpoint(tolerance: Double): Boolean {
+    return (abs(positionSupplier.get() - request.Position) < tolerance)
   }
 
   override fun periodic() {

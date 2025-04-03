@@ -29,6 +29,7 @@ class ControllerBindings(
   private val driveController: CommandXboxController,
   private val mechanismController: CommandXboxController,
   private val characterizationController: CommandXboxController,
+  private val testController: CommandXboxController,
   private val robot: Robot
 ) {
 
@@ -60,6 +61,8 @@ class ControllerBindings(
     scoreL2()
     scoreL3()
     stopReefAlign()
+
+    autoTest()
 
     manualElevator()
     manualPivot()
@@ -376,6 +379,49 @@ class ControllerBindings(
         robot.superstructureManager.requestL4(SuperstructureGoal.L4)
       ) { robot.poseSubsystem.isPivotSide() }
         .alongWith(robot.intake.holdCoral())
+    )
+  }
+
+  private fun autoTest() {
+    testController.povCenter().onTrue(
+      ConditionalCommand(
+        InstantCommand({ robot.tester.userInput = true }),
+        PrintCommand(
+          "Instructions in recommended order:\n" +
+            "Press a to run range of motion tests for the pivot, elevator, and wrist.\n" +
+            "Press b to run individual position tests for the pivot, elevator, and wrist.\n" +
+            "Press y to run scoring position tests for L1, L2, L3, and L4.\n" +
+            "Press x to run intake tests for the motors and IR sensors.\n" +
+            "Press LT to run drive tests for the swerve modules.\n" +
+            "Press the button you just pressed to cancel tests at any point.\n" +
+            "Make sure the wheels are in the air when testing drive and that you have a coral ready for intake testing."
+        )
+      ) { robot.tester.runningTest }
+    )
+    testController.a().onTrue(
+      InstantCommand({ robot.tester.runningTest = true }).andThen(
+        robot.tester.getROMTests()
+      ).andThen(InstantCommand({ robot.tester.runningTest = false }))
+    )
+    testController.b().onTrue(
+      InstantCommand({ robot.tester.runningTest = true }).andThen(
+        robot.tester.getPositionTests()
+      ).andThen(InstantCommand({ robot.tester.runningTest = false }))
+    )
+    testController.y().onTrue(
+      InstantCommand({ robot.tester.runningTest = true }).andThen(
+        robot.tester.getScoringTests()
+      ).andThen(InstantCommand({ robot.tester.runningTest = false }))
+    )
+    testController.x().onTrue(
+      InstantCommand({ robot.tester.runningTest = true }).andThen(
+        robot.tester.getIntakeTests()
+      ).andThen(InstantCommand({ robot.tester.runningTest = false }))
+    )
+    testController.leftTrigger().onTrue(
+      InstantCommand({ robot.tester.runningTest = true }).andThen(
+        robot.tester.getDriveTests()
+      ).andThen(InstantCommand({ robot.tester.runningTest = false }))
     )
   }
 
