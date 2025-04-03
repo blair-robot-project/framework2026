@@ -463,6 +463,7 @@ while testing on a real robot
     val scoreRightB = rightBack2l4l2.trajectory("TwoL4L2/5r")
     val pickupRight = rightBack2l4l2.trajectory("TwoL4L2/6r")
     val scoreLeftA = rightBack2l4l2.trajectory("TwoL4L2/7r")
+    val end = rightBack2l4l2.trajectory("TwoL4L2/end")
 
     rightBack2l4l2.active().onTrue(
       Commands.sequence(
@@ -477,7 +478,6 @@ while testing on a real robot
     scorePreloadB.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT),
-       // robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         pickupMiddle.cmd().alongWith(GroundIntake(robot)),
         robot.drive.driveStop(),
         (
@@ -487,24 +487,23 @@ while testing on a real robot
             )
           )
 
-          )  .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+          ) // .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
       )
     )
 
     scoreMiddleA.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
-       // robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         pickupLeft.cmd().alongWith(GroundIntake(robot)),
         robot.drive.driveStop(),
 
         (
           scoreRightB.cmd().alongWith(
             WaitCommand(0.74).andThen(
-              robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+              robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PREMOVE_PIVOT)
             )
           )
-          )  .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+          ) // .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
       )
     )
 
@@ -512,13 +511,12 @@ while testing on a real robot
       .onTrue(
         Commands.sequence(
           ScoreL2PivotSide(robot, FieldConstants.ReefSide.RIGHT),
-         // robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
-         /* pickupRight.cmd().alongWith(GroundIntake(robot)),
+          pickupRight.cmd().alongWith(GroundIntake(robot)),
           robot.drive.driveStop(),
           (
             scoreLeftA.cmd().alongWith(
               WaitCommand(0.68).andThen(
-                robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+                robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PREMOVE_PIVOT)
               )
             )
             ) // .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
@@ -528,9 +526,8 @@ while testing on a real robot
     scoreLeftA.done()
       .onTrue(
         Commands.sequence(
-          ScoreL2PivotSide(robot, FieldConstants.ReefSide.LEFT),*/
-
-          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW),
+          ScoreL2PivotSide(robot, FieldConstants.ReefSide.LEFT),
+          end.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)),
           robot.drive.driveStop(),
 
         )
@@ -547,6 +544,8 @@ while testing on a real robot
     val scoreRightB = leftBack2l4l2.trajectory("TwoL4L2/5l")
     val pickupRight = leftBack2l4l2.trajectory("TwoL4L2/6l")
     val scoreLeftA = leftBack2l4l2.trajectory("TwoL4L2/7l")
+    val end = leftBack2l4l2.trajectory("TwoL4L2/end")
+
 
     leftBack2l4l2.active().onTrue(
       Commands.sequence(
@@ -563,7 +562,7 @@ while testing on a real robot
     scorePreloadB.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT),
-       // robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         pickupMiddle.cmd().alongWith(GroundIntake(robot)),
         robot.drive.driveStop(),
         (
@@ -580,7 +579,6 @@ while testing on a real robot
     scoreMiddleA.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
-       // robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         pickupLeft.cmd().alongWith(GroundIntake(robot)),
         robot.drive.driveStop(),
 
@@ -598,7 +596,6 @@ while testing on a real robot
       .onTrue(
         Commands.sequence(
           ScoreL2PivotSide(robot, FieldConstants.ReefSide.RIGHT),
-         // robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
           pickupRight.cmd().alongWith(GroundIntake(robot)),
           robot.drive.driveStop(),
           (
@@ -615,7 +612,7 @@ while testing on a real robot
       .onTrue(
         Commands.sequence(
           ScoreL2PivotSide(robot, FieldConstants.ReefSide.LEFT),
-          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW),
+          end.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)),
           robot.drive.driveStop(),
 
         )
