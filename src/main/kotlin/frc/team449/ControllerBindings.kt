@@ -50,6 +50,7 @@ class ControllerBindings(
 
 //    substationIntake() // replace with groundIntake() soon
     groundIntake()
+    groundIntakeHigh()
 //    coralBlockSubstationIntake()
     outtake()
 
@@ -123,6 +124,8 @@ class ControllerBindings(
         robot.superstructureManager.isAtPos()
     }.onTrue(
       Commands.sequence(
+        robot.elevator.manualDown()
+          .withDeadline(WaitCommand(0.350)),
         robot.superstructureManager.requestGoal(SuperstructureGoal.CLIMB_BEFORE)
           .alongWith(robot.climb.runClimbWheels()),
         robot.climb.waitUntilCurrrentSpike(),
@@ -268,6 +271,18 @@ class ControllerBindings(
   private fun groundIntake() {
     driveController.leftBumper().onTrue(
       robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE)
+        .alongWith(robot.intake.intakeCoral())
+        .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
+        .andThen(WaitCommand(0.25))
+        .andThen(robot.intake.stop())
+        .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
+        .andThen(robot.intake.holdCoral())
+    )
+  }
+
+  private fun groundIntakeHigh() {
+    driveController.povUp().onTrue(
+      robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_HIGH)
         .alongWith(robot.intake.intakeCoral())
         .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
         .andThen(WaitCommand(0.25))
