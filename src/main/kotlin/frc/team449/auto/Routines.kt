@@ -335,6 +335,7 @@ while testing on a real robot
     return ground3halfLeft
   }
 
+
   // back l4 and then sides 2 l4
   fun left3L4(): AutoRoutine {
     val middlesides = autoFactory.newRoutine("3 l4")
@@ -343,6 +344,7 @@ while testing on a real robot
     val firstPresagedScore = middlesides.trajectory("middleSides/3l")
     val secondPickup = middlesides.trajectory("middleSides/4l")
     val secondPresagedScore = middlesides.trajectory("middleSides/5l")
+    val end = middlesides.trajectory("middleSides/endl")
 
     middlesides.active().onTrue(
       Commands.sequence(
@@ -357,7 +359,6 @@ while testing on a real robot
     preloadScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT),
-      //  robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         firstPickup.cmd().alongWith(GroundIntake(robot)),
         robot.drive.driveStop(),
         (
@@ -373,7 +374,6 @@ while testing on a real robot
     firstPresagedScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
-       // robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         secondPickup.cmd().alongWith(GroundIntake(robot)),
         robot.drive.driveStop(),
         (
@@ -388,7 +388,7 @@ while testing on a real robot
     secondPresagedScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
+        end.cmd().alongWith( robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
       )
     )
 
@@ -401,6 +401,8 @@ while testing on a real robot
     val firstPresagedScore = middlesides.trajectory("middleSides/3r")
     val secondPickup = middlesides.trajectory("middleSides/4r")
     val secondPresagedScore = middlesides.trajectory("middleSides/5r")
+    val end = middlesides.trajectory("middleSides/endr")
+
 
     middlesides.active().onTrue(
       Commands.sequence(
@@ -415,7 +417,6 @@ while testing on a real robot
     preloadScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
-       // robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         firstPickup.cmd().alongWith(GroundIntake(robot)),
         robot.drive.driveStop(),
         (
@@ -431,7 +432,7 @@ while testing on a real robot
     firstPresagedScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT),
-        //robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
         secondPickup.cmd().alongWith(GroundIntake(robot)),
         robot.drive.driveStop(),
         (
@@ -446,12 +447,16 @@ while testing on a real robot
     secondPresagedScore.done().onTrue(
       Commands.sequence(
         ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
+        end.cmd().alongWith( robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
       )
     )
 
     return middlesides
   }
+
+
+
+
 
   // two l4 and two l2 on the back reef branches
   fun rightGroundBack2L4l2(): AutoRoutine {
@@ -463,7 +468,7 @@ while testing on a real robot
     val scoreRightB = rightBack2l4l2.trajectory("TwoL4L2/5r")
     val pickupRight = rightBack2l4l2.trajectory("TwoL4L2/6r")
     val scoreLeftA = rightBack2l4l2.trajectory("TwoL4L2/7r")
-    val end = rightBack2l4l2.trajectory("TwoL4L2/end")
+    val end = rightBack2l4l2.trajectory("TwoL4L2/endr")
 
     rightBack2l4l2.active().onTrue(
       Commands.sequence(
@@ -544,7 +549,7 @@ while testing on a real robot
     val scoreRightB = leftBack2l4l2.trajectory("TwoL4L2/5l")
     val pickupRight = leftBack2l4l2.trajectory("TwoL4L2/6l")
     val scoreLeftA = leftBack2l4l2.trajectory("TwoL4L2/7l")
-    val end = leftBack2l4l2.trajectory("TwoL4L2/end")
+    val end = leftBack2l4l2.trajectory("TwoL4L2/endl")
 
 
     leftBack2l4l2.active().onTrue(
