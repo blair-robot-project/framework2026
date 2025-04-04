@@ -30,6 +30,9 @@ class BITConstants {
     const val DRIVE_WAIT = 0.5 // s
     const val EXTERNAL_WAIT = 0.75 // s
 
+    const val SUPERSTRUCTURE_LATE = 1.25 //s
+    const val SUPERSTRUCTURE_COOKED = 1.7 //s
+
     val PIVOT_SETPOINT_ONE = PIVOT_HARDSTOP_FRONT - Units.degreesToRadians(2.5)
     val PIVOT_SETPOINT_TWO = (PIVOT_HARDSTOP_FRONT - PIVOT_HARDSTOP_BACK) / 2
     val PIVOT_SETPOINT_THREE = PIVOT_HARDSTOP_BACK + Units.degreesToRadians(2.5)

@@ -379,7 +379,7 @@ class ControllerBindings(
   }
 
   private fun autoTest() {
-    testController.povCenter().onTrue(
+    testController.rightTrigger().onTrue(
       ConditionalCommand(
         InstantCommand({ robot.tester.userInput = true }),
         PrintCommand(
@@ -389,7 +389,7 @@ class ControllerBindings(
             "Press y to run scoring position tests for L1, L2, L3, and L4.\n" +
             "Press x to run intake tests for the motors and IR sensors.\n" +
             "Press LT to run drive tests for the swerve modules.\n" +
-            "Press the button you just pressed to cancel tests at any point.\n" +
+            "Press RT to cancel tests at any point.\n" +
             "Make sure the wheels are in the air when testing drive and that you have a coral ready for intake testing."
         )
       ) { robot.tester.runningTest }

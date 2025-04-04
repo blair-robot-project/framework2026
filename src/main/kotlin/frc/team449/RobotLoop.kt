@@ -107,6 +107,8 @@ class RobotLoop : TimedRobot() {
     if (RobotBase.isReal()) {
       robot.wrist.startupZero()
     }
+
+    println("Press RT to see instructions for self testing!")
   }
 
   override fun driverStationConnected() {
