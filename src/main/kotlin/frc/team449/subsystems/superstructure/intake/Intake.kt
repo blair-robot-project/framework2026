@@ -17,7 +17,7 @@ class Intake(
   private val timer: Timer = Timer()
 ) : SubsystemBase() {
 
-  private val controller = PIDController(2.5804, 0.0, 0.010)
+  private val controller = PIDController(2.1778, 0.0, 0.010)
 
   private fun setVoltage(voltage: Double): Command {
     return runOnce {
