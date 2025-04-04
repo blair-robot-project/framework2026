@@ -117,6 +117,18 @@ class PoseSubsystem(
       )
   }
 
+  fun isBackReefSide(): Boolean {
+    val reefSide = pose.nearest(FieldConstants.REEF_CENTER_LOCATIONS)
+
+    return nearPose(reefSide, FieldConstants.REEF_CENTER_LOCATIONS[2]) ||
+      nearPose(reefSide, FieldConstants.REEF_CENTER_LOCATIONS[3]) ||
+      nearPose(reefSide, FieldConstants.REEF_CENTER_LOCATIONS[4])
+  }
+
+  private fun nearPose(pose1: Pose2d, pose2: Pose2d): Boolean {
+    return (pose1.translation - pose2.translation).norm < 0.01
+  }
+
   override fun periodic() {
     if (isReal) {
       this.poseEstimator.update(

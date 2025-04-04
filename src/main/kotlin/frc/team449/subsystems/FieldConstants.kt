@@ -25,7 +25,7 @@ object FieldConstants {
     val REEF_A = if (!allianceComp) {
       Pose2d(3.212, 4.168, Rotation2d(0.0))
     } else {
-      Pose2d(14.335, 3.895, Rotation2d(PI))
+      Pose2d(14.325, 3.886, Rotation2d(PI))
     }
 
     val REEF_B = if (!allianceComp) {
@@ -49,49 +49,49 @@ object FieldConstants {
     val REEF_E = if (!allianceComp) {
       Pose2d(5.020, 2.858, Rotation2d(2 * PI / 3))
     } else {
-      Pose2d(12.532, 5.191, Rotation2d(-PI / 3))
+      Pose2d(12.547, 5.187, Rotation2d(-PI / 3))
     }
 
     val REEF_F = if (!allianceComp) {
       Pose2d(5.281, 2.984, Rotation2d(2 * PI / 3))
     } else {
-      Pose2d(12.261, 5.053, Rotation2d(-PI / 3))
+      Pose2d(12.276, 5.053, Rotation2d(-PI / 3))
     }
 
     val REEF_G = if (!allianceComp) {
       Pose2d(5.763, 3.880, Rotation2d(PI))
     } else {
-      Pose2d(11.783, 4.147, Rotation2d())
+      Pose2d(11.794, 4.167, Rotation2d())
     }
 
     val REEF_H = if (!allianceComp) {
       Pose2d(5.783, 4.191, Rotation2d(PI))
     } else {
-      Pose2d(11.764, 3.860, Rotation2d())
+      Pose2d(11.769, 3.870, Rotation2d())
     }
 
     val REEF_I = if (!allianceComp) {
       Pose2d(5.260, 5.05, Rotation2d(-2 * PI / 3))
     } else {
-      Pose2d(12.301, 2.984, Rotation2d(PI / 3))
+      Pose2d(12.298, 2.998, Rotation2d(PI / 3))
     }
 
     val REEF_J = if (!allianceComp) {
       Pose2d(4.984, 5.231, Rotation2d(-2 * PI / 3))
     } else {
-      Pose2d(12.546, 2.819, Rotation2d(PI / 3))
+      Pose2d(12.545, 2.830, Rotation2d(PI / 3))
     }
 
     val REEF_K = if (!allianceComp) {
       Pose2d(3.982, 5.199, Rotation2d(-PI / 3))
     } else {
-      Pose2d(13.575, 2.850, Rotation2d(2 * PI / 3))
+      Pose2d(13.565, 2.852, Rotation2d(2 * PI / 3))
     }
 
     val REEF_L = if (!allianceComp) {
       Pose2d(3.700, 5.060, Rotation2d(-PI / 3))
     } else {
-      Pose2d(13.850, 2.980, Rotation2d(2 * PI / 3))
+      Pose2d(13.833, 2.978, Rotation2d(2 * PI / 3))
     }
 
     REEF_LOCATIONS.addAll(
@@ -208,7 +208,7 @@ object FieldConstants {
     val REEF_6 = findPose((3.695124626159668 + 3.9832611083984375) / 2, (5.231619358062744 + 5.066085338592529) / 2, -PI / 3, allianceComp)
 
     REEF_CENTER_LOCATIONS.addAll(
-      listOf(
+      arrayListOf(
         REEF_1,
         REEF_2,
         REEF_3,
