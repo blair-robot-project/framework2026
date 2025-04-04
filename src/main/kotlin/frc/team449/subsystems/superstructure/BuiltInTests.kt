@@ -57,12 +57,12 @@ class BuiltInTests(private val robot: Robot) {
 
   private fun waitUntilDriveAtTolerance(speeds: ChassisSpeeds): Command {
     return InstantCommand({
-      robot.drive.set(speeds)
+      drive.set(speeds)
       modulesAtSetpoint = false
     }).andThen(
       InstantCommand({
         var atSetpoint = true
-        robot.drive.modules.forEach {
+        drive.modules.forEach {
           val krakenModule = it as? SwerveModuleKraken // we use krakens
           val angleDistance = abs(krakenModule?.turnController?.setpoint!! - krakenModule.state.angle.radians)
           if (angleDistance >= BITConstants.DRIVE_ANGLE_TOLERANCE) {

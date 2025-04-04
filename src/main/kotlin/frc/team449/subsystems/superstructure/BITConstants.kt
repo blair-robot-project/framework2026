@@ -24,7 +24,7 @@ class BITConstants {
     val ELEVATOR_HARDSTOP_TOP = SuperstructureGoal.L4.elevator.`in`(Meters)
     val ELEVATOR_HARDSTOP_BOTTOM = Inches.of(-0.35).`in`(Meters)
 
-    const val PIVOT_WAIT = 0.25 // s
+    const val PIVOT_WAIT = 0.4 // s
     const val ELEVATOR_WAIT = 0.6 // s
     const val WRIST_WAIT = 0.45 // s
     const val DRIVE_WAIT = 0.5 // s
@@ -64,6 +64,6 @@ class BITConstants {
     const val WRIST_MEDIUM_VOLTAGE = 8.0
     const val WRIST_FAST_VOLTAGE = 10.0
 
-    val DRIVE_ANGLE_TOLERANCE = Units.degreesToRadians(5.0)
+    val DRIVE_ANGLE_TOLERANCE = Units.degreesToRadians(2.0)
   }
 }
