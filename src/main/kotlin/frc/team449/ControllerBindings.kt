@@ -227,12 +227,10 @@ class ControllerBindings(
 
   private fun autoScoreLeft() {
     driveController.leftTrigger().onTrue(
-      Commands.sequence(
+      ConditionalCommand(
+        SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.RIGHT)),
         SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT))
-          .deadlineFor(robot.light.gradient(MetersPerSecond.of(0.35), Color.kPurple, Color.kWhite)),
-        robot.light.blink(Seconds.of(0.20), Color.kWhite)
-          .withTimeout(1.5)
-      )
+      ) { robot.poseSubsystem.isBackReefSide() && robot.poseSubsystem.isPivotSide() }
     ).onFalse(
       robot.driveCommand
     )
@@ -240,12 +238,10 @@ class ControllerBindings(
 
   private fun autoScoreRight() {
     driveController.rightTrigger().onTrue(
-      Commands.sequence(
+      ConditionalCommand(
+        SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT)),
         SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.RIGHT))
-          .deadlineFor(robot.light.gradient(MetersPerSecond.of(0.35), Color.kPurple, Color.kWhite)),
-        robot.light.blink(Seconds.of(0.20), Color.kWhite)
-          .withTimeout(1.5)
-      )
+      ) { robot.poseSubsystem.isBackReefSide() && robot.poseSubsystem.isPivotSide() }
     ).onFalse(
       robot.driveCommand
     )
