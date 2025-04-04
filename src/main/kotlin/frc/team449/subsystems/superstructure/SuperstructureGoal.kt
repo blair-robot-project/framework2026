@@ -72,7 +72,7 @@ object SuperstructureGoal {
   )
 
   val GROUND_INTAKE = SuperstructureState(
-    Degrees.of(-3.5),
+    Degrees.of(-4.75),
     MIN_ELEVATOR_HEIGHT,
     Degrees.of(-85.5), // true angle is -84.87
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
