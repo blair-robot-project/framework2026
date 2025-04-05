@@ -29,6 +29,19 @@ class BuiltInTests(private val robot: Robot) {
   var userInput = false
   var runningTest = false
 
+  fun checkTime(cmd: Command): Command{
+    return FunctionalCommand(
+      {timer.restart()},
+      {}, {
+        print("Superstructure is ")
+        if (timer.get() > BITConstants.SUPERSTRUCTURE_LATE) {
+        print(if (timer.get() > BITConstants.SUPERSTRUCTURE_COOKED) "cooked, " else "late, ")
+        } else { print("fine, ") }
+        println("taking ${timer.get()} seconds to get to the requested state.")
+      }, {false}
+    ).withDeadline(cmd)
+  }
+
   fun getScoringTests(): Command {
     return Commands.sequence(
       InstantCommand({
@@ -72,6 +85,17 @@ class BuiltInTests(private val robot: Robot) {
         modulesAtSetpoint = atSetpoint
       }).until { modulesAtSetpoint }
     )
+  }
+
+  fun driveSpeeds() {
+    (ChassisSpeeds(2.0, .0, 0.5))
+    (ChassisSpeeds(-2.0, .0, -0.5))
+    (ChassisSpeeds(1.0, 1.0, .0))
+    (ChassisSpeeds(-1.0, -1.0, .0))
+    (ChassisSpeeds(.0, 2.0, -0.5))
+    (ChassisSpeeds(.0, -2.0, 0.5))
+    (ChassisSpeeds(-1.0, 1.0, .0))
+    (ChassisSpeeds(1.0, -1.0, .0))
   }
 
   fun getDriveTests(): Command {
