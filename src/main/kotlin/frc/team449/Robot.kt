@@ -8,6 +8,7 @@ import frc.team449.subsystems.RobotConstants
 import frc.team449.subsystems.drive.swerve.SwerveDrive
 import frc.team449.subsystems.drive.swerve.SwerveOrthogonalCommand
 import frc.team449.subsystems.light.Light.Companion.createLight
+import frc.team449.subsystems.superstructure.BuiltInTests
 import frc.team449.subsystems.superstructure.SuperstructureManager
 import frc.team449.subsystems.superstructure.SuperstructureManager.Companion.createSuperstructureManager
 import frc.team449.subsystems.superstructure.climb.Climb
@@ -31,6 +32,7 @@ class Robot : RobotBase() {
   val driveController: CommandXboxController = CommandXboxController(0)
   val mechController: CommandXboxController = CommandXboxController(1)
   val characController: CommandXboxController = CommandXboxController(2)
+  val testController: CommandXboxController = CommandXboxController(3)
 
   // NavX
   val ahrs: AHRS = AHRS()
@@ -45,7 +47,7 @@ class Robot : RobotBase() {
 
   val autoChooser = AutoChooser()
 
-  override val poseSubsystem: PoseSubsystem = createPoseSubsystem(ahrs, drive, field, driveController)
+  override val poseSubsystem: PoseSubsystem = createPoseSubsystem(ahrs, drive, field)
 
   override val driveCommand: SwerveOrthogonalCommand = SwerveOrthogonalCommand(drive, poseSubsystem, driveController.hid)
 
@@ -62,4 +64,6 @@ class Robot : RobotBase() {
   val superstructureManager: SuperstructureManager = createSuperstructureManager(this)
 
   val light = createLight()
+
+  val tester = BuiltInTests(this)
 }

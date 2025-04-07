@@ -49,7 +49,7 @@ class RobotLoop : TimedRobot() {
     )
   )
 
-  private val controllerBinder = ControllerBindings(robot.driveController, robot.mechController, robot.characController, robot)
+  private val controllerBinder = ControllerBindings(robot.driveController, robot.mechController, robot.characController, robot.testController, robot)
 
   override fun robotInit() {
     // Yes this should be a print statement, it's useful to know that robotInit started.
@@ -107,6 +107,8 @@ class RobotLoop : TimedRobot() {
     if (RobotBase.isReal()) {
       robot.wrist.startupZero()
     }
+
+    println("Press RT to see instructions for self testing!")
   }
 
   override fun driverStationConnected() {

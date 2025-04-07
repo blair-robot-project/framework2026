@@ -91,20 +91,6 @@ class Pivot(
     }
   }
 
-  fun webComManualDown(voltage: Double): Command {
-    return runOnce {
-      motor.setVoltage(-voltage)
-      request.Position = positionSupplier.get()
-    }
-  }
-
-  fun webComManualUp(voltage: Double): Command {
-    return runOnce {
-      motor.setVoltage(voltage)
-      request.Position = positionSupplier.get()
-    }
-  }
-
   fun hold(): Command {
     return this.runOnce {
       motor.setControl(
@@ -147,12 +133,20 @@ class Pivot(
     return motor.setVoltage(voltage)
   }
 
+  fun getMotorVoltage(): Double {
+    return motor.motorVoltage.valueAsDouble
+  }
+
   fun stop(): Command {
     return this.runOnce { motor.stopMotor() }
   }
 
   fun atSetpoint(): Boolean {
     return (abs(positionSupplier.get() - request.Position) < PivotConstants.TOLERANCE.`in`(Radians))
+  }
+
+  fun atSetpoint(tolerance: Double): Boolean {
+    return (abs(positionSupplier.get() - request.Position) < tolerance)
   }
 
   override fun periodic() {

@@ -29,6 +29,7 @@ class ControllerBindings(
   private val driveController: CommandXboxController,
   private val mechanismController: CommandXboxController,
   private val characterizationController: CommandXboxController,
+  private val testController: CommandXboxController,
   private val robot: Robot
 ) {
 
@@ -50,6 +51,7 @@ class ControllerBindings(
 
 //    substationIntake() // replace with groundIntake() soon
     groundIntake()
+    groundIntakeHigh()
 //    coralBlockSubstationIntake()
     outtake()
 
@@ -59,6 +61,8 @@ class ControllerBindings(
     scoreL2()
     scoreL3()
     stopReefAlign()
+
+    autoTest()
 
     manualElevator()
     manualPivot()
@@ -123,17 +127,20 @@ class ControllerBindings(
         robot.superstructureManager.isAtPos()
     }.onTrue(
       Commands.sequence(
+        robot.elevator.manualDown()
+          .withDeadline(WaitCommand(0.350)),
         robot.superstructureManager.requestGoal(SuperstructureGoal.CLIMB_BEFORE)
           .alongWith(robot.climb.runClimbWheels()),
-        WaitUntilCommand { robot.climb.cageDetected() },
-        WaitCommand(0.125),
+        robot.climb.waitUntilCurrrentSpike(),
+        WaitCommand(0.3276),
         Commands.parallel(
           robot.wrist.setPosition(WristConstants.CLIMB_DOWN.`in`(Radians)),
-          robot.climb.holdClimbWheels(),
+          robot.climb.stop(),
           robot.pivot.climbDown(),
           WaitUntilCommand { robot.pivot.climbReady() }
             .andThen(robot.elevator.climbDown())
-        )
+        ),
+        robot.climb.holdClimbWheels()
       )
     )
   }
@@ -141,12 +148,14 @@ class ControllerBindings(
   private fun scoreL2() {
     driveController.povLeft().onTrue(
       robot.superstructureManager.requestGoal(SuperstructureGoal.L2)
+        .alongWith(robot.intake.holdCoral())
     )
   }
 
   private fun scoreL3() {
     driveController.povRight().onTrue(
       robot.superstructureManager.requestGoal(SuperstructureGoal.L3)
+        .alongWith(robot.intake.holdCoral())
     )
   }
 
@@ -160,7 +169,7 @@ class ControllerBindings(
     driveController.povDown().onTrue(
       robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
         .deadlineFor(robot.light.progressMaskGradient(percentageElevatorPosition))
-        .alongWith(robot.intake.stop())
+        .alongWith(robot.intake.holdCoral())
         .alongWith(robot.climb.stop())
     )
   }
@@ -221,12 +230,10 @@ class ControllerBindings(
 
   private fun autoScoreLeft() {
     driveController.leftTrigger().onTrue(
-      Commands.sequence(
+      ConditionalCommand(
+        SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.RIGHT)),
         SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT))
-          .deadlineFor(robot.light.gradient(MetersPerSecond.of(0.35), Color.kPurple, Color.kWhite)),
-        robot.light.blink(Seconds.of(0.20), Color.kWhite)
-          .withTimeout(1.5)
-      )
+      ) { robot.poseSubsystem.isBackReefSide() && robot.poseSubsystem.isPivotSide() }
     ).onFalse(
       robot.driveCommand
     )
@@ -234,12 +241,10 @@ class ControllerBindings(
 
   private fun autoScoreRight() {
     driveController.rightTrigger().onTrue(
-      Commands.sequence(
+      ConditionalCommand(
+        SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT)),
         SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.RIGHT))
-          .deadlineFor(robot.light.gradient(MetersPerSecond.of(0.35), Color.kPurple, Color.kWhite)),
-        robot.light.blink(Seconds.of(0.20), Color.kWhite)
-          .withTimeout(1.5)
-      )
+      ) { robot.poseSubsystem.isBackReefSide() && robot.poseSubsystem.isPivotSide() }
     ).onFalse(
       robot.driveCommand
     )
@@ -269,9 +274,20 @@ class ControllerBindings(
         .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
         .andThen(WaitCommand(0.25))
         .andThen(robot.intake.stop())
-        .andThen(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
-        )
+        .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
+        .andThen(robot.intake.holdCoral())
+    )
+  }
+
+  private fun groundIntakeHigh() {
+    driveController.povUp().onTrue(
+      robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_HIGH)
+        .alongWith(robot.intake.intakeCoral())
+        .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
+        .andThen(WaitCommand(0.25))
+        .andThen(robot.intake.stop())
+        .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
+        .andThen(robot.intake.holdCoral())
     )
   }
 
@@ -320,6 +336,7 @@ class ControllerBindings(
   private fun score_l1() {
     Trigger { driveController.hid.aButton && robot.intake.coralDetected() }.onTrue(
       robot.superstructureManager.requestGoal(SuperstructureGoal.L1)
+        .alongWith(robot.intake.holdCoral())
     )
   }
 
@@ -329,7 +346,8 @@ class ControllerBindings(
         ConditionalCommand(
           robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT),
           robot.superstructureManager.requestGoal(SuperstructureGoal.L2)
-        ) { robot.poseSubsystem.isPivotSide() },
+        ) { robot.poseSubsystem.isPivotSide() }
+          .alongWith(robot.intake.holdCoral()),
         robot.superstructureManager.requestGoal(SuperstructureGoal.L2_ALGAE_DESCORE)
           .alongWith(robot.intake.descoreAlgae())
       ) { robot.intake.coralDetected() }
@@ -342,7 +360,8 @@ class ControllerBindings(
         ConditionalCommand(
           robot.superstructureManager.requestGoal(SuperstructureGoal.L3_PIVOT),
           robot.superstructureManager.requestGoal(SuperstructureGoal.L3)
-        ) { robot.poseSubsystem.isPivotSide() },
+        ) { robot.poseSubsystem.isPivotSide() }
+          .alongWith(robot.intake.holdCoral()),
         robot.superstructureManager.requestGoal(SuperstructureGoal.L3_ALGAE_DESCORE)
           .alongWith(robot.intake.descoreAlgae())
       ) { robot.intake.coralDetected() }
@@ -355,6 +374,50 @@ class ControllerBindings(
         robot.superstructureManager.requestL4(SuperstructureGoal.L4_PIVOT),
         robot.superstructureManager.requestL4(SuperstructureGoal.L4)
       ) { robot.poseSubsystem.isPivotSide() }
+        .alongWith(robot.intake.holdCoral())
+    )
+  }
+
+  private fun autoTest() {
+    testController.rightTrigger().onTrue(
+      ConditionalCommand(
+        InstantCommand({ robot.tester.userInput = true }),
+        PrintCommand(
+          "Instructions in recommended order:\n" +
+            "Press a to run range of motion tests for the pivot, elevator, and wrist.\n" +
+            "Press b to run individual position tests for the pivot, elevator, and wrist.\n" +
+            "Press y to run scoring position tests for L1, L2, L3, and L4.\n" +
+            "Press x to run intake tests for the motors and IR sensors.\n" +
+            "Press LT to run drive tests for the swerve modules.\n" +
+            "Press RT to cancel tests at any point.\n" +
+            "Make sure the wheels are in the air when testing drive and that you have a coral ready for intake testing."
+        )
+      ) { robot.tester.runningTest }
+    )
+    testController.a().onTrue(
+      InstantCommand({ robot.tester.runningTest = true }).andThen(
+        robot.tester.getROMTests()
+      ).andThen(InstantCommand({ robot.tester.runningTest = false }))
+    )
+    testController.b().onTrue(
+      InstantCommand({ robot.tester.runningTest = true }).andThen(
+        robot.tester.getPositionTests()
+      ).andThen(InstantCommand({ robot.tester.runningTest = false }))
+    )
+    testController.y().onTrue(
+      InstantCommand({ robot.tester.runningTest = true }).andThen(
+        robot.tester.getScoringTests()
+      ).andThen(InstantCommand({ robot.tester.runningTest = false }))
+    )
+    testController.x().onTrue(
+      InstantCommand({ robot.tester.runningTest = true }).andThen(
+        robot.tester.getIntakeTests()
+      ).andThen(InstantCommand({ robot.tester.runningTest = false }))
+    )
+    testController.leftTrigger().onTrue(
+      InstantCommand({ robot.tester.runningTest = true }).andThen(
+        robot.tester.getDriveTests()
+      ).andThen(InstantCommand({ robot.tester.runningTest = false }))
     )
   }
 

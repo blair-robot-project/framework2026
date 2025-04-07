@@ -2,15 +2,16 @@ package frc.team449.subsystems.superstructure.climb
 
 import com.revrobotics.spark.SparkMax
 import dev.doglog.DogLog
-import edu.wpi.first.wpilibj.DigitalInput
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import edu.wpi.first.wpilibj2.command.WaitCommand
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand
 import frc.team449.system.motor.createSparkMax
 
 // TODO(the entire class bru)
 class Climb(
-  private val motor: SparkMax,
-  private val sensor: DigitalInput
+  private val motor: SparkMax
+//  private val sensor: DigitalInput
 ) : SubsystemBase() {
 
   fun runClimbWheels(): Command {
@@ -25,8 +26,13 @@ class Climb(
     }
   }
 
-  fun cageDetected(): Boolean {
-    return !sensor.get()
+//  fun cageDetected(): Boolean {
+//    return !sensor.get()
+//  }
+
+  fun waitUntilCurrrentSpike(): Command {
+    return WaitCommand(0.1750)
+      .andThen(WaitUntilCommand { motor.outputCurrent > 22.5 })
   }
 
   fun stop(): Command {
@@ -41,6 +47,7 @@ class Climb(
 
   private fun logData() {
     DogLog.log("Climb/Motor Voltage", motor.appliedOutput * 12.0)
+    DogLog.log("Climb/Motor Current", motor.outputCurrent)
   }
 
   companion object {
@@ -52,9 +59,9 @@ class Climb(
         currentLimit = ClimbConstants.CURRENT_LIMIT
       )
 
-      val sensor = DigitalInput(ClimbConstants.SENSOR_DIO_PORT)
+//      val sensor = DigitalInput(ClimbConstants.SENSOR_DIO_PORT)
 
-      return Climb(motor, sensor)
+      return Climb(motor) // , sensor)
     }
   }
 }

@@ -11,7 +11,7 @@ object ClimbConstants {
   const val INVERTED = false
 
   const val RUN_VOLTAGE = 12.0
-  const val HOLD_VOLTAGE = 1.5
+  const val HOLD_VOLTAGE = 6.0
 
   const val SENSOR_DIO_PORT = 5
 }
