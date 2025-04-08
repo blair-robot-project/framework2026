@@ -131,7 +131,7 @@ class ControllerBindings(
           .withDeadline(WaitCommand(0.350)),
         robot.superstructureManager.requestGoal(SuperstructureGoal.CLIMB_BEFORE)
           .alongWith(robot.climb.runClimbWheels()),
-        robot.climb.waitUntilCurrrentSpike(),
+        robot.climb.waitUntilCurrentSpike(),
         WaitCommand(0.3276),
         Commands.parallel(
           robot.wrist.setPosition(WristConstants.CLIMB_DOWN.`in`(Radians)),
@@ -272,10 +272,13 @@ class ControllerBindings(
       robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE)
         .alongWith(robot.intake.intakeCoral())
         .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
-        .andThen(WaitCommand(0.25))
+        .andThen(WaitCommand(0.275))
         .andThen(robot.intake.stop())
         .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
-        .andThen(robot.intake.holdCoral())
+        .andThen(
+          robot.intake.holdCoralForward()
+            .until { !robot.intake.coralDetected() }
+        )
     )
   }
 
@@ -335,8 +338,10 @@ class ControllerBindings(
 
   private fun score_l1() {
     Trigger { driveController.hid.aButton && robot.intake.coralDetected() }.onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.L1)
-        .alongWith(robot.intake.holdCoral())
+      Commands.sequence(
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L1)
+          .alongWith(robot.intake.holdCoral())
+      )
     )
   }
 
@@ -344,10 +349,11 @@ class ControllerBindings(
     driveController.x().onTrue(
       ConditionalCommand(
         ConditionalCommand(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT),
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT)
+            .alongWith(robot.intake.holdCoral()),
           robot.superstructureManager.requestGoal(SuperstructureGoal.L2)
-        ) { robot.poseSubsystem.isPivotSide() }
-          .alongWith(robot.intake.holdCoral()),
+            .alongWith(robot.intake.holdCoralForward())
+        ) { robot.poseSubsystem.isPivotSide() },
         robot.superstructureManager.requestGoal(SuperstructureGoal.L2_ALGAE_DESCORE)
           .alongWith(robot.intake.descoreAlgae())
       ) { robot.intake.coralDetected() }

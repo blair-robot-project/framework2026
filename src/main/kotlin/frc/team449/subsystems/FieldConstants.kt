@@ -23,73 +23,73 @@ object FieldConstants {
     val allianceComp = alliance == Alliance.Red
 
     val REEF_A = if (!allianceComp) {
-      Pose2d(3.212, 4.168, Rotation2d(0.0))
+      Pose2d(3.225, 4.143, Rotation2d(0.0))
     } else {
       Pose2d(14.325, 3.886, Rotation2d(PI))
     }
 
     val REEF_B = if (!allianceComp) {
-      Pose2d(3.195, 3.856, Rotation2d(0.0))
+      Pose2d(3.201, 3.848, Rotation2d(0.0))
     } else {
-      Pose2d(14.335, 4.182, Rotation2d(PI))
+      Pose2d(14.349, 4.170, Rotation2d(PI))
     }
 
     val REEF_C = if (!allianceComp) {
-      Pose2d(3.739, 2.981, Rotation2d(PI / 3))
+      Pose2d(3.741, 2.991, Rotation2d(PI / 3))
     } else {
-      Pose2d(13.826, 5.05, Rotation2d(-2 * PI / 3))
+      Pose2d(13.810, 5.0547, Rotation2d(-2 * PI / 3))
     }
 
     val REEF_D = if (!allianceComp) {
-      Pose2d(4.0, 2.805, Rotation2d(PI / 3))
+      Pose2d(3.993, 2.824, Rotation2d(PI / 3))
     } else {
-      Pose2d(13.565, 5.225, Rotation2d(-2 * PI / 3))
+      Pose2d(13.556, 5.225, Rotation2d(-2 * PI / 3))
     }
 
     val REEF_E = if (!allianceComp) {
-      Pose2d(5.020, 2.858, Rotation2d(2 * PI / 3))
+      Pose2d(4.995, 2.845, Rotation2d(2 * PI / 3))
     } else {
       Pose2d(12.547, 5.187, Rotation2d(-PI / 3))
     }
 
     val REEF_F = if (!allianceComp) {
-      Pose2d(5.281, 2.984, Rotation2d(2 * PI / 3))
+      Pose2d(5.283, 2.986, Rotation2d(2 * PI / 3))
     } else {
       Pose2d(12.276, 5.053, Rotation2d(-PI / 3))
     }
 
     val REEF_G = if (!allianceComp) {
-      Pose2d(5.763, 3.880, Rotation2d(PI))
+      Pose2d(5.759, 3.871, Rotation2d(PI))
     } else {
       Pose2d(11.794, 4.167, Rotation2d())
     }
 
     val REEF_H = if (!allianceComp) {
-      Pose2d(5.783, 4.191, Rotation2d(PI))
+      Pose2d(5.781, 4.197, Rotation2d(PI))
     } else {
       Pose2d(11.769, 3.870, Rotation2d())
     }
 
     val REEF_I = if (!allianceComp) {
-      Pose2d(5.260, 5.05, Rotation2d(-2 * PI / 3))
+      Pose2d(5.244, 5.051, Rotation2d(-2 * PI / 3))
     } else {
       Pose2d(12.298, 2.998, Rotation2d(PI / 3))
     }
 
     val REEF_J = if (!allianceComp) {
-      Pose2d(4.984, 5.231, Rotation2d(-2 * PI / 3))
+      Pose2d(4.988, 5.225, Rotation2d(-2 * PI / 3))
     } else {
       Pose2d(12.545, 2.830, Rotation2d(PI / 3))
     }
 
     val REEF_K = if (!allianceComp) {
-      Pose2d(3.982, 5.199, Rotation2d(-PI / 3))
+      Pose2d(3.976, 5.187, Rotation2d(-PI / 3))
     } else {
-      Pose2d(13.565, 2.852, Rotation2d(2 * PI / 3))
+      Pose2d(13.571, 2.852, Rotation2d(2 * PI / 3))
     }
 
     val REEF_L = if (!allianceComp) {
-      Pose2d(3.700, 5.060, Rotation2d(-PI / 3))
+      Pose2d(3.682, 5.049, Rotation2d(-PI / 3))
     } else {
       Pose2d(13.833, 2.978, Rotation2d(2 * PI / 3))
     }
@@ -112,75 +112,75 @@ object FieldConstants {
     )
 
     val REEF_A_PIVOT = if (!allianceComp) {
-      Pose2d(3.212, 4.168, Rotation2d(PI))
+      Pose2d(3.270, 4.187, Rotation2d(PI))
     } else {
-      Pose2d(14.335, 3.895, Rotation2d(0.0))
+      Pose2d(14.281, 3.861, Rotation2d(0.0))
     }
 
     val REEF_B_PIVOT = if (!allianceComp) {
-      Pose2d(3.195, 3.856, Rotation2d(PI))
+      Pose2d(3.271, 3.844, Rotation2d(PI))
     } else {
-      Pose2d(14.335, 4.182, Rotation2d(0.0))
+      Pose2d(14.275, 4.193, Rotation2d(0.0))
     }
 
     val REEF_C_PIVOT = if (!allianceComp) {
-      Pose2d(3.739, 2.981, Rotation2d(-2 * PI / 3))
+      Pose2d(3.738, 3.047, Rotation2d(-2 * PI / 3))
     } else {
-      Pose2d(13.826, 5.05, Rotation2d(PI / 3))
+      Pose2d(13.805, 5.106, Rotation2d(PI / 3))
     }
 
     val REEF_D_PIVOT = if (!allianceComp) {
-      Pose2d(4.0, 2.805, Rotation2d(-2 * PI / 3))
+      Pose2d(4.032, 2.879, Rotation2d(-2 * PI / 3))
     } else {
-      Pose2d(13.565, 5.225, Rotation2d(PI / 3))
+      Pose2d(13.526, 5.158, Rotation2d(PI / 3))
     }
 
     val REEF_E_PIVOT = if (!allianceComp) {
-      Pose2d(5.020, 2.858, Rotation2d(-PI / 3))
+      Pose2d(4.95, 2.876, Rotation2d(-PI / 3))
     } else {
-      Pose2d(12.532, 5.191, Rotation2d(2 * PI / 3))
+      Pose2d(12.590, 5.16, Rotation2d(2 * PI / 3))
     }
 
     val REEF_F_PIVOT = if (!allianceComp) {
-      Pose2d(5.281, 2.984, Rotation2d(-PI / 3))
+      Pose2d(5.2537, 3.051, Rotation2d(-PI / 3))
     } else {
-      Pose2d(12.261, 5.053, Rotation2d(2 * PI / 3))
+      Pose2d(12.294, 4.985, Rotation2d(2 * PI / 3))
     }
 
     val REEF_G_PIVOT = if (!allianceComp) {
-      Pose2d(5.763, 3.880, Rotation2d())
+      Pose2d(5.71, 3.844, Rotation2d())
     } else {
-      Pose2d(11.783, 4.147, Rotation2d(PI))
+      Pose2d(11.837, 4.185, Rotation2d(PI))
     }
 
     val REEF_H_PIVOT = if (!allianceComp) {
-      Pose2d(5.783, 4.191, Rotation2d())
+      Pose2d(5.71, 4.201, Rotation2d())
     } else {
-      Pose2d(11.764, 3.860, Rotation2d(PI))
+      Pose2d(11.839, 3.853, Rotation2d(PI))
     }
 
     val REEF_I_PIVOT = if (!allianceComp) {
-      Pose2d(5.260, 5.05, Rotation2d(PI / 3))
+      Pose2d(5.244, 4.993, Rotation2d(PI / 3))
     } else {
-      Pose2d(12.301, 2.984, Rotation2d(-2 * PI / 3))
+      Pose2d(12.292, 2.994, Rotation2d(-2 * PI / 3))
     }
 
     val REEF_J_PIVOT = if (!allianceComp) {
-      Pose2d(4.984, 5.231, Rotation2d(PI / 3))
+      Pose2d(4.945, 5.165, Rotation2d(PI / 3))
     } else {
-      Pose2d(12.546, 2.819, Rotation2d(-2 * PI / 3))
+      Pose2d(12.590, 2.885, Rotation2d(-2 * PI / 3))
     }
 
     val REEF_K_PIVOT = if (!allianceComp) {
-      Pose2d(3.982, 5.199, Rotation2d(2 * PI / 3))
+      Pose2d(4.022, 5.1605, Rotation2d(2 * PI / 3))
     } else {
-      Pose2d(13.575, 2.850, Rotation2d(-PI / 3))
+      Pose2d(13.522, 2.877, Rotation2d(-PI / 3))
     }
 
     val REEF_L_PIVOT = if (!allianceComp) {
-      Pose2d(3.700, 5.060, Rotation2d(2 * PI / 3))
+      Pose2d(3.723, 4.988, Rotation2d(2 * PI / 3))
     } else {
-      Pose2d(13.850, 2.980, Rotation2d(-PI / 3))
+      Pose2d(13.814, 3.048, Rotation2d(-PI / 3))
     }
 
     REEF_LOCATIONS_PIVOT.addAll(

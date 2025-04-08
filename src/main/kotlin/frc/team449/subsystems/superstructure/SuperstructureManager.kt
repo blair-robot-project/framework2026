@@ -1,5 +1,6 @@
 package frc.team449.subsystems.superstructure
 
+import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.units.Units.Radians
 import edu.wpi.first.wpilibj2.command.Command
@@ -22,9 +23,32 @@ class SuperstructureManager(
 ) {
 
   private var lastGoal = SuperstructureGoal.STOW
+  private var prevGoal = SuperstructureGoal.STOW
   private var ready = false
 
-  fun requestGoal(goal: SuperstructureGoal.SuperstructureState): Command {
+  private fun retractL4(goal: SuperstructureGoal.SuperstructureState): Command {
+    return Commands.sequence(
+      wrist.setPosition(Units.degreesToRadians(90.0))
+        .onlyIf { prevGoal == SuperstructureGoal.L4 },
+      wrist.setPosition(Units.degreesToRadians(-70.0))
+        .onlyIf { prevGoal == SuperstructureGoal.L4_PIVOT },
+      WaitUntilCommand { wrist.positionSupplier.get() > Units.degreesToRadians(20.0) }
+        .onlyIf { prevGoal == SuperstructureGoal.L4 },
+      WaitUntilCommand { wrist.positionSupplier.get() < Units.degreesToRadians(10.0) }
+        .onlyIf { prevGoal == SuperstructureGoal.L4_PIVOT },
+      elevator.setPosition(goal.elevator.`in`(Meters)),
+      WaitUntilCommand { elevator.pivotReady() },
+      Commands.parallel(
+        pivot.setPosition(goal.pivot.`in`(Radians)),
+        wrist.setPosition(goal.wrist.`in`(Radians))
+      ),
+      WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() && elevator.atSetpoint() },
+      InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) }),
+      holdAll()
+    )
+  }
+
+  fun requestAuto(goal: SuperstructureGoal.SuperstructureState): Command {
     return InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) })
       .andThen(InstantCommand({ ready = false }))
       .andThen(InstantCommand({ lastGoal = goal }))
@@ -67,6 +91,57 @@ class SuperstructureManager(
           )
         ) { goal.elevator.`in`(Meters) >= elevator.positionSupplier.get() }
       )
+      .andThen(InstantCommand({ prevGoal = goal }))
+      .andThen(InstantCommand({ ready = true }))
+  }
+
+  fun requestGoal(goal: SuperstructureGoal.SuperstructureState): Command {
+    return InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) })
+      .andThen(InstantCommand({ ready = false }))
+      .andThen(InstantCommand({ lastGoal = goal }))
+      .andThen(
+        ConditionalCommand(
+          // if extending
+          Commands.sequence(
+            InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) }),
+            Commands.parallel(
+              wrist.setPosition(goal.wrist.`in`(Radians)),
+              pivot.setPosition(goal.pivot.`in`(Radians))
+            ),
+            WaitUntilCommand { wrist.elevatorReady() && pivot.elevatorReady() },
+            elevator.setPosition(goal.elevator.`in`(Meters)),
+//            WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() && elevator.atSetpoint() },
+            WaitUntilCommand { wrist.atSetpoint() || pivot.atSetpoint() },
+            pivot.hold().onlyIf { pivot.atSetpoint() },
+            wrist.hold().onlyIf { wrist.atSetpoint() },
+            WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() },
+            pivot.hold(),
+            wrist.hold(),
+            WaitUntilCommand { elevator.atSetpoint() },
+            holdAll()
+          ),
+
+          // if retracting
+          ConditionalCommand(
+            retractL4(goal),
+            Commands.sequence(
+              elevator.setPosition(goal.elevator.`in`(Meters)),
+              wrist.hold(),
+              wrist.setPosition(WristConstants.ELEVATOR_READY.`in`(Radians))
+                .onlyIf { goal.wrist > WristConstants.ELEVATOR_READY },
+              WaitUntilCommand { elevator.pivotReady() },
+              Commands.parallel(
+                pivot.setPosition(goal.pivot.`in`(Radians)),
+                wrist.setPosition(goal.wrist.`in`(Radians))
+              ),
+              WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() && elevator.atSetpoint() },
+              InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) }),
+              holdAll()
+            )
+          ) { prevGoal == SuperstructureGoal.L4 || prevGoal == SuperstructureGoal.L4_PIVOT }
+        ) { goal.elevator.`in`(Meters) >= elevator.positionSupplier.get() }
+      )
+      .andThen(InstantCommand({ prevGoal = goal }))
       .andThen(InstantCommand({ ready = true }))
   }
 
@@ -121,6 +196,7 @@ class SuperstructureManager(
           )
         ) { goal.elevator.`in`(Meters) >= elevator.positionSupplier.get() }
       )
+      .andThen(InstantCommand({ prevGoal = goal }))
       .andThen(InstantCommand({ ready = true }))
   }
 
