@@ -138,13 +138,13 @@ object FieldConstants {
     val REEF_E_PIVOT = if (!allianceComp) {
       Pose2d(4.95, 2.876, Rotation2d(-PI / 3))
     } else {
-      Pose2d(12.590, 5.16, Rotation2d(-PI / 3))
+      Pose2d(12.590, 5.16, Rotation2d(2 * PI / 3))
     }
 
     val REEF_F_PIVOT = if (!allianceComp) {
       Pose2d(5.2537, 3.051, Rotation2d(-PI / 3))
     } else {
-      Pose2d(12.294, 4.985, Rotation2d(-PI / 3))
+      Pose2d(12.294, 4.985, Rotation2d(2 * PI / 3))
     }
 
     val REEF_G_PIVOT = if (!allianceComp) {
