@@ -50,13 +50,12 @@ object ElevatorConstants {
   // TODO(Adjust gains.)
   val KS = if (RobotBase.isReal()) 0.0612 else 0.0
   const val KV = 4.5112 // theoretical 4.5112
-  val KG = if (RobotBase.isReal()) 0.27951 else 0.0 // was 0.26233
+  val KG = if (RobotBase.isReal()) 0.32951 else 0.0 // was 0.26233
 
-  const val L4_FF = 0.90
-
-  const val KP = 19.8532
+  const val L4_FF = 1.20
+  const val KP = 25.8532
   const val KI = 0.0
-  const val L4_KI = 7.0
+  const val L4_KI = 10.0
   const val KD = 0.00015
 
   // Motion Magic
