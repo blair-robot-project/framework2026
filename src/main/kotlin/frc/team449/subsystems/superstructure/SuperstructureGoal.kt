@@ -72,9 +72,9 @@ object SuperstructureGoal {
   )
 
   val GROUND_INTAKE = SuperstructureState(
-    Degrees.of(-3.5),
-    MIN_ELEVATOR_HEIGHT,
-    Degrees.of(-85.5), // true angle is -84.87
+    Degrees.of(-5.15),
+    Inches.of(-1.35),
+    Degrees.of(-85.0), // true angle is -84.87
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
@@ -100,8 +100,8 @@ object SuperstructureGoal {
   )
 
   val CLIMB_BEFORE = SuperstructureState(
-    Degrees.of(75.0),
-    Inches.of(5.9),
+    Degrees.of(90.0),
+    Meters.of(0.192891),
     Degrees.of(-70.0),
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
@@ -115,9 +115,9 @@ object SuperstructureGoal {
   )
 
   val L3_ALGAE_DESCORE = SuperstructureState(
-    Radians.of(0.979492),
-    Meters.of(0.310547),
-    Radians.of(-1.119629),
+    Radians.of(0.958984),
+    Meters.of(0.291016),
+    Radians.of(-1.064941),
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 

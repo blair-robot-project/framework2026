@@ -6,6 +6,7 @@ import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.wpilibj.DigitalInput
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.Command
+import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.system.motor.createSparkMax
 
@@ -17,9 +18,9 @@ class Intake(
   private val timer: Timer = Timer()
 ) : SubsystemBase() {
 
-  private val controller = PIDController(2.5804, 0.0, 0.010)
+  private val controller = PIDController(2.1778, 0.0, 0.010)
 
-  private fun setVoltage(voltage: Double): Command {
+  fun setVoltage(voltage: Double): Command {
     return runOnce {
       motor.setVoltage(voltage)
     }
@@ -34,6 +35,18 @@ class Intake(
       controller.reset()
       controller.setpoint = motor.encoder.position
     }
+      .andThen(InstantCommand({ motor.setVoltage(2.0) }))
+      .andThen(stop())
+      .andThen(run { motor.setVoltage(controller.calculate(motor.encoder.position)) })
+  }
+
+  fun holdCoralForward(): Command {
+    return runOnce {
+      controller.reset()
+      controller.setpoint = motor.encoder.position + 1.0
+    }
+      .andThen(InstantCommand({ motor.setVoltage(2.0) }))
+      .andThen(stop())
       .andThen(run { motor.setVoltage(controller.calculate(motor.encoder.position)) })
   }
 

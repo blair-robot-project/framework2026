@@ -35,7 +35,7 @@ object WristConstants {
   const val KG = 0.208
   const val KV = 0.63027
 
-  const val KP = 5.9119
+  const val KP = 12.9119
   const val KI = 0.0
   const val KD = 0.096482
 
