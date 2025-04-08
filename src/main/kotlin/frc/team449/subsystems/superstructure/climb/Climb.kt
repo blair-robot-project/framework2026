@@ -30,9 +30,9 @@ class Climb(
 //    return !sensor.get()
 //  }
 
-  fun waitUntilCurrrentSpike(): Command {
+  fun waitUntilCurrentSpike(): Command {
     return WaitCommand(0.1750)
-      .andThen(WaitUntilCommand { motor.outputCurrent > 22.5 })
+      .andThen(WaitUntilCommand { motor.outputCurrent > 55.0 })
   }
 
   fun stop(): Command {
