@@ -159,6 +159,7 @@ class RobotLoop : TimedRobot() {
     }
 
     robot.superstructureManager.requestGoal(SuperstructureGoal.STOW).schedule()
+    robot.intake.holdCoralForward().schedule()
 
     (robot.light.currentCommand ?: InstantCommand()).cancel()
 
