@@ -385,44 +385,31 @@ class ControllerBindings(
   }
 
   private fun autoTest() {
-    testController.rightTrigger().onTrue(
+    testController.a().onTrue(
       ConditionalCommand(
         InstantCommand({ robot.tester.userInput = true }),
         PrintCommand(
           "Instructions in recommended order:\n" +
-            "Press a to run range of motion tests for the pivot, elevator, and wrist.\n" +
-            "Press b to run individual position tests for the pivot, elevator, and wrist.\n" +
-            "Press y to run scoring position tests for L1, L2, L3, and L4.\n" +
-            "Press x to run intake tests for the motors and IR sensors.\n" +
-            "Press LT to run drive tests for the swerve modules.\n" +
-            "Press RT to cancel tests at any point.\n" +
-            "Make sure the wheels are in the air when testing drive and that you have a coral ready for intake testing."
+            "Press b to run range of motion tests.\n" +
+            "Press x to run scoring position tests.\n" +
+            "Press y to run individual position tests.\n" +
+          "Press a to cancel tests if needed."
         )
       ) { robot.tester.runningTest }
     )
-    testController.a().onTrue(
+    testController.b().onTrue(
       InstantCommand({ robot.tester.runningTest = true }).andThen(
         robot.tester.getROMTests()
       ).andThen(InstantCommand({ robot.tester.runningTest = false }))
     )
-    testController.b().onTrue(
+    testController.y().onTrue(
       InstantCommand({ robot.tester.runningTest = true }).andThen(
         robot.tester.getPositionTests()
       ).andThen(InstantCommand({ robot.tester.runningTest = false }))
     )
-    testController.y().onTrue(
-      InstantCommand({ robot.tester.runningTest = true }).andThen(
-        robot.tester.getScoringTests()
-      ).andThen(InstantCommand({ robot.tester.runningTest = false }))
-    )
     testController.x().onTrue(
       InstantCommand({ robot.tester.runningTest = true }).andThen(
-        robot.tester.getIntakeTests()
-      ).andThen(InstantCommand({ robot.tester.runningTest = false }))
-    )
-    testController.leftTrigger().onTrue(
-      InstantCommand({ robot.tester.runningTest = true }).andThen(
-        robot.tester.getDriveTests()
+        robot.tester.getScoringTests()
       ).andThen(InstantCommand({ robot.tester.runningTest = false }))
     )
   }
