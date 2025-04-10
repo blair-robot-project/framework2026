@@ -68,5 +68,7 @@ class BITConstants {
     const val WRIST_FAST_VOLTAGE = 10.0
 
     val DRIVE_ANGLE_TOLERANCE = Units.degreesToRadians(2.0)
+
+    const val CANCEL_BUTTON_NAME = "a"
   }
 }
