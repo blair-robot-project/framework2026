@@ -393,7 +393,7 @@ class ControllerBindings(
             "Press b to run range of motion tests.\n" +
             "Press x to run scoring position tests.\n" +
             "Press y to run individual position tests.\n" +
-          "Press a to cancel tests if needed."
+            "Press a to cancel tests if needed."
         )
       ) { robot.tester.runningTest }
     )
