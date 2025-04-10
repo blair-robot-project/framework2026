@@ -618,6 +618,98 @@ while testing on a real robot
     return leftBack2l4l2
   }
 
+
+
+
+  fun noAlignLeftBack2L4l2(): AutoRoutine {
+    val leftBack2l4l2 = autoFactory.newRoutine("2 l4 and l2")
+    val scorePreloadB = leftBack2l4l2.trajectory("noAlignTwoL4L2/1l")
+    val pickupMiddle = leftBack2l4l2.trajectory("noAlignTwoL4L2/2l")
+    val scoreMiddleA = leftBack2l4l2.trajectory("noAlignTwoL4L2/3l")
+    val pickupLeft = leftBack2l4l2.trajectory("noAlignTwoL4L2/4l")
+    val scoreRightB = leftBack2l4l2.trajectory("noAlignTwoL4L2/5l")
+    val pickupRight = leftBack2l4l2.trajectory("noAlignTwoL4L2/6l")
+    val scoreLeftA = leftBack2l4l2.trajectory("noAlignTwoL4L2/7l")
+    val end = leftBack2l4l2.trajectory("noAlignTwoL4L2/endl")
+
+
+    leftBack2l4l2.active().onTrue(
+      Commands.sequence(
+        scorePreloadB.resetOdometry().alongWith(
+          robot.intake.stop()
+        ),
+        scorePreloadB.cmd().alongWith(
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+            .withDeadline(WaitCommand(1.5))
+        )
+      )
+    )
+
+    scorePreloadB.done().onTrue(
+      Commands.sequence(
+        ScoreL4PivotSideN(robot),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+        pickupMiddle.cmd().alongWith(GroundIntake(robot)),
+        robot.drive.driveStop(),
+        (
+          scoreMiddleA.cmd().alongWith(
+            WaitCommand(0.52).andThen(
+              robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+            )
+          )
+
+          ) // .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+      )
+    )
+
+    scoreMiddleA.done().onTrue(
+      Commands.sequence(
+        ScoreL4PivotSideN(robot),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+        pickupLeft.cmd().alongWith(GroundIntake(robot)),
+        robot.drive.driveStop(),
+
+        (
+          scoreRightB.cmd().alongWith(
+            WaitCommand(0.74).andThen(
+              robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PREMOVE_PIVOT)
+            )
+          )
+          ) // .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+      )
+    )
+
+    scoreRightB.done()
+      .onTrue(
+        Commands.sequence(
+          ScoreL2PivotSideN(robot),
+          pickupRight.cmd().alongWith(GroundIntake(robot)),
+          robot.drive.driveStop(),
+          (
+            scoreLeftA.cmd().alongWith(
+              WaitCommand(0.68).andThen(
+                robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PREMOVE_PIVOT)
+              )
+            )
+            ) // .onlyIf { robot.intake.coralDetected() && RobotBase.isReal() }
+        )
+      )
+
+    scoreLeftA.done()
+      .onTrue(
+        Commands.sequence(
+          ScoreL2PivotSideN(robot),
+          end.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)),
+          robot.drive.driveStop(),
+
+          )
+      )
+
+    return leftBack2l4l2
+  }
+
+
+
   fun american_routine_optimal(): AutoRoutine {
     val opt_american = autoFactory.newRoutine("opt Ameriacn")
     val l4A_traj = opt_american.trajectory("GroundThreeHalf/L4A (I)")
@@ -657,6 +749,8 @@ while testing on a real robot
     autoChooser.addRoutine("RightBackL4+L2", this::rightGroundBack2L4l2)
     autoChooser.addRoutine("LeftBackL4+L2", this::leftGroundBack2L4l2)
 
+    autoChooser.addRoutine("No align LeftBackL4+L2", this::noAlignLeftBack2L4l2)
+
     autoChooser.addRoutine("Left Middle&Sides", this::left3L4)
     autoChooser.addRoutine("Right Middle&Sides", this::right3L4)
 
@@ -675,6 +769,19 @@ while testing on a real robot
           .andThen(PrintCommand("Actually reached auto tolerance!"))
           .withTimeout(2.0)
       )
+      .andThen(WaitCommand(0.10))
+      .andThen(robot.intake.outtakeCoralPivot())
+      .andThen(
+        WaitUntilCommand { !robot.intake.coralDetected() }
+          .onlyIf { RobotBase.isReal() }
+      )
+      .andThen(WaitCommand(0.050))
+      .andThen(robot.intake.stop())
+  }
+
+
+  fun ScoreL4PivotSideN(robot: Robot): Command {
+    return robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PIVOT)
       .andThen(WaitCommand(0.10))
       .andThen(robot.intake.outtakeCoralPivot())
       .andThen(
@@ -710,6 +817,18 @@ while testing on a real robot
           .andThen(PrintCommand("Actually reached auto tolerance!"))
           .withTimeout(2.0)
       )
+      .andThen(WaitCommand(0.10))
+      .andThen(robot.intake.outtakeCoralPivot())
+      .andThen(
+        WaitUntilCommand { !robot.intake.coralDetected() }
+          .onlyIf { RobotBase.isReal() }
+      )
+      .andThen(WaitCommand(0.050))
+      .andThen(robot.intake.stop())
+  }
+
+  fun ScoreL2PivotSideN(robot: Robot): Command {
+    return robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT)
       .andThen(WaitCommand(0.10))
       .andThen(robot.intake.outtakeCoralPivot())
       .andThen(
