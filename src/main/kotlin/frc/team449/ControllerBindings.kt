@@ -325,6 +325,7 @@ class ControllerBindings(
           .andThen(
             robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
               .deadlineFor(robot.light.progressMaskGradient(percentageElevatorPosition))
+              .onlyIf { robot.superstructureManager.lastRequestedGoal() != SuperstructureGoal.L1 }
           ),
 
         WaitCommand(0.15)
