@@ -21,4 +21,6 @@ object AutoConstants {
   const val AUTO_SPINUP_TIMEOUT_SECONDS = 2.0
 
   const val SHOOT_AWAY_WAIT = 0.25
+
+  const val INTAKE_TIMEOUT = 1.0
 }
