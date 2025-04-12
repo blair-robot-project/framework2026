@@ -8,6 +8,7 @@ import choreo.trajectory.SwerveSample
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.*
 import frc.team449.Robot
+import frc.team449.commands.Commands.ScoreL4
 import frc.team449.commands.driveAlign.SimpleReefAlign
 import frc.team449.subsystems.FieldConstants
 import frc.team449.subsystems.superstructure.SuperstructureGoal
@@ -41,154 +42,32 @@ open class Routines(
     return rTaxi
   }
   fun middleRoutine(): AutoRoutine {
-    val middleRoutine = autoFactory.newRoutine("prev/middle Test")
-    val test = middleRoutine.trajectory("prev/middle test")
+    val middleRoutine = autoFactory.newRoutine("one l4 ")
+    val forward = middleRoutine.trajectory("OneL4/1")
+    val end = middleRoutine.trajectory("OneL4/2")
 
     middleRoutine.active().onTrue(
       Commands.sequence(
-        test.resetOdometry(),
-        test.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE))
+        forward.resetOdometry(),
+        forward.cmd().alongWith(
+          WaitCommand(0.5).andThen(
+            robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)
+          )
+        )
       )
     )
 
-    test.done().onTrue(
+    forward.done().onTrue(
       Commands.sequence(
-        SimpleReefAlign(robot.drive, robot.poseSubsystem, leftOrRight = Optional.of(FieldConstants.ReefSide.LEFT), translationSpeedLim = 2.0, translationAccelLim = 1.4).alongWith(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.L4)
-        ),
-        robot.drive.driveStop(),
-        WaitCommand(0.15),
-        robot.intake.outtakeCoral().andThen(WaitUntilCommand { !robot.intake.coralDetected() }),
-        WaitCommand(0.15).onlyIf { RobotBase.isReal() },
-        robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
+        ScoreL4(robot, FieldConstants.ReefSide.LEFT),
+        end.cmd().alongWith( robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)),
+        robot.drive.driveStop()
       )
-    )
 
+    )
     return middleRoutine
   }
-  fun americanRoutine(): AutoRoutine {
-    val autoRoutine = autoFactory.newRoutine("L4 Routine")
 
-    val l4ETrajectory = autoRoutine.trajectory("ThreeL4Right/1")
-    val rightStationTrajectory = autoRoutine.trajectory("ThreeL4Right/2")
-    val l4DTrajectory = autoRoutine.trajectory("ThreeL4Right/3")
-    val rightStationTrajectory2 = autoRoutine.trajectory("ThreeL4Right/4")
-    val l4CTrajectory = autoRoutine.trajectory("ThreeL4Right/5")
-
-    autoRoutine.active().onTrue(
-      Commands.sequence(
-        l4ETrajectory.resetOdometry(),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)
-          .alongWith(
-            robot.intake.stop(),
-            l4ETrajectory.cmd()
-          )
-      ),
-    )
-
-    l4ETrajectory.done().onTrue(
-      ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT)
-        .andThen(
-          rightStationTrajectory.cmd()
-            .alongWith(PremoveIntake(robot))
-        )
-    )
-
-    rightStationTrajectory.done().onTrue(
-      Commands.sequence(
-        Intake(robot),
-        l4DTrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).beforeStarting(WaitCommand(0.5)))
-      )
-    )
-
-    l4DTrajectory.done().onTrue(
-      Commands.sequence(
-        ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
-        PremoveIntake(robot).alongWith(
-          rightStationTrajectory2.cmd()
-        )
-      )
-    )
-
-    rightStationTrajectory2.done().onTrue(
-      Commands.sequence(
-        Intake(robot),
-        l4CTrajectory.cmd().alongWith(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).beforeStarting(
-            WaitCommand(0.5)
-          )
-        )
-      )
-    )
-
-    l4CTrajectory.done().onTrue(
-      Commands.sequence(
-        ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
-      )
-    )
-
-    return autoRoutine
-  }
-  fun LeftamericanRoutine(): AutoRoutine {
-    val leftAutoRoutine = autoFactory.newRoutine("Left L4 Routine")
-
-    val l4jTrajectory = leftAutoRoutine.trajectory("ThreeL4Left/1")
-    val lefStationTrajectory = leftAutoRoutine.trajectory("ThreeL4Left/2")
-    val l4kTrajectory = leftAutoRoutine.trajectory("ThreeL4Left/3")
-    val leftStationTraj2 = leftAutoRoutine.trajectory("ThreeL4Left/4")
-    val l4LTrajectory = leftAutoRoutine.trajectory("ThreeL4Left/5")
-
-    leftAutoRoutine.active().onTrue(
-      Commands.sequence(
-        l4jTrajectory.resetOdometry(),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).alongWith(
-          robot.intake.stop(),
-          l4jTrajectory.cmd()
-        ),
-        PrintCommand("Traveling to L4")
-      )
-    )
-
-    l4jTrajectory.done().onTrue(
-      Commands.sequence(
-        ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
-        lefStationTrajectory.cmd().alongWith(PremoveIntake(robot))
-      )
-    )
-
-    lefStationTrajectory.done().onTrue(
-      Commands.sequence(
-        Intake(robot),
-        l4kTrajectory.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).beforeStarting(WaitCommand(0.5)))
-      )
-    )
-
-    l4kTrajectory.done().onTrue(
-      Commands.sequence(
-        ScoreL4PivotSide(robot, FieldConstants.ReefSide.LEFT),
-        PremoveIntake(robot).alongWith(
-          leftStationTraj2.cmd()
-        )
-      )
-    )
-
-    leftStationTraj2.done().onTrue(
-      Commands.sequence(
-        Intake(robot),
-        l4LTrajectory.cmd()
-          .alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).beforeStarting(WaitCommand(0.5)))
-      )
-    )
-
-    l4LTrajectory.done().onTrue(
-      Commands.sequence(
-        ScoreL4PivotSide(robot, FieldConstants.ReefSide.RIGHT),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
-      )
-    )
-    return leftAutoRoutine
-  }
 
   /**Ground Intake Autos**/
 
@@ -328,8 +207,6 @@ while testing on a real robot
 
     return ground3halfLeft
   }
-
-
 
 
   // back l4 and then sides 2 l4
@@ -620,7 +497,6 @@ while testing on a real robot
 
 
 
-
   fun noAlignLeftBack2L4l2(): AutoRoutine {
     val leftBack2l4l2 = autoFactory.newRoutine("2 l4 and l2")
     val scorePreloadB = leftBack2l4l2.trajectory("noAlignTwoL4L2/1l")
@@ -708,8 +584,6 @@ while testing on a real robot
     return leftBack2l4l2
   }
 
-
-
   fun american_routine_optimal(): AutoRoutine {
     val opt_american = autoFactory.newRoutine("opt Ameriacn")
     val l4A_traj = opt_american.trajectory("GroundThreeHalf/L4A (I)")
@@ -751,15 +625,11 @@ while testing on a real robot
 
     autoChooser.addRoutine("No align LeftBackL4+L2", this::noAlignLeftBack2L4l2)
 
-    autoChooser.addRoutine("Left Middle&Sides", this::left3L4)
+    autoChooser.addRoutine("Left Back&Sides l4", this::left3L4)
     autoChooser.addRoutine("Right Middle&Sides", this::right3L4)
 
     autoChooser.addRoutine("Taxi", this::taxi)
-    autoChooser.addRoutine("The Goat", this::americanRoutine)
-    // autoChooser.addRoutine("testing", this::middleRoutine)
-
-    autoChooser.addRoutine("Left Goat", this::LeftamericanRoutine)
-    autoChooser.addRoutine("optimal stuff", this::american_routine_optimal)
+     autoChooser.addRoutine("center one l4", this::middleRoutine)
   }
 
   fun ScoreL4PivotSide(robot: Robot, reefSide: FieldConstants.ReefSide): Command {
