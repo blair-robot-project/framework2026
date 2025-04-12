@@ -11,9 +11,7 @@ import frc.team449.Robot
 import frc.team449.commands.driveAlign.SimpleReefAlign
 import frc.team449.subsystems.FieldConstants
 import frc.team449.subsystems.superstructure.SuperstructureGoal
-import java.lang.reflect.Field
 import java.util.Optional
-import java.util.function.Consumer
 
 open class Routines(
   val robot: Robot
@@ -91,15 +89,15 @@ open class Routines(
   }
 
   //pass in "l" or "r" for direction
-  private fun ground4L4(direction: String, reefLevel: IntArray, attemptFourthPiece: Boolean): AutoRoutine {
-    val routine = autoFactory.newRoutine("3.5 Ground L4 ${if (direction == "r") "Right" else "Left"}")
+  private fun ground3Point5(direction: String, reefLevel: IntArray): AutoRoutine {
+    val routine = autoFactory.newRoutine("3.5 Ground 3L4 ${if (direction == "r") "Right" else "Left"}")
     val preloadScore = routine.trajectory("GroundThreeHalf/1$direction")
     val firstPickup = routine.trajectory("GroundThreeHalf/2$direction")
     val firstScore = routine.trajectory("GroundThreeHalf/3$direction")
     val secondPickup = routine.trajectory("GroundThreeHalf/4$direction")
     val secondScore = routine.trajectory("GroundThreeHalf/5$direction")
     val thirdPickup = routine.trajectory("GroundThreeHalf/6$direction")
-    val thirdScore = routine.trajectory("GroundThreeHalf/7$direction")
+    val thirdScore = routine.trajectory("GroundThreeHalf/7$direction") // give up on 4 piece
 
     val firstPickupTime = if(direction == "l") 3.0 else 2.8
     val secondPickupTime = 2.7 // same on both
@@ -107,12 +105,12 @@ open class Routines(
 
     var attemptedPieces = 0
 
-    val missNearPickup = routine.trajectory("GroundThreeHalf/failnear$direction")
-    val missNearScore = routine.trajectory("GroundThreeHalf/failnear$direction")
-    val missNearSecondPickup = routine.trajectory("GroundThreeHalf/failnear$direction")
-    val missNearSecondScore = routine.trajectory("GroundThreeHalf/failnear$direction")
-    val missMidPickup = routine.trajectory("GroundThreeHalf/failnear$direction")
-    val missMidScore = routine.trajectory("GroundThreeHalf/failnear$direction")
+    val missNearPickup = routine.trajectory("GroundThreeHalf/failnear1$direction")
+    val missNearScore = routine.trajectory("GroundThreeHalf/failnear2$direction")
+    val missNearSecondPickup = routine.trajectory("GroundThreeHalf/failnear3$direction")
+    val missNearSecondScore = routine.trajectory("GroundThreeHalf/failnear4$direction") // not possible to 3 on miss
+    val missMidPickup = routine.trajectory("GroundThreeHalf/failmid1$direction")
+    val missMidScore = routine.trajectory("GroundThreeHalf/failmid2$direction") // not possible to 2 on double miss
 
     routine.active().onTrue(
       Commands.sequence(
@@ -129,7 +127,6 @@ open class Routines(
         getScoreCommand(reefLevel[attemptedPieces]).invoke(if(direction == "r") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
         InstantCommand({ attemptedPieces++ }),
         firstPickup.cmd().alongWith(intake()).withTimeout(firstPickupTime + AutoConstants.INTAKE_TIMEOUT),
-        robot.drive.driveStop(),
         ConditionalCommand(
           Commands.sequence(
             firstScore.cmd().alongWith(
@@ -143,20 +140,14 @@ open class Routines(
           Commands.sequence(
             missNearPickup.cmd().alongWith(robot.intake.outtakeL1().withTimeout(1.0)
               .andThen(intake())).withTimeout(missNearPickupTime + AutoConstants.INTAKE_TIMEOUT),
-            robot.drive.driveStop(),
             ConditionalCommand(
               missNearScore.cmd().alongWith(
                 WaitCommand(0.52).andThen(
                   robot.superstructureManager.requestGoal(getPremoveCommand(reefLevel[attemptedPieces]))
                 )
-              ),
-              missMidPickup.cmd().alongWith(robot.intake.outtakeL1().withTimeout(1.0).andThen(intake()))
-                .andThen(missMidScore.cmd().alongWith(
-                  WaitCommand(0.52).andThen(
-                    robot.superstructureManager.requestGoal(getPremoveCommand(reefLevel[attemptedPieces]))
-                  )
-                ))
-            ) { robot.intake.coralDetected() || !RobotBase.isReal() }
+              ).andThen(robot.drive.driveStop()),
+              missMidPickup.cmd().alongWith(robot.intake.outtakeL1().withTimeout(1.0).andThen(intake())) //1.5 on double miss
+            )  { robot.intake.coralDetected() || !RobotBase.isReal() }
           )
 
         ) { robot.intake.coralDetected() || !RobotBase.isReal() }
@@ -169,20 +160,7 @@ open class Routines(
         getScoreCommand(reefLevel[attemptedPieces]).invoke(if(direction == "l") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
         InstantCommand({ attemptedPieces++ }),
         missNearSecondPickup.cmd().alongWith(intake()),
-        robot.drive.driveStop(),
-        missNearSecondScore.cmd().alongWith(
-          WaitCommand(0.52).andThen(
-            robot.superstructureManager.requestGoal(getPremoveCommand(reefLevel[attemptedPieces]))
-          )
-        ),
-        getScoreCommand(reefLevel[attemptedPieces]).invoke(if(direction == "l") FieldConstants.ReefSide.RIGHT else FieldConstants.ReefSide.LEFT),
-        InstantCommand({ attemptedPieces++ }),
       )
-    )
-
-    missMidScore.done().onTrue(
-      getScoreCommand(reefLevel[attemptedPieces]).invoke(if(direction == "l") FieldConstants.ReefSide.RIGHT else FieldConstants.ReefSide.LEFT)
-        .andThen(InstantCommand({ attemptedPieces++ }))
     )
 
     firstScore.done().onTrue(
@@ -212,25 +190,7 @@ open class Routines(
         scoreL4PivotSideDirectional(if(direction == "r") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
         intake().alongWith(thirdPickup.cmd()),
         robot.drive.driveStop(),
-        ConditionalCommand(
-          thirdScore.cmd().alongWith(
-            WaitCommand(0.52).andThen(
-              robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
-            )
-          ),
-          InstantCommand()
-        ) { attemptFourthPiece }
       )
-    )
-
-    thirdScore.done().onTrue(
-      ConditionalCommand(
-        Commands.sequence(
-          robot.drive.driveStop(),
-          scoreL4PivotSideDirectional(if(direction == "r") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
-        ),
-        InstantCommand()
-      ) { attemptFourthPiece }
     )
 
     return routine
@@ -238,11 +198,11 @@ open class Routines(
 
   // three l4 starting from a side then the back two reefs then half
   fun rightGround3L4Half(): AutoRoutine {
-    return ground4L4("r", intArrayOf(4, 4, 4, 4), false)
+    return ground3Point5("r", intArrayOf(4, 4, 4))
   }
 
   fun leftGround3L4Half(): AutoRoutine {
-    return ground4L4("l", intArrayOf(4, 4, 4, 4), false)
+    return ground3Point5("l", intArrayOf(4, 4, 4))
   }
 
   // back l4 and then sides 2 l4
