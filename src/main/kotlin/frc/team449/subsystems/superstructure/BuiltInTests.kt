@@ -15,7 +15,7 @@ import java.util.function.DoubleConsumer
 import java.util.function.DoubleSupplier
 import kotlin.math.abs
 
-class BuiltInTests(private val robot: Robot) {
+class BuiltInTests(robot: Robot) {
   private val drive = robot.drive
   private val intake = robot.intake
   private val pivot = robot.pivot
@@ -29,7 +29,7 @@ class BuiltInTests(private val robot: Robot) {
   var userInput = false
   var runningTest = false
 
-  fun checkTime(cmd: Command): Command {
+  private fun checkTime(cmd: Command, state: String): Command {
     return FunctionalCommand(
       { timer.restart() },
       {},
@@ -38,35 +38,47 @@ class BuiltInTests(private val robot: Robot) {
         if (timer.get() > BITConstants.SUPERSTRUCTURE_LATE) {
           print(if (timer.get() > BITConstants.SUPERSTRUCTURE_COOKED) "cooked, " else "late, ")
         } else { print("fine, ") }
-        println("taking ${timer.get()} seconds to get to the requested state.")
+        println("taking ${timer.get()} seconds to get to $state.")
       },
       { false }
-    ).withDeadline(cmd)
+    ).withDeadline(cmd).andThen(WaitCommand(0.5))
+      .andThen(manager.requestGoal(SuperstructureGoal.STOW)).andThen(WaitCommand(BITConstants.EXTERNAL_WAIT))
   }
 
   fun getScoringTests(): Command {
     return Commands.sequence(
-      InstantCommand({
-        userInput = false
-      }),
-      PrintCommand("Running scoring position tests. Press d-pad at any time to cancel."),
-      manager.requestGoal(SuperstructureGoal.L2),
-      WaitCommand(BITConstants.EXTERNAL_WAIT),
-      manager.requestGoal(SuperstructureGoal.L4),
-      WaitCommand(BITConstants.EXTERNAL_WAIT),
-      manager.requestGoal(SuperstructureGoal.L1),
-      WaitCommand(BITConstants.EXTERNAL_WAIT),
-      manager.requestGoal(SuperstructureGoal.L3),
-      WaitCommand(BITConstants.EXTERNAL_WAIT),
-      manager.requestGoal(SuperstructureGoal.STOW)
+      InstantCommand({ userInput = false }),
+      PrintCommand("Running scoring position tests. Press ${BITConstants.CANCEL_BUTTON_NAME} at any time to cancel."),
+      checkTime(manager.requestGoal(SuperstructureGoal.L1), "L1"),
+      checkTime(manager.requestGoal(SuperstructureGoal.L2), "L2"),
+      checkTime(manager.requestGoal(SuperstructureGoal.L3), "L3"),
+      checkTime(manager.requestGoal(SuperstructureGoal.L4), "L4"),
+      checkTime(manager.requestGoal(SuperstructureGoal.L2_ALGAE_DESCORE), "L2 descore"),
+      checkTime(manager.requestGoal(SuperstructureGoal.L3_ALGAE_DESCORE), "L3 descore"),
+      checkTime(manager.requestGoal(SuperstructureGoal.GROUND_INTAKE), "Ground Intake"),
+      PrintCommand("Turn Robot 180 to test pivot side. Press a once the robot is turned"),
     ).onlyWhile { !userInput }.finallyDo(
       Runnable {
         if (userInput) {
           println("Scoring Position Tests canceled.")
-        } else {
-          println("Scoring Position Tests done.")
         }
       }
+    ).andThen(WaitUntilCommand { userInput }).andThen(InstantCommand({ userInput = false })).andThen(
+      Commands.sequence(
+        PrintCommand("Running Pivot Side Scoring"),
+        checkTime(manager.requestGoal(SuperstructureGoal.L2_PIVOT), "L2 Pivot"),
+        checkTime(manager.requestGoal(SuperstructureGoal.L3_PIVOT), "L3 Pivot"),
+        checkTime(manager.requestGoal(SuperstructureGoal.L4_PIVOT), "L4 Pivot"),
+        getDriveTests()
+      ).onlyWhile { !userInput }.finallyDo(
+        Runnable {
+          if (userInput) {
+            println("Scoring Position Tests canceled.")
+          } else {
+            println("Scoring Tests finished.")
+          }
+        }
+      )
     )
   }
 
@@ -86,32 +98,21 @@ class BuiltInTests(private val robot: Robot) {
         }
         modulesAtSetpoint = atSetpoint
       }).until { modulesAtSetpoint }
-    )
+    ).andThen(WaitCommand(BITConstants.DRIVE_WAIT))
   }
 
-  fun driveSpeeds() {
-    (ChassisSpeeds(2.0, .0, 0.5))
-    (ChassisSpeeds(-2.0, .0, -0.5))
-    (ChassisSpeeds(1.0, 1.0, .0))
-    (ChassisSpeeds(-1.0, -1.0, .0))
-    (ChassisSpeeds(.0, 2.0, -0.5))
-    (ChassisSpeeds(.0, -2.0, 0.5))
-    (ChassisSpeeds(-1.0, 1.0, .0))
-    (ChassisSpeeds(1.0, -1.0, .0))
-  }
-
-  fun getDriveTests(): Command {
+  private fun getDriveTests(): Command {
     return Commands.sequence(
-      InstantCommand({ userInput = false }),
-      PrintCommand("Running drive tests. Make sure the wheels are in the air. Press d-pad at any time to cancel."),
-      waitUntilDriveAtTolerance(ChassisSpeeds(2.0, 0.0, 0.0)),
-      WaitCommand(BITConstants.DRIVE_WAIT),
-      waitUntilDriveAtTolerance(ChassisSpeeds(0.0, 2.0, 0.0)),
-      WaitCommand(BITConstants.DRIVE_WAIT),
-      waitUntilDriveAtTolerance(ChassisSpeeds(1.0, 1.0, 0.0)),
-      WaitCommand(BITConstants.DRIVE_WAIT),
-      waitUntilDriveAtTolerance(ChassisSpeeds(-1.0, -1.0, 0.0)),
-      WaitCommand(BITConstants.DRIVE_WAIT),
+      PrintCommand("Running drive tests. Make sure the wheels are in the air."),
+      waitUntilDriveAtTolerance(ChassisSpeeds(4.0, .0, 0.5)),
+      waitUntilDriveAtTolerance(ChassisSpeeds(-4.0, .0, -0.5)),
+      waitUntilDriveAtTolerance(ChassisSpeeds(2.0, 2.0, .0)),
+      waitUntilDriveAtTolerance(ChassisSpeeds(-2.0, -2.0, .0)),
+      waitUntilDriveAtTolerance(ChassisSpeeds(.0, 4.0, -0.5)),
+      waitUntilDriveAtTolerance(ChassisSpeeds(.0, -4.0, 0.5)),
+      waitUntilDriveAtTolerance(ChassisSpeeds(-2.0, 2.0, .0)),
+      waitUntilDriveAtTolerance(ChassisSpeeds(2.0, -2.0, .0)),
+      waitUntilDriveAtTolerance(ChassisSpeeds(.0, .0, .0))
     ).onlyWhile { !userInput }.finallyDo(
       Runnable {
         if (userInput) {
@@ -123,16 +124,36 @@ class BuiltInTests(private val robot: Robot) {
     )
   }
 
-  fun getIntakeTests(): Command {
+  private fun getIntakeTests(): Command {
     return Commands.sequence(
-      InstantCommand({ userInput = false }),
-      PrintCommand("Running intake tests. Grab a coral. Press d-pad at any time to cancel."),
-      WaitCommand(0.5),
+      PrintCommand("Running intake tests. Grab a coral."),
+      WaitCommand(1.0),
       intake.intakeCoral(),
       PrintCommand("Please feed the robot a coral."),
-      WaitUntilCommand { intake.coralDetected() },
-      WaitCommand(1.0),
-      intake.stop()
+      WaitUntilCommand { intake.coralDetected() }.withDeadline(WaitCommand(4.0)).finallyDo(
+        Runnable {
+          if (!intake.coralDetected()) {
+            println("ir sensor is not detecting the coral!")
+          } else {
+            println("ir sensor detected coral intake")
+          }
+        }
+      ),
+      PrintCommand("Going to outtake coral. Please step back."),
+      WaitCommand(1.5),
+      intake.stop(),
+      intake.outtakeL1(),
+      WaitUntilCommand { intake.coralNotDetected() }.withDeadline(WaitCommand(2.0)).finallyDo(
+        Runnable {
+          if (intake.coralDetected()) {
+            println("ir sensor is not detecting the coral leaving the robot!")
+          } else {
+            println("ir sensor detected coral outtake")
+          }
+        }
+      ),
+      intake.stop(),
+      manager.requestGoal(SuperstructureGoal.STOW)
     ).onlyWhile { !userInput }.finallyDo(
       Runnable {
         if (userInput) {
@@ -204,7 +225,7 @@ class BuiltInTests(private val robot: Robot) {
   fun getPositionTests(): Command {
     val pivotTests = SequentialCommandGroup(
       InstantCommand({ userInput = false }),
-      PrintCommand("Running individual position tests. Press d-pad at any time to cancel.")
+      PrintCommand("Running individual position tests. Press ${BITConstants.CANCEL_BUTTON_NAME} at any time to cancel.")
     )
     listOf(
       BITConstants.PIVOT_SETPOINT_ONE,
@@ -302,7 +323,7 @@ class BuiltInTests(private val robot: Robot) {
   fun getROMTests(): Command {
     val cmd = SequentialCommandGroup(
       InstantCommand({ userInput = false }),
-      PrintCommand("Running Range of Motion Tests. Press d-pad at any time to cancel.")
+      PrintCommand("Running Range of Motion Tests. Press ${BITConstants.CANCEL_BUTTON_NAME} at any time to cancel.")
     )
     listOf(
       BITConstants.PIVOT_SLOW_VOLTAGE,
@@ -352,6 +373,7 @@ class BuiltInTests(private val robot: Robot) {
         )
       )
     }
+    cmd.addCommands(manager.requestGoal(SuperstructureGoal.STOW))
     return cmd.onlyWhile { !userInput }.finallyDo(
       Runnable {
         if (userInput) {
