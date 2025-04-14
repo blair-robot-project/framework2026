@@ -84,7 +84,7 @@ open class Routines(
     return when (reefLevel) {
       2 -> SuperstructureGoal.L2_PREMOVE_PIVOT
       3 -> SuperstructureGoal.L3_PREMOVE_PIVOT
-      4 -> SuperstructureGoal.L4_PREMOVE_PIVOTT
+      4 -> SuperstructureGoal.L4_PREMOVE_PIVOT
       else -> SuperstructureGoal.L2_PREMOVE_PIVOT
     }
   }
@@ -212,7 +212,7 @@ open class Routines(
       Commands.sequence(
         preloadScore.resetOdometry().alongWith(robot.intake.stop()),
         preloadScore.cmd().alongWith(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOT)
             .withDeadline(WaitCommand(1.5))
         )
       )
@@ -225,7 +225,7 @@ open class Routines(
         robot.drive.driveStop(),
         firstPresagedScore.cmd().alongWith(
           WaitCommand(0.52).andThen(
-            robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+            robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOT)
           )
         )
       )
@@ -238,7 +238,7 @@ open class Routines(
         robot.drive.driveStop(),
         secondPresagedScore.cmd().alongWith(
           WaitCommand(0.52).andThen(
-            robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+            robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOT)
           )
         )
       )
@@ -386,7 +386,7 @@ open class Routines(
           robot.intake.stop()
         ),
         scorePreload.cmd().alongWith(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOT)
             .withDeadline(WaitCommand(1.5))
         )
       )
@@ -399,7 +399,7 @@ open class Routines(
         robot.drive.driveStop(),
         scoreSecond.cmd().alongWith(
           WaitCommand(0.52).andThen(
-            robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+            robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOT)
           )
         )
       )
@@ -461,7 +461,7 @@ open class Routines(
           robot.intake.stop()
         ),
         scorePreload.cmd().alongWith(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOT)
             .withDeadline(WaitCommand(1.5))
         )
       )
@@ -475,7 +475,7 @@ open class Routines(
         robot.drive.driveStop(),
         scoreSecond.cmd().alongWith(
           WaitCommand(0.52).andThen(
-            robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+            robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOT)
           )
         )
       )
@@ -519,38 +519,6 @@ open class Routines(
       )
 
     return rightBack2l4l2
-  }
-
-
-
-  fun americanRoutineOptimal(): AutoRoutine {
-    val optimalAmerican = autoFactory.newRoutine("opt Ameriacn")
-    val l4ATraj = optimalAmerican.trajectory("GroundThreeHalf/L4A (I)")
-    val l4BTraj = optimalAmerican.trajectory("GroundThreeHalf/l4B")
-    val loli1Traj = optimalAmerican.trajectory("GroundThreeHalf/Loli 1")
-    val loli2Traj = optimalAmerican.trajectory("GroundThreeHalf/Loli 2")
-    val l3Traj = optimalAmerican.trajectory("GroundThreeHalf/l3B")
-    val loli3Traj = optimalAmerican.trajectory("GroundThreeHalf/Loli 3")
-
-    optimalAmerican.active().onTrue(
-      l4ATraj.resetOdometry().andThen(l4ATraj.cmd())
-
-    )
-
-    l4ATraj.done().onTrue(
-      Commands.sequence(
-        scoreL4PivotSideDirectional(FieldConstants.ReefSide.LEFT),
-        loli1Traj.cmd().alongWith(intake()),
-        l4BTraj.cmd(),
-        scoreL4PivotSideDirectional(FieldConstants.ReefSide.RIGHT),
-        intake().alongWith(loli2Traj.cmd()),
-        l3Traj.cmd().andThen(scoreL2PivotDirectional(FieldConstants.ReefSide.RIGHT)),
-        loli3Traj.cmd().alongWith(intake())
-
-      )
-    )
-
-    return optimalAmerican
   }
 
   // Elevator is cooked!
