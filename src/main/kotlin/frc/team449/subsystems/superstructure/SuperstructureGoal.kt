@@ -177,7 +177,7 @@ object SuperstructureGoal {
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
-  //only for after pivot side l4
+  // only for after pivot side l4
   val PRE_GROUND = SuperstructureState(
     L4_PIVOT.pivot,
     GROUND_INTAKE.elevator,
