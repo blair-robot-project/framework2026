@@ -29,7 +29,7 @@ object ElevatorConstants {
   val BRAKE_MODE = NeutralModeValue.Brake
 
   const val STATOR_LIM = 90.0
-  const val SUPPLY_LIM = 50.0
+  const val SUPPLY_LIM = 60.0
 
   val VALUE_UPDATE_RATE: Frequency = Hertz.of(50.0)
   val REQUEST_UPDATE_RATE: Frequency = Hertz.of(100.0)
