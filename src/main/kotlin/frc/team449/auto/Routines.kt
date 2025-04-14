@@ -370,35 +370,34 @@ open class Routines(
   }
 
   fun noAlignLeftBack2L4l2(): AutoRoutine {
-    val leftBack2l4l2 = autoFactory.newRoutine("2 l4 and l2")
-    val scorePreloadB = leftBack2l4l2.trajectory("noAlignTwoL4L2/1l")
-    val pickupMiddle = leftBack2l4l2.trajectory("noAlignTwoL4L2/2l")
-    val scoreMiddleA = leftBack2l4l2.trajectory("noAlignTwoL4L2/3l")
-    val pickupLeft = leftBack2l4l2.trajectory("noAlignTwoL4L2/4l")
-    val scoreRightB = leftBack2l4l2.trajectory("noAlignTwoL4L2/5l")
-    val pickupRight = leftBack2l4l2.trajectory("noAlignTwoL4L2/6l")
-    val scoreLeftA = leftBack2l4l2.trajectory("noAlignTwoL4L2/7l")
+    val leftBack2l4l2 = autoFactory.newRoutine("left 2 l4 and l2")
+    val scorePreload = leftBack2l4l2.trajectory("noAlignTwoL4L2/1l")
+    val firstPickup = leftBack2l4l2.trajectory("noAlignTwoL4L2/2l")
+    val scoreSecond = leftBack2l4l2.trajectory("noAlignTwoL4L2/3l")
+    val secondPickup = leftBack2l4l2.trajectory("noAlignTwoL4L2/4l")
+    val scoreThird = leftBack2l4l2.trajectory("noAlignTwoL4L2/5l")
+    val thirdPickup = leftBack2l4l2.trajectory("noAlignTwoL4L2/6l")
+    val scoreFourth = leftBack2l4l2.trajectory("noAlignTwoL4L2/7l") //💀
     val end = leftBack2l4l2.trajectory("noAlignTwoL4L2/endl")
 
     leftBack2l4l2.active().onTrue(
       Commands.sequence(
-        scorePreloadB.resetOdometry().alongWith(
+        scorePreload.resetOdometry().alongWith(
           robot.intake.stop()
         ),
-        scorePreloadB.cmd().alongWith(
+        scorePreload.cmd().alongWith(
           robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
             .withDeadline(WaitCommand(1.5))
         )
       )
     )
 
-    scorePreloadB.done().onTrue(
+    scorePreload.done().onTrue(
       Commands.sequence(
         scoreL4PivotSide(),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
-        pickupMiddle.cmd().alongWith(intake()),
+        firstPickup.cmd().alongWith(intake()),
         robot.drive.driveStop(),
-        scoreMiddleA.cmd().alongWith(
+        scoreSecond.cmd().alongWith(
           WaitCommand(0.52).andThen(
             robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
           )
@@ -406,13 +405,12 @@ open class Routines(
       )
     )
 
-    scoreMiddleA.done().onTrue(
+    scoreSecond.done().onTrue(
       Commands.sequence(
         scoreL4PivotSide(),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
-        pickupLeft.cmd().alongWith(intake()),
+        secondPickup.cmd().alongWith(intake()),
         robot.drive.driveStop(),
-        scoreRightB.cmd().alongWith(
+        scoreThird.cmd().alongWith(
           WaitCommand(0.74).andThen(
             robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PREMOVE_PIVOT)
           )
@@ -420,13 +418,13 @@ open class Routines(
       )
     )
 
-    scoreRightB.done()
+    scoreThird.done()
       .onTrue(
         Commands.sequence(
           scoreL2PivotSide(),
-          pickupRight.cmd().alongWith(intake()),
+          thirdPickup.cmd().alongWith(intake()),
           robot.drive.driveStop(),
-          scoreLeftA.cmd().alongWith(
+          scoreFourth.cmd().alongWith(
             WaitCommand(0.68).andThen(
               robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PREMOVE_PIVOT)
             )
@@ -434,7 +432,7 @@ open class Routines(
         )
       )
 
-    scoreLeftA.done()
+    scoreFourth.done()
       .onTrue(
         Commands.sequence(
           scoreL2PivotSide(),
@@ -446,6 +444,84 @@ open class Routines(
 
     return leftBack2l4l2
   }
+  fun noAlignRightBack2L4l2(): AutoRoutine {
+    val rightBack2l4l2 = autoFactory.newRoutine(" right 2 l4 and l2")
+    val scorePreload = rightBack2l4l2.trajectory("noAlignTwoL4L2/1r")
+    val firstPickup = rightBack2l4l2.trajectory("noAlignTwoL4L2/2r")
+    val scoreSecond = rightBack2l4l2.trajectory("noAlignTwoL4L2/3r")
+    val secondPickup = rightBack2l4l2.trajectory("noAlignTwoL4L2/4r")
+    val scoreThird = rightBack2l4l2.trajectory("noAlignTwoL4L2/5r")
+    val thirdPickup = rightBack2l4l2.trajectory("noAlignTwoL4L2/6r")
+    val scoreFourth = rightBack2l4l2.trajectory("noAlignTwoL4L2/7r") //💀
+    val end = rightBack2l4l2.trajectory("noAlignTwoL4L2/endr")
+
+    rightBack2l4l2.active().onTrue(
+      Commands.sequence(
+        scorePreload.resetOdometry().alongWith(
+          robot.intake.stop()
+        ),
+        scorePreload.cmd().alongWith(
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+            .withDeadline(WaitCommand(1.5))
+        )
+      )
+    )
+
+    scorePreload.done().onTrue(
+      Commands.sequence(
+        scoreL4PivotSide(),
+//        robot.superstructureManager.requestGoal(SuperstructureGoal.PRE_GROUND),
+        firstPickup.cmd().alongWith(intake()),
+        robot.drive.driveStop(),
+        scoreSecond.cmd().alongWith(
+          WaitCommand(0.52).andThen(
+            robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOTT)
+          )
+        )
+      )
+    )
+
+    scoreSecond.done().onTrue(
+      Commands.sequence(
+        scoreL4PivotSide(),
+        secondPickup.cmd().alongWith(intake()),
+        robot.drive.driveStop(),
+        scoreThird.cmd().alongWith(
+          WaitCommand(0.74).andThen(
+            robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PREMOVE_PIVOT)
+          )
+        )
+      )
+    )
+
+    scoreThird.done()
+      .onTrue(
+        Commands.sequence(
+          scoreL2PivotSide(),
+          thirdPickup.cmd().alongWith(intake()),
+          robot.drive.driveStop(),
+          scoreFourth.cmd().alongWith(
+            WaitCommand(0.68).andThen(
+              robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PREMOVE_PIVOT)
+            )
+          )
+        )
+      )
+
+    scoreFourth.done()
+      .onTrue(
+        Commands.sequence(
+          scoreL2PivotSide(),
+          end.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)),
+          robot.drive.driveStop(),
+
+          )
+      )
+
+    return rightBack2l4l2
+  }
+
+
 
   fun americanRoutineOptimal(): AutoRoutine {
     val optimalAmerican = autoFactory.newRoutine("opt Ameriacn")
@@ -485,7 +561,9 @@ open class Routines(
 
     autoChooser.addRoutine("Right 2L4 2L2 Back", this::rightGroundBack2L4L2)
     autoChooser.addRoutine("Left 2L4 2L2 Back", this::leftGroundBack2L4L2)
+
     autoChooser.addRoutine("Left 2L4 2L2 Back No Align", this::noAlignLeftBack2L4l2)
+    autoChooser.addRoutine("Right 2L4 2L2 Back No Align", this::noAlignRightBack2L4l2)
 
     autoChooser.addRoutine("Left 3 L4 Middle & Sides", this::left3L4)
     autoChooser.addRoutine("Right 3 L4 Middle & Sides", this::right3L4)
@@ -512,7 +590,7 @@ open class Routines(
   }
 
   private fun scoreL4PivotSide(): Command {
-    return robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PIVOT)
+    return robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PIVOT).alongWith(robot.drive.driveStop())
       .andThen(WaitCommand(0.10))
       .andThen(robot.intake.outtakeCoralPivot())
       .andThen(
@@ -556,7 +634,7 @@ open class Routines(
   }
 
   private fun scoreL2PivotSide(): Command {
-    return robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT)
+    return robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT).alongWith(robot.drive.driveStop())
       .andThen(WaitCommand(0.10))
       .andThen(robot.intake.outtakeCoralPivot())
       .andThen(
