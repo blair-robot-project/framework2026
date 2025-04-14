@@ -4,7 +4,36 @@
  "type":"Swerve",
  "variables":{
   "expressions":{},
-  "poses":{}
+  "poses":{
+   "A_Pivot":{
+    "x":{
+     "exp":"3.27 m",
+     "val":3.27
+    },
+    "y":{
+     "exp":"4.187 m",
+     "val":4.187
+    },
+    "heading":{
+     "exp":"PI rad",
+     "val":3.141592653589793
+    }
+   },
+   "B_Pivot":{
+    "x":{
+     "exp":"3.271 m",
+     "val":3.271
+    },
+    "y":{
+     "exp":"3.844 m",
+     "val":3.844
+    },
+    "heading":{
+     "exp":"pi rad",
+     "val":3.141592653589793
+    }
+   }
+  }
  },
  "config":{
   "frontLeft":{
@@ -44,12 +73,12 @@
    "val":0.0508
   },
   "vmax":{
-   "exp":"5350 RPM",
-   "val":560.2506898901797
+   "exp":"5250 RPM",
+   "val":549.7787143782137
   },
   "tmax":{
-   "exp":"0.735 N * m",
-   "val":0.735
+   "exp":"0.65 N * m",
+   "val":0.65
   },
   "cof":{
    "exp":"0.8",

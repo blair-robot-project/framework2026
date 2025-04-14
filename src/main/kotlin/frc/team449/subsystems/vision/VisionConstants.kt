@@ -72,6 +72,7 @@ object VisionConstants {
   )
 
   /** Vision Sim Setup Constants */
+  const val ENABLE_SIM = false
   const val SIM_FPS = 8.0
   const val SIM_CAMERA_HEIGHT_PX = 800 // 1200 // 800
   const val SIM_CAMERA_WIDTH_PX = 1280 // 1600 // 1280
@@ -84,7 +85,6 @@ object VisionConstants {
 
   /** List of cameras that we want to use */
   val ESTIMATORS: ArrayList<ApriltagCamera> = arrayListOf(
-// Disabled for sim, reenable during merge
     ApriltagCamera(
       "reef_cam",
       TAG_LAYOUT,
