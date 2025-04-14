@@ -61,7 +61,7 @@ open class Routines(
     forward.done().onTrue(
       Commands.sequence(
         ScoreL4(robot, FieldConstants.ReefSide.LEFT),
-        end.cmd().alongWith( robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)),
+        end.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)),
         robot.drive.driveStop()
       )
 
@@ -69,15 +69,14 @@ open class Routines(
     return middleRoutine
   }
 
-
   /**Ground Intake Autos**/
 
   private fun getScoreCommand(reefLevel: Int): (FieldConstants.ReefSide) -> Command {
     return when (reefLevel) {
-      2 -> {side : FieldConstants.ReefSide -> scoreL2PivotDirectional(side)}
-      3 -> {side : FieldConstants.ReefSide -> scoreL3PivotSideDirectional(side)}
-      4 -> {side : FieldConstants.ReefSide -> scoreL4PivotSideDirectional(side)}
-      else -> {side : FieldConstants.ReefSide -> scoreL4PivotSideDirectional(side)}
+      2 -> { side: FieldConstants.ReefSide -> scoreL2PivotDirectional(side) }
+      3 -> { side: FieldConstants.ReefSide -> scoreL3PivotSideDirectional(side) }
+      4 -> { side: FieldConstants.ReefSide -> scoreL4PivotSideDirectional(side) }
+      else -> { side: FieldConstants.ReefSide -> scoreL4PivotSideDirectional(side) }
     }
   }
 
@@ -90,7 +89,7 @@ open class Routines(
     }
   }
 
-  //pass in "l" or "r" for direction
+  // pass in "l" or "r" for direction
   private fun ground3Point5(direction: String, reefLevel: IntArray): AutoRoutine {
     val routine = autoFactory.newRoutine("3.5 Ground 3L4 ${if (direction == "r") "Right" else "Left"}")
     val preloadScore = routine.trajectory("GroundThreeHalf/1$direction")
@@ -101,7 +100,7 @@ open class Routines(
     val thirdPickup = routine.trajectory("GroundThreeHalf/6$direction")
     val thirdScore = routine.trajectory("GroundThreeHalf/7$direction") // give up on 4 piece
 
-    val firstPickupTime = if(direction == "l") 3.0 else 2.8
+    val firstPickupTime = if (direction == "l") 3.0 else 2.8
     val secondPickupTime = 2.7 // same on both
     val missNearPickupTime = 3.0 // same on both
 
@@ -124,7 +123,7 @@ open class Routines(
 
     preloadScore.done().onTrue(
       Commands.sequence(
-        getScoreCommand(reefLevel[0]).invoke(if(direction == "r") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
+        getScoreCommand(reefLevel[0]).invoke(if (direction == "r") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
         firstPickup.cmd().alongWith(intake()).withTimeout(firstPickupTime + AutoConstants.INTAKE_TIMEOUT),
         ConditionalCommand(
           Commands.sequence(
@@ -135,35 +134,37 @@ open class Routines(
             )
           ),
 
-          //if we miss picking up the first coral, do a backup routine
+          // if we miss picking up the first coral, do a backup routine
           Commands.sequence(
-            missNearPickup.cmd().alongWith(robot.intake.outtakeL1().withTimeout(1.0)
-              .andThen(intake())).withTimeout(missNearPickupTime + AutoConstants.INTAKE_TIMEOUT),
+            missNearPickup.cmd().alongWith(
+              robot.intake.outtakeL1().withTimeout(1.0)
+                .andThen(intake())
+            ).withTimeout(missNearPickupTime + AutoConstants.INTAKE_TIMEOUT),
             ConditionalCommand(
               missNearScore.cmd().alongWith(
                 WaitCommand(0.52).andThen(
                   robot.superstructureManager.requestGoal(getPremoveCommand(reefLevel[1]))
                 )
               ).andThen(robot.drive.driveStop()),
-              missMidPickup.cmd().alongWith(robot.intake.outtakeL1().withTimeout(1.0).andThen(intake())) //1.5 on double miss
-            )  { robot.intake.coralDetected() || !RobotBase.isReal() }
+              missMidPickup.cmd().alongWith(robot.intake.outtakeL1().withTimeout(1.0).andThen(intake())) // 1.5 on double miss
+            ) { robot.intake.coralDetected() || !RobotBase.isReal() }
           )
 
         ) { robot.intake.coralDetected() || !RobotBase.isReal() }
       )
     )
 
-    //backup routines
+    // backup routines
     missNearScore.done().onTrue(
       Commands.sequence(
-        getScoreCommand(reefLevel[1]).invoke(if(direction == "l") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
+        getScoreCommand(reefLevel[1]).invoke(if (direction == "l") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
         missNearSecondPickup.cmd().alongWith(intake()),
       )
     )
 
     firstScore.done().onTrue(
       Commands.sequence(
-        getScoreCommand(reefLevel[1]).invoke(if(direction == "l") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
+        getScoreCommand(reefLevel[1]).invoke(if (direction == "l") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
         secondPickup.cmd().alongWith(intake()).withTimeout(secondPickupTime + AutoConstants.INTAKE_TIMEOUT),
         robot.drive.driveStop(),
         ConditionalCommand(
@@ -179,7 +180,7 @@ open class Routines(
 
     secondScore.done().onTrue(
       Commands.sequence(
-        getScoreCommand(reefLevel[2]).invoke(if(direction == "r") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
+        getScoreCommand(reefLevel[2]).invoke(if (direction == "r") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
         intake().alongWith(thirdPickup.cmd()),
         robot.drive.driveStop(),
       )
@@ -196,8 +197,6 @@ open class Routines(
   fun leftGround3L4Half(): AutoRoutine {
     return ground3Point5("l", intArrayOf(4, 4, 4))
   }
-
-
 
   // back l4 and then sides 2 l4
   private fun threeL4(direction: String): AutoRoutine {
@@ -221,7 +220,7 @@ open class Routines(
 
     preloadScore.done().onTrue(
       Commands.sequence(
-        scoreL4PivotSideDirectional(if(direction=="l") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
+        scoreL4PivotSideDirectional(if (direction == "l") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
         firstPickup.cmd().alongWith(intake()),
         robot.drive.driveStop(),
         firstPresagedScore.cmd().alongWith(
@@ -234,7 +233,7 @@ open class Routines(
 
     firstPresagedScore.done().onTrue(
       Commands.sequence(
-        scoreL4PivotSideDirectional(if(direction=="r") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
+        scoreL4PivotSideDirectional(if (direction == "r") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
         secondPickup.cmd().alongWith(intake()),
         robot.drive.driveStop(),
         secondPresagedScore.cmd().alongWith(
@@ -246,8 +245,8 @@ open class Routines(
     )
     secondPresagedScore.done().onTrue(
       Commands.sequence(
-        scoreL4PivotSideDirectional(if(direction=="l") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
-        end.cmd().alongWith( robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
+        scoreL4PivotSideDirectional(if (direction == "l") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
+        end.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
       )
     )
 
@@ -292,7 +291,7 @@ open class Routines(
 
     scorePreloadB.done().onTrue(
       Commands.sequence(
-        getScoreCommand(reefLevel[0]).invoke(if(direction == "l") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
+        getScoreCommand(reefLevel[0]).invoke(if (direction == "l") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
         pickupMiddle.cmd().alongWith(intake()).withTimeout(firstPickupTime + AutoConstants.INTAKE_TIMEOUT),
         ConditionalCommand(
           scoreMiddleA.cmd().alongWith(
@@ -308,14 +307,14 @@ open class Routines(
               )
             )
           )
-        ) { robot.intake.coralDetected() || !RobotBase.isReal()}
+        ) { robot.intake.coralDetected() || !RobotBase.isReal() }
       )
     )
 
-    //backup routines
+    // backup routines
     missMidScore.done().onTrue(
       Commands.sequence(
-        getScoreCommand(reefLevel[1]).invoke(if(direction == "r") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
+        getScoreCommand(reefLevel[1]).invoke(if (direction == "r") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
         missMidSecondPickup.cmd().alongWith(intake()),
 //        missMidSecondScore.cmd().alongWith(
 //          WaitCommand(0.52).andThen(
@@ -328,7 +327,7 @@ open class Routines(
 
     scoreMiddleA.done().onTrue(
       Commands.sequence(
-        getScoreCommand(reefLevel[1]).invoke(if(direction == "r") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
+        getScoreCommand(reefLevel[1]).invoke(if (direction == "r") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
         pickupLeft.cmd().alongWith(intake()),
         scoreRightB.cmd().alongWith(
           WaitCommand(0.74).andThen(
@@ -341,7 +340,7 @@ open class Routines(
     scoreRightB.done()
       .onTrue(
         Commands.sequence(
-          getScoreCommand(reefLevel[2]).invoke(if(direction == "r") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
+          getScoreCommand(reefLevel[2]).invoke(if (direction == "r") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
           pickupRight.cmd().alongWith(intake()),
           scoreLeftA.cmd().alongWith(
             WaitCommand(0.68).andThen(
@@ -354,20 +353,20 @@ open class Routines(
     scoreLeftA.done()
       .onTrue(
         Commands.sequence(
-          getScoreCommand(reefLevel[3]).invoke(if(direction == "l") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
+          getScoreCommand(reefLevel[3]).invoke(if (direction == "l") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
           end.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)),
-          )
+        )
       )
 
     return rightBack2l4l2
   }
 
   fun rightGroundBack2L4L2(): AutoRoutine {
-    return groundBack2L4L2("r", intArrayOf(4,4,2,2))
+    return groundBack2L4L2("r", intArrayOf(4, 4, 2, 2))
   }
 
   fun leftGroundBack2L4L2(): AutoRoutine {
-    return groundBack2L4L2("l", intArrayOf(4,4,2,2))
+    return groundBack2L4L2("l", intArrayOf(4, 4, 2, 2))
   }
 
   fun noAlignLeftBack2L4l2(): AutoRoutine {
@@ -380,7 +379,6 @@ open class Routines(
     val pickupRight = leftBack2l4l2.trajectory("noAlignTwoL4L2/6l")
     val scoreLeftA = leftBack2l4l2.trajectory("noAlignTwoL4L2/7l")
     val end = leftBack2l4l2.trajectory("noAlignTwoL4L2/endl")
-
 
     leftBack2l4l2.active().onTrue(
       Commands.sequence(
@@ -443,7 +441,7 @@ open class Routines(
           end.cmd().alongWith(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)),
           robot.drive.driveStop(),
 
-          )
+        )
       )
 
     return leftBack2l4l2
@@ -482,23 +480,19 @@ open class Routines(
   // Elevator is cooked!
   // autoChooser that will be displayed on dashboard
   fun addOptions(autoChooser: AutoChooser) {
-    autoChooser.addRoutine("right 3.5 L4", this::rightGround3L4Half)
-    autoChooser.addRoutine("left 3.5 fL4", this::leftGround3L4Half)
+    autoChooser.addRoutine("Right 3.5 L4 Back & Sides", this::rightGround3L4Half)
+    autoChooser.addRoutine("Left 3.5 L4 Back & Sides", this::leftGround3L4Half)
 
-    autoChooser.addRoutine("RightBackL4+L2", this::rightGroundBack2L4L2)
-    autoChooser.addRoutine("LeftBackL4+L2", this::leftGroundBack2L4L2)
+    autoChooser.addRoutine("Right 2L4 2L2 Back", this::rightGroundBack2L4L2)
+    autoChooser.addRoutine("Left 2L4 2L2 Back", this::leftGroundBack2L4L2)
+    autoChooser.addRoutine("Left 2L4 2L2 Back No Align", this::noAlignLeftBack2L4l2)
 
-    autoChooser.addRoutine("Left 3l4 Middle&Sides", this::left3L4)
-    autoChooser.addRoutine("Right 3l4 Middle&Sides", this::right3L4)
-
-    autoChooser.addRoutine("Taxi", this::taxi)
-    autoChooser.addRoutine("No align LeftBackL4+L2", this::noAlignLeftBack2L4l2)
-
-    autoChooser.addRoutine("Left Back&Sides l4", this::left3L4)
-    autoChooser.addRoutine("Right Middle&Sides", this::right3L4)
+    autoChooser.addRoutine("Left 3 L4 Middle & Sides", this::left3L4)
+    autoChooser.addRoutine("Right 3 L4 Middle & Sides", this::right3L4)
 
     autoChooser.addRoutine("Taxi", this::taxi)
-     autoChooser.addRoutine("center one l4", this::middleRoutine)
+
+    autoChooser.addRoutine("Center 1 L4", this::middleRoutine)
   }
 
   private fun scoreL4PivotSideDirectional(reefSide: FieldConstants.ReefSide): Command {
@@ -516,7 +510,6 @@ open class Routines(
       .andThen(WaitCommand(0.050))
       .andThen(robot.intake.stop())
   }
-
 
   private fun scoreL4PivotSide(): Command {
     return robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PIVOT)

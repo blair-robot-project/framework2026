@@ -29,16 +29,18 @@ class BuiltInTests(private val robot: Robot) {
   var userInput = false
   var runningTest = false
 
-  fun checkTime(cmd: Command): Command{
+  fun checkTime(cmd: Command): Command {
     return FunctionalCommand(
-      {timer.restart()},
-      {}, {
+      { timer.restart() },
+      {},
+      {
         print("Superstructure is ")
         if (timer.get() > BITConstants.SUPERSTRUCTURE_LATE) {
-        print(if (timer.get() > BITConstants.SUPERSTRUCTURE_COOKED) "cooked, " else "late, ")
+          print(if (timer.get() > BITConstants.SUPERSTRUCTURE_COOKED) "cooked, " else "late, ")
         } else { print("fine, ") }
         println("taking ${timer.get()} seconds to get to the requested state.")
-      }, {false}
+      },
+      { false }
     ).withDeadline(cmd)
   }
 
