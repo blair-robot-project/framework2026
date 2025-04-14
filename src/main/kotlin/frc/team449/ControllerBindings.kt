@@ -122,9 +122,7 @@ class ControllerBindings(
 
     Trigger {
       driveController.hid.aButton &&
-        !robot.intake.coralDetected() &&
-        robot.superstructureManager.lastRequestedGoal() == SuperstructureGoal.STOW &&
-        robot.superstructureManager.isAtPos()
+        !robot.intake.coralDetected()
     }.onTrue(
       Commands.sequence(
         robot.elevator.manualDown()
@@ -341,7 +339,7 @@ class ControllerBindings(
     Trigger { driveController.hid.aButton && robot.intake.coralDetected() }.onTrue(
       Commands.sequence(
         robot.superstructureManager.requestGoal(SuperstructureGoal.L1)
-          .alongWith(robot.intake.holdCoral())
+          .alongWith(robot.intake.holdCoralForward())
       )
     )
   }
