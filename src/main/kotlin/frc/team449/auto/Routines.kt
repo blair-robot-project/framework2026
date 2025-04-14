@@ -99,116 +99,116 @@ open class Routines(
       )
     }
   }
-/**
-  // pass in "l" or "r" for direction
-  private fun ground3Point5(direction: String, reefLevel: IntArray): AutoRoutine {
-    val routine = autoFactory.newRoutine("3.5 Ground 3L4 ${if (direction == "r") "Right" else "Left"}")
-    val preloadScore = routine.trajectory("GroundThreeHalf/1$direction")
-    val firstPickup = routine.trajectory("GroundThreeHalf/2$direction")
-    val firstScore = routine.trajectory("GroundThreeHalf/3$direction")
-    val secondPickup = routine.trajectory("GroundThreeHalf/4$direction")
-    val secondScore = routine.trajectory("GroundThreeHalf/5$direction")
-    val thirdPickup = routine.trajectory("GroundThreeHalf/6$direction")
-    val thirdScore = routine.trajectory("GroundThreeHalf/7$direction") // give up on 4 piece
 
-    val firstPickupTime = if (direction == "l") 3.0 else 2.8
-    val secondPickupTime = 2.7 // same on both
-    val missNearPickupTime = 3.0 // same on both
+//  // pass in "l" or "r" for direction
+//  private fun ground3Point5(direction: String, reefLevel: IntArray): AutoRoutine {
+//    val routine = autoFactory.newRoutine("3.5 Ground 3L4 ${if (direction == "r") "Right" else "Left"}")
+//    val preloadScore = routine.trajectory("GroundThreeHalf/1$direction")
+//    val firstPickup = routine.trajectory("GroundThreeHalf/2$direction")
+//    val firstScore = routine.trajectory("GroundThreeHalf/3$direction")
+//    val secondPickup = routine.trajectory("GroundThreeHalf/4$direction")
+//    val secondScore = routine.trajectory("GroundThreeHalf/5$direction")
+//    val thirdPickup = routine.trajectory("GroundThreeHalf/6$direction")
+//    val thirdScore = routine.trajectory("GroundThreeHalf/7$direction") // give up on 4 piece
+//
+//    val firstPickupTime = if (direction == "l") 3.0 else 2.8
+//    val secondPickupTime = 2.7 // same on both
+//    val missNearPickupTime = 3.0 // same on both
+//
+//    val missNearPickup = routine.trajectory("GroundThreeHalf/failnear1$direction")
+//    val missNearScore = routine.trajectory("GroundThreeHalf/failnear2$direction")
+//    val missNearSecondPickup = routine.trajectory("GroundThreeHalf/failnear3$direction")
+//    val missNearSecondScore = routine.trajectory("GroundThreeHalf/failnear4$direction") // not possible to 3 on miss
+//    val missMidPickup = routine.trajectory("GroundThreeHalf/failmid1$direction")
+//    val missMidScore = routine.trajectory("GroundThreeHalf/failmid2$direction") // not possible to 2 on double miss
+//
+//    routine.active().onTrue(
+//      Commands.sequence(
+//        preloadScore.resetOdometry().alongWith(robot.intake.stop()),
+//        preloadScore.cmd().alongWith(
+//          robot.superstructureManager.requestGoal(getPremoveCommand(reefLevel[0]))
+//            .withDeadline(WaitCommand(1.5))
+//        )
+//      )
+//    )
+//
+//    preloadScore.done().onTrue(
+//      Commands.sequence(
+//        getScoreCommand(reefLevel[0]).invoke(if (direction == "r") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
+//        firstPickup.cmd().alongWith(intake()).withTimeout(firstPickupTime + AutoConstants.INTAKE_TIMEOUT),
+//        ConditionalCommand(
+//          Commands.sequence(
+//            firstScore.cmd().alongWith(
+//              WaitCommand(0.52).andThen(
+//                robot.superstructureManager.requestGoal(getPremoveCommand(reefLevel[1]))
+//              )
+//            )
+//          ),
+//
+//          // if we miss picking up the first coral, do a backup routine
+//          Commands.sequence(
+//            missNearPickup.cmd().alongWith(
+//              robot.intake.outtakeL1().withTimeout(1.0)
+//                .andThen(intake())
+//            ).withTimeout(missNearPickupTime + AutoConstants.INTAKE_TIMEOUT),
+//            ConditionalCommand(
+//              missNearScore.cmd().alongWith(
+//                WaitCommand(0.52).andThen(
+//                  robot.superstructureManager.requestGoal(getPremoveCommand(reefLevel[1]))
+//                )
+//              ).andThen(robot.drive.driveStop()),
+//              missMidPickup.cmd().alongWith(robot.intake.outtakeL1().withTimeout(1.0).andThen(intake())) // 1.5 on double miss
+//            ) { robot.intake.coralDetected() || !RobotBase.isReal() }
+//          )
+//
+//        ) { robot.intake.coralDetected() || !RobotBase.isReal() }
+//      )
+//    )
+//
+//    // backup routines
+//    missNearScore.done().onTrue(
+//      Commands.sequence(
+//        getScoreCommand(reefLevel[1]).invoke(if (direction == "l") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
+//        missNearSecondPickup.cmd().alongWith(intake()),
+//      )
+//    )
+//
+//    firstScore.done().onTrue(
+//      Commands.sequence(
+//        getScoreCommand(reefLevel[1]).invoke(if (direction == "l") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
+//        secondPickup.cmd().alongWith(intake()).withTimeout(secondPickupTime + AutoConstants.INTAKE_TIMEOUT),
+//        robot.drive.driveStop(),
+//        ConditionalCommand(
+//          secondScore.cmd().alongWith(
+//            WaitCommand(0.52).andThen(
+//              robot.superstructureManager.requestGoal(getPremoveCommand(reefLevel[2]))
+//            )
+//          ),
+//          missMidPickup.cmd().alongWith(robot.intake.outtakeL1().withTimeout(1.0).andThen(intake()))
+//        ) { robot.intake.coralDetected() || !RobotBase.isReal() }
+//      )
+//    )
+//
+//    secondScore.done().onTrue(
+//      Commands.sequence(
+//        getScoreCommand(reefLevel[2]).invoke(if (direction == "r") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
+//        intake().alongWith(thirdPickup.cmd()),
+//        robot.drive.driveStop(),
+//      )
+//    )
+//
+//    return routine
+//  }
+//
+//  // three l4 starting from a side then the back two reefs then half
+//  fun rightGround3L4Half(): AutoRoutine {
+//    return ground3Point5("r", intArrayOf(4, 4, 4))
+//  }
+//
+//  fun leftGround3L4Half(): AutoRoutine {
+//    return ground3Point5("l", intArrayOf(4, 4, 4))
+//  }
 
-    val missNearPickup = routine.trajectory("GroundThreeHalf/failnear1$direction")
-    val missNearScore = routine.trajectory("GroundThreeHalf/failnear2$direction")
-    val missNearSecondPickup = routine.trajectory("GroundThreeHalf/failnear3$direction")
-    val missNearSecondScore = routine.trajectory("GroundThreeHalf/failnear4$direction") // not possible to 3 on miss
-    val missMidPickup = routine.trajectory("GroundThreeHalf/failmid1$direction")
-    val missMidScore = routine.trajectory("GroundThreeHalf/failmid2$direction") // not possible to 2 on double miss
-
-    routine.active().onTrue(
-      Commands.sequence(
-        preloadScore.resetOdometry().alongWith(robot.intake.stop()),
-        preloadScore.cmd().alongWith(
-          robot.superstructureManager.requestGoal(getPremoveCommand(reefLevel[0]))
-            .withDeadline(WaitCommand(1.5))
-        )
-      )
-    )
-
-    preloadScore.done().onTrue(
-      Commands.sequence(
-        getScoreCommand(reefLevel[0]).invoke(if (direction == "r") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
-        firstPickup.cmd().alongWith(intake()).withTimeout(firstPickupTime + AutoConstants.INTAKE_TIMEOUT),
-        ConditionalCommand(
-          Commands.sequence(
-            firstScore.cmd().alongWith(
-              WaitCommand(0.52).andThen(
-                robot.superstructureManager.requestGoal(getPremoveCommand(reefLevel[1]))
-              )
-            )
-          ),
-
-          // if we miss picking up the first coral, do a backup routine
-          Commands.sequence(
-            missNearPickup.cmd().alongWith(
-              robot.intake.outtakeL1().withTimeout(1.0)
-                .andThen(intake())
-            ).withTimeout(missNearPickupTime + AutoConstants.INTAKE_TIMEOUT),
-            ConditionalCommand(
-              missNearScore.cmd().alongWith(
-                WaitCommand(0.52).andThen(
-                  robot.superstructureManager.requestGoal(getPremoveCommand(reefLevel[1]))
-                )
-              ).andThen(robot.drive.driveStop()),
-              missMidPickup.cmd().alongWith(robot.intake.outtakeL1().withTimeout(1.0).andThen(intake())) // 1.5 on double miss
-            ) { robot.intake.coralDetected() || !RobotBase.isReal() }
-          )
-
-        ) { robot.intake.coralDetected() || !RobotBase.isReal() }
-      )
-    )
-
-    // backup routines
-    missNearScore.done().onTrue(
-      Commands.sequence(
-        getScoreCommand(reefLevel[1]).invoke(if (direction == "l") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
-        missNearSecondPickup.cmd().alongWith(intake()),
-      )
-    )
-
-    firstScore.done().onTrue(
-      Commands.sequence(
-        getScoreCommand(reefLevel[1]).invoke(if (direction == "l") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
-        secondPickup.cmd().alongWith(intake()).withTimeout(secondPickupTime + AutoConstants.INTAKE_TIMEOUT),
-        robot.drive.driveStop(),
-        ConditionalCommand(
-          secondScore.cmd().alongWith(
-            WaitCommand(0.52).andThen(
-              robot.superstructureManager.requestGoal(getPremoveCommand(reefLevel[2]))
-            )
-          ),
-          missMidPickup.cmd().alongWith(robot.intake.outtakeL1().withTimeout(1.0).andThen(intake()))
-        ) { robot.intake.coralDetected() || !RobotBase.isReal() }
-      )
-    )
-
-    secondScore.done().onTrue(
-      Commands.sequence(
-        getScoreCommand(reefLevel[2]).invoke(if (direction == "r") FieldConstants.ReefSide.LEFT else FieldConstants.ReefSide.RIGHT),
-        intake().alongWith(thirdPickup.cmd()),
-        robot.drive.driveStop(),
-      )
-    )
-
-    return routine
-  }
-
-  // three l4 starting from a side then the back two reefs then half
-  fun rightGround3L4Half(): AutoRoutine {
-    return ground3Point5("r", intArrayOf(4, 4, 4))
-  }
-
-  fun leftGround3L4Half(): AutoRoutine {
-    return ground3Point5("l", intArrayOf(4, 4, 4))
-  }
-**/
   // back l4 and then sides 2 l4
   private fun threeL4(direction: String): AutoRoutine {
     val middlesides = autoFactory.newRoutine("3 l4 ${if (direction == "r") "Right" else "Left"}")
