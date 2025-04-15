@@ -81,15 +81,15 @@ open class Routines(
 
   private fun getPremoveCommand(reefLevel: Int, waitTime: Double = 0.0): Command {
     return when (reefLevel) {
-      2 -> Commands.parallel(
+      2 -> Commands.deadline(
         robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT),
         robot.intake.holdCoralForward()
       )
-      4 -> Commands.parallel(
+      4 -> Commands.deadline(
         Commands.sequence(
           robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOT)
             .withDeadline(WaitCommand(waitTime)),
-          robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PIVOT)
+          robot.superstructureManager.requestL4(SuperstructureGoal.L4_PIVOT)
         ),
         robot.intake.holdCoralForward()
       )
@@ -292,9 +292,7 @@ open class Routines(
     rightBack2l4l2.active().onTrue(
       Commands.sequence(
         scorePreloadB.resetOdometry(),
-        scorePreloadB.cmd().deadlineFor(
-          getPremoveCommand(reefLevel[0], 1.65)
-        )
+        scorePreloadB.cmd().alongWith(getPremoveCommand(reefLevel[0], 1.65))
       )
     )
 
@@ -306,19 +304,16 @@ open class Routines(
           .until { robot.intake.coralDetected() }
           .withTimeout(firstPickupTime + AutoConstants.INTAKE_TIMEOUT),
         ConditionalCommand(
-          scoreMiddleA.cmd().deadlineFor(
-            getPremoveCommand(reefLevel[1], 0.65)
-          ),
+          scoreMiddleA.cmd().alongWith(getPremoveCommand(reefLevel[1], 0.65)),
           Commands.sequence(
             missMidPickup.cmd()
               .alongWith(
                 robot.intake.outtakeL1()
                   .withTimeout(0.5)
-                  .andThen(intake())
-              )
+                  .andThen(intake()))
               .until { robot.intake.coralDetected() },
             missMidScore.cmd()
-              .deadlineFor(getPremoveCommand(reefLevel[1], 0.85))
+              .alongWith(getPremoveCommand(reefLevel[1], 0.85))
           )
         ) { robot.intake.coralDetected() || !RobotBase.isReal() }
       )
@@ -332,7 +327,7 @@ open class Routines(
           .alongWith(intake())
           .until { robot.intake.coralDetected() },
         missMidSecondScore.cmd()
-          .deadlineFor(getPremoveCommand(reefLevel[2])),
+          .alongWith(getPremoveCommand(reefLevel[2])),
         scorePiece()
       )
     )
@@ -343,9 +338,8 @@ open class Routines(
         pickupLeft.cmd()
           .alongWith(intake())
           .until { robot.intake.coralDetected() },
-        scoreRightB.cmd().deadlineFor(
-          getPremoveCommand(reefLevel[2])
-        )
+        scoreRightB.cmd()
+          .alongWith(getPremoveCommand(reefLevel[2]))
       )
     )
 
@@ -356,9 +350,8 @@ open class Routines(
           pickupRight.cmd()
             .alongWith(intake())
             .until { robot.intake.coralDetected() },
-          scoreLeftA.cmd().deadlineFor(
-            getPremoveCommand(reefLevel[3])
-          )
+          scoreLeftA.cmd()
+            .alongWith(getPremoveCommand(reefLevel[3]))
         )
       )
 
@@ -416,7 +409,7 @@ open class Routines(
 
   private fun scorePiece(): Command {
     return WaitUntilCommand { robot.superstructureManager.isAtPos() }
-      .andThen(WaitCommand(0.10))
+      .andThen(WaitCommand(0.15))
       .andThen(robot.intake.outtakeCoralPivot())
       .andThen(PrintCommand("Outook Piece!"))
       .andThen(
