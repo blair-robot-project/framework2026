@@ -272,27 +272,31 @@ open class Routines(
     return threeL4("r")
   }
 
-  private fun groundBack2L4L2(direction: String, reefLevel: IntArray): AutoRoutine {
-    val rightBack2l4l2 = autoFactory.newRoutine("2 l4 and l2 ${if (direction == "r") "Right" else "Left"}")
-    val scorePreloadB = rightBack2l4l2.trajectory("TwoL4L2/1$direction")
-    val pickupMiddle = rightBack2l4l2.trajectory("TwoL4L2/2$direction")
-    val scoreMiddleA = rightBack2l4l2.trajectory("TwoL4L2/3$direction")
-    val pickupLeft = rightBack2l4l2.trajectory("TwoL4L2/4$direction")
-    val scoreRightB = rightBack2l4l2.trajectory("TwoL4L2/5$direction")
-    val pickupRight = rightBack2l4l2.trajectory("TwoL4L2/6$direction")
-    val scoreLeftA = rightBack2l4l2.trajectory("TwoL4L2/7$direction")
+  private fun groundBack2L4L2(direction: String, reefLevels: IntArray): AutoRoutine {
+    val routine = autoFactory.newRoutine("2 l4 and l2 ${if (direction == "r") "Right" else "Left"}")
+    val scorePreloadB = routine.trajectory("TwoL4L2/1$direction")
+    val pickupMiddle = routine.trajectory("TwoL4L2/2$direction")
+    val scoreMiddleA = routine.trajectory("TwoL4L2/3$direction")
+    val pickupLeft = routine.trajectory("TwoL4L2/4$direction")
+    val scoreRightB = routine.trajectory("TwoL4L2/5$direction")
+    val pickupRight = routine.trajectory("TwoL4L2/6$direction")
+    val scoreLeftA = routine.trajectory("TwoL4L2/7$direction")
 
     val firstPickupTime = 3.0 // same on both
+    val secondPickupTime = 2.7 // same on both
 
-    val missMidPickup = rightBack2l4l2.trajectory("TwoL4L2/failmid1$direction")
-    val missMidScore = rightBack2l4l2.trajectory("TwoL4L2/failmid2$direction")
-    val missMidSecondPickup = rightBack2l4l2.trajectory("TwoL4L2/failmid3$direction")
-    val missMidSecondScore = rightBack2l4l2.trajectory("TwoL4L2/failmid4$direction") // second score impossible on miss
+    val missMidPickup = routine.trajectory("TwoL4L2/failmid1$direction")
+    val missMidScore = routine.trajectory("TwoL4L2/failmid2$direction")
+    val missMidSecondPickup = routine.trajectory("TwoL4L2/failmid3$direction")
+    val missMidSecondScore = routine.trajectory("TwoL4L2/failmid4$direction") // second score impossible on miss
 
-    rightBack2l4l2.active().onTrue(
+    val missFarPickup = routine.trajectory("TwoL4L2/failfar1$direction")
+    val missFarScore = routine.trajectory("TwoL4L2/failfar2$direction")
+
+    routine.active().onTrue(
       Commands.sequence(
         scorePreloadB.resetOdometry(),
-        scorePreloadB.cmd().alongWith(getPremoveCommand(reefLevel[0], 1.65))
+        scorePreloadB.cmd().alongWith(getPremoveCommand(reefLevels[0], 1.65))
       )
     )
 
@@ -304,16 +308,34 @@ open class Routines(
           .until { robot.intake.coralDetected() }
           .withTimeout(firstPickupTime + AutoConstants.INTAKE_TIMEOUT),
         ConditionalCommand(
-          scoreMiddleA.cmd().alongWith(getPremoveCommand(reefLevel[1], 0.65)),
+          scoreMiddleA.cmd().alongWith(getPremoveCommand(reefLevels[1], 0.65)),
           Commands.sequence(
             missMidPickup.cmd()
               .alongWith(
                 robot.intake.outtakeL1()
                   .withTimeout(0.5)
-                  .andThen(intake()))
-              .until { robot.intake.coralDetected() },
-            missMidScore.cmd()
-              .alongWith(getPremoveCommand(reefLevel[1], 0.85))
+                  .andThen(intake())
+              )
+              .until { robot.intake.coralDetected() }
+              .withTimeout(firstPickupTime + AutoConstants.INTAKE_TIMEOUT),
+            ConditionalCommand(
+              missMidScore.cmd()
+                .alongWith(getPremoveCommand(reefLevels[1], 0.85)),
+              Commands.sequence(
+                missFarPickup.cmd()
+                  .alongWith(
+                    robot.intake.outtakeL1()
+                      .withTimeout(0.5)
+                      .andThen(intake())
+                  )
+                  .until { robot.intake.coralDetected() },
+                missFarScore.cmd().alongWith(
+                  getPremoveCommand(reefLevels[1], 0.85)
+                ),
+                scorePiece()
+              )
+            ) { robot.intake.coralDetected() || !RobotBase.isReal() }
+
           )
         ) { robot.intake.coralDetected() || !RobotBase.isReal() }
       )
@@ -327,7 +349,7 @@ open class Routines(
           .alongWith(intake())
           .until { robot.intake.coralDetected() },
         missMidSecondScore.cmd()
-          .alongWith(getPremoveCommand(reefLevel[2])),
+          .alongWith(getPremoveCommand(reefLevels[2])),
         scorePiece()
       )
     )
@@ -337,9 +359,26 @@ open class Routines(
         scorePiece(),
         pickupLeft.cmd()
           .alongWith(intake())
-          .until { robot.intake.coralDetected() },
-        scoreRightB.cmd()
-          .alongWith(getPremoveCommand(reefLevel[2]))
+          .until { robot.intake.coralDetected() }
+          .withTimeout(secondPickupTime + AutoConstants.INTAKE_TIMEOUT),
+        ConditionalCommand(
+          scoreRightB.cmd()
+            .alongWith(getPremoveCommand(reefLevels[2])),
+          Commands.sequence(
+            missFarPickup.cmd()
+              .alongWith(
+                robot.intake.outtakeL1()
+                  .withTimeout(0.5)
+                  .andThen(intake())
+              )
+              .until { robot.intake.coralDetected() },
+            missFarScore.cmd().alongWith(
+              getPremoveCommand(reefLevels[2], 0.85)
+            ),
+            scorePiece()
+          )
+        ) { robot.intake.coralDetected() || !RobotBase.isReal() }
+
       )
     )
 
@@ -351,7 +390,7 @@ open class Routines(
             .alongWith(intake())
             .until { robot.intake.coralDetected() },
           scoreLeftA.cmd()
-            .alongWith(getPremoveCommand(reefLevel[3]))
+            .alongWith(getPremoveCommand(reefLevels[3]))
         )
       )
 
@@ -363,7 +402,7 @@ open class Routines(
         )
       )
 
-    return rightBack2l4l2
+    return routine
   }
 
   fun rightGroundBack2L4L2(): AutoRoutine {

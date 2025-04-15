@@ -276,7 +276,9 @@ class ControllerBindings(
           robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
             .alongWith(
               robot.intake.holdCoralForward()
-                .until { !robot.intake.coralDetected() }))
+                .until { !robot.intake.coralDetected() }
+            )
+        )
     )
   }
 
