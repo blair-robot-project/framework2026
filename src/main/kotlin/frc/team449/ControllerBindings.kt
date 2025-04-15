@@ -272,11 +272,11 @@ class ControllerBindings(
         .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
         .andThen(WaitCommand(0.275))
         .andThen(robot.intake.stop())
-        .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
         .andThen(
-          robot.intake.holdCoralForward()
-            .until { !robot.intake.coralDetected() }
-        )
+          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
+            .alongWith(
+              robot.intake.holdCoralForward()
+                .until { !robot.intake.coralDetected() }))
     )
   }
 
