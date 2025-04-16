@@ -282,8 +282,9 @@ open class Routines(
     val pickupRight = routine.trajectory("TwoL4L2/6$direction")
     val scoreLeftA = routine.trajectory("TwoL4L2/7$direction")
 
-    val firstPickupTime = 3.0 // same on both
-    val secondPickupTime = 2.7 // same on both
+    val firstPickupTime = 3.1 // same on both
+    val secondPickupTime = 2.8 // same on both
+    val thirdPickupTime = 3.0
 
     val missMidPickup = routine.trajectory("TwoL4L2/failmid1$direction")
     val missMidScore = routine.trajectory("TwoL4L2/failmid2$direction")
@@ -302,13 +303,16 @@ open class Routines(
 
     scorePreloadB.done().onTrue(
       Commands.sequence(
+        robot.drive.driveStop(),
         scorePiece(),
         pickupMiddle.cmd()
           .alongWith(intake())
+          .andThen(robot.drive.driveStop())
           .until { robot.intake.coralDetected() }
           .withTimeout(firstPickupTime + AutoConstants.INTAKE_TIMEOUT),
         ConditionalCommand(
-          scoreMiddleA.cmd().alongWith(getPremoveCommand(reefLevels[1], 0.65)),
+          scoreMiddleA.cmd()
+            .alongWith(getPremoveCommand(reefLevels[1], 0.65)),
           Commands.sequence(
             missMidPickup.cmd()
               .alongWith(
@@ -316,23 +320,28 @@ open class Routines(
                   .withTimeout(0.5)
                   .andThen(intake())
               )
+              .andThen(robot.drive.driveStop())
               .until { robot.intake.coralDetected() }
               .withTimeout(firstPickupTime + AutoConstants.INTAKE_TIMEOUT),
             ConditionalCommand(
               missMidScore.cmd()
                 .alongWith(getPremoveCommand(reefLevels[1], 0.85)),
               Commands.sequence(
+                robot.drive.driveStop(),
                 missFarPickup.cmd()
                   .alongWith(
                     robot.intake.outtakeL1()
                       .withTimeout(0.5)
                       .andThen(intake())
                   )
+                  .andThen(robot.drive.driveStop())
                   .until { robot.intake.coralDetected() },
                 missFarScore.cmd().alongWith(
                   getPremoveCommand(reefLevels[1], 0.85)
                 ),
-                scorePiece()
+                robot.drive.driveStop(),
+                scorePiece(),
+                robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
               )
             ) { robot.intake.coralDetected() || !RobotBase.isReal() }
 
@@ -341,24 +350,30 @@ open class Routines(
       )
     )
 
-    // backup routines
+    // first miss backup
     missMidScore.done().onTrue(
       Commands.sequence(
+        robot.drive.driveStop(),
         scorePiece(),
         missMidSecondPickup.cmd()
           .alongWith(intake())
+          .andThen(robot.drive.driveStop())
           .until { robot.intake.coralDetected() },
         missMidSecondScore.cmd()
           .alongWith(getPremoveCommand(reefLevels[2])),
-        scorePiece()
+        robot.drive.driveStop(),
+        scorePiece(),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
       )
     )
 
     scoreMiddleA.done().onTrue(
       Commands.sequence(
+        robot.drive.driveStop(),
         scorePiece(),
         pickupLeft.cmd()
           .alongWith(intake())
+          .andThen(robot.drive.driveStop())
           .until { robot.intake.coralDetected() }
           .withTimeout(secondPickupTime + AutoConstants.INTAKE_TIMEOUT),
         ConditionalCommand(
@@ -371,10 +386,12 @@ open class Routines(
                   .withTimeout(0.5)
                   .andThen(intake())
               )
+              .andThen(robot.drive.driveStop())
               .until { robot.intake.coralDetected() },
             missFarScore.cmd().alongWith(
               getPremoveCommand(reefLevels[2], 0.85)
             ),
+            robot.drive.driveStop(),
             scorePiece()
           )
         ) { robot.intake.coralDetected() || !RobotBase.isReal() }
@@ -385,10 +402,13 @@ open class Routines(
     scoreRightB.done()
       .onTrue(
         Commands.sequence(
+          robot.drive.driveStop(),
           scorePiece(),
           pickupRight.cmd()
             .alongWith(intake())
-            .until { robot.intake.coralDetected() },
+            .andThen(robot.drive.driveStop())
+            .until { robot.intake.coralDetected() }
+            .withTimeout(thirdPickupTime + AutoConstants.INTAKE_TIMEOUT),
           scoreLeftA.cmd()
             .alongWith(getPremoveCommand(reefLevels[3]))
         )
@@ -397,6 +417,7 @@ open class Routines(
     scoreLeftA.done()
       .onTrue(
         Commands.sequence(
+          robot.drive.driveStop(),
           scorePiece(),
           robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
         )

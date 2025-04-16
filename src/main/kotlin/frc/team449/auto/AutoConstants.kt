@@ -22,5 +22,5 @@ object AutoConstants {
 
   const val SHOOT_AWAY_WAIT = 0.25
 
-  const val INTAKE_TIMEOUT = 1.0
+  const val INTAKE_TIMEOUT = 0.5
 }
