@@ -56,29 +56,22 @@ class BuiltInTests(robot: Robot) {
       checkTime(manager.requestGoal(SuperstructureGoal.L2_ALGAE_DESCORE), "L2 descore"),
       checkTime(manager.requestGoal(SuperstructureGoal.L3_ALGAE_DESCORE), "L3 descore"),
       checkTime(manager.requestGoal(SuperstructureGoal.GROUND_INTAKE), "Ground Intake"),
-      PrintCommand("Turn Robot 180 to test pivot side. Press a once the robot is turned"),
+      PrintCommand("Running Pivot Side Scoring"),
+      checkTime(manager.requestGoal(SuperstructureGoal.L2_PIVOT), "L2 Pivot"),
+      checkTime(manager.requestGoal(SuperstructureGoal.L3_PIVOT), "L3 Pivot"),
+      checkTime(manager.requestGoal(SuperstructureGoal.L4_PIVOT), "L4 Pivot"),
+      manager.requestGoal(SuperstructureGoal.GROUND_INTAKE),
+      WaitUntilCommand { intake.coralDetected() },
+      manager.requestGoal(SuperstructureGoal.STOW),
+      getDriveTests()
     ).onlyWhile { !userInput }.finallyDo(
       Runnable {
         if (userInput) {
           println("Scoring Position Tests canceled.")
+        } else {
+          println("Scoring Tests finished.")
         }
       }
-    ).andThen(WaitUntilCommand { userInput }).andThen(InstantCommand({ userInput = false })).andThen(
-      Commands.sequence(
-        PrintCommand("Running Pivot Side Scoring"),
-        checkTime(manager.requestGoal(SuperstructureGoal.L2_PIVOT), "L2 Pivot"),
-        checkTime(manager.requestGoal(SuperstructureGoal.L3_PIVOT), "L3 Pivot"),
-        checkTime(manager.requestGoal(SuperstructureGoal.L4_PIVOT), "L4 Pivot"),
-        getDriveTests()
-      ).onlyWhile { !userInput }.finallyDo(
-        Runnable {
-          if (userInput) {
-            println("Scoring Position Tests canceled.")
-          } else {
-            println("Scoring Tests finished.")
-          }
-        }
-      )
     )
   }
 
