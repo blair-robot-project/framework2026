@@ -341,7 +341,7 @@ class ControllerBindings(
     Trigger { driveController.hid.aButton && robot.intake.coralDetected() }.onTrue(
       Commands.sequence(
         robot.superstructureManager.requestGoal(SuperstructureGoal.L1)
-          .alongWith(robot.intake.holdCoralForward())
+          .alongWith(robot.intake.holdCoral())
       )
     )
   }
@@ -353,7 +353,7 @@ class ControllerBindings(
           robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT)
             .alongWith(robot.intake.holdCoral()),
           robot.superstructureManager.requestGoal(SuperstructureGoal.L2)
-            .alongWith(robot.intake.holdCoralForward())
+            .alongWith(robot.intake.holdCoral())
         ) { robot.poseSubsystem.isPivotSide() },
         robot.superstructureManager.requestGoal(SuperstructureGoal.L2_ALGAE_DESCORE)
           .alongWith(robot.intake.descoreAlgae())
