@@ -332,7 +332,7 @@ class ControllerBindings(
                 .deadlineFor(robot.light.progressMaskGradient(percentageElevatorPosition))
                 .onlyIf { robot.superstructureManager.lastRequestedGoal() != SuperstructureGoal.L1 }
             ),
-          //dont have coral
+          // dont have coral
           ConditionalCommand( // have an algae
             robot.intake.outtakeAlgae()
               .andThen(WaitUntilCommand { !robot.intake.algaeDetected() })
@@ -343,7 +343,7 @@ class ControllerBindings(
                 robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
                   .deadlineFor(robot.light.progressMaskGradient(percentageElevatorPosition))
               ),
-            //dont have an algae
+            // dont have an algae
             robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE)
               .alongWith(robot.intake.intakeCoral())
               .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })

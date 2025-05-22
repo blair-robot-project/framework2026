@@ -95,7 +95,7 @@ class Intake(
 
   // Coral is not vertical or horizontal but is detected by one of the sensors
   fun coralMisplaced(): Boolean {
-    return !coralVertical() && !coralHorizontal() && ( coralInfrared.get() || leftCoralInfrared.get() || rightCoralInfrared.get() || topCoralInfrared.get() )
+    return !coralVertical() && !coralHorizontal() && (coralInfrared.get() || leftCoralInfrared.get() || rightCoralInfrared.get() || topCoralInfrared.get())
   }
 
   fun algaeDetected(): Boolean {
