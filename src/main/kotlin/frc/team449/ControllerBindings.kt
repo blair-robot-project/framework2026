@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.DriverStation
+import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.util.Color
 import edu.wpi.first.wpilibj2.command.*
@@ -283,14 +284,14 @@ class ControllerBindings(
   }
 
   private fun groundIntakeHigh() {
-    //driveController.povUp().onTrue(
-      //robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_HIGH)
-        //.alongWith(robot.intake.intakeCoral())
-        //.andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
-        //.andThen(WaitCommand(0.25))
-        //.andThen(robot.intake.stop())
-        //.andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
-        //.andThen(robot.intake.holdCoral()) )
+    driveController.back().onTrue(
+      robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_HIGH)
+        .alongWith(robot.intake.intakeCoral())
+        .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
+        .andThen(WaitCommand(0.25))
+        .andThen(robot.intake.stop())
+        .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
+        .andThen(robot.intake.holdCoral()) )
   }
 
   private fun coralBlockSubstationIntake() {
@@ -517,6 +518,12 @@ class ControllerBindings(
     )
   }
 
+  private fun intakel1(){
+    Trigger{driveController.leftStick().asBoolean}.onTrue(
+      InstantCommand({robot.driveController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.3)})
+
+    )
+  }
   private fun outtakeCoral() {
     mechanismController.rightStick().onTrue(
       robot.intake.outtakeCoralPivot()
@@ -708,3 +715,5 @@ class ControllerBindings(
     characterizationBindings()
   }
 }
+
+
