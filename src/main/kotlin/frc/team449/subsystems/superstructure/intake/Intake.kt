@@ -3,18 +3,19 @@ package frc.team449.subsystems.superstructure.intake
 import com.revrobotics.spark.SparkMax
 import dev.doglog.DogLog
 import edu.wpi.first.math.controller.PIDController
-import edu.wpi.first.wpilibj.DigitalInput
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.system.motor.createSparkMax
+import au.grapplerobotics.LaserCan;
+import au.grapplerobotics.ConfigurationFailedException;
 
 class Intake(
   private val motor: SparkMax,
-  private val coralInfrared: DigitalInput,
-  private val leftCoralInfrared: DigitalInput,
-  private val rightCoralInfrared: DigitalInput,
-  private val topCoralInfrared: DigitalInput
+  private val bottomCoralSensor: LaserCan,
+  private val leftCoralSensor: LaserCan,
+  private val rightCoralSensor: LaserCan,
+  private val topCoralSensor: LaserCan
 ) : SubsystemBase() {
 
   private val controller = PIDController(2.1778, 0.0, 0.010)
@@ -77,25 +78,35 @@ class Intake(
     return setVoltage(IntakeConstants.ALGAE_OUTTAKE_VOLTAGE)
   }
 
+  fun laserCanDetected(laserCan: LaserCan): Boolean {
+    val measurement: LaserCan.Measurement = laserCan.getMeasurement()
+    if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
+      if (measurement.distance_mm <= IntakeConstants.LASER_CAN_SENSOR_MIN_DISTANCE_MM) {
+        return true
+      }
+    }
+    return false
+  }
+
   fun coralDetected(): Boolean {
-    return !coralInfrared.get()
+    return laserCanDetected(bottomCoralSensor) || laserCanDetected(leftCoralSensor) || laserCanDetected(rightCoralSensor) || laserCanDetected(topCoralSensor)
   }
 
   fun coralNotDetected(): Boolean {
-    return coralInfrared.get()
+    return !coralDetected()
   }
 
   fun coralVertical(): Boolean {
-    return !coralInfrared.get() && !topCoralInfrared.get()
+    return laserCanDetected(bottomCoralSensor) && laserCanDetected(topCoralSensor) && !laserCanDetected(leftCoralSensor) && !laserCanDetected(rightCoralSensor)
   }
 
   fun coralHorizontal(): Boolean {
-    return !coralInfrared.get() && !leftCoralInfrared.get() && !rightCoralInfrared.get()
+    return laserCanDetected(bottomCoralSensor) && laserCanDetected(leftCoralSensor) && laserCanDetected(rightCoralSensor) && !laserCanDetected(topCoralSensor)
   }
 
   // Coral is not vertical or horizontal but is detected by one of the sensors
   fun coralMisplaced(): Boolean {
-    return !coralVertical() && !coralHorizontal() && (coralInfrared.get() || leftCoralInfrared.get() || rightCoralInfrared.get() || topCoralInfrared.get())
+    return coralDetected() && !coralVertical() && !coralHorizontal()
   }
 
   fun algaeDetected(): Boolean {
@@ -116,10 +127,10 @@ class Intake(
   private fun logData() {
     DogLog.log("Intake/Motor Voltage", motor.appliedOutput * 12.0)
     DogLog.log("Intake/Motor Position", motor.encoder.position)
-    DogLog.log("Intake/Coral IR sensor", !coralInfrared.get())
-    DogLog.log("Intake/Left Coral IR sensor", !leftCoralInfrared.get())
-    DogLog.log("Intake/Right Coral IR sensor", !rightCoralInfrared.get())
-    DogLog.log("Intake/Top Coral IR sensor", !topCoralInfrared.get())
+    DogLog.log("Intake/Bottom Coral LaserCAN Distance (mm)", bottomCoralSensor.getMeasurement().distance_mm)
+    DogLog.log("Intake/Left Coral LaserCAN Distance (mm)", leftCoralSensor.getMeasurement().distance_mm)
+    DogLog.log("Intake/Right Coral LaserCAN Distance (mm)", rightCoralSensor.getMeasurement().distance_mm)
+    DogLog.log("Intake/Top Coral LaserCAN Distance (mm)", topCoralSensor.getMeasurement().distance_mm)
   }
 
   companion object {
@@ -131,10 +142,10 @@ class Intake(
         currentLimit = IntakeConstants.CURRENT_LIMIT
       )
 
-      val coralSensor = DigitalInput(IntakeConstants.CORAL_SENSOR_DIO_PORT)
-      val leftCoralSensor = DigitalInput(IntakeConstants.LEFT_CORAL_SENSOR_DIO_PORT)
-      val rightCoralSensor = DigitalInput(IntakeConstants.RIGHT_CORAL_SENSOR_DIO_PORT)
-      val topCoralSensor = DigitalInput(IntakeConstants.TOP_CORAL_SENSOR_DIO_PORT)
+      val coralSensor = LaserCan(IntakeConstants.BOTTOM_CORAL_SENSOR_CAN_ID)
+      val leftCoralSensor = LaserCan(IntakeConstants.LEFT_CORAL_SENSOR_CAN_ID)
+      val rightCoralSensor = LaserCan(IntakeConstants.RIGHT_CORAL_SENSOR_CAN_ID)
+      val topCoralSensor = LaserCan(IntakeConstants.TOP_CORAL_SENSOR_CAN_ID)
       return Intake(motor, coralSensor, leftCoralSensor, rightCoralSensor, topCoralSensor)
     }
   }
