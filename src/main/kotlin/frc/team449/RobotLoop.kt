@@ -33,8 +33,8 @@ import kotlin.math.*
 class RobotLoop : TimedRobot() {
 
   private val robot = Robot()
+
   val routines = Routines(robot)
-  private val field = robot.field
 
   private var componentStorage: Array<Pose3d> = arrayOf(
     Pose3d(),
@@ -60,13 +60,8 @@ class RobotLoop : TimedRobot() {
 
     HAL.report(FRCNetComm.tResourceType.kResourceType_Language, FRCNetComm.tInstances.kLanguage_Kotlin)
 
-//    if (isSimulation()) {
     // Don't complain about joysticks if there aren't going to be any
     DriverStation.silenceJoystickConnectionWarning(true)
-//      val instance = NetworkTableInstance.getDefault()
-//      instance.stopServer()
-//      instance.startClient4("localhost")
-//    }
 
     // Custom Feedforwards
     robot.elevator.elevatorFeedForward = createElevatorFeedForward(robot.pivot)
@@ -76,10 +71,13 @@ class RobotLoop : TimedRobot() {
     // Generate Auto Routines
     println("Generating Auto Routines : ${Timer.getFPGATimestamp()}")
 
+    // Adds Auto Routines to Auto Chooser
     routines.addOptions(robot.autoChooser)
 
+    // Adds Auto Selection into Smart Dashboard
     SmartDashboard.putData("Auto Chooser", robot.autoChooser)
 
+    //While in Autonomous Period, run the selected auto until autos are over, then cancel command.
     RobotModeTriggers.autonomous().whileTrue(robot.autoChooser.selectedCommandScheduler())
     println("DONE Generating Auto Routines : ${Timer.getFPGATimestamp()}")
     SmartDashboard.putData("Command Scheduler", CommandScheduler.getInstance())
@@ -95,15 +93,14 @@ class RobotLoop : TimedRobot() {
     SmartDashboard.putData("Field", robot.field)
     SmartDashboard.putData("Elevator + Pivot Visual", robot.elevator.mech)
 
+    //This class reports data from REV devices
     URCL.start()
+
 
     QuadCalibration(robot.pivot, robot.pivot.absoluteEncoder, robot.pivot.quadEncoder, name = "Pivot")
       .ignoringDisable(true)
       .schedule()
 
-//    QuadCalibration(robot.wrist, robot.wrist.absoluteEncoder, robot.wrist.quadEncoder, name = "Wrist")
-//      .ignoringDisable(true)
-//      .schedule()
     if (RobotBase.isReal()) {
       robot.wrist.startupZero()
     }
