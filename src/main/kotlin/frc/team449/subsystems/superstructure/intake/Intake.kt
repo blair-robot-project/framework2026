@@ -13,6 +13,9 @@ import frc.team449.system.motor.createSparkMax
 class Intake(
   private val motor: SparkMax,
   private val coralInfrared: DigitalInput,
+  private val leftCoralInfrared: DigitalInput,
+  private val rightCoralInfrared: DigitalInput,
+  private val topCoralInfrared: DigitalInput,
 ) : SubsystemBase() {
 
   private val controller = PIDController(2.1778, 0.0, 0.010)
@@ -83,7 +86,16 @@ class Intake(
     return coralInfrared.get()
   }
 
+  fun coralVertical(): Boolean {
+    return !coralInfrared.get() && !topCoralInfrared.get()
+  }
+
+  fun coralHorizontal(): Boolean {
+    return !coralInfrared.get() && !leftCoralInfrared.get() && !rightCoralInfrared.get()
+  }
+
   fun algaeDetected(): Boolean {
+    // What is the point of this
     return false
   }
 
@@ -101,6 +113,9 @@ class Intake(
     DogLog.log("Intake/Motor Voltage", motor.appliedOutput * 12.0)
     DogLog.log("Intake/Motor Position", motor.encoder.position)
     DogLog.log("Intake/Coral IR sensor", !coralInfrared.get())
+    DogLog.log("Intake/Left Coral IR sensor", !leftCoralInfrared.get())
+    DogLog.log("Intake/Right Coral IR sensor", !rightCoralInfrared.get())
+    DogLog.log("Intake/Top Coral IR sensor", !topCoralInfrared.get())
   }
 
   companion object {
@@ -113,7 +128,10 @@ class Intake(
       )
 
       val coralSensor = DigitalInput(IntakeConstants.CORAL_SENSOR_DIO_PORT)
-      return Intake(motor, coralSensor)
+      val leftCoralSensor = DigitalInput(IntakeConstants.LEFT_CORAL_SENSOR_DIO_PORT)
+      val rightCoralSensor = DigitalInput(IntakeConstants.RIGHT_CORAL_SENSOR_DIO_PORT)
+      val topCoralSensor = DigitalInput(IntakeConstants.TOP_CORAL_SENSOR_DIO_PORT)
+      return Intake(motor, coralSensor, leftCoralSensor, rightCoralSensor, topCoralSensor)
     }
   }
 }

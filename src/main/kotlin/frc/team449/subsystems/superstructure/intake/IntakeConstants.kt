@@ -32,4 +32,9 @@ object IntakeConstants {
   const val PIVOT_SENSOR_DIO_PORT = 12
 
   const val READY_PIVOT_CORAL_TIME = 0.25
+
+  // TODO Add DIO Ports for new sensors
+  const val LEFT_CORAL_SENSOR_DIO_PORT = 0
+  const val RIGHT_CORAL_SENSOR_DIO_PORT = 0
+  const val TOP_CORAL_SENSOR_DIO_PORT = 0
 }
