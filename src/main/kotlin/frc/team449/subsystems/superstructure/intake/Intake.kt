@@ -4,7 +4,6 @@ import com.revrobotics.spark.SparkMax
 import dev.doglog.DogLog
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.wpilibj.DigitalInput
-import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.SubsystemBase
@@ -15,7 +14,7 @@ class Intake(
   private val coralInfrared: DigitalInput,
   private val leftCoralInfrared: DigitalInput,
   private val rightCoralInfrared: DigitalInput,
-  private val topCoralInfrared: DigitalInput,
+  private val topCoralInfrared: DigitalInput
 ) : SubsystemBase() {
 
   private val controller = PIDController(2.1778, 0.0, 0.010)
@@ -92,6 +91,11 @@ class Intake(
 
   fun coralHorizontal(): Boolean {
     return !coralInfrared.get() && !leftCoralInfrared.get() && !rightCoralInfrared.get()
+  }
+
+  // Coral is not vertical or horizontal but is detected by one of the sensors
+  fun coralMisplaced(): Boolean {
+    return !coralVertical() && !coralHorizontal() && ( coralInfrared.get() || leftCoralInfrared.get() || rightCoralInfrared.get() || topCoralInfrared.get() )
   }
 
   fun algaeDetected(): Boolean {

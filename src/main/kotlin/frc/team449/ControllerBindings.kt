@@ -283,14 +283,16 @@ class ControllerBindings(
   }
 
   private fun groundIntakeHigh() {
-    //driveController.povUp().onTrue(
-      //robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_HIGH)
-        //.alongWith(robot.intake.intakeCoral())
-        //.andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
-        //.andThen(WaitCommand(0.25))
-        //.andThen(robot.intake.stop())
-        //.andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
-        //.andThen(robot.intake.holdCoral()) )
+    /*
+    driveController.povUp().onTrue(
+      robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_HIGH)
+        .alongWith(robot.intake.intakeCoral())
+        .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
+        .andThen(WaitCommand(0.25))
+        .andThen(robot.intake.stop())
+        .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
+        .andThen(robot.intake.holdCoral()) )
+    */
   }
 
   private fun coralBlockSubstationIntake() {

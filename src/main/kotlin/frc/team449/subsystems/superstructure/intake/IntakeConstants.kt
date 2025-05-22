@@ -9,7 +9,6 @@ object IntakeConstants {
   val CURRENT_LIMIT: Current = Amps.of(30.0)
   const val BRAKE_MODE = true
 
-
   const val MOTOR_INVERTED = false
 
   const val CORAL_INTAKE_VOLTAGE = 11.0
