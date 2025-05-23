@@ -291,7 +291,8 @@ class ControllerBindings(
         .andThen(WaitCommand(0.25))
         .andThen(robot.intake.stop())
         .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
-        .andThen(robot.intake.holdCoral()) )
+        .andThen(robot.intake.holdCoral())
+    )
   }
 
   private fun coralBlockSubstationIntake() {
@@ -331,7 +332,7 @@ class ControllerBindings(
                 .deadlineFor(robot.light.progressMaskGradient(percentageElevatorPosition))
                 .onlyIf { robot.superstructureManager.lastRequestedGoal() != SuperstructureGoal.L1 }
             ),
-          //dont have coral
+          // dont have coral
           ConditionalCommand( // have an algae
             robot.intake.outtakeAlgae()
               .andThen(WaitUntilCommand { !robot.intake.algaeDetected() })
@@ -342,7 +343,7 @@ class ControllerBindings(
                 robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
                   .deadlineFor(robot.light.progressMaskGradient(percentageElevatorPosition))
               ),
-            //dont have an algae
+            // dont have an algae
             robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE)
               .alongWith(robot.intake.intakeCoral())
               .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
@@ -518,18 +519,18 @@ class ControllerBindings(
     )
   }
 
-  private fun intakel1(){
-    Trigger{driveController.leftStick().asBoolean}.onTrue(
+  private fun intakel1() {
+    Trigger { driveController.leftStick().asBoolean }.onTrue(
       SequentialCommandGroup(
-      InstantCommand({robot.driveController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.3)}),
+        InstantCommand({ robot.driveController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.3) }),
         WaitCommand(0.5804),
-        InstantCommand({robot.driveController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.0)})
-    )
+        InstantCommand({ robot.driveController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.0) })
+      )
     ).toggleOnFalse(
       SequentialCommandGroup(
-        InstantCommand({robot.driveController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.3)}),
+        InstantCommand({ robot.driveController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.3) }),
         WaitCommand(0.5804),
-        InstantCommand({robot.driveController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.0)})
+        InstantCommand({ robot.driveController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.0) })
       )
     )
   }
@@ -724,5 +725,3 @@ class ControllerBindings(
     characterizationBindings()
   }
 }
-
-
