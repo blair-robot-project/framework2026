@@ -106,13 +106,18 @@ class Intake(
     return laserCanDetected(bottomCoralSensor) && laserCanDetected(leftCoralSensor) && laserCanDetected(rightCoralSensor) && !laserCanDetected(topCoralSensor)
   }
 
+  // Coral is controlled by the Intake
+  fun coralControlled(): Boolean {
+    return coralVertical() || coralHorizontal()
+  }
+
   // Coral is not vertical or horizontal but is detected by one of the sensors
   fun coralMisplaced(): Boolean {
     return coralDetected() && !coralVertical() && !coralHorizontal()
   }
 
+  // What is the point of this
   fun algaeDetected(): Boolean {
-    // What is the point of this
     return false
   }
 
@@ -129,10 +134,10 @@ class Intake(
   private fun logData() {
     DogLog.log("Intake/Motor Voltage", motor.appliedOutput * 12.0)
     DogLog.log("Intake/Motor Position", motor.encoder.position)
-    DogLog.log("Intake/Bottom Coral LaserCAN Distance (mm)", bottomCoralSensor.measurement.distance_mm.toDouble())
-    DogLog.log("Intake/Left Coral LaserCAN Distance (mm)", leftCoralSensor.measurement.distance_mm.toDouble())
-    DogLog.log("Intake/Right Coral LaserCAN Distance (mm)", rightCoralSensor.measurement.distance_mm.toDouble())
-    DogLog.log("Intake/Top Coral LaserCAN Distance (mm)", topCoralSensor.measurement.distance_mm.toDouble())
+    DogLog.log("Intake/LaserCan/Bottom Sensor Distance (mm)", bottomCoralSensor.measurement.distance_mm.toDouble())
+    DogLog.log("Intake/LaserCan/Left Sensor Distance (mm)", leftCoralSensor.measurement.distance_mm.toDouble())
+    DogLog.log("Intake/LaserCan/Right Sensor Distance (mm)", rightCoralSensor.measurement.distance_mm.toDouble())
+    DogLog.log("Intake/LaserCan/Top Sensor Distance (mm)", topCoralSensor.measurement.distance_mm.toDouble())
   }
 
   companion object {
