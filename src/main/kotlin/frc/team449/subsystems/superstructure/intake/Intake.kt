@@ -1,16 +1,16 @@
 package frc.team449.subsystems.superstructure.intake
 
+import au.grapplerobotics.LaserCan
+import au.grapplerobotics.interfaces.LaserCanInterface
+import au.grapplerobotics.simulation.MockLaserCan
 import com.revrobotics.spark.SparkMax
 import dev.doglog.DogLog
 import edu.wpi.first.math.controller.PIDController
+import edu.wpi.first.wpilibj.RobotBase.isSimulation
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.system.motor.createSparkMax
-import au.grapplerobotics.LaserCan
-import au.grapplerobotics.interfaces.LaserCanInterface
-import au.grapplerobotics.simulation.MockLaserCan
-import edu.wpi.first.wpilibj.RobotBase.isSimulation
 
 class Intake(
   private val motor: SparkMax,
@@ -80,7 +80,7 @@ class Intake(
     return setVoltage(IntakeConstants.ALGAE_OUTTAKE_VOLTAGE)
   }
 
-  fun laserCanDetected(laserCan: LaserCanInterface): Boolean {
+  private fun laserCanDetected(laserCan: LaserCanInterface): Boolean {
     val measurement: LaserCanInterface.Measurement = laserCan.measurement
     if (measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
       if (measurement.distance_mm <= IntakeConstants.LASER_CAN_SENSOR_MIN_DISTANCE_MM) {
@@ -154,7 +154,8 @@ class Intake(
           MockLaserCan()
         )
       }
-      return Intake(motor,
+      return Intake(
+        motor,
         LaserCan(IntakeConstants.BOTTOM_CORAL_SENSOR_CAN_ID),
         LaserCan(IntakeConstants.LEFT_CORAL_SENSOR_CAN_ID),
         LaserCan(IntakeConstants.RIGHT_CORAL_SENSOR_CAN_ID),
