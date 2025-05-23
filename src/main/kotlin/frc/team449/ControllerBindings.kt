@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.DriverStation
+import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.util.Color
 import edu.wpi.first.wpilibj2.command.*
@@ -283,8 +284,7 @@ class ControllerBindings(
   }
 
   private fun groundIntakeHigh() {
-    /*
-    driveController.povUp().onTrue(
+    driveController.back().onTrue(
       robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_HIGH)
         .alongWith(robot.intake.intakeCoral())
         .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
@@ -292,7 +292,6 @@ class ControllerBindings(
         .andThen(robot.intake.stop())
         .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
         .andThen(robot.intake.holdCoral()) )
-    */
   }
 
   private fun coralBlockSubstationIntake() {
@@ -332,7 +331,7 @@ class ControllerBindings(
                 .deadlineFor(robot.light.progressMaskGradient(percentageElevatorPosition))
                 .onlyIf { robot.superstructureManager.lastRequestedGoal() != SuperstructureGoal.L1 }
             ),
-          // dont have coral
+          //dont have coral
           ConditionalCommand( // have an algae
             robot.intake.outtakeAlgae()
               .andThen(WaitUntilCommand { !robot.intake.algaeDetected() })
@@ -343,7 +342,7 @@ class ControllerBindings(
                 robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
                   .deadlineFor(robot.light.progressMaskGradient(percentageElevatorPosition))
               ),
-            // dont have an algae
+            //dont have an algae
             robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE)
               .alongWith(robot.intake.intakeCoral())
               .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
@@ -519,6 +518,21 @@ class ControllerBindings(
     )
   }
 
+  private fun intakel1(){
+    Trigger{driveController.leftStick().asBoolean}.onTrue(
+      SequentialCommandGroup(
+      InstantCommand({robot.driveController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.3)}),
+        WaitCommand(0.5804),
+        InstantCommand({robot.driveController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.0)})
+    )
+    ).toggleOnFalse(
+      SequentialCommandGroup(
+        InstantCommand({robot.driveController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.3)}),
+        WaitCommand(0.5804),
+        InstantCommand({robot.driveController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.0)})
+      )
+    )
+  }
   private fun outtakeCoral() {
     mechanismController.rightStick().onTrue(
       robot.intake.outtakeCoralPivot()
@@ -710,3 +724,5 @@ class ControllerBindings(
     characterizationBindings()
   }
 }
+
+
