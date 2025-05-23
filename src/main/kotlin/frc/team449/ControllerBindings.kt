@@ -520,8 +520,17 @@ class ControllerBindings(
 
   private fun intakel1(){
     Trigger{driveController.leftStick().asBoolean}.onTrue(
-      InstantCommand({robot.driveController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.3)})
-
+      SequentialCommandGroup(
+      InstantCommand({robot.driveController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.3)}),
+        WaitCommand(0.5804),
+        InstantCommand({robot.driveController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.0)})
+    )
+    ).toggleOnFalse(
+      SequentialCommandGroup(
+        InstantCommand({robot.driveController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.3)}),
+        WaitCommand(0.5804),
+        InstantCommand({robot.driveController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.0)})
+      )
     )
   }
   private fun outtakeCoral() {
