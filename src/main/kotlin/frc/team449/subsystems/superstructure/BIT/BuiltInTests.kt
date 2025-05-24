@@ -188,13 +188,19 @@ class BuiltInTests(robot: Robot) {
         else -> wrist.setPosition(setpoint)
       },
       when (name) {
-        "pivot" -> checkVoltageWait({ pivot.atSetpoint(BITConstants.PIVOT_TOLERANCE) }, { pivot.getMotorVoltage() },
+        "pivot" -> checkVoltageWait(
+          { pivot.atSetpoint(BITConstants.PIVOT_TOLERANCE) },
+          { pivot.getMotorVoltage() },
           BITConstants.HIGH_PIVOT_VOLTAGE
         )
-        "elevator" -> checkVoltageWait({ elevator.atSetpoint(BITConstants.ELEVATOR_TOLERANCE) }, { elevator.getMotorVoltage() },
+        "elevator" -> checkVoltageWait(
+          { elevator.atSetpoint(BITConstants.ELEVATOR_TOLERANCE) },
+          { elevator.getMotorVoltage() },
           BITConstants.HIGH_ELEVATOR_VOLTAGE
         )
-        else -> checkVoltageWait({ wrist.atSetpoint(BITConstants.WRIST_TOLERANCE) }, { wrist.getMotorVoltage() },
+        else -> checkVoltageWait(
+          { wrist.atSetpoint(BITConstants.WRIST_TOLERANCE) },
+          { wrist.getMotorVoltage() },
           BITConstants.HIGH_WRIST_VOLTAGE
         )
       }

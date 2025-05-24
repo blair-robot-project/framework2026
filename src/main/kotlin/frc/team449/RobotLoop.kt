@@ -77,7 +77,7 @@ class RobotLoop : TimedRobot() {
     // Adds Auto Selection into Smart Dashboard
     SmartDashboard.putData("Auto Chooser", robot.autoChooser)
 
-    //While in Autonomous Period, run the selected auto until autos are over, then cancel command.
+    // While in Autonomous Period, run the selected auto until autos are over, then cancel command.
     RobotModeTriggers.autonomous().whileTrue(robot.autoChooser.selectedCommandScheduler())
     println("DONE Generating Auto Routines : ${Timer.getFPGATimestamp()}")
     SmartDashboard.putData("Command Scheduler", CommandScheduler.getInstance())
@@ -93,9 +93,8 @@ class RobotLoop : TimedRobot() {
     SmartDashboard.putData("Field", robot.field)
     SmartDashboard.putData("Elevator + Pivot Visual", robot.elevator.mech)
 
-    //This class reports data from REV devices
+    // This class reports data from REV devices
     URCL.start()
-
 
     QuadCalibration(robot.pivot, robot.pivot.absoluteEncoder, robot.pivot.quadEncoder, name = "Pivot")
       .ignoringDisable(true)
