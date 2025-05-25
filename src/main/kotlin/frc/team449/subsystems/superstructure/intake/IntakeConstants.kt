@@ -1,17 +1,30 @@
 package frc.team449.subsystems.superstructure.intake
 
-import edu.wpi.first.units.Units.Amps
-import edu.wpi.first.units.measure.Current
+import com.ctre.phoenix6.signals.InvertedValue
+import com.ctre.phoenix6.signals.NeutralModeValue
 
 object IntakeConstants {
-  const val MOTOR_ID = 46
+  // TODO: update the ids for all three kraken motors
 
-  val CURRENT_LIMIT: Current = Amps.of(30.0)
-  const val BRAKE_MODE = true
+  const val TOP_MOTOR_ID = 46
+  const val RIGHT_MOTOR_ID = 47
+  const val LEFT_MOTOR_ID = 48
+
+//  val CURRENT_LIMIT: Current = Amps.of(30.0)
+
+  val SUPPLY_LIM = 40.0
+  val STATOR_LIM = 80.0
+
+//  const val BRAKE_MODE = true
 
   const val MOTOR_INVERTED = false
 
+  val INVERTED = InvertedValue.Clockwise_Positive
+  val BRAKE_MODE = NeutralModeValue.Brake
+
   const val CORAL_INTAKE_VOLTAGE = 11.0
+
+// TODO: intake voltage for different scenarios and motors
   const val ALGAE_INTAKE_VOLTAGE = 9.0
 
   const val ALGAE_HOLD_VOLTAGE = 4.15
