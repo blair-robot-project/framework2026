@@ -286,7 +286,7 @@ class ControllerBindings(
 
   private fun groundIntake() {
     driveController.leftBumper().onTrue(
-      ConditionalCommand(
+      ConditionalCommand((
         robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE)
           .alongWith(robot.intake.intakeCoralHorizontal())
           .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
@@ -294,9 +294,9 @@ class ControllerBindings(
           .andThen(robot.intake.stop())
           .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
             .alongWith(robot.intake.holdCoralForward()
-              .until { !robot.intake.coralDetected() })),
+              .until { !robot.intake.coralDetected() }))),
 
-        robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE)
+        (robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE)
           .alongWith(robot.intake.intakeCoralVertical())
           .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
           .andThen(WaitCommand(0.275))
@@ -307,6 +307,7 @@ class ControllerBindings(
                 robot.intake.holdCoralForward()
                   .until { !robot.intake.coralDetected() }
               )
+          )
           )
       ) { !driveController.leftStick().asBoolean }
     )

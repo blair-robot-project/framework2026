@@ -16,9 +16,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.system.motor.KrakenDogLog
 
 class Intake(
-  private val topMotor: TalonFX,
-  private val rightMotor: TalonFX,
-  private val leftMotor: TalonFX,
+  private val topMotor: TalonFX, // kraken x44
+  private val rightMotor: TalonFX, // kraken x60
+  private val leftMotor: TalonFX,  // kraken x60
   private val backCoralSensor: LaserCanInterface,
   private val leftCoralSensor: LaserCanInterface,
   private val rightCoralSensor: LaserCanInterface,
@@ -200,15 +200,7 @@ class Intake(
     KrakenDogLog.log("Intake/rightMotor", rightMotor)
     KrakenDogLog.log("Intake/leftMotor", leftMotor)
 
-    DogLog.log("Intake/ topMotor velocity", topMotor.velocity.valueAsDouble)
-    DogLog.log("Intake/ rightMotor velocity", rightMotor.velocity.valueAsDouble)
-    DogLog.log("Intake/ leftMotor velocity", leftMotor.velocity.valueAsDouble)
-
-    DogLog.log("Intake/ topMotor position", topMotor.position.valueAsDouble)
-    DogLog.log("Intake/ rightMotor position", rightMotor.position.valueAsDouble)
-    DogLog.log("Intake/ leftMotor position", leftMotor.position.valueAsDouble)
-
-    DogLog.log("Intake/HorizontalIntake", intakeCoralHorizontal().isFinished)
+    DogLog.log("Intake/HorizontalIntake", coralHorizontal())
 
     DogLog.log("Intake/LaserCan/Back Sensor Distance (mm)", backCoralSensor.measurement.distance_mm.toDouble())
     DogLog.log("Intake/LaserCan/Left Sensor Distance (mm)", leftCoralSensor.measurement.distance_mm.toDouble())
