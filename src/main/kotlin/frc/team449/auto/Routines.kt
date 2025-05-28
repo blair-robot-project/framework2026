@@ -499,7 +499,7 @@ open class Routines(
 
   private fun intake(): Command {
     return robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE)
-      .alongWith(robot.intake.intakeCoral())
+      .alongWith(robot.intake.regularIntakeCoral())
       .andThen(
         WaitUntilCommand { robot.intake.coralDetected() || !RobotBase.isReal() }
       )

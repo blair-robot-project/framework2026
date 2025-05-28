@@ -4,29 +4,26 @@ import au.grapplerobotics.LaserCan
 import au.grapplerobotics.interfaces.LaserCanInterface
 import au.grapplerobotics.simulation.MockLaserCan
 import com.ctre.phoenix6.configs.TalonFXConfiguration
+import com.ctre.phoenix6.controls.PositionDutyCycle
+import com.ctre.phoenix6.controls.PositionVoltage
 import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.TalonFX
 import dev.doglog.DogLog
-import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.wpilibj.RobotBase.isSimulation
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import frc.team449.system.motor.KrakenDogLog
 
 class Intake(
   private val topMotor: TalonFX,
   private val rightMotor: TalonFX,
   private val leftMotor: TalonFX,
-  private val bottomCoralSensor: LaserCanInterface,
+  private val backCoralSensor: LaserCanInterface,
   private val leftCoralSensor: LaserCanInterface,
   private val rightCoralSensor: LaserCanInterface,
-  private val topCoralSensor: LaserCanInterface
+  private val middleCoralSensor: LaserCanInterface
 ) : SubsystemBase() {
-
-  // TODO: PID controls for each separate motor
-  private val topController = PIDController(2.1778, 0.0, 0.010)
-  private val rightController = PIDController(2.1778, 0.0, 0.010)
-  private val leftController = PIDController(2.1778, 0.0, 0.010)
 
   private fun setVoltage(vararg motors: TalonFX, voltage: Double): Command {
     return runOnce {
@@ -34,15 +31,21 @@ class Intake(
     }
   }
 
-  fun setVoltageTop(voltage: Double) = setVoltage(topMotor, voltage = voltage)
-  fun setVoltageRight(voltage: Double) = setVoltage(rightMotor, voltage = voltage)
-  fun setVoltageLeft(voltage: Double) = setVoltage(leftMotor, voltage = voltage)
-  fun setVoltageSides(voltage: Double) = setVoltage(rightMotor, leftMotor, voltage = voltage)
+  fun setVoltageTop(voltage: Double) : Command {return setVoltage(topMotor, voltage = voltage)}
+  fun setVoltageRight(voltage: Double): Command{ return setVoltage(rightMotor, voltage = voltage)}
+  fun setVoltageLeft(voltage: Double): Command{ return setVoltage(leftMotor, voltage = voltage)}
+  fun setVoltageSides(voltage: Double): Command{ return setVoltage(rightMotor, leftMotor, voltage = voltage)}
+
+
+
+  fun regularIntakeCoral(): Command { // no sensor
+    return setVoltage(topMotor,rightMotor,leftMotor, voltage =  IntakeConstants.CORAL_INTAKE_VOLTAGE)
+  }
 
   fun intakeCoralHorizontal(): Command {
     return run {
       setVoltageTop(IntakeConstants.CORAL_INTAKE_VOLTAGE)
-      setVoltageSides(IntakeConstants.CORAL_INTAKE_VOLTAGE) // change to some lower voltage
+      setVoltageSides(IntakeConstants.CORAL_INTAKE_VOLTAGE_LOWER) // change to some lower voltage
     }.until { coralHorizontal() }
       .andThen(holdCoral())
   }
@@ -50,7 +53,7 @@ class Intake(
   fun intakeCoralVertical(): Command {
     return run {
       setVoltageSides(IntakeConstants.CORAL_INTAKE_VOLTAGE)
-      setVoltageTop(IntakeConstants.CORAL_INTAKE_VOLTAGE) // lower voltage
+      setVoltageTop(IntakeConstants.CORAL_INTAKE_VOLTAGE_LOWER) // lower voltage
     }.until { coralVertical() }
       .andThen(holdCoral())
   }
@@ -65,38 +68,42 @@ class Intake(
       .andThen(run { motor.setVoltage(controller.calculate(motor.encoder.position)) })
   }*/
 
-  data class motorControl(
-    val motor: TalonFX,
-    val controller: PIDController
-  )
 
-  val motorControls = listOf(
-    motorControl(topMotor, topController),
-    motorControl(rightMotor, rightController),
-    motorControl(leftMotor, leftController)
-  )
+  fun holdCoral(): Command{
+    return runOnce{
 
-  fun holdCoral(): Command {
-    return runOnce {
-      motorControls.forEach {
-        it.controller.reset()
-        it.controller.setpoint = it.motor.position.valueAsDouble
-      }
-    }
-      .andThen(
-        InstantCommand({
-          motorControls.forEach {
-            it.motor.setVoltage(2.0)
-          } 
-        })
-      )
+      topMotor.setControl(PositionDutyCycle(topMotor.position.valueAsDouble))
+      rightMotor.setControl(PositionDutyCycle(rightMotor.position.valueAsDouble))
+      leftMotor.setControl(PositionDutyCycle(leftMotor.position.valueAsDouble))
+
+    }.andThen(InstantCommand({topMotor.setVoltage(2.0)}))
+      .alongWith(InstantCommand({rightMotor.setVoltage(2.0)})
+        .alongWith( InstantCommand({topMotor.setVoltage(2.0)})))
       .andThen(stop())
-      .andThen(
-        run {
-          motorControls.forEach { it.motor.setVoltage(it.controller.calculate(it.motor.position.valueAsDouble)) }
-        }
-      )
+
   }
+
+
+  fun holdCoralForward(): Command{
+    return runOnce{
+      topMotor.setControl(PositionDutyCycle(topMotor.position.valueAsDouble))
+      rightMotor.setControl(PositionDutyCycle(rightMotor.position.valueAsDouble))
+      leftMotor.setControl(PositionDutyCycle(leftMotor.position.valueAsDouble))
+
+      topMotor.setPosition(topMotor.position.valueAsDouble + 1)
+      rightMotor.setPosition(rightMotor.position.valueAsDouble + 1)
+      leftMotor.setPosition(leftMotor.position.valueAsDouble + 1)
+
+    }.andThen(InstantCommand({topMotor.setVoltage(1.0)}))
+      .alongWith(InstantCommand({rightMotor.setVoltage(2.0)})
+        .alongWith( InstantCommand({topMotor.setVoltage(2.0)})))
+      .andThen(stop())
+
+  }
+
+
+
+
 
   /*fun holdCoralForward(): Command {
     return runOnce {
@@ -108,29 +115,6 @@ class Intake(
       .andThen(run { motor.setVoltage(controller.calculate(motor.encoder.position)) })
   }*/
 
-  fun holdCoralForward(): Command {
-    return runOnce {
-      motorControls.forEach {
-        it.controller.reset()
-        it.controller.setpoint = it.motor.position.valueAsDouble + 1.0
-      }
-    }
-      .andThen(
-        InstantCommand({
-          motorControls.forEach {
-            it.motor.setVoltage(2.0)
-          }
-        })
-      )
-      .andThen(stop())
-      .andThen(
-        run {
-          motorControls.forEach {
-            it.motor.setVoltage(it.controller.calculate(it.motor.position.valueAsDouble))
-          }
-        }
-      )
-  }
 
   fun intakeAlgae(): Command {
     return setVoltageTop(IntakeConstants.ALGAE_INTAKE_VOLTAGE)
@@ -162,16 +146,11 @@ class Intake(
 
   private fun laserCanDetected(laserCan: LaserCanInterface): Boolean {
     val measurement: LaserCanInterface.Measurement = laserCan.measurement
-    if (measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
-      if (measurement.distance_mm <= IntakeConstants.LASER_CAN_SENSOR_MIN_DISTANCE_MM) {
-        return true
-      }
-    }
-    return false
+    return (measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT && measurement.distance_mm <= IntakeConstants.LASER_CAN_SENSOR_MIN_DISTANCE_MM)
   }
 
   fun coralDetected(): Boolean {
-    return laserCanDetected(bottomCoralSensor) || laserCanDetected(leftCoralSensor) || laserCanDetected(rightCoralSensor) || laserCanDetected(topCoralSensor)
+    return laserCanDetected(backCoralSensor) || laserCanDetected(leftCoralSensor) || laserCanDetected(rightCoralSensor) || laserCanDetected(middleCoralSensor)
   }
 
   fun coralNotDetected(): Boolean {
@@ -179,11 +158,11 @@ class Intake(
   }
 
   fun coralVertical(): Boolean {
-    return laserCanDetected(bottomCoralSensor) && laserCanDetected(topCoralSensor) && !laserCanDetected(leftCoralSensor) && !laserCanDetected(rightCoralSensor)
+    return laserCanDetected(backCoralSensor) && laserCanDetected(middleCoralSensor) && !laserCanDetected(leftCoralSensor) && !laserCanDetected(rightCoralSensor)
   }
 
   fun coralHorizontal(): Boolean {
-    return laserCanDetected(bottomCoralSensor) && laserCanDetected(leftCoralSensor) && laserCanDetected(rightCoralSensor) && !laserCanDetected(topCoralSensor)
+    return laserCanDetected(backCoralSensor) && laserCanDetected(leftCoralSensor) && laserCanDetected(rightCoralSensor) && !laserCanDetected(middleCoralSensor)
   }
 
   // Coral is controlled by the Intake
@@ -217,10 +196,24 @@ class Intake(
     // DogLog.log("Intake/Motor Voltage", motor.appliedOutput * 12.0)
     // DogLog.log("Intake/Motor Position", motor.encoder.position)
 
-    DogLog.log("Intake/LaserCan/Bottom Sensor Distance (mm)", bottomCoralSensor.measurement.distance_mm.toDouble())
+    KrakenDogLog.log("Intake/topMotor", topMotor)
+    KrakenDogLog.log("Intake/rightMotor", rightMotor)
+    KrakenDogLog.log("Intake/leftMotor", leftMotor)
+
+    DogLog.log("Intake/ topMotor velocity", topMotor.velocity.valueAsDouble)
+    DogLog.log("Intake/ rightMotor velocity", rightMotor.velocity.valueAsDouble)
+    DogLog.log("Intake/ leftMotor velocity", leftMotor.velocity.valueAsDouble)
+
+    DogLog.log("Intake/ topMotor position", topMotor.position.valueAsDouble)
+    DogLog.log("Intake/ rightMotor position", rightMotor.position.valueAsDouble)
+    DogLog.log("Intake/ leftMotor position", leftMotor.position.valueAsDouble)
+
+    DogLog.log("Intake/HorizontalIntake", intakeCoralHorizontal().isFinished)
+
+    DogLog.log("Intake/LaserCan/Back Sensor Distance (mm)", backCoralSensor.measurement.distance_mm.toDouble())
     DogLog.log("Intake/LaserCan/Left Sensor Distance (mm)", leftCoralSensor.measurement.distance_mm.toDouble())
     DogLog.log("Intake/LaserCan/Right Sensor Distance (mm)", rightCoralSensor.measurement.distance_mm.toDouble())
-    DogLog.log("Intake/LaserCan/Top Sensor Distance (mm)", topCoralSensor.measurement.distance_mm.toDouble())
+    DogLog.log("Intake/LaserCan/Middle Sensor Distance (mm)", middleCoralSensor.measurement.distance_mm.toDouble())
   }
 
   companion object {
@@ -262,10 +255,10 @@ class Intake(
         topMotor,
         rightMotor,
         leftMotor,
-        LaserCan(IntakeConstants.BOTTOM_CORAL_SENSOR_CAN_ID),
+        LaserCan(IntakeConstants.MIDDLE_CORAL_SENSOR_CAN_ID),
         LaserCan(IntakeConstants.LEFT_CORAL_SENSOR_CAN_ID),
         LaserCan(IntakeConstants.RIGHT_CORAL_SENSOR_CAN_ID),
-        LaserCan(IntakeConstants.TOP_CORAL_SENSOR_CAN_ID)
+        LaserCan(IntakeConstants.BACK_CORAL_SENSOR_CAN_ID)
       )
     }
   }

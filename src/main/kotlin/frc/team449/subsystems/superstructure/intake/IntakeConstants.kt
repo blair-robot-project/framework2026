@@ -23,6 +23,7 @@ object IntakeConstants {
   val BRAKE_MODE = NeutralModeValue.Brake
 
   const val CORAL_INTAKE_VOLTAGE = 11.0
+  const val CORAL_INTAKE_VOLTAGE_LOWER = 2.0
 
 // TODO: intake voltage for different scenarios and motors
   const val ALGAE_INTAKE_VOLTAGE = 9.0
@@ -45,10 +46,10 @@ object IntakeConstants {
   const val READY_PIVOT_CORAL_TIME = 0.25
 
   // TODO Add CAN IDs for new LaserCAN sensors
-  const val BOTTOM_CORAL_SENSOR_CAN_ID = 20
+  const val MIDDLE_CORAL_SENSOR_CAN_ID = 20
   const val LEFT_CORAL_SENSOR_CAN_ID = 21
   const val RIGHT_CORAL_SENSOR_CAN_ID = 22
-  const val TOP_CORAL_SENSOR_CAN_ID = 23
+  const val BACK_CORAL_SENSOR_CAN_ID = 23
 
   // Minimum distance in mm on the LaserCAN sensors to count as a detection (TODO Calibration)
   const val LASER_CAN_SENSOR_MIN_DISTANCE_MM = 64
