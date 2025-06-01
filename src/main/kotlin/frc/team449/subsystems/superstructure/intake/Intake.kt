@@ -45,7 +45,7 @@ class Intake(
     return run {
       setVoltageTop(IntakeConstants.CORAL_INTAKE_VOLTAGE)
       setVoltageSides(IntakeConstants.CORAL_INTAKE_VOLTAGE_LOWER) // change to some lower voltage
-    }.until { coralHorizontal() }
+    }.until { coralHorizontalDetected() }
       .andThen(holdCoral())
   }
 
@@ -152,6 +152,8 @@ class Intake(
     return laserCanDetected(backCoralSensor) || laserCanDetected(leftCoralSensor) || laserCanDetected(rightCoralSensor) || laserCanDetected(middleCoralSensor)
   }
 
+
+
   fun coralNotDetected(): Boolean {
     return !coralDetected()
   }
@@ -160,18 +162,18 @@ class Intake(
     return laserCanDetected(backCoralSensor) && laserCanDetected(middleCoralSensor) && !laserCanDetected(leftCoralSensor) && !laserCanDetected(rightCoralSensor)
   }
 
-  fun coralHorizontal(): Boolean {
+  fun coralHorizontalDetected(): Boolean {
     return laserCanDetected(backCoralSensor) && laserCanDetected(leftCoralSensor) && laserCanDetected(rightCoralSensor) && !laserCanDetected(middleCoralSensor)
   }
 
   // Coral is controlled by the Intake
   fun coralControlled(): Boolean {
-    return coralVertical() || coralHorizontal()
+    return coralVertical() || coralHorizontalDetected()
   }
 
   // Coral is not vertical or horizontal but is detected by one of the sensors
   fun coralMisplaced(): Boolean {
-    return coralDetected() && !coralVertical() && !coralHorizontal()
+    return coralDetected() && !coralVertical() && !coralHorizontalDetected()
   }
 
   // What is the point of this
@@ -199,7 +201,7 @@ class Intake(
     KrakenDogLog.log("Intake/rightMotor", rightMotor)
     KrakenDogLog.log("Intake/leftMotor", leftMotor)
 
-    DogLog.log("Intake/HorizontalIntake", coralHorizontal())
+    DogLog.log("Intake/HorizontalIntake", coralHorizontalDetected())
 
     DogLog.log("Intake/LaserCan/Back Sensor Distance (mm)", backCoralSensor.measurement.distance_mm.toDouble())
     DogLog.log("Intake/LaserCan/Left Sensor Distance (mm)", leftCoralSensor.measurement.distance_mm.toDouble())
