@@ -52,7 +52,7 @@ class ControllerBindings(
 
 //    substationIntake() // replace with groundIntake() soon
     groundIntake()
-    groundIntakeHigh()
+    groundIntakeL1()
 //    coralBlockSubstationIntake()
     outtake()
 
@@ -283,9 +283,9 @@ class ControllerBindings(
     )
   }
 
-  private fun groundIntakeHigh() {
+  private fun groundIntakeL1() {
     driveController.back().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_HIGH)
+      robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE)
         .alongWith(robot.intake.intakeCoral())
         .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
         .andThen(WaitCommand(0.25))
@@ -519,21 +519,7 @@ class ControllerBindings(
     )
   }
 
-  private fun intakel1() {
-    Trigger { driveController.leftStick().asBoolean }.onTrue(
-      SequentialCommandGroup(
-        InstantCommand({ robot.driveController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.3) }),
-        WaitCommand(0.5804),
-        InstantCommand({ robot.driveController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.0) })
-      )
-    ).toggleOnFalse(
-      SequentialCommandGroup(
-        InstantCommand({ robot.driveController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.3) }),
-        WaitCommand(0.5804),
-        InstantCommand({ robot.driveController.hid.setRumble(GenericHID.RumbleType.kBothRumble, 0.0) })
-      )
-    )
-  }
+
   private fun outtakeCoral() {
     mechanismController.rightStick().onTrue(
       robot.intake.outtakeCoralPivot()

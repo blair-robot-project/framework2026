@@ -134,10 +134,10 @@ class Intake(
   private fun logData() {
     DogLog.log("Intake/Motor Voltage", motor.appliedOutput * 12.0)
     DogLog.log("Intake/Motor Position", motor.encoder.position)
-    DogLog.log("Intake/LaserCan/Bottom Sensor Distance (mm)", bottomCoralSensor.measurement.distance_mm.toDouble())
-    DogLog.log("Intake/LaserCan/Left Sensor Distance (mm)", leftCoralSensor.measurement.distance_mm.toDouble())
-    DogLog.log("Intake/LaserCan/Right Sensor Distance (mm)", rightCoralSensor.measurement.distance_mm.toDouble())
-    DogLog.log("Intake/LaserCan/Top Sensor Distance (mm)", topCoralSensor.measurement.distance_mm.toDouble())
+    DogLog.log("Intake/LaserCan/Middle", bottomCoralSensor.measurement.distance_mm.toDouble())
+    DogLog.log("Intake/LaserCan/Left", leftCoralSensor.measurement.distance_mm.toDouble())
+    DogLog.log("Intake/LaserCan/Right", rightCoralSensor.measurement.distance_mm.toDouble())
+    DogLog.log("Intake/LaserCan/Back", topCoralSensor.measurement.distance_mm.toDouble())
   }
 
   companion object {
