@@ -179,10 +179,9 @@ object SuperstructureGoal {
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
-  // TODO: FIND NET POSE
   val NET = SuperstructureState(
-    L4.pivot,
-    L4.elevator,
+    Degrees.of(80.297259),
+    L4.elevator + Inches.of(10.278098),
     L4.wrist,
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
