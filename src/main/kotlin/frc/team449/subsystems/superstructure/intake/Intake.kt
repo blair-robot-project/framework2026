@@ -37,11 +37,6 @@ class Intake(
   fun setVoltageSides(voltage: Double): Command{ return setVoltage(rightMotor, leftMotor, voltage = voltage)}
 
 
-
-  fun regularIntakeCoral(): Command { // no sensor
-    return setVoltage(topMotor,rightMotor,leftMotor, voltage =  IntakeConstants.CORAL_INTAKE_VOLTAGE)
-  }
-
   fun intakeCoralHorizontal(): Command {
     return run {
       setVoltageTop(IntakeConstants.CORAL_INTAKE_VOLTAGE)
@@ -68,21 +63,29 @@ class Intake(
       .andThen(run { motor.setVoltage(controller.calculate(motor.encoder.position)) })
   }*/
 
-
   fun holdCoral(): Command{
     return runOnce{
 
-      topMotor.setControl(PositionDutyCycle(topMotor.position.valueAsDouble))
-      rightMotor.setControl(PositionDutyCycle(rightMotor.position.valueAsDouble))
-      leftMotor.setControl(PositionDutyCycle(leftMotor.position.valueAsDouble))
+      topMotor.setControl(PositionVoltage(topMotor.position.valueAsDouble))
+      rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble))
+      leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble))
 
-    }.andThen(InstantCommand({topMotor.setVoltage(2.0)}))
+    }.andThen(run{topMotor.setVoltage(2.0)})
       .alongWith(InstantCommand({rightMotor.setVoltage(2.0)})
         .alongWith( InstantCommand({topMotor.setVoltage(2.0)})))
-      .andThen(stop())
-
+      .andThen(stop()).andThen(run{
+        topMotor.setControl(PositionVoltage(topMotor.position.valueAsDouble))
+        leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble))
+        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble))
+      })
   }
 
+
+  fun holdCoralPivot():Command{
+    return runOnce{
+
+    }
+  }
 
   fun holdCoralForward(): Command{
     return runOnce{
@@ -101,10 +104,6 @@ class Intake(
 
   }
 
-
-
-
-
   /*fun holdCoralForward(): Command {
     return runOnce {
       controller.reset()
@@ -114,7 +113,6 @@ class Intake(
       .andThen(stop())
       .andThen(run { motor.setVoltage(controller.calculate(motor.encoder.position)) })
   }*/
-
 
   fun intakeAlgae(): Command {
     return setVoltageTop(IntakeConstants.ALGAE_INTAKE_VOLTAGE)
@@ -206,6 +204,10 @@ class Intake(
     DogLog.log("Intake/LaserCan/Left Sensor Distance (mm)", leftCoralSensor.measurement.distance_mm.toDouble())
     DogLog.log("Intake/LaserCan/Right Sensor Distance (mm)", rightCoralSensor.measurement.distance_mm.toDouble())
     DogLog.log("Intake/LaserCan/Middle Sensor Distance (mm)", middleCoralSensor.measurement.distance_mm.toDouble())
+    DogLog.log("Intake/ Back sensor",laserCanDetected(backCoralSensor) )
+    DogLog.log("Intake/ Right sensor",laserCanDetected(rightCoralSensor) )
+    DogLog.log("Intake/ Left sensor",laserCanDetected(leftCoralSensor) )
+    DogLog.log("Intake/ Middle sensor",laserCanDetected(middleCoralSensor) )
   }
 
   companion object {

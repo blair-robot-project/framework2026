@@ -24,11 +24,4 @@ object Commands {
     )
   }
 
-  fun Intake(robot: Robot): Command {
-    return Commands.sequence(
-      robot.intake.regularIntakeCoral(),
-      WaitUntilCommand(robot.intake::coralDetected),
-      robot.intake.stop()
-    )
-  }
 }

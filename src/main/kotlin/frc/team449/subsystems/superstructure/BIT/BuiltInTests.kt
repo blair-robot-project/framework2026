@@ -122,7 +122,7 @@ class BuiltInTests(robot: Robot) {
     return Commands.sequence(
       PrintCommand("Running intake tests. Grab a coral."),
       WaitCommand(1.0),
-      intake.regularIntakeCoral(),
+      intake.intakeCoralVertical(),
       PrintCommand("Please feed the robot a coral."),
       WaitUntilCommand { intake.coralDetected() }.withDeadline(WaitCommand(4.0)).finallyDo(
         Runnable {
