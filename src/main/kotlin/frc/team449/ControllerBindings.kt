@@ -268,26 +268,38 @@ class ControllerBindings(
 
   private fun groundIntake() {
     driveController.leftBumper().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE)
-        .alongWith(robot.intake.intakeCoralVertical())
-        .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
-        .andThen(WaitCommand(0.275))
-        .andThen(robot.intake.stop())
-        .andThen(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
-            .alongWith(
-              robot.intake.holdCoralForward()
-                .until { !robot.intake.coralDetected() }
-            )
-        )
+      ConditionalCommand((
+        robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE)
+          .alongWith(robot.intake.intakeCoralHorizontal())
+          .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
+          .andThen(WaitCommand(0.275))
+          .andThen(robot.intake.stop())
+          .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
+            .alongWith(robot.intake.holdCoralForward()
+              .until { !robot.intake.coralDetected() }))),
+
+        (robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE)
+          .alongWith(robot.intake.intakeCoralVertical())
+          .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
+          .andThen(WaitCommand(0.275))
+          .andThen(robot.intake.stop())
+          .andThen(
+            robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
+              .alongWith(
+                robot.intake.holdCoralForward()
+                  .until { !robot.intake.coralDetected() }
+              )
+          )
+          )
+      ) { !driveController.leftStick().asBoolean }
     )
   }
 
   private fun groundIntakeL1() {
     driveController.back().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_HIGH)
+      robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE)
         .alongWith(robot.intake.intakeCoralHorizontal())
-        .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
+        .andThen(WaitUntilCommand { robot.intake.coralHorizontalDetected() && RobotBase.isReal() })
         .andThen(WaitCommand(0.25))
         .andThen(robot.intake.stop())
         .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
