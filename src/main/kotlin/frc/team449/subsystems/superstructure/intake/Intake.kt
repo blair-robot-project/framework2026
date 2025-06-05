@@ -49,7 +49,7 @@ class Intake(
     return run {
       setVoltageSides(IntakeConstants.CORAL_INTAKE_VOLTAGE)
       setVoltageTop(IntakeConstants.CORAL_INTAKE_VOLTAGE_LOWER) // lower voltage
-    }.until { coralVertical() }
+    }.until { coralVerticalDetected() }
       .andThen(holdCoral())
   }
 
@@ -157,7 +157,7 @@ class Intake(
     return !coralDetected()
   }
 
-  fun coralVertical(): Boolean {
+  fun coralVerticalDetected(): Boolean {
     return laserCanDetected(backCoralSensor) && laserCanDetected(middleCoralSensor) && !laserCanDetected(leftCoralSensor) && !laserCanDetected(rightCoralSensor)
   }
 
@@ -167,12 +167,12 @@ class Intake(
 
   // Coral is controlled by the Intake
   fun coralControlled(): Boolean {
-    return coralVertical() || coralHorizontalDetected()
+    return coralVerticalDetected() || coralHorizontalDetected()
   }
 
   // Coral is not vertical or horizontal but is detected by one of the sensors
   fun coralMisplaced(): Boolean {
-    return coralDetected() && !coralVertical() && !coralHorizontalDetected()
+    return coralDetected() && !coralVerticalDetected() && !coralHorizontalDetected()
   }
 
   // What is the point of this

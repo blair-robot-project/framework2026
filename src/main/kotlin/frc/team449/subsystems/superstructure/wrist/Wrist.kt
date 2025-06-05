@@ -90,6 +90,12 @@ class Wrist(
       motor.closedLoopReferenceSlope.valueAsDouble <= 0.0
   }
 
+
+  fun pivotReady(): Boolean{
+    return positionSupplier.get() < WristConstants.PIVOT_READY.`in`(Radians) &&
+      motor.closedLoopReferenceSlope.valueAsDouble <= 0.0
+  }
+
   fun startupZero() {
     motor.setPosition(WristConstants.STARTUP_ANGLE.`in`(Radians))
   }

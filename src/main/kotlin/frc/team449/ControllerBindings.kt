@@ -268,16 +268,20 @@ class ControllerBindings(
 
   private fun groundIntakeVertical() {
     driveController.leftBumper().onTrue(
-        robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE)
-          .alongWith(robot.intake.intakeCoralHorizontal())
+        (robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE)
+          .alongWith(robot.intake.intakeCoralVertical())
           .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
           .andThen(WaitCommand(0.275))
           .andThen(robot.intake.stop())
-          .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
-            .alongWith(robot.intake.holdCoralForward()
-              .until { !robot.intake.coralDetected() })))
-
-
+          .andThen(
+            robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
+              .alongWith(
+                robot.intake.holdCoralForward()
+                  .until { !robot.intake.coralDetected() }
+              )
+          )
+          )
+    )
   }
 
   private fun groundIntakeL1() {
@@ -418,6 +422,13 @@ class ControllerBindings(
           .alongWith(robot.intake.holdCoral())
       ) { robot.intake.algaeDetected() }
 
+    )
+  }
+
+  private fun algaeGroundIntake(){
+    driveController.start().onTrue(
+      robot.superstructureManager.requestGroundIntake(SuperstructureGoal.GROUND_INTAKE)
+        .alongWith(robot.intake.intakeAlgae())
     )
   }
 

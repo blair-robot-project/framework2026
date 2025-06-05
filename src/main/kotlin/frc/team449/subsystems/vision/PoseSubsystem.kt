@@ -294,6 +294,9 @@ class PoseSubsystem(
     DogLog.log("PoseSubsystem/AHRS Values/Angular X Vel", ahrs.angularXVel())
     DogLog.log("PoseSubsystem/AHRS Values/Navx Connected", ahrs.connected())
     DogLog.log("PoseSubsystem/AHRS Values/Navx Calibrated", ahrs.calibrated())
+    for ((index, _) in cameras.withIndex()) {
+      DogLog.log("PoseSubsystem/Vision Stats/Vision Pose Cam ${cameras[index].estimator.camera.name}", cameras[index].estimator.camera.isConnected)
+    }
   }
 
   companion object {

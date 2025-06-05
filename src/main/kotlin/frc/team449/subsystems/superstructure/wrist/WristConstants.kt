@@ -2,6 +2,7 @@ package frc.team449.subsystems.superstructure.wrist
 
 import com.ctre.phoenix6.signals.InvertedValue
 import com.ctre.phoenix6.signals.NeutralModeValue
+import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Frequency
 import edu.wpi.first.wpilibj.util.Color
@@ -17,6 +18,10 @@ object WristConstants {
 
   val TOLERANCE = Degrees.of(5.0)
   val ELEVATOR_READY = Degrees.of(105.0)
+
+  //TODO: find the safest pivot angle to move
+  val PIVOT_READY = Degrees.of(10.0)
+
   const val GEARING = 17.0 / 576.0
   const val UPR = 2 * PI
 
