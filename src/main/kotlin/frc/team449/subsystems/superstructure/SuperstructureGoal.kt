@@ -78,7 +78,6 @@ object SuperstructureGoal {
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
-
   val GROUND_INTAKE_LOW = SuperstructureState(
     Degrees.of(-5.35),
     MIN_ELEVATOR_HEIGHT,
