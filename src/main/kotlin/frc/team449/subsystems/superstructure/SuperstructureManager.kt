@@ -38,7 +38,6 @@ class SuperstructureManager(
         ConditionalCommand(
           // if ground algae
           Commands.sequence(
-            InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) }),
             Commands.parallel(
               elevator.setPosition(goal.elevator.`in`(Meters)),
               pivot.setPosition(goal.pivot.`in`(Radians))
@@ -172,39 +171,71 @@ class SuperstructureManager(
           // if extending
           Commands.sequence(
             InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) }),
-            Commands.parallel(
-              wrist.setPosition(goal.wrist.`in`(Radians)),
-              pivot.setPosition(goal.pivot.`in`(Radians))
-            ),
-            WaitUntilCommand { wrist.elevatorReady() && pivot.elevatorReady() },
-            elevator.setPosition(goal.elevator.`in`(Meters)),
+            ConditionalCommand(
+              //move pivot before moving wrist
+              Commands.sequence(
+                pivot.setPosition(goal.pivot.`in`(Radians)),
+                WaitUntilCommand { pivot.elevatorReady() },
+                elevator.setPosition(goal.elevator.`in`(Meters)),
+                //wait until pivot is almost at setpoint before moving wrist
+                WaitUntilCommand { pivot.atSetpoint(Units.degreesToRadians(5.0)) },
+                wrist.setPosition(goal.wrist.`in`(Radians)),
+                WaitUntilCommand { wrist.atSetpoint() || pivot.atSetpoint() },
+                pivot.hold().onlyIf { pivot.atSetpoint() },
+                wrist.hold().onlyIf { wrist.atSetpoint() },
+                WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() },
+                pivot.hold(),
+                wrist.hold(),
+                WaitUntilCommand { elevator.atSetpoint() },
+                holdAll()
+              ),
+              //regular extension
+              Commands.sequence(
+                Commands.parallel(
+                  wrist.setPosition(goal.wrist.`in`(Radians)),
+                  pivot.setPosition(goal.pivot.`in`(Radians))
+                ),
+                WaitUntilCommand { wrist.elevatorReady() && pivot.elevatorReady() },
+                elevator.setPosition(goal.elevator.`in`(Meters)),
 //            WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() && elevator.atSetpoint() },
-            WaitUntilCommand { wrist.atSetpoint() || pivot.atSetpoint() },
-            pivot.hold().onlyIf { pivot.atSetpoint() },
-            wrist.hold().onlyIf { wrist.atSetpoint() },
-            WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() },
-            pivot.hold(),
-            wrist.hold(),
-            WaitUntilCommand { elevator.atSetpoint() },
-            holdAll()
+                WaitUntilCommand { wrist.atSetpoint() || pivot.atSetpoint() },
+                pivot.hold().onlyIf { pivot.atSetpoint() },
+                wrist.hold().onlyIf { wrist.atSetpoint() },
+                WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() },
+                pivot.hold(),
+                wrist.hold(),
+                WaitUntilCommand { elevator.atSetpoint() },
+                holdAll()
+              )
+
+            ) { goal == SuperstructureGoal.ALGAE_GROUND }
+
           ),
 
           // if retracting
           ConditionalCommand(
             retractL4(goal),
             Commands.sequence(
-              elevator.setPosition(goal.elevator.`in`(Meters)),
-              wrist.hold(),
-              wrist.setPosition(WristConstants.ELEVATOR_READY.`in`(Radians))
-                .onlyIf { goal.wrist > WristConstants.ELEVATOR_READY },
-              WaitUntilCommand { elevator.pivotReady() },
-              Commands.parallel(
-                pivot.setPosition(goal.pivot.`in`(Radians)),
-                wrist.setPosition(goal.wrist.`in`(Radians))
-              ),
-              WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() && elevator.atSetpoint() },
-              InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) }),
-              holdAll()
+              ConditionalCommand(
+                //
+                Commands.sequence(
+
+                ),
+                Commands.sequence(
+                  elevator.setPosition(goal.elevator.`in`(Meters)),
+                  wrist.hold(),
+                  wrist.setPosition(WristConstants.ELEVATOR_READY.`in`(Radians))
+                    .onlyIf { goal.wrist > WristConstants.ELEVATOR_READY },
+                  WaitUntilCommand { elevator.pivotReady() },
+                  Commands.parallel(
+                    pivot.setPosition(goal.pivot.`in`(Radians)),
+                    wrist.setPosition(goal.wrist.`in`(Radians))
+                  ),
+                  WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() && elevator.atSetpoint() },
+                  InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) }),
+                  holdAll()
+                )
+              ) { goal == SuperstructureGoal.GROUND_INTAKE }
             )
           ) { prevGoal == SuperstructureGoal.L4 || prevGoal == SuperstructureGoal.L4_PIVOT }
         ) { goal.elevator.`in`(Meters) >= elevator.positionSupplier.get() }
