@@ -72,16 +72,17 @@ object SuperstructureGoal {
   )
 
   val GROUND_INTAKE = SuperstructureState(
-    Degrees.of(-5.25),
+    Degrees.of(-5.15),
     Inches.of(-1.35),
-    Degrees.of(-85.0), // true angle is -84.87
+    Degrees.of(-83.75), // true angle is -84.87
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
-  val GROUND_INTAKE_HIGH = SuperstructureState(
-    Degrees.of(-1.0),
+
+  val GROUND_INTAKE_LOW = SuperstructureState(
+    Degrees.of(-5.35),
     MIN_ELEVATOR_HEIGHT,
-    Degrees.of(-85.5), // true angle is -84.87
+    Degrees.of(-85.0), // true angle is -84.87
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
@@ -101,7 +102,7 @@ object SuperstructureGoal {
 
   val CLIMB_BEFORE = SuperstructureState(
     Degrees.of(90.0),
-    Meters.of(0.192891),
+    Meters.of(0.178891),
     Degrees.of(-70.0),
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
@@ -179,9 +180,9 @@ object SuperstructureGoal {
   )
 
   data class SuperstructureState(
-    val pivot: Angle,
-    val elevator: Distance,
-    val wrist: Angle,
+    var pivot: Angle,
+    var elevator: Distance,
+    var wrist: Angle,
     val driveDynamics: DriveDynamics
   )
 

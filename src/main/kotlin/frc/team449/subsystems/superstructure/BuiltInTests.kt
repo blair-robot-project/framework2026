@@ -41,7 +41,7 @@ class BuiltInTests(robot: Robot) {
         println("taking ${timer.get()} seconds to get to $state.")
       },
       { false }
-    ).withDeadline(cmd).andThen(WaitCommand(0.5))
+    ).withDeadline(cmd).alongWith(WaitUntilCommand { elevator.atSetpoint(BITConstants.ELEVATOR_TOLERANCE) }).andThen(WaitCommand(0.5))
       .andThen(manager.requestGoal(SuperstructureGoal.STOW)).andThen(WaitCommand(BITConstants.EXTERNAL_WAIT))
   }
 
@@ -49,20 +49,21 @@ class BuiltInTests(robot: Robot) {
     return Commands.sequence(
       InstantCommand({ userInput = false }),
       PrintCommand("Running scoring position tests. Press ${BITConstants.CANCEL_BUTTON_NAME} at any time to cancel."),
+      manager.requestGoal(SuperstructureGoal.STOW).andThen(WaitCommand(0.5)),
       checkTime(manager.requestGoal(SuperstructureGoal.L1), "L1"),
       checkTime(manager.requestGoal(SuperstructureGoal.L2), "L2"),
       checkTime(manager.requestGoal(SuperstructureGoal.L3), "L3"),
       checkTime(manager.requestGoal(SuperstructureGoal.L4), "L4"),
       checkTime(manager.requestGoal(SuperstructureGoal.L2_ALGAE_DESCORE), "L2 descore"),
       checkTime(manager.requestGoal(SuperstructureGoal.L3_ALGAE_DESCORE), "L3 descore"),
-      checkTime(manager.requestGoal(SuperstructureGoal.GROUND_INTAKE), "Ground Intake"),
+      checkTime(manager.requestGoal(SuperstructureGoal.CLIMB_BEFORE), "Climb"),
       PrintCommand("Running Pivot Side Scoring"),
       checkTime(manager.requestGoal(SuperstructureGoal.L2_PIVOT), "L2 Pivot"),
       checkTime(manager.requestGoal(SuperstructureGoal.L3_PIVOT), "L3 Pivot"),
       checkTime(manager.requestGoal(SuperstructureGoal.L4_PIVOT), "L4 Pivot"),
-      manager.requestGoal(SuperstructureGoal.GROUND_INTAKE),
-      WaitUntilCommand { intake.coralDetected() },
-      manager.requestGoal(SuperstructureGoal.STOW),
+      manager.requestGoal(SuperstructureGoal.GROUND_INTAKE).andThen(intake.intakeCoral()),
+      WaitUntilCommand { intake.coralDetected() }.andThen(WaitCommand(0.25)),
+      manager.requestGoal(SuperstructureGoal.STOW).andThen(intake.stop()),
       getDriveTests()
     ).onlyWhile { !userInput }.finallyDo(
       Runnable {
@@ -91,7 +92,13 @@ class BuiltInTests(robot: Robot) {
         }
         modulesAtSetpoint = atSetpoint
       }).until { modulesAtSetpoint }
-    ).andThen(WaitCommand(BITConstants.DRIVE_WAIT))
+    ).andThen(WaitCommand(BITConstants.DRIVE_WAIT)).withTimeout(1.0).finallyDo { interrupted: Boolean ->
+      if (interrupted) {
+        println("not reaching setpoint")
+      } else {
+        println("drive reached setpoint boyyyz")
+      }
+    }
   }
 
   private fun getDriveTests(): Command {

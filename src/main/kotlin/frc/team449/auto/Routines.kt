@@ -91,7 +91,7 @@ open class Routines(
             .withDeadline(WaitCommand(waitTime)),
           robot.superstructureManager.requestL4(SuperstructureGoal.L4_PIVOT)
         ),
-        robot.intake.holdCoralForward()
+        robot.intake.holdCoralForwardAuto()
       )
       else -> Commands.parallel(
         robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT),

@@ -35,7 +35,6 @@ class Intake(
       controller.reset()
       controller.setpoint = motor.encoder.position
     }
-      .andThen(InstantCommand({ motor.setVoltage(2.0) }))
       .andThen(stop())
       .andThen(run { motor.setVoltage(controller.calculate(motor.encoder.position)) })
   }
@@ -45,7 +44,24 @@ class Intake(
       controller.reset()
       controller.setpoint = motor.encoder.position + 1.0
     }
-      .andThen(InstantCommand({ motor.setVoltage(2.0) }))
+      .andThen(stop())
+      .andThen(run { motor.setVoltage(controller.calculate(motor.encoder.position)) })
+  }
+
+  fun holdCoralForwardAuto(): Command {
+    return runOnce {
+      controller.reset()
+      controller.setpoint = motor.encoder.position + 1.875
+    }
+      .andThen(stop())
+      .andThen(run { motor.setVoltage(controller.calculate(motor.encoder.position)) })
+  }
+
+  fun holdCoralBackwards(): Command {
+    return runOnce {
+      controller.reset()
+      controller.setpoint = motor.encoder.position - 1.0
+    }
       .andThen(stop())
       .andThen(run { motor.setVoltage(controller.calculate(motor.encoder.position)) })
   }

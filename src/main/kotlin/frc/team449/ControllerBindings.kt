@@ -284,13 +284,18 @@ class ControllerBindings(
 
   private fun groundIntakeHigh() {
     driveController.povUp().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_HIGH)
+      robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_LOW)
         .alongWith(robot.intake.intakeCoral())
         .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
-        .andThen(WaitCommand(0.25))
+        .andThen(WaitCommand(0.275))
         .andThen(robot.intake.stop())
-        .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
-        .andThen(robot.intake.holdCoral())
+        .andThen(
+          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
+            .alongWith(
+              robot.intake.holdCoralForward()
+                .until { !robot.intake.coralDetected() }
+            )
+        )
     )
   }
 
@@ -353,7 +358,7 @@ class ControllerBindings(
           robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT)
             .alongWith(robot.intake.holdCoral()),
           robot.superstructureManager.requestGoal(SuperstructureGoal.L2)
-            .alongWith(robot.intake.holdCoral())
+            .alongWith(robot.intake.holdCoralBackwards())
         ) { robot.poseSubsystem.isPivotSide() },
         robot.superstructureManager.requestGoal(SuperstructureGoal.L2_ALGAE_DESCORE)
           .alongWith(robot.intake.descoreAlgae())
@@ -386,28 +391,17 @@ class ControllerBindings(
   }
 
   private fun autoTest() {
-    testController.a().onTrue(
+    testController.y().onTrue(
       ConditionalCommand(
         InstantCommand({ robot.tester.userInput = true }),
         PrintCommand(
-          "Instructions in recommended order:\n" +
-            "Press b to run range of motion tests.\n" +
-            "Press x to run scoring position tests.\n" +
-            "Press y to run individual position tests.\n" +
-            "Press a to cancel tests if needed."
+          "Press x to run scoring position tests.\n" +
+          "Press y to cancel tests if needed. \n" +
+          "Scoring position tests will run L1-4, descore 2-3, pivot side 2-4, intake, and drive."
         )
       ) { robot.tester.runningTest }
     )
-    testController.b().onTrue(
-      InstantCommand({ robot.tester.runningTest = true }).andThen(
-        robot.tester.getROMTests()
-      ).andThen(InstantCommand({ robot.tester.runningTest = false }))
-    )
-    testController.y().onTrue(
-      InstantCommand({ robot.tester.runningTest = true }).andThen(
-        robot.tester.getPositionTests()
-      ).andThen(InstantCommand({ robot.tester.runningTest = false }))
-    )
+
     testController.x().onTrue(
       InstantCommand({ robot.tester.runningTest = true }).andThen(
         robot.tester.getScoringTests()
