@@ -1,4 +1,4 @@
-package frc.team449.subsystems.superstructure
+package frc.team449.subsystems.superstructure.BIT
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.wpilibj.Timer
@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand
 import frc.team449.Robot
 import frc.team449.subsystems.drive.swerve.SwerveModuleKraken
+import frc.team449.subsystems.superstructure.SuperstructureGoal
 import java.util.function.BooleanSupplier
 import java.util.function.DoubleConsumer
 import java.util.function.DoubleSupplier
@@ -36,8 +37,8 @@ class BuiltInTests(robot: Robot) {
       {
         print("Superstructure is ")
         if (timer.get() > BITConstants.SUPERSTRUCTURE_LATE) {
-          print(if (timer.get() > BITConstants.SUPERSTRUCTURE_COOKED) "cooked, " else "late, ")
-        } else { print("fine, ") }
+          print(if (timer.get() > BITConstants.SUPERSTRUCTURE_COOKED) "time is way too long, " else "time is slightly too long, ")
+        } else { print("time is in expected range, ") }
         println("taking ${timer.get()} seconds to get to $state.")
       },
       { false }
@@ -194,9 +195,21 @@ class BuiltInTests(robot: Robot) {
         else -> wrist.setPosition(setpoint)
       },
       when (name) {
-        "pivot" -> checkVoltageWait({ pivot.atSetpoint(BITConstants.PIVOT_TOLERANCE) }, { pivot.getMotorVoltage() }, BITConstants.HIGH_PIVOT_VOLTAGE)
-        "elevator" -> checkVoltageWait({ elevator.atSetpoint(BITConstants.ELEVATOR_TOLERANCE) }, { elevator.getMotorVoltage() }, BITConstants.HIGH_ELEVATOR_VOLTAGE)
-        else -> checkVoltageWait({ wrist.atSetpoint(BITConstants.WRIST_TOLERANCE) }, { wrist.getMotorVoltage() }, BITConstants.HIGH_WRIST_VOLTAGE)
+        "pivot" -> checkVoltageWait(
+          { pivot.atSetpoint(BITConstants.PIVOT_TOLERANCE) },
+          { pivot.getMotorVoltage() },
+          BITConstants.HIGH_PIVOT_VOLTAGE
+        )
+        "elevator" -> checkVoltageWait(
+          { elevator.atSetpoint(BITConstants.ELEVATOR_TOLERANCE) },
+          { elevator.getMotorVoltage() },
+          BITConstants.HIGH_ELEVATOR_VOLTAGE
+        )
+        else -> checkVoltageWait(
+          { wrist.atSetpoint(BITConstants.WRIST_TOLERANCE) },
+          { wrist.getMotorVoltage() },
+          BITConstants.HIGH_WRIST_VOLTAGE
+        )
       }
         .raceWith(WaitUntilCommand { timer.get() > realDeadline })
         .finallyDo(

@@ -1,7 +1,8 @@
-package frc.team449.subsystems.superstructure
+package frc.team449.subsystems.superstructure.BIT
 
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.*
+import frc.team449.subsystems.superstructure.SuperstructureGoal
 
 class BITConstants {
   companion object {

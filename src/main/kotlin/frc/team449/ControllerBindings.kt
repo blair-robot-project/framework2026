@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.DriverStation
+import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.util.Color
 import edu.wpi.first.wpilibj2.command.*
@@ -282,20 +283,15 @@ class ControllerBindings(
     )
   }
 
-  private fun groundIntakeHigh() {
-    driveController.povUp().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_LOW)
+  private fun groundIntakeL1() {
+    driveController.back().onTrue(
+      robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE)
         .alongWith(robot.intake.intakeCoral())
         .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
-        .andThen(WaitCommand(0.275))
+        .andThen(WaitCommand(0.25))
         .andThen(robot.intake.stop())
-        .andThen(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
-            .alongWith(
-              robot.intake.holdCoralForward()
-                .until { !robot.intake.coralDetected() }
-            )
-        )
+        .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
+        .andThen(robot.intake.holdCoral())
     )
   }
 
@@ -391,17 +387,28 @@ class ControllerBindings(
   }
 
   private fun autoTest() {
-    testController.y().onTrue(
+    testController.a().onTrue(
       ConditionalCommand(
         InstantCommand({ robot.tester.userInput = true }),
         PrintCommand(
-          "Press x to run scoring position tests.\n" +
-          "Press y to cancel tests if needed. \n" +
-          "Scoring position tests will run L1-4, descore 2-3, pivot side 2-4, intake, and drive."
+          "Instructions in recommended order:\n" +
+            "Press b to run range of motion tests.\n" +
+            "Press x to run scoring position tests.\n" +
+            "Press y to run individual position tests.\n" +
+            "Press a to cancel tests if needed."
         )
       ) { robot.tester.runningTest }
     )
-
+    testController.b().onTrue(
+      InstantCommand({ robot.tester.runningTest = true }).andThen(
+        robot.tester.getROMTests()
+      ).andThen(InstantCommand({ robot.tester.runningTest = false }))
+    )
+    testController.y().onTrue(
+      InstantCommand({ robot.tester.runningTest = true }).andThen(
+        robot.tester.getPositionTests()
+      ).andThen(InstantCommand({ robot.tester.runningTest = false }))
+    )
     testController.x().onTrue(
       InstantCommand({ robot.tester.runningTest = true }).andThen(
         robot.tester.getScoringTests()

@@ -214,6 +214,12 @@ class SuperstructureManager(
       lastGoal == SuperstructureGoal.L4_PIVOT
   }
 
+  fun intookAlgae(): Boolean {
+    return lastGoal == SuperstructureGoal.ALGAE_GROUND ||
+      lastGoal == SuperstructureGoal.L2_ALGAE_INTAKE ||
+      lastGoal == SuperstructureGoal.L3_ALGAE_INTAKE
+  }
+
   private fun holdAll(): Command {
     return Commands.parallel(
       pivot.hold(),

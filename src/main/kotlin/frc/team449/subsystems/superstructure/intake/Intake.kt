@@ -1,10 +1,12 @@
 package frc.team449.subsystems.superstructure.intake
 
+import au.grapplerobotics.LaserCan
+import au.grapplerobotics.interfaces.LaserCanInterface
+import au.grapplerobotics.simulation.MockLaserCan
 import com.revrobotics.spark.SparkMax
 import dev.doglog.DogLog
 import edu.wpi.first.math.controller.PIDController
-import edu.wpi.first.wpilibj.DigitalInput
-import edu.wpi.first.wpilibj.Timer
+import edu.wpi.first.wpilibj.RobotBase.isSimulation
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.SubsystemBase
@@ -12,10 +14,10 @@ import frc.team449.system.motor.createSparkMax
 
 class Intake(
   private val motor: SparkMax,
-  private val coralInfrared: DigitalInput,
-//  private val algaeInfrared: DigitalInput,
-//  private val pivotInfrared: DigitalInput,
-  private val timer: Timer = Timer()
+  private val bottomCoralSensor: LaserCanInterface,
+  private val leftCoralSensor: LaserCanInterface,
+  private val rightCoralSensor: LaserCanInterface,
+  private val topCoralSensor: LaserCanInterface
 ) : SubsystemBase() {
 
   private val controller = PIDController(2.1778, 0.0, 0.010)
@@ -66,13 +68,13 @@ class Intake(
       .andThen(run { motor.setVoltage(controller.calculate(motor.encoder.position)) })
   }
 
-//  fun intakeAlgae(): Command {
-//    return setVoltage(IntakeConstants.ALGAE_INTAKE_VOLTAGE)
-//  }
+  fun intakeAlgae(): Command {
+    return setVoltage(IntakeConstants.ALGAE_INTAKE_VOLTAGE)
+  }
 
-//  fun holdAlgae(): Command {
-//    return setVoltage(IntakeConstants.ALGAE_HOLD_VOLTAGE)
-//  }
+  fun holdAlgae(): Command {
+    return setVoltage(IntakeConstants.ALGAE_HOLD_VOLTAGE)
+  }
 
   fun descoreAlgae(): Command {
     return setVoltage(IntakeConstants.DESCORE_ALGAE_VOLTAGE)
@@ -90,53 +92,56 @@ class Intake(
     return setVoltage(IntakeConstants.CORAL_OUTTAKE_PIVOT_SIDE_VOLTAGE)
   }
 
-//  fun outtakeAlgae(): Command {
-//    return setVoltage(IntakeConstants.ALGAE_OUTTAKE_VOLTAGE)
-//  }
+  fun outtakeAlgae(): Command {
+    return setVoltage(IntakeConstants.ALGAE_OUTTAKE_VOLTAGE)
+  }
 
-//  fun readyPivotScore(): Command {
-//    return runOnce {
-//      timer.restart()
-//      setVoltage(IntakeConstants.CORAL_HOLD_VOLTAGE).until {
-//        if (IntakeConstants.HAS_PIVOT_SIDE_IR_SENSOR) {
-//          pivotInfrared.get()
-//        } else {
-//          timer.get() >= IntakeConstants.READY_PIVOT_CORAL_TIME
-//        }
-//      }.schedule()
-//    }
-//  }
+  private fun laserCanDetected(laserCan: LaserCanInterface): Boolean {
+    val measurement: LaserCanInterface.Measurement = laserCan.measurement
+    if (measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
+      if (measurement.distance_mm <= IntakeConstants.LASER_CAN_SENSOR_MIN_DISTANCE_MM) {
+        return true
+      }
+    }
+    return false
+  }
 
   fun coralDetected(): Boolean {
-    return !coralInfrared.get()
+    return laserCanDetected(bottomCoralSensor) || laserCanDetected(leftCoralSensor) || laserCanDetected(rightCoralSensor) || laserCanDetected(topCoralSensor)
   }
 
   fun coralNotDetected(): Boolean {
-    return coralInfrared.get()
+    return !coralDetected()
   }
-//
-//  fun algaeDetected(): Boolean {
-//    return !algaeInfrared.get()
-//  }
 
-//  fun hold(): Command {
-//    return if (coralDetected()) holdCoral() else holdAlgae()
-//  }
-//
-//  fun pivotCoralDetected(): Boolean {
-//    return if (IntakeConstants.HAS_PIVOT_SIDE_IR_SENSOR) !pivotInfrared.get() else false
-//  }
+  fun coralVertical(): Boolean {
+    return laserCanDetected(bottomCoralSensor) && laserCanDetected(topCoralSensor) && !laserCanDetected(leftCoralSensor) && !laserCanDetected(rightCoralSensor)
+  }
+
+  fun coralHorizontal(): Boolean {
+    return laserCanDetected(bottomCoralSensor) && laserCanDetected(leftCoralSensor) && laserCanDetected(rightCoralSensor) && !laserCanDetected(topCoralSensor)
+  }
+
+  // Coral is controlled by the Intake
+  fun coralControlled(): Boolean {
+    return coralVertical() || coralHorizontal()
+  }
+
+  // Coral is not vertical or horizontal but is detected by one of the sensors
+  fun coralMisplaced(): Boolean {
+    return coralDetected() && !coralVertical() && !coralHorizontal()
+  }
+
+  // What is the point of this
+  fun algaeDetected(): Boolean {
+    return false
+  }
 
   fun stop(): Command {
     return runOnce {
       motor.stopMotor()
     }
   }
-
-//  fun autoIntakeAlgae(): Command {
-//    return intakeAlgae().until { algaeDetected() }
-//      .andThen(WaitCommand(IntakeConstants.WAIT_AFTER_ALGAE_DETECTED)).andThen(stop())
-//  }
 
   override fun periodic() {
     logData()
@@ -145,8 +150,10 @@ class Intake(
   private fun logData() {
     DogLog.log("Intake/Motor Voltage", motor.appliedOutput * 12.0)
     DogLog.log("Intake/Motor Position", motor.encoder.position)
-    DogLog.log("Intake/Coral IR sensor", !coralInfrared.get())
-//    DogLog.log("Intake/Algae IR sensor", !algaeInfrared.get())
+    DogLog.log("Intake/LaserCan/Middle", bottomCoralSensor.measurement.distance_mm.toDouble())
+    DogLog.log("Intake/LaserCan/Left", leftCoralSensor.measurement.distance_mm.toDouble())
+    DogLog.log("Intake/LaserCan/Right", rightCoralSensor.measurement.distance_mm.toDouble())
+    DogLog.log("Intake/LaserCan/Back", topCoralSensor.measurement.distance_mm.toDouble())
   }
 
   companion object {
@@ -158,10 +165,23 @@ class Intake(
         currentLimit = IntakeConstants.CURRENT_LIMIT
       )
 
-      val coralSensor = DigitalInput(IntakeConstants.CORAL_SENSOR_DIO_PORT)
-//      val algaeSensor = DigitalInput(IntakeConstants.ALGAE_SENSOR_DIO_PORT)
-//      val pivotSensor = DigitalInput(IntakeConstants.PIVOT_SENSOR_DIO_PORT)
-      return Intake(motor, coralSensor) // , algaeSensor, pivotSensor)
+      // Use MockLaserCan in Simulation
+      if (isSimulation()) {
+        return Intake(
+          motor,
+          MockLaserCan(),
+          MockLaserCan(),
+          MockLaserCan(),
+          MockLaserCan()
+        )
+      }
+      return Intake(
+        motor,
+        LaserCan(IntakeConstants.BOTTOM_CORAL_SENSOR_CAN_ID),
+        LaserCan(IntakeConstants.LEFT_CORAL_SENSOR_CAN_ID),
+        LaserCan(IntakeConstants.RIGHT_CORAL_SENSOR_CAN_ID),
+        LaserCan(IntakeConstants.TOP_CORAL_SENSOR_CAN_ID)
+      )
     }
   }
 }
