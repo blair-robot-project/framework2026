@@ -45,7 +45,7 @@ object ElevatorConstants {
   val CLIMB_VOLTAGE = -3.75
   val PIVOT_READY = Inches.of(12.0)
 
-  const val TOLERANCE = 0.0225 // TODO(Adjust tolerance.)
+  const val TOLERANCE = 0.05 // TODO(Adjust tolerance.)
 
   // TODO(Adjust gains.)
   val KS = if (RobotBase.isReal()) 0.0612 else 0.0

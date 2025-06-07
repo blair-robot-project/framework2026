@@ -16,7 +16,7 @@ object SuperstructureGoal {
   private val MIN_ELEVATOR_HEIGHT = Inches.of(-0.35)
 
   val L1 = SuperstructureState(
-    Radians.of(0.527538),
+    Degrees.of(31.22),
     MIN_ELEVATOR_HEIGHT,
     Radians.of(-1.347656),
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
@@ -37,9 +37,9 @@ object SuperstructureGoal {
   )
 
   val L4 = SuperstructureState(
-    Radians.of(1.249023),
-    Meters.of(0.967773),
-    Radians.of(-0.699707), // -138.5
+    Radians.of(1.287598),
+    Meters.of(0.997070),
+    Radians.of(-0.933105), // -138.5
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
@@ -74,14 +74,14 @@ object SuperstructureGoal {
   val GROUND_INTAKE = SuperstructureState(
     Degrees.of(-5.15),
     Inches.of(-1.35),
-    Degrees.of(-85.0), // true angle is -84.87
+    Degrees.of(-83.75), // true angle is -84.87
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
-  val GROUND_INTAKE_HIGH = SuperstructureState(
-    Degrees.of(-1.0),
+  val GROUND_INTAKE_LOW = SuperstructureState(
+    Degrees.of(-5.35),
     MIN_ELEVATOR_HEIGHT,
-    Degrees.of(-85.5), // true angle is -84.87
+    Degrees.of(-85.0), // true angle is -84.87
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
@@ -101,7 +101,7 @@ object SuperstructureGoal {
 
   val CLIMB_BEFORE = SuperstructureState(
     Degrees.of(90.0),
-    Meters.of(0.192891),
+    Meters.of(0.178891),
     Degrees.of(-70.0),
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
@@ -179,10 +179,9 @@ object SuperstructureGoal {
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
-  // TODO: FIND NET POSE
   val NET = SuperstructureState(
-    L4.pivot,
-    L4.elevator,
+    Degrees.of(80.297259),
+    L4.elevator + Inches.of(10.278098),
     L4.wrist,
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
@@ -212,9 +211,9 @@ object SuperstructureGoal {
   )
 
   data class SuperstructureState(
-    val pivot: Angle,
-    val elevator: Distance,
-    val wrist: Angle,
+    var pivot: Angle,
+    var elevator: Distance,
+    var wrist: Angle,
     val driveDynamics: DriveDynamics
   )
 

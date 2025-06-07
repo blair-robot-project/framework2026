@@ -6,7 +6,6 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.DriverStation
-import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.util.Color
 import edu.wpi.first.wpilibj2.command.*
@@ -360,7 +359,7 @@ class ControllerBindings(
           ) { robot.intake.algaeDetected() }
         ) { robot.intake.coralDetected() },
         WaitCommand(0.15)
-          .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)),
+          .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
       ) { RobotBase.isReal() }
     )
   }
@@ -369,7 +368,7 @@ class ControllerBindings(
     Trigger { driveController.hid.aButton && robot.intake.coralDetected() }.onTrue(
       Commands.sequence(
         robot.superstructureManager.requestGoal(SuperstructureGoal.L1)
-          .alongWith(robot.intake.holdCoralForward())
+          .alongWith(robot.intake.holdCoral())
       )
     )
   }
@@ -526,7 +525,6 @@ class ControllerBindings(
       robot.intake.stop()
     )
   }
-
 
   private fun outtakeCoral() {
     mechanismController.rightStick().onTrue(

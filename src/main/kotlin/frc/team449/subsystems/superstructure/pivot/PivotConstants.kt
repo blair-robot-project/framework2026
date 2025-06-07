@@ -2,6 +2,7 @@ package frc.team449.subsystems.superstructure.pivot
 
 import com.ctre.phoenix6.signals.InvertedValue
 import com.ctre.phoenix6.signals.NeutralModeValue
+import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Frequency
 import edu.wpi.first.wpilibj.Encoder
@@ -37,7 +38,7 @@ object PivotConstants {
   val VALUE_UPDATE_RATE: Frequency = Hertz.of(50.0)
   val REQUEST_UPDATE_RATE: Frequency = Hertz.of(100.0)
 
-  val TOLERANCE = Degrees.of(1.55)
+  val TOLERANCE = Degrees.of(2.0)
 
   val ELEVATOR_READY = Degrees.of(45.0)
 
@@ -62,7 +63,9 @@ object PivotConstants {
   const val ENC_INVERTED = true
   val ABS_RANGE = Pair(-0.25, 0.75)
   const val ENC_RATIO = 2 * PI * (1.0 / 2.0)
-  const val ABS_OFFSET = -2.310589 / ENC_RATIO
+  val ABS_OFFSET = -2.310589 / ENC_RATIO +
+    (Units.degreesToRadians(90.0) - 1.503581) / ENC_RATIO +
+    (Units.degreesToRadians(90.0) - 1.615284) / ENC_RATIO
   val QUAD_ENCODER = Encoder(2, 3)
   const val ENC_CPR = 2048
   const val SAMPLES_TO_AVERAGE = 127

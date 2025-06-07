@@ -7,7 +7,7 @@ import frc.team449.subsystems.superstructure.SuperstructureGoal
 class BITConstants {
   companion object {
 
-    const val ELEVATOR_TOLERANCE = 0.025 // m
+    const val ELEVATOR_TOLERANCE = 0.075 // m
     val PIVOT_TOLERANCE = Units.degreesToRadians(1.0) // deg
     val WRIST_TOLERANCE = Units.degreesToRadians(2.0) // deg
 
@@ -70,6 +70,6 @@ class BITConstants {
 
     val DRIVE_ANGLE_TOLERANCE = Units.degreesToRadians(2.0)
 
-    const val CANCEL_BUTTON_NAME = "a"
+    const val CANCEL_BUTTON_NAME = "y"
   }
 }

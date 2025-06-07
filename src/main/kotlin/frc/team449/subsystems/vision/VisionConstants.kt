@@ -36,7 +36,7 @@ object VisionConstants {
 
   /** Robot to Camera distance */
   val front = Transform3d(
-    Translation3d(Units.inchesToMeters(-4.0), Units.inchesToMeters(0.0), Units.inchesToMeters(8.5)),
+    Translation3d(Units.inchesToMeters(-4.0), Units.inchesToMeters(0.0), Units.inchesToMeters(9.5)),
     Rotation3d(0.0, Units.degreesToRadians(-17.5), Units.degreesToRadians(0.0))
   )
 
@@ -60,7 +60,7 @@ object VisionConstants {
   var MAX_DISTANCE_SINGLE_TAG = 3.75
   var MAX_DISTANCE_MULTI_TAG = 6.0
   val TAG_HEADING_MAX_DEV_RAD = Units.degreesToRadians(360.0)
-  var MAX_HEIGHT_ERR_METERS = 0.275
+  var MAX_HEIGHT_ERR_METERS = 0.225
   const val NUM_TAG_FACTOR = 2.0
 
   /** Std Dev Calculation Constants */

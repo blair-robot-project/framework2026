@@ -91,7 +91,7 @@ open class Routines(
             .withDeadline(WaitCommand(waitTime)),
           robot.superstructureManager.requestL4(SuperstructureGoal.L4_PIVOT)
         ),
-        robot.intake.holdCoralForward()
+        robot.intake.holdCoralForwardAuto()
       )
       else -> Commands.parallel(
         robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT),
@@ -312,7 +312,7 @@ open class Routines(
           .withTimeout(firstPickupTime + AutoConstants.INTAKE_TIMEOUT),
         ConditionalCommand(
           scoreMiddleA.cmd()
-            .alongWith(getPremoveCommand(reefLevels[1], 0.65)),
+            .alongWith(getPremoveCommand(reefLevels[1], 1.15)),
           Commands.sequence(
             missMidPickup.cmd()
               .alongWith(
@@ -337,7 +337,7 @@ open class Routines(
                   .andThen(robot.drive.driveStop())
                   .until { robot.intake.coralDetected() },
                 missFarScore.cmd().alongWith(
-                  getPremoveCommand(reefLevels[1], 0.85)
+                  getPremoveCommand(reefLevels[1], 1.0)
                 ),
                 robot.drive.driveStop(),
                 scorePiece(),
@@ -360,7 +360,7 @@ open class Routines(
           .andThen(robot.drive.driveStop())
           .until { robot.intake.coralDetected() },
         missMidSecondScore.cmd()
-          .alongWith(getPremoveCommand(reefLevels[2])),
+          .alongWith(getPremoveCommand(reefLevels[2], 1.15)),
         robot.drive.driveStop(),
         scorePiece(),
         robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
@@ -378,7 +378,7 @@ open class Routines(
           .withTimeout(secondPickupTime + AutoConstants.INTAKE_TIMEOUT),
         ConditionalCommand(
           scoreRightB.cmd()
-            .alongWith(getPremoveCommand(reefLevels[2])),
+            .alongWith(getPremoveCommand(reefLevels[2], 1.15)),
           Commands.sequence(
             missFarPickup.cmd()
               .alongWith(
@@ -427,11 +427,11 @@ open class Routines(
   }
 
   fun rightGroundBack2L4L2(): AutoRoutine {
-    return groundBack2L4L2("r", intArrayOf(4, 4, 2, 2))
+    return groundBack2L4L2("r", intArrayOf(2, 4, 4, 2))
   }
 
   fun leftGroundBack2L4L2(): AutoRoutine {
-    return groundBack2L4L2("l", intArrayOf(4, 4, 2, 2))
+    return groundBack2L4L2("l", intArrayOf(2, 4, 4, 2))
   }
 
   // Elevator is cooked!

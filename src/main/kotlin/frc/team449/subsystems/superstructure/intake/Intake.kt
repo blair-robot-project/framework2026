@@ -11,7 +11,6 @@ import com.ctre.phoenix6.hardware.TalonFX
 import dev.doglog.DogLog
 import edu.wpi.first.wpilibj.RobotBase.isSimulation
 import edu.wpi.first.wpilibj2.command.Command
-import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.system.motor.KrakenDogLog
 
@@ -58,7 +57,6 @@ class Intake(
       controller.reset()
       controller.setpoint = motor.encoder.position
     }
-      .andThen(InstantCommand({ motor.setVoltage(2.0) }))
       .andThen(stop())
       .andThen(run { motor.setVoltage(controller.calculate(motor.encoder.position)) })
   }*/
@@ -109,7 +107,24 @@ class Intake(
       controller.reset()
       controller.setpoint = motor.encoder.position + 1.0
     }
-      .andThen(InstantCommand({ motor.setVoltage(2.0) }))
+      .andThen(stop())
+      .andThen(run { motor.setVoltage(controller.calculate(motor.encoder.position)) })
+  }
+
+  fun holdCoralForwardAuto(): Command {
+    return runOnce {
+      controller.reset()
+      controller.setpoint = motor.encoder.position + 1.875
+    }
+      .andThen(stop())
+      .andThen(run { motor.setVoltage(controller.calculate(motor.encoder.position)) })
+  }
+
+  fun holdCoralBackwards(): Command {
+    return runOnce {
+      controller.reset()
+      controller.setpoint = motor.encoder.position - 1.0
+    }
       .andThen(stop())
       .andThen(run { motor.setVoltage(controller.calculate(motor.encoder.position)) })
   }*/

@@ -5,7 +5,7 @@ import edu.wpi.first.units.Units.Amps
 object ClimbConstants {
   const val MOTOR_ID = 49
 
-  val CURRENT_LIMIT = Amps.of(60.0)
+  val CURRENT_LIMIT = Amps.of(85.0)
   const val BRAKE_MODE = true
 
   const val INVERTED = false
