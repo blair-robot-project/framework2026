@@ -24,9 +24,22 @@ class Intake(
   private val middleCoralSensor: LaserCanInterface
 ) : SubsystemBase() {
 
+  private val sensors = listOf<LaserCanInterface>(
+    backCoralSensor,
+    leftCoralSensor,
+    rightCoralSensor,
+    middleCoralSensor
+  )
   private fun setVoltage(vararg motors: TalonFX, voltage: Double): Command {
     return runOnce {
       motors.forEach { it.setControl(VoltageOut(voltage)) }
+    }
+  }
+
+  init {
+    for(sensor in sensors) {
+      sensor.setTimingBudget(LaserCanInterface.TimingBudget.TIMING_BUDGET_20MS)
+      sensor.setRegionOfInterest(LaserCanInterface.RegionOfInterest(8, 8, 4, 4))
     }
   }
 
@@ -276,3 +289,5 @@ class Intake(
     }
   }
 }
+
+
