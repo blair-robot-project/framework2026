@@ -67,7 +67,8 @@ class ControllerBindings(
     manualElevator()
     manualPivot()
     manualWrist()
-//    intakeAlgae()
+
+    algaeGroundIntake()
     intakeCoral()
     outtakeCoral()
   }
@@ -267,7 +268,7 @@ class ControllerBindings(
 
   private fun groundIntakeVertical() {
     driveController.leftBumper().onTrue(
-        (robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE)
+        (robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL)
           .alongWith(robot.intake.intakeCoralVertical())
           .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
           .andThen(WaitCommand(0.275))
@@ -285,7 +286,7 @@ class ControllerBindings(
 
   private fun groundIntakeL1() {
     driveController.back().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE)
+      robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL)
         .alongWith(robot.intake.intakeCoralHorizontal())
         .andThen(WaitUntilCommand { robot.intake.coralHorizontalDetected() && RobotBase.isReal() })
         .andThen(WaitCommand(0.25))
@@ -344,7 +345,7 @@ class ControllerBindings(
                   .deadlineFor(robot.light.progressMaskGradient(percentageElevatorPosition))
               ),
             // dont have an algae
-            robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE)
+            robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL)
               .alongWith(robot.intake.intakeCoralVertical())
               .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
               .andThen(WaitCommand(0.275))
@@ -426,8 +427,11 @@ class ControllerBindings(
 
   private fun algaeGroundIntake(){
     driveController.start().onTrue(
-      robot.superstructureManager.requestGroundIntake(SuperstructureGoal.GROUND_INTAKE)
+      robot.superstructureManager.requestGroundIntake(SuperstructureGoal.ALGAE_GROUND)
         .alongWith(robot.intake.intakeAlgae())
+        .withTimeout(1.5)
+        .andThen(robot.intake.holdAlgae())
+
     )
   }
 

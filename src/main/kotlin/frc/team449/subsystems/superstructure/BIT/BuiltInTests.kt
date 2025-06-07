@@ -62,7 +62,7 @@ class BuiltInTests(robot: Robot) {
       checkTime(manager.requestGoal(SuperstructureGoal.L2_PIVOT), "L2 Pivot"),
       checkTime(manager.requestGoal(SuperstructureGoal.L3_PIVOT), "L3 Pivot"),
       checkTime(manager.requestGoal(SuperstructureGoal.L4_PIVOT), "L4 Pivot"),
-      manager.requestGoal(SuperstructureGoal.GROUND_INTAKE).andThen(intake.intakeCoral()),
+      manager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL).andThen(intake.intakeCoralVertical()),
       WaitUntilCommand { intake.coralDetected() }.andThen(WaitCommand(0.25)),
       manager.requestGoal(SuperstructureGoal.STOW).andThen(intake.stop()),
       getDriveTests()

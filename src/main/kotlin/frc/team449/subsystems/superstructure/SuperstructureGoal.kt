@@ -71,7 +71,7 @@ object SuperstructureGoal {
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
-  val GROUND_INTAKE = SuperstructureState(
+  val GROUND_INTAKE_CORAL = SuperstructureState(
     Degrees.of(-5.15),
     Inches.of(-1.35),
     Degrees.of(-83.75), // true angle is -84.87
@@ -174,7 +174,7 @@ object SuperstructureGoal {
   // only for after pivot side l4
   val PRE_GROUND = SuperstructureState(
     L4_PIVOT.pivot,
-    GROUND_INTAKE.elevator,
+    GROUND_INTAKE_CORAL.elevator,
     L4_PIVOT.wrist,
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
@@ -190,7 +190,7 @@ object SuperstructureGoal {
   val ALGAE_GROUND = SuperstructureState(
     Degrees.of(-5.15),
     Inches.of(-1.35),
-    Degrees.of(-85.0), // true angle is -84.87
+    Degrees.of(90.0),
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 

@@ -11,6 +11,7 @@ import com.ctre.phoenix6.hardware.TalonFX
 import dev.doglog.DogLog
 import edu.wpi.first.wpilibj.RobotBase.isSimulation
 import edu.wpi.first.wpilibj2.command.Command
+import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.system.motor.KrakenDogLog
 
@@ -68,9 +69,7 @@ class Intake(
       rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble))
       leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble))
 
-    }.andThen(run{topMotor.setVoltage(2.0)})
-      .alongWith(InstantCommand({rightMotor.setVoltage(2.0)})
-        .alongWith( InstantCommand({topMotor.setVoltage(2.0)})))
+    }
       .andThen(stop()).andThen(run{
         topMotor.setControl(PositionVoltage(topMotor.position.valueAsDouble))
         leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble))
@@ -95,12 +94,27 @@ class Intake(
       rightMotor.setPosition(rightMotor.position.valueAsDouble + 1)
       leftMotor.setPosition(leftMotor.position.valueAsDouble + 1)
 
-    }.andThen(InstantCommand({topMotor.setVoltage(1.0)}))
-      .alongWith(InstantCommand({rightMotor.setVoltage(2.0)})
-        .alongWith( InstantCommand({topMotor.setVoltage(2.0)})))
+    }
       .andThen(stop())
 
   }
+
+
+  fun holdCoralForwardAuto(): Command {
+    return runOnce{
+      topMotor.setControl(PositionDutyCycle(topMotor.position.valueAsDouble))
+      rightMotor.setControl(PositionDutyCycle(rightMotor.position.valueAsDouble))
+      leftMotor.setControl(PositionDutyCycle(leftMotor.position.valueAsDouble))
+
+      topMotor.setPosition(topMotor.position.valueAsDouble + 1.875)
+      rightMotor.setPosition(rightMotor.position.valueAsDouble + 1.875)
+      leftMotor.setPosition(leftMotor.position.valueAsDouble + 1.875)
+
+    }
+      .andThen(stop())
+
+  }
+
 
   /*fun holdCoralForward(): Command {
     return runOnce {

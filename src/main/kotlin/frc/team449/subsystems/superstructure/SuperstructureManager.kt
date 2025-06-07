@@ -217,10 +217,23 @@ class SuperstructureManager(
             retractL4(goal),
             Commands.sequence(
               ConditionalCommand(
-                //
+                //going to ground coral
                 Commands.sequence(
+                  wrist.setPosition(goal.wrist.`in`(Radians)),
+                  //wait until wrist is almost at setpoint before moving pivot
+                  WaitUntilCommand{ (wrist.atSetpoint(Units.degreesToRadians(6.0)))},
+                  pivot.setPosition(goal.pivot.`in`(Radians)),
+                  WaitUntilCommand { pivot.elevatorReady() },
+                  elevator.setPosition(goal.elevator.`in`(Meters)),
+                  WaitUntilCommand { wrist.atSetpoint() || pivot.atSetpoint() },
+                  pivot.hold().onlyIf { pivot.atSetpoint() },
+                  wrist.hold().onlyIf { wrist.atSetpoint() },
+                  WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() },
+                  pivot.hold(),
+                  wrist.hold(),
+                  WaitUntilCommand { elevator.atSetpoint() },
+                  holdAll()),
 
-                ),
                 Commands.sequence(
                   elevator.setPosition(goal.elevator.`in`(Meters)),
                   wrist.hold(),
@@ -235,7 +248,7 @@ class SuperstructureManager(
                   InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) }),
                   holdAll()
                 )
-              ) { goal == SuperstructureGoal.GROUND_INTAKE }
+              ) { goal == SuperstructureGoal.GROUND_INTAKE_CORAL }
             )
           ) { prevGoal == SuperstructureGoal.L4 || prevGoal == SuperstructureGoal.L4_PIVOT }
         ) { goal.elevator.`in`(Meters) >= elevator.positionSupplier.get() }
