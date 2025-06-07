@@ -224,7 +224,6 @@ class Intake(
     DogLog.log("Intake/LaserCan/Right Sensor Distance (mm)", if (rightCoralSensor.measurement ==  null) -1.0 else rightCoralSensor.measurement.distance_mm.toDouble())
     DogLog.log("Intake/LaserCan/Middle Sensor Distance (mm)", if (middleCoralSensor.measurement ==  null) -1.0 else middleCoralSensor.measurement.distance_mm.toDouble())
     DogLog.log("Intake/ Back sensor", laserCanDetected(backCoralSensor))
-
     DogLog.log("Intake/ Right sensor", laserCanDetected(rightCoralSensor))
     DogLog.log("Intake/ Left sensor", laserCanDetected(leftCoralSensor))
     DogLog.log("Intake/ Middle sensor", laserCanDetected(middleCoralSensor))
