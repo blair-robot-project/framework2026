@@ -26,11 +26,11 @@ class SuperstructureManager(
   private var prevGoal = SuperstructureGoal.STOW
   private var ready = false
 
- //request algae ground intake
-  //pivot has to get in set point before moving wrist for ground intake
+  // request algae ground intake
+  // pivot has to get in set point before moving wrist for ground intake
 // wait for pivot and elevator to get at setpoint and move wrist
 
-  fun requestGroundIntake(goal: SuperstructureGoal.SuperstructureState): Command{
+  fun requestGroundIntake(goal: SuperstructureGoal.SuperstructureState): Command {
     return InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) })
       .andThen(InstantCommand({ ready = false }))
       .andThen(InstantCommand({ lastGoal = goal }))
@@ -42,7 +42,7 @@ class SuperstructureManager(
               elevator.setPosition(goal.elevator.`in`(Meters)),
               pivot.setPosition(goal.pivot.`in`(Radians))
             ),
-            WaitUntilCommand { wrist.elevatorReady() && wrist.pivotReady() }, //TODO: check wrist constants for real values
+            WaitUntilCommand { wrist.elevatorReady() && wrist.pivotReady() }, // TODO: check wrist constants for real values
 
             wrist.setPosition(goal.wrist.`in`(Radians)),
             WaitUntilCommand { pivot.atSetpoint() },
@@ -68,7 +68,7 @@ class SuperstructureManager(
               elevator.setPosition(goal.elevator.`in`(Meters)),
               pivot.setPosition(goal.pivot.`in`(Radians))
             ),
-            WaitUntilCommand { wrist.elevatorReady() && wrist.pivotReady() }, //TODO: check wrist constants for real values and maybe
+            WaitUntilCommand { wrist.elevatorReady() && wrist.pivotReady() }, // TODO: check wrist constants for real values and maybe
 
             wrist.setPosition(goal.wrist.`in`(Radians)),
             WaitUntilCommand { pivot.atSetpoint() },
@@ -91,7 +91,6 @@ class SuperstructureManager(
       .andThen(InstantCommand({ prevGoal = goal }))
       .andThen(InstantCommand({ ready = true }))
   }
-
 
   private fun retractL4(goal: SuperstructureGoal.SuperstructureState): Command {
     return Commands.sequence(
@@ -172,12 +171,12 @@ class SuperstructureManager(
           Commands.sequence(
             InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) }),
             ConditionalCommand(
-              //move pivot before moving wrist
+              // move pivot before moving wrist
               Commands.sequence(
                 pivot.setPosition(goal.pivot.`in`(Radians)),
                 WaitUntilCommand { pivot.elevatorReady() },
                 elevator.setPosition(goal.elevator.`in`(Meters)),
-                //wait until pivot is almost at setpoint before moving wrist
+                // wait until pivot is almost at setpoint before moving wrist
                 WaitUntilCommand { pivot.atSetpoint(Units.degreesToRadians(5.0)) },
                 wrist.setPosition(goal.wrist.`in`(Radians)),
                 WaitUntilCommand { wrist.atSetpoint() || pivot.atSetpoint() },
@@ -189,7 +188,7 @@ class SuperstructureManager(
                 WaitUntilCommand { elevator.atSetpoint() },
                 holdAll()
               ),
-              //regular extension
+              // regular extension
               Commands.sequence(
                 Commands.parallel(
                   wrist.setPosition(goal.wrist.`in`(Radians)),
@@ -217,11 +216,11 @@ class SuperstructureManager(
             retractL4(goal),
             Commands.sequence(
               ConditionalCommand(
-                //going to ground coral
+                // going to ground coral
                 Commands.sequence(
                   wrist.setPosition(goal.wrist.`in`(Radians)),
-                  //wait until wrist is almost at setpoint before moving pivot
-                  WaitUntilCommand{ (wrist.atSetpoint(Units.degreesToRadians(6.0)))},
+                  // wait until wrist is almost at setpoint before moving pivot
+                  WaitUntilCommand { (wrist.atSetpoint(Units.degreesToRadians(6.0))) },
                   pivot.setPosition(goal.pivot.`in`(Radians)),
                   WaitUntilCommand { pivot.elevatorReady() },
                   elevator.setPosition(goal.elevator.`in`(Meters)),
@@ -232,7 +231,8 @@ class SuperstructureManager(
                   pivot.hold(),
                   wrist.hold(),
                   WaitUntilCommand { elevator.atSetpoint() },
-                  holdAll()),
+                  holdAll()
+                ),
 
                 Commands.sequence(
                   elevator.setPosition(goal.elevator.`in`(Meters)),

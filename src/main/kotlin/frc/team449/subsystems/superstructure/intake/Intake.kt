@@ -11,14 +11,13 @@ import com.ctre.phoenix6.hardware.TalonFX
 import dev.doglog.DogLog
 import edu.wpi.first.wpilibj.RobotBase.isSimulation
 import edu.wpi.first.wpilibj2.command.Command
-import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.system.motor.KrakenDogLog
 
 class Intake(
   private val topMotor: TalonFX, // kraken x44
   private val rightMotor: TalonFX, // kraken x60
-  private val leftMotor: TalonFX,  // kraken x60
+  private val leftMotor: TalonFX, // kraken x60
   private val backCoralSensor: LaserCanInterface,
   private val leftCoralSensor: LaserCanInterface,
   private val rightCoralSensor: LaserCanInterface,
@@ -31,11 +30,10 @@ class Intake(
     }
   }
 
-  fun setVoltageTop(voltage: Double) : Command {return setVoltage(topMotor, voltage = voltage)}
-  fun setVoltageRight(voltage: Double): Command{ return setVoltage(rightMotor, voltage = voltage)}
-  fun setVoltageLeft(voltage: Double): Command{ return setVoltage(leftMotor, voltage = voltage)}
-  fun setVoltageSides(voltage: Double): Command{ return setVoltage(rightMotor, leftMotor, voltage = voltage)}
-
+  fun setVoltageTop(voltage: Double): Command { return setVoltage(topMotor, voltage = voltage) }
+  fun setVoltageRight(voltage: Double): Command { return setVoltage(rightMotor, voltage = voltage) }
+  fun setVoltageLeft(voltage: Double): Command { return setVoltage(leftMotor, voltage = voltage) }
+  fun setVoltageSides(voltage: Double): Command { return setVoltage(rightMotor, leftMotor, voltage = voltage) }
 
   fun intakeCoralHorizontal(): Command {
     return run {
@@ -62,30 +60,28 @@ class Intake(
       .andThen(run { motor.setVoltage(controller.calculate(motor.encoder.position)) })
   }*/
 
-  fun holdCoral(): Command{
-    return runOnce{
-
+  fun holdCoral(): Command {
+    return runOnce {
       topMotor.setControl(PositionVoltage(topMotor.position.valueAsDouble))
       rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble))
       leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble))
-
     }
-      .andThen(stop()).andThen(run{
-        topMotor.setControl(PositionVoltage(topMotor.position.valueAsDouble))
-        leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble))
-        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble))
-      })
+      .andThen(stop()).andThen(
+        run {
+          topMotor.setControl(PositionVoltage(topMotor.position.valueAsDouble))
+          leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble))
+          rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble))
+        }
+      )
   }
 
-
-  fun holdCoralPivot():Command{
-    return runOnce{
-
+  fun holdCoralPivot(): Command {
+    return runOnce {
     }
   }
 
-  fun holdCoralForward(): Command{
-    return runOnce{
+  fun holdCoralForward(): Command {
+    return runOnce {
       topMotor.setControl(PositionDutyCycle(topMotor.position.valueAsDouble))
       rightMotor.setControl(PositionDutyCycle(rightMotor.position.valueAsDouble))
       leftMotor.setControl(PositionDutyCycle(leftMotor.position.valueAsDouble))
@@ -93,15 +89,12 @@ class Intake(
       topMotor.setPosition(topMotor.position.valueAsDouble + 1)
       rightMotor.setPosition(rightMotor.position.valueAsDouble + 1)
       leftMotor.setPosition(leftMotor.position.valueAsDouble + 1)
-
     }
       .andThen(stop())
-
   }
 
-
   fun holdCoralForwardAuto(): Command {
-    return runOnce{
+    return runOnce {
       topMotor.setControl(PositionDutyCycle(topMotor.position.valueAsDouble))
       rightMotor.setControl(PositionDutyCycle(rightMotor.position.valueAsDouble))
       leftMotor.setControl(PositionDutyCycle(leftMotor.position.valueAsDouble))
@@ -109,12 +102,9 @@ class Intake(
       topMotor.setPosition(topMotor.position.valueAsDouble + 1.875)
       rightMotor.setPosition(rightMotor.position.valueAsDouble + 1.875)
       leftMotor.setPosition(leftMotor.position.valueAsDouble + 1.875)
-
     }
       .andThen(stop())
-
   }
-
 
   /*fun holdCoralForward(): Command {
     return runOnce {
@@ -172,15 +162,13 @@ class Intake(
   }
 
   private fun laserCanDetected(laserCan: LaserCanInterface): Boolean {
-    val measurement: LaserCanInterface.Measurement = laserCan.measurement
-    return (measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT && measurement.distance_mm <= IntakeConstants.LASER_CAN_SENSOR_MIN_DISTANCE_MM)
+    val measurement: LaserCanInterface.Measurement? = laserCan.measurement
+    return measurement != null && (measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT && measurement.distance_mm <= IntakeConstants.LASER_CAN_SENSOR_MIN_DISTANCE_MM)
   }
 
   fun coralDetected(): Boolean {
     return laserCanDetected(backCoralSensor) || laserCanDetected(leftCoralSensor) || laserCanDetected(rightCoralSensor) || laserCanDetected(middleCoralSensor)
   }
-
-
 
   fun coralNotDetected(): Boolean {
     return !coralDetected()
@@ -235,10 +223,10 @@ class Intake(
     DogLog.log("Intake/LaserCan/Left Sensor Distance (mm)", leftCoralSensor.measurement.distance_mm.toDouble())
     DogLog.log("Intake/LaserCan/Right Sensor Distance (mm)", rightCoralSensor.measurement.distance_mm.toDouble())
     DogLog.log("Intake/LaserCan/Middle Sensor Distance (mm)", middleCoralSensor.measurement.distance_mm.toDouble())
-    DogLog.log("Intake/ Back sensor",laserCanDetected(backCoralSensor) )
-    DogLog.log("Intake/ Right sensor",laserCanDetected(rightCoralSensor) )
-    DogLog.log("Intake/ Left sensor",laserCanDetected(leftCoralSensor) )
-    DogLog.log("Intake/ Middle sensor",laserCanDetected(middleCoralSensor) )
+    DogLog.log("Intake/ Back sensor", laserCanDetected(backCoralSensor))
+    DogLog.log("Intake/ Right sensor", laserCanDetected(rightCoralSensor))
+    DogLog.log("Intake/ Left sensor", laserCanDetected(leftCoralSensor))
+    DogLog.log("Intake/ Middle sensor", laserCanDetected(middleCoralSensor))
   }
 
   companion object {

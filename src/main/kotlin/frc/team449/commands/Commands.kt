@@ -23,5 +23,4 @@ object Commands {
       WaitUntilCommand(robot.intake::coralNotDetected),
     )
   }
-
 }

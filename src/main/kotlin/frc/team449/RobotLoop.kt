@@ -1,5 +1,6 @@
 package frc.team449
 
+import au.grapplerobotics.CanBridge
 import com.ctre.phoenix6.SignalLogger
 import dev.doglog.DogLog
 import dev.doglog.DogLogOptions
@@ -52,6 +53,8 @@ class RobotLoop : TimedRobot() {
   private val controllerBinder = ControllerBindings(robot.driveController, robot.mechController, robot.characController, robot.testController, robot)
 
   override fun robotInit() {
+    CanBridge.runTCP()
+
     // Yes this should be a print statement, it's useful to know that robotInit started.
     println("Started robotInit.")
 
