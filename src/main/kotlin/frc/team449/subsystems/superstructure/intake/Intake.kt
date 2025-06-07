@@ -219,10 +219,10 @@ class Intake(
 
     DogLog.log("Intake/HorizontalIntake", coralHorizontalDetected())
 
-    DogLog.log("Intake/LaserCan/Back Sensor Distance (mm)", backCoralSensor.measurement.distance_mm.toDouble())
-    DogLog.log("Intake/LaserCan/Left Sensor Distance (mm)", leftCoralSensor.measurement.distance_mm.toDouble())
-    DogLog.log("Intake/LaserCan/Right Sensor Distance (mm)", rightCoralSensor.measurement.distance_mm.toDouble())
-    DogLog.log("Intake/LaserCan/Middle Sensor Distance (mm)", middleCoralSensor.measurement.distance_mm.toDouble())
+    DogLog.log("Intake/LaserCan/Back Sensor Distance (mm)", if(backCoralSensor.measurement == null) -1.0 else backCoralSensor.measurement.distance_mm.toDouble())
+    DogLog.log("Intake/LaserCan/Left Sensor Distance (mm)", if(leftCoralSensor.measurement== null) -1.0 else leftCoralSensor.measurement.distance_mm.toDouble())
+    DogLog.log("Intake/LaserCan/Right Sensor Distance (mm)", if (rightCoralSensor.measurement ==  null) -1.0 else rightCoralSensor.measurement.distance_mm.toDouble())
+    DogLog.log("Intake/LaserCan/Middle Sensor Distance (mm)", if (middleCoralSensor.measurement ==  null) -1.0 else middleCoralSensor.measurement.distance_mm.toDouble())
     DogLog.log("Intake/ Back sensor", laserCanDetected(backCoralSensor))
     DogLog.log("Intake/ Right sensor", laserCanDetected(rightCoralSensor))
     DogLog.log("Intake/ Left sensor", laserCanDetected(leftCoralSensor))
