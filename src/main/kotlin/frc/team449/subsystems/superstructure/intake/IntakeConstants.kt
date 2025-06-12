@@ -6,8 +6,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue
 object IntakeConstants {
   // TODO: update the ids for all three kraken motors
 
-  const val TOP_MOTOR_ID = 46
-  const val RIGHT_MOTOR_ID = 47
+  const val TOP_MOTOR_ID = 47
+  const val RIGHT_MOTOR_ID = 46
   const val LEFT_MOTOR_ID = 48
 
 //  val CURRENT_LIMIT: Current = Amps.of(30.0)
@@ -21,6 +21,13 @@ object IntakeConstants {
 
   val INVERTED = InvertedValue.Clockwise_Positive
   val BRAKE_MODE = NeutralModeValue.Brake
+
+
+
+  //voltage for different scenarios and motors
+  const val TOP_ROLLER_VOLTAGE = 10.0 //TODO
+  const val RUN_SIDES_TO_LEFT = 7.0
+  const val RUN_SIDES_TO_RIGHT = 7.0
 
   const val CORAL_INTAKE_VOLTAGE = 11.0
   const val CORAL_INTAKE_VOLTAGE_LOWER = 2.0

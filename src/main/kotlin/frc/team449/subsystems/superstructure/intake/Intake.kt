@@ -10,14 +10,14 @@ import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.TalonFX
 import dev.doglog.DogLog
 import edu.wpi.first.wpilibj.RobotBase.isSimulation
-import edu.wpi.first.wpilibj2.command.Command
-import edu.wpi.first.wpilibj2.command.SubsystemBase
+import edu.wpi.first.wpilibj2.command.*
+import edu.wpi.first.wpilibj2.command.Commands.select
 import frc.team449.system.motor.KrakenDogLog
 
 class Intake(
-  private val topMotor: TalonFX, // kraken x44
-  private val rightMotor: TalonFX, // kraken x60
-  private val leftMotor: TalonFX, // kraken x60
+  private val topMotor: TalonFX, // kraken x60
+  private val rightMotor: TalonFX, // kraken x44
+  private val leftMotor: TalonFX, // kraken x44
   private val backCoralSensor: LaserCanInterface,
   private val leftCoralSensor: LaserCanInterface,
   private val rightCoralSensor: LaserCanInterface,
@@ -48,30 +48,129 @@ class Intake(
   fun setVoltageLeft(voltage: Double): Command { return setVoltage(leftMotor, voltage = voltage) }
   fun setVoltageSides(voltage: Double): Command { return setVoltage(rightMotor, leftMotor, voltage = voltage) }
 
-  fun intakeCoralHorizontal(): Command {
-    return run {
-      setVoltageTop(IntakeConstants.CORAL_INTAKE_VOLTAGE)
-      setVoltageSides(IntakeConstants.CORAL_INTAKE_VOLTAGE_LOWER) // change to some lower voltage
-    }.until { coralHorizontalDetected() }
-      .andThen(holdCoral())
+
+
+  fun toTheRight(): Command{
+    return runOnce{setVoltageSides(IntakeConstants.RUN_SIDES_TO_RIGHT)
+    }
   }
+
+  fun toTheLeft(): Command{
+    return runOnce{setVoltageSides(IntakeConstants.RUN_SIDES_TO_LEFT)
+  }
+  }
+  fun inwards(): Command{
+    return run{
+      setVoltageRight(IntakeConstants.RUN_SIDES_TO_RIGHT)
+      setVoltageLeft(IntakeConstants.RUN_SIDES_TO_LEFT)
+      setVoltageTop(IntakeConstants.CORAL_INTAKE_VOLTAGE)
+    }
+  }
+
+  fun outwards(): Command{
+    return run{
+      setVoltageRight(IntakeConstants.RUN_SIDES_TO_RIGHT)
+      setVoltageLeft(IntakeConstants.RUN_SIDES_TO_LEFT)
+      setVoltageTop(IntakeConstants.CORAL_INTAKE_VOLTAGE)
+    }
+  }
+
+
+
+
+  fun intakeCoralHorizontal(): Command {
+    return ConditionalCommand(// if coral not detected
+      setVoltageTop(IntakeConstants.TOP_ROLLER_VOLTAGE)
+        .until({ coralDetected()}),
+      ConditionalCommand(// if coral detected by the three sensors
+        setVoltageSides(IntakeConstants.RUN_SIDES_TO_LEFT)
+          .until({!rightlaserCan()})
+          .andThen(setVoltageSides(IntakeConstants.RUN_SIDES_TO_RIGHT)).withTimeout(0.5)
+          .andThen(holdCoral()),
+        ConditionalCommand(// if coral detected by right sensor
+          setVoltageSides(IntakeConstants.RUN_SIDES_TO_LEFT)
+            .until({coralHorizontalDetected()}),
+          ConditionalCommand(//if coral detected by left sensor
+            setVoltageSides(IntakeConstants.RUN_SIDES_TO_RIGHT)
+              .until({coralHorizontalDetected()}),
+            setVoltageTop(IntakeConstants.TOP_ROLLER_VOLTAGE)
+          ){leftLaserCan()}
+        ){rightlaserCan()}
+      ){coralHorizontalDetected()}
+    ){coralNotDetected()}
+  }
+
+
+
+
 
   fun intakeCoralVertical(): Command {
-    return run {
-      setVoltageSides(IntakeConstants.CORAL_INTAKE_VOLTAGE)
-      setVoltageTop(IntakeConstants.CORAL_INTAKE_VOLTAGE_LOWER) // lower voltage
-    }.until { coralVerticalDetected() }
-      .andThen(holdCoral())
+    return ConditionalCommand(//if coral not detected
+      inwards().until({coralDetected()}),
+      ConditionalCommand(//if coral detected by middle sensor
+        inwards().until({backLaserCan()})
+          .andThen(holdCoral()),
+        ConditionalCommand(// if coral detected by left sensor
+          toTheRight().until({middleLaserCan()})
+            .andThen(inwards().until({ backLaserCan() })
+              .andThen(holdCoral())),
+          ConditionalCommand(// if coral detected by right sensor
+            toTheLeft().until({middleLaserCan()})
+              .andThen(inwards().until({ backLaserCan() })
+                .andThen(holdCoral())),
+            inwards()
+          ){rightlaserCan()}
+        ){leftLaserCan()}
+      ){middleLaserCan()}
+    ){coralNotDetected()}
   }
 
-  /*fun holdCoral(): Command {
-    return runOnce {
-      controller.reset()
-      controller.setpoint = motor.encoder.position
-    }
-      .andThen(stop())
-      .andThen(run { motor.setVoltage(controller.calculate(motor.encoder.position)) })
-  }*/
+
+//
+//  fun intakeAction(): Command{
+//    return select(
+//      mapOf(
+//        IntakeState.FIND_CORAL to Commands.sequence(
+//          setVoltageTop(IntakeConstants.TOP_ROLLER_VOLTAGE)
+//          .until{coralDetected()}
+//        ),
+//
+//        IntakeState.CORAL_IS_HORIZONTAL to Commands.sequence(
+//          toTheLeft().withTimeout(0.5).andThen(holdCoral())
+//        ),
+//
+//        IntakeState.CORAL_IS_RIGHT to Commands.sequence(
+//          toTheLeft().until{coralHorizontalDetected()}
+//            .andThen( toTheLeft().withTimeout(0.5).andThen(holdCoral()))
+//        ),
+//
+//        IntakeState.CORAL_IS_LEFT to Commands.sequence(
+//          toTheRight().until{coralHorizontalDetected()}
+//            .andThen( toTheLeft().withTimeout(0.5).andThen(holdCoral()))
+//        ),
+//
+//        IntakeState.CORAL_IS_MIDDLE to Commands.sequence(
+//
+//        )
+//      )
+//    ){updateCoralState()}
+//  }
+//
+//  fun updateCoralState(): IntakeState {
+//    var coralState = when{
+//      coralNotDetected() -> IntakeState.FIND_CORAL
+//      coralHorizontalDetected() -> IntakeState.CORAL_IS_HORIZONTAL
+//      rightlaserCan() -> IntakeState.CORAL_IS_RIGHT
+//      leftLaserCan() -> IntakeState.CORAL_IS_LEFT
+//      coralVerticalDetected() -> IntakeState.CORAL_IS_VERTICAL
+//      middleLaserCan() -> IntakeState.CORAL_IS_MIDDLE
+//      else -> IntakeState.NONE
+//    }
+//    return coralState
+//  }
+//
+
+
 
   fun holdCoral(): Command {
     return runOnce {
@@ -195,6 +294,22 @@ class Intake(
     return !laserCanDetected(backCoralSensor) && laserCanDetected(leftCoralSensor) && laserCanDetected(rightCoralSensor) && laserCanDetected(middleCoralSensor)
   }
 
+  fun rightlaserCan():Boolean {
+    return laserCanDetected(rightCoralSensor)
+  }
+
+  fun leftLaserCan(): Boolean {
+    return laserCanDetected(leftCoralSensor)
+  }
+
+  fun middleLaserCan(): Boolean{
+    return laserCanDetected(middleCoralSensor)
+  }
+
+  fun backLaserCan(): Boolean{
+    return laserCanDetected(backCoralSensor)
+  }
+
   // Coral is controlled by the Intake
   fun coralControlled(): Boolean {
     return coralVerticalDetected() || coralHorizontalDetected()
@@ -244,13 +359,6 @@ class Intake(
 
   companion object {
     fun createIntake(): Intake {
-      /*val motor = createSparkMax(
-        id = IntakeConstants.MOTOR_ID,
-        inverted = IntakeConstants.MOTOR_INVERTED,
-        brakeMode = IntakeConstants.BRAKE_MODE,
-        currentLimit = IntakeConstants.CURRENT_LIMIT
-      )*/
-
       val topMotor = TalonFX(IntakeConstants.TOP_MOTOR_ID)
       val rightMotor = TalonFX(IntakeConstants.LEFT_MOTOR_ID)
       val leftMotor = TalonFX(IntakeConstants.RIGHT_MOTOR_ID)

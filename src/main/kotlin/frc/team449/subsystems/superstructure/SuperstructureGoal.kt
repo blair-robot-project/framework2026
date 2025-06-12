@@ -188,9 +188,9 @@ object SuperstructureGoal {
 
   // TODO: FIND ALGAE GROUND INTAKE POSE
   val ALGAE_GROUND = SuperstructureState(
-    Degrees.of(-5.15),
-    Inches.of(-1.35),
-    Degrees.of(90.0),
+    Degrees.of(18.45),
+    Inches.of(2.00),
+    Degrees.of(-90.0),
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
@@ -198,7 +198,7 @@ object SuperstructureGoal {
   val L2_ALGAE_INTAKE = SuperstructureState(
     Degrees.of(-5.15),
     Inches.of(-1.35),
-    Degrees.of(-85.0), // true angle is -84.87
+    Degrees.of(-90.0), // true angle is -84.87
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
@@ -206,7 +206,7 @@ object SuperstructureGoal {
   val L3_ALGAE_INTAKE = SuperstructureState(
     Degrees.of(-5.15),
     Inches.of(-1.35),
-    Degrees.of(-85.0), // true angle is -84.87
+    Degrees.of(-90.0), // true angle is -84.87
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
