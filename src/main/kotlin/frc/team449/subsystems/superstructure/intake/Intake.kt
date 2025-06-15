@@ -40,6 +40,7 @@ class Intake(
     for(sensor in sensors) {
       sensor.setTimingBudget(LaserCanInterface.TimingBudget.TIMING_BUDGET_20MS)
       sensor.setRegionOfInterest(LaserCanInterface.RegionOfInterest(8, 8, 4, 4))
+      sensor.setRangingMode(LaserCanInterface.RangingMode.SHORT)
     }
   }
 
@@ -84,15 +85,15 @@ class Intake(
         .until({ coralDetected()}),
       ConditionalCommand(// if coral detected by the three sensors
         setVoltageSides(IntakeConstants.RUN_SIDES_TO_LEFT)
-          .until({!rightlaserCan()})
+          .until { !rightlaserCan() }
           .andThen(setVoltageSides(IntakeConstants.RUN_SIDES_TO_RIGHT)).withTimeout(0.5)
           .andThen(holdCoral()),
         ConditionalCommand(// if coral detected by right sensor
           setVoltageSides(IntakeConstants.RUN_SIDES_TO_LEFT)
-            .until({coralHorizontalDetected()}),
+            .until { coralHorizontalDetected() },
           ConditionalCommand(//if coral detected by left sensor
             setVoltageSides(IntakeConstants.RUN_SIDES_TO_RIGHT)
-              .until({coralHorizontalDetected()}),
+              .until { coralHorizontalDetected() },
             setVoltageTop(IntakeConstants.TOP_ROLLER_VOLTAGE)
           ){leftLaserCan()}
         ){rightlaserCan()}
@@ -277,7 +278,14 @@ class Intake(
 
   private fun laserCanDetected(laserCan: LaserCanInterface): Boolean {
     val measurement: LaserCanInterface.Measurement? = laserCan.measurement
-    return measurement != null && (measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT && measurement.distance_mm <= IntakeConstants.LASER_CAN_SENSOR_MIN_DISTANCE_MM)
+    return measurement != null && (measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT &&
+      measurement.distance_mm <= IntakeConstants.CORAL_DETECTION_THRESHOLD)
+ }
+
+  private fun laserCanUnplugged(laserCan: LaserCanInterface): Boolean {
+    val measurement = laserCan.measurement
+      return measurement.status == null // returns TRUE if the laserCan is unplugged
+
   }
 
   fun coralDetected(): Boolean {
@@ -357,6 +365,12 @@ class Intake(
     DogLog.log("Intake/ Right sensor", laserCanDetected(rightCoralSensor))
     DogLog.log("Intake/ Left sensor", laserCanDetected(leftCoralSensor))
     DogLog.log("Intake/ Middle sensor", laserCanDetected(middleCoralSensor))
+
+    DogLog.log("Intake/ Middle sensor state", laserCanUnplugged(middleCoralSensor))
+    DogLog.log("Intake/ Right sensor state", laserCanUnplugged(rightCoralSensor))
+    DogLog.log("Intake/ Left sensor state", laserCanUnplugged(leftCoralSensor))
+    DogLog.log("Intake/ Back sensor state", laserCanUnplugged(backCoralSensor))
+
   }
 
   companion object {
