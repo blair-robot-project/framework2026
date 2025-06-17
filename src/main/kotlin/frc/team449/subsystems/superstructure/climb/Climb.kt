@@ -1,16 +1,20 @@
 package frc.team449.subsystems.superstructure.climb
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration
+import com.ctre.phoenix6.hardware.TalonFX
 import com.revrobotics.spark.SparkMax
 import dev.doglog.DogLog
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import edu.wpi.first.wpilibj2.command.WaitCommand
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand
+import frc.team449.subsystems.superstructure.intake.IntakeConstants
+import frc.team449.system.motor.KrakenDogLog
 import frc.team449.system.motor.createSparkMax
 
 // TODO(the entire class bru)
 class Climb(
-  private val motor: SparkMax
+  private val motor: TalonFX
 //  private val sensor: DigitalInput
 ) : SubsystemBase() {
 
@@ -32,7 +36,8 @@ class Climb(
 
   fun waitUntilCurrentSpike(): Command {
     return WaitCommand(0.1750)
-      .andThen(WaitUntilCommand { motor.outputCurrent > 55.0 })
+//      .andThen(WaitUntilCommand { motor.outputCurrent > 55.0 })
+      .andThen(WaitUntilCommand { motor.supplyCurrent.valueAsDouble > 55.0 })
   }
 
   fun stop(): Command {
@@ -46,18 +51,22 @@ class Climb(
   }
 
   private fun logData() {
-    DogLog.log("Climb/Motor Voltage", motor.appliedOutput * 12.0)
-    DogLog.log("Climb/Motor Current", motor.outputCurrent)
+    KrakenDogLog.log("Intake/topMotor", motor)
   }
 
   companion object {
     fun createClimb(): Climb {
-      val motor = createSparkMax(
-        id = ClimbConstants.MOTOR_ID,
-        inverted = ClimbConstants.INVERTED,
-        brakeMode = ClimbConstants.BRAKE_MODE,
-        currentLimit = ClimbConstants.CURRENT_LIMIT
-      )
+      val motor = TalonFX(ClimbConstants.MOTOR_ID)
+      val config = TalonFXConfiguration()
+
+      config.MotorOutput.Inverted = ClimbConstants.INVERTED
+      config.MotorOutput.NeutralMode = ClimbConstants.BRAKE_MODE
+
+      config.CurrentLimits.StatorCurrentLimitEnable = true
+      config.CurrentLimits.SupplyCurrentLimitEnable = true
+      config.CurrentLimits.SupplyCurrentLimit = ClimbConstants.SUPPLY_LIM
+      config.CurrentLimits.StatorCurrentLimit = ClimbConstants.STATOR_LIM
+
 
 //      val sensor = DigitalInput(ClimbConstants.SENSOR_DIO_PORT)
 
