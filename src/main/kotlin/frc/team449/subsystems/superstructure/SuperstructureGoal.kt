@@ -15,6 +15,13 @@ object SuperstructureGoal {
 
   private val MIN_ELEVATOR_HEIGHT = Inches.of(-0.35)
 
+  val STOW = SuperstructureState(
+    Degrees.of(40.0),
+    MIN_ELEVATOR_HEIGHT,
+    Degrees.of(90.0),
+    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+  )
+
   val L1 = SuperstructureState(
     Degrees.of(31.22),
     MIN_ELEVATOR_HEIGHT,
@@ -43,6 +50,13 @@ object SuperstructureGoal {
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
+  val L4_PREMOVE = SuperstructureState(
+    L4.pivot,
+    STOW.elevator,
+    STOW.wrist,
+    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+  )
+
   val L2_PIVOT = SuperstructureState(
     Radians.of(1.211914),
     MIN_ELEVATOR_HEIGHT,
@@ -64,39 +78,11 @@ object SuperstructureGoal {
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
-  val SUBSTATION_INTAKE = SuperstructureState(
-    Radians.of(1.035),
-    MIN_ELEVATOR_HEIGHT,
-    Radians.of(1.419902),
-    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
-  )
-
   val GROUND_INTAKE_CORAL = SuperstructureState(
     Degrees.of(-5.15),
     Inches.of(-1.35),
     Degrees.of(-83.75), // true angle is -84.87
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
-  )
-
-  val GROUND_INTAKE_LOW = SuperstructureState(
-    Degrees.of(-5.35),
-    MIN_ELEVATOR_HEIGHT,
-    Degrees.of(-85.0), // true angle is -84.87
-    DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
-  )
-
-  val SUBSTATION_INTAKE_CORAL_IN_FRONT = SuperstructureState(
-    Degrees.of(63.329483462),
-    MIN_ELEVATOR_HEIGHT,
-    Degrees.of(79.88676053),
-    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
-  )
-
-  val STOW = SuperstructureState(
-    Degrees.of(40.0),
-    MIN_ELEVATOR_HEIGHT,
-    Degrees.of(90.0),
-    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
   val CLIMB_BEFORE = SuperstructureState(
@@ -122,59 +108,9 @@ object SuperstructureGoal {
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
-  val L1_PREMOVE = SuperstructureState(
-    L1.pivot,
-    STOW.elevator,
-    STOW.wrist,
-    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
-  )
-
-  val L2_PREMOVE = SuperstructureState(
-    L2.pivot,
-    STOW.elevator,
-    STOW.wrist,
-    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
-  )
-
-  val L3_PREMOVE = SuperstructureState(
-    L3.pivot,
-    STOW.elevator,
-    STOW.wrist,
-    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
-  )
-
-  val L4_PREMOVE = SuperstructureState(
-    L4.pivot,
-    STOW.elevator,
-    STOW.wrist,
-    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
-  )
-
-  val L2_PREMOVE_PIVOT = SuperstructureState(
-    Degrees.of(65.0),
-    STOW.elevator,
-    STOW.wrist,
-    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
-  )
-
-  val L3_PREMOVE_PIVOT = SuperstructureState(
-    L3_PIVOT.pivot,
-    STOW.elevator,
-    STOW.wrist,
-    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
-  )
-
   val L4_PREMOVE_PIVOT = SuperstructureState(
     Degrees.of(67.5),
     MIN_ELEVATOR_HEIGHT,
-    L4_PIVOT.wrist,
-    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
-  )
-
-  // only for after pivot side l4
-  val PRE_GROUND = SuperstructureState(
-    L4_PIVOT.pivot,
-    GROUND_INTAKE_CORAL.elevator,
     L4_PIVOT.wrist,
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
@@ -183,6 +119,29 @@ object SuperstructureGoal {
     Degrees.of(80.297259),
     L4.elevator + Inches.of(10.278098),
     L4.wrist,
+    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+  )
+
+  val NET_PREMOVE = SuperstructureState(
+    NET.pivot,
+    STOW.elevator,
+    STOW.wrist,
+    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+  )
+
+  // TODO: FIND NET PIVOT POSE
+  val NET_PIVOT = SuperstructureState(
+    Radians.of(1.459688),
+    Meters.of(1.030762),
+    Radians.of(1.625244), // -138.5
+    DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
+  )
+
+  // TODO: FIND PIVOT FOR PREMOVE STATE
+  val NET_PREMOVE_PIVOT = SuperstructureState(
+    Degrees.of(67.5),
+    MIN_ELEVATOR_HEIGHT,
+    NET_PIVOT.wrist,
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 

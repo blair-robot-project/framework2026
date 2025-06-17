@@ -22,10 +22,8 @@ object IntakeConstants {
   val INVERTED = InvertedValue.Clockwise_Positive
   val BRAKE_MODE = NeutralModeValue.Brake
 
-
-
-  //voltage for different scenarios and motors
-  const val TOP_ROLLER_VOLTAGE = 10.0 //TODO
+  // voltage for different scenarios and motors
+  const val TOP_ROLLER_VOLTAGE = 10.0 // TODO
   const val RUN_SIDES_TO_LEFT = 7.0
   const val RUN_SIDES_TO_RIGHT = 7.0
 
@@ -42,6 +40,7 @@ object IntakeConstants {
   const val CORAL_OUTTAKE_PIVOT_SIDE_VOLTAGE = -3.0
   const val L1_OUTTAKE = -2.1678
   const val ALGAE_OUTTAKE_VOLTAGE = -10.0
+  const val ALGAE_STALL_TRESHHOLD = 500.0
 
   const val DESCORE_ALGAE_VOLTAGE = -3.0
 

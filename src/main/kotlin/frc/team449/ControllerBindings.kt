@@ -249,23 +249,6 @@ class ControllerBindings(
     )
   }
 
-  private fun substationIntake() {
-    driveController.leftBumper().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.SUBSTATION_INTAKE)
-        .alongWith(robot.intake.intakeCoralVertical())
-        .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
-        .andThen(robot.intake.stop())
-//        .deadlineFor(robot.light.gradient(MetersPerSecond.of(0.5), Color.kYellow, Color.kLightCoral, Color.kIndianRed))
-        .andThen(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
-//            .alongWith(
-//              robot.light.blink(Seconds.of(0.25), Color.kWhite)
-//                .withTimeout(1.5)
-//            )
-        )
-    )
-  }
-
   private fun groundIntakeVertical() {
     driveController.leftBumper().onTrue(
       (
@@ -297,23 +280,6 @@ class ControllerBindings(
     )
   }
 
-  private fun coralBlockSubstationIntake() {
-    driveController.povDown().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.SUBSTATION_INTAKE_CORAL_IN_FRONT)
-        .alongWith(robot.intake.intakeCoralVertical())
-        .andThen(WaitUntilCommand { robot.intake.coralDetected() && RobotBase.isReal() })
-        .andThen(robot.intake.stop())
-        .deadlineFor(robot.light.gradient(MetersPerSecond.of(0.5), Color.kYellow, Color.kLightCoral, Color.kIndianRed))
-        .andThen(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
-            .alongWith(
-              robot.light.blink(Seconds.of(0.25), Color.kWhite)
-                .withTimeout(1.5)
-            )
-        )
-    )
-  }
-
   private fun outtake() {
     driveController.rightBumper().onTrue(
       ConditionalCommand( // is real
@@ -338,7 +304,6 @@ class ControllerBindings(
           ConditionalCommand( // have an algae
             robot.intake.outtakeAlgae()
               .andThen(WaitUntilCommand { !robot.intake.algaeDetected() })
-              .andThen(WaitCommand(0.10))
               .andThen(robot.intake.stop())
               .andThen(robot.climb.stop())
               .andThen(
@@ -415,7 +380,7 @@ class ControllerBindings(
   private fun score_l4_net() {
     driveController.y().onTrue(
       ConditionalCommand(
-        robot.superstructureManager.requestGoal(SuperstructureGoal.NET),
+        robot.superstructureManager.requestL4(SuperstructureGoal.NET),
         ConditionalCommand(
           robot.superstructureManager.requestL4(SuperstructureGoal.L4_PIVOT),
           robot.superstructureManager.requestL4(SuperstructureGoal.L4)

@@ -92,16 +92,16 @@ class SuperstructureManager(
       .andThen(InstantCommand({ ready = true }))
   }
 
-  private fun retractL4(goal: SuperstructureGoal.SuperstructureState): Command {
+  private fun retractFromHigh(goal: SuperstructureGoal.SuperstructureState): Command {
     return Commands.sequence(
       wrist.setPosition(Units.degreesToRadians(90.0))
-        .onlyIf { prevGoal == SuperstructureGoal.L4 },
+        .onlyIf { prevGoal == SuperstructureGoal.L4 || prevGoal == SuperstructureGoal.NET },
       wrist.setPosition(Units.degreesToRadians(-70.0))
-        .onlyIf { prevGoal == SuperstructureGoal.L4_PIVOT },
+        .onlyIf { prevGoal == SuperstructureGoal.L4_PIVOT || prevGoal == SuperstructureGoal.NET_PIVOT },
       WaitUntilCommand { wrist.positionSupplier.get() > Units.degreesToRadians(20.0) }
-        .onlyIf { prevGoal == SuperstructureGoal.L4 },
+        .onlyIf { prevGoal == SuperstructureGoal.L4 || prevGoal == SuperstructureGoal.NET },
       WaitUntilCommand { wrist.positionSupplier.get() < Units.degreesToRadians(10.0) }
-        .onlyIf { prevGoal == SuperstructureGoal.L4_PIVOT },
+        .onlyIf { prevGoal == SuperstructureGoal.L4_PIVOT || prevGoal == SuperstructureGoal.NET_PIVOT },
       elevator.setPosition(goal.elevator.`in`(Meters)),
       WaitUntilCommand { elevator.pivotReady() },
       Commands.parallel(
@@ -112,53 +112,6 @@ class SuperstructureManager(
       InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) }),
       holdAll()
     )
-  }
-
-  fun requestAuto(goal: SuperstructureGoal.SuperstructureState): Command {
-    return InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) })
-      .andThen(InstantCommand({ ready = false }))
-      .andThen(InstantCommand({ lastGoal = goal }))
-      .andThen(
-        ConditionalCommand(
-          // if extending
-          Commands.sequence(
-            InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) }),
-            Commands.parallel(
-              wrist.setPosition(goal.wrist.`in`(Radians)),
-              pivot.setPosition(goal.pivot.`in`(Radians))
-            ),
-            WaitUntilCommand { wrist.elevatorReady() && pivot.elevatorReady() },
-            elevator.setPosition(goal.elevator.`in`(Meters)),
-//            WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() && elevator.atSetpoint() },
-            WaitUntilCommand { wrist.atSetpoint() || pivot.atSetpoint() },
-            pivot.hold().onlyIf { pivot.atSetpoint() },
-            wrist.hold().onlyIf { wrist.atSetpoint() },
-            WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() },
-            pivot.hold(),
-            wrist.hold(),
-            WaitUntilCommand { elevator.atSetpoint() },
-            holdAll()
-          ),
-
-          // if retracting
-          Commands.sequence(
-            elevator.setPosition(goal.elevator.`in`(Meters)),
-            wrist.hold(),
-            wrist.setPosition(WristConstants.ELEVATOR_READY.`in`(Radians))
-              .onlyIf { goal.wrist > WristConstants.ELEVATOR_READY },
-            WaitUntilCommand { elevator.pivotReady() },
-            Commands.parallel(
-              pivot.setPosition(goal.pivot.`in`(Radians)),
-              wrist.setPosition(goal.wrist.`in`(Radians))
-            ),
-            WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() && elevator.atSetpoint() },
-            InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) }),
-            holdAll()
-          )
-        ) { goal.elevator.`in`(Meters) >= elevator.positionSupplier.get() }
-      )
-      .andThen(InstantCommand({ prevGoal = goal }))
-      .andThen(InstantCommand({ ready = true }))
   }
 
   fun requestGoal(goal: SuperstructureGoal.SuperstructureState): Command {
@@ -213,7 +166,8 @@ class SuperstructureManager(
 
           // if retracting
           ConditionalCommand(
-            retractL4(goal),
+            // this function will check if we're retracting from l4/net and make necessary adjustments
+            retractFromHigh(goal),
             Commands.sequence(
               ConditionalCommand(
                 // going to ground coral
