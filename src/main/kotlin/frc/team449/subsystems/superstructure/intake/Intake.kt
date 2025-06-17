@@ -185,6 +185,7 @@ class Intake(
       rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble))
       leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble))
     }
+      .andThen(stop())
   }
 
   fun holdCoralPivot(): Command {
