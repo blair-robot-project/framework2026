@@ -100,26 +100,6 @@ class ControllerBindings(
   }
 
   private fun climbTriggers() {
-//    Trigger {
-//      driveController.hid.aButton &&
-//        !robot.intake.coralDetected() &&
-//        robot.superstructureManager.lastRequestedGoal() == SuperstructureGoal.CLIMB_BEFORE &&
-//        robot.superstructureManager.isAtPos()
-//    }.onTrue(
-//      robot.wrist.setPosition(WristConstants.CLIMB_DOWN.`in`(Radians))
-//        .alongWith(robot.climb.stop())
-//        .alongWith(robot.pivot.climbDown())
-//        .andThen(robot.elevator.climbDown())
-//    )
-//
-//    Trigger {
-//      driveController.hid.aButton &&
-//        !robot.intake.coralDetected() &&
-//        robot.superstructureManager.lastRequestedGoal() == SuperstructureGoal.STOW
-//    }.onTrue(
-//      robot.superstructureManager.requestGoal(SuperstructureGoal.CLIMB_BEFORE)
-//        .alongWith(robot.climb.runClimbWheels())
-//    )
 
     Trigger {
       driveController.hid.aButton &&
@@ -395,7 +375,7 @@ class ControllerBindings(
     driveController.start().onTrue(
       robot.superstructureManager.requestGroundIntake(SuperstructureGoal.ALGAE_GROUND)
         .alongWith(robot.intake.intakeAlgae())
-        .withTimeout(1.5)
+        .andThen(WaitCommand(.75))
         .andThen(robot.intake.holdAlgae())
 
     )
