@@ -12,6 +12,7 @@ import frc.team449.commands.Commands.ScoreL4
 import frc.team449.commands.driveAlign.SimpleReefAlign
 import frc.team449.subsystems.FieldConstants
 import frc.team449.subsystems.superstructure.SuperstructureGoal
+import frc.team449.subsystems.superstructure.SuperstructureManager
 import java.util.Optional
 
 open class Routines(
@@ -49,6 +50,7 @@ open class Routines(
 
     middleRoutine.active().onTrue(
       Commands.sequence(
+        robot.intake.resetPiece(),
         forward.resetOdometry(),
         forward.cmd().alongWith(
           WaitCommand(0.5).andThen(
@@ -91,6 +93,7 @@ open class Routines(
 
     middlesides.active().onTrue(
       Commands.sequence(
+        robot.intake.resetPiece(),
         preloadScore.resetOdometry().alongWith(robot.intake.stop()),
         preloadScore.cmd().alongWith(
           robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOT)
@@ -166,6 +169,7 @@ open class Routines(
 
     routine.active().onTrue(
       Commands.sequence(
+        robot.intake.resetPiece(),
         scorePreloadB.resetOdometry(),
         scorePreloadB.cmd().alongWith(getPremoveCommand(reefLevels[0], 1.65))
       )
@@ -314,9 +318,11 @@ open class Routines(
     val netScoreLeft = routine.trajectory("OneL4ThreeAL/5")
     val algaePickupRight = routine.trajectory("OneL4ThreeAL/6")
     val netScoreRight = routine.trajectory("OneL4ThreeAL/7")
+    val getTaxi = routine.trajectory("OneL4ThreeAL/8")
 
     routine.active().onTrue(
       Commands.sequence(
+        robot.intake.resetPiece(),
         preloadedL4Score.resetOdometry(),
         preloadedL4Score.cmd().alongWith(getPremoveCommand(-4, 1.1))
       )
@@ -324,15 +330,12 @@ open class Routines(
 
     preloadedL4Score.done().onTrue(
       Commands.sequence(
-        PrintCommand("\n\n\nfinish score command\n\n\n"),
         robot.drive.driveStop(),
-        PrintCommand("\n\n\nfinish drivestop\n\n\n"),
         scoreCoral(false),
-        PrintCommand("\n\n\nfinish scoring\n\n\n"),
         algaePickupMiddle.cmd().andThen(robot.drive.driveStop())
           .alongWith(intakeAlgae(2)),
         netScoreMiddle.cmd()
-          .alongWith(getPremoveCommand(5, 1.1)),
+          .alongWith(getPremoveCommand(5, 0.85)),
       )
     )
 
@@ -344,7 +347,7 @@ open class Routines(
           .alongWith(intakeAlgae(3))
           .until { robot.intake.algaeDetected() },
         netScoreLeft.cmd()
-          .alongWith(getPremoveCommand(5, 1.1)),
+          .alongWith(getPremoveCommand(5, 0.9)),
       )
     )
 
@@ -356,7 +359,22 @@ open class Routines(
           .alongWith(intakeAlgae(3))
           .until { robot.intake.algaeDetected() },
         netScoreRight.cmd()
-          .alongWith(getPremoveCommand(5, 1.1)),
+          .alongWith(getPremoveCommand(5, 0.9)),
+      )
+    )
+
+    netScoreRight.done().onTrue(
+      Commands.sequence(
+        robot.drive.driveStop(),
+        scoreAlgaePivot(),
+        getTaxi.cmd().alongWith(robot.superstructureManager.requestGoal(
+          SuperstructureGoal.SuperstructureState(
+            SuperstructureGoal.NET_PIVOT.pivot,
+            SuperstructureGoal.STOW.elevator,
+            SuperstructureGoal.NET_PIVOT.wrist,
+            SuperstructureGoal.NET_PIVOT.driveDynamics
+          )
+        ))
       )
     )
 
@@ -395,7 +413,7 @@ open class Routines(
   }
 
   private fun scoreCoral(pivotSide: Boolean = true): Command {
-    return WaitUntilCommand { robot.superstructureManager.isAtPos() }
+    return WaitUntilCommand { robot.pivot.atSetpoint() && robot.elevator.atSetpoint() && robot.wrist.atSetpoint() }
       .andThen(WaitCommand(0.15))
       .andThen(
         ConditionalCommand(
@@ -413,7 +431,7 @@ open class Routines(
   }
 
   private fun scoreAlgaePivot(): Command {
-    return WaitUntilCommand { robot.superstructureManager.isAtPos() }
+    return WaitUntilCommand { robot.pivot.atSetpoint() && robot.elevator.atSetpoint() && robot.wrist.atSetpoint() }
       .andThen(robot.intake.outtakeAlgae())
       .andThen(PrintCommand("Outook Piece!"))
       .andThen(
@@ -452,7 +470,15 @@ open class Routines(
   }
 
   private fun intakeAlgae(level: Int): Command {
-    return robot.superstructureManager.requestGoal(if (level == 2) SuperstructureGoal.L2_ALGAE_INTAKE else SuperstructureGoal.L3_ALGAE_INTAKE)
+    return ConditionalCommand(
+      robot.superstructureManager.requestGoal(SuperstructureGoal.L2_ALGAE_INTAKE),
+      robot.superstructureManager.requestGoal(SuperstructureGoal.SuperstructureState(
+        SuperstructureGoal.NET_PIVOT.pivot,
+        SuperstructureGoal.L3_ALGAE_INTAKE.elevator,
+        SuperstructureGoal.NET_PIVOT.wrist,
+        SuperstructureGoal.L3_ALGAE_INTAKE.driveDynamics
+      )).andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.L3_ALGAE_INTAKE))
+      ) { level == 2}
       .alongWith(WaitCommand(0.3).andThen(robot.intake.intakeAlgae()))
       .andThen(
         WaitUntilCommand { robot.intake.algaeDetected() || !RobotBase.isReal() }
@@ -460,6 +486,7 @@ open class Routines(
       .andThen(
         robot.intake.stop()
       )
+
   }
 
   private fun getPremoveCommand(reefLevel: Int, waitTime: Double = 0.0): Command {
@@ -472,7 +499,7 @@ open class Routines(
         Commands.sequence(
           robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOT)
             .withDeadline(WaitCommand(waitTime)),
-          robot.superstructureManager.requestL4(SuperstructureGoal.L4_PIVOT)
+          robot.superstructureManager.requestHigh(SuperstructureGoal.L4_PIVOT)
         ),
         robot.intake.holdCoralForwardAuto()
       )
@@ -480,7 +507,7 @@ open class Routines(
         Commands.sequence(
           robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)
             .withDeadline(WaitCommand(waitTime)),
-          robot.superstructureManager.requestL4(SuperstructureGoal.L4)
+          robot.superstructureManager.requestHigh(SuperstructureGoal.L4)
         ),
         robot.intake.holdCoralForwardAuto()
       )
@@ -488,7 +515,7 @@ open class Routines(
         Commands.sequence(
           robot.superstructureManager.requestGoal(SuperstructureGoal.NET_PREMOVE_PIVOT)
             .withDeadline(WaitCommand(waitTime)),
-          robot.superstructureManager.requestL4(SuperstructureGoal.NET_PIVOT)
+          robot.superstructureManager.requestHigh(SuperstructureGoal.NET_PIVOT)
         ),
         robot.intake.holdCoralForwardAuto()
       )

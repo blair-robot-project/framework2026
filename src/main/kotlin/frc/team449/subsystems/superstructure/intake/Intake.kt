@@ -333,12 +333,12 @@ class Intake(
       topMotor.motorStallCurrent.valueAsDouble >
         IntakeConstants.ALGAE_STALL_TRESHHOLD
     }.onlyIf { RobotBase.isReal() }
-      .andThen(run { gamePiece = Piece.ALGAE })
+      .andThen(runOnce { gamePiece = Piece.ALGAE })
   }
 
   private fun changePieceToCoral(): Command {
     return WaitUntilCommand { coralDetected() }.onlyIf { RobotBase.isReal() }
-      .andThen(run { gamePiece = Piece.CORAL })
+      .andThen(runOnce { gamePiece = Piece.CORAL })
   }
 
   private fun changePieceToNone(coralOuttaken: Boolean): Command {
@@ -353,8 +353,14 @@ class Intake(
         )
       ) { coralOuttaken },
       WaitCommand(0.1),
-      run { gamePiece = Piece.NONE }
+      runOnce { gamePiece = Piece.NONE }
     )
+  }
+
+  fun resetPiece(): Command {
+    return runOnce {
+      gamePiece = Piece.CORAL
+    }
   }
 
   fun stop(): Command {

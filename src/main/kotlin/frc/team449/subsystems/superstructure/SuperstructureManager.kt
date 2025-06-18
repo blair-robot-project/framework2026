@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import edu.wpi.first.wpilibj2.command.InstantCommand
+import edu.wpi.first.wpilibj2.command.PrintCommand
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand
 import frc.team449.Robot
 import frc.team449.subsystems.drive.swerve.SwerveDrive
@@ -124,6 +125,7 @@ class SuperstructureManager(
           Commands.sequence(
             InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) }),
             ConditionalCommand(
+              // to algae ground
               // move pivot before moving wrist
               Commands.sequence(
                 pivot.setPosition(goal.pivot.`in`(Radians)),
@@ -149,7 +151,6 @@ class SuperstructureManager(
                 ),
                 WaitUntilCommand { wrist.elevatorReady() && pivot.elevatorReady() },
                 elevator.setPosition(goal.elevator.`in`(Meters)),
-//            WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() && elevator.atSetpoint() },
                 WaitUntilCommand { wrist.atSetpoint() || pivot.atSetpoint() },
                 pivot.hold().onlyIf { pivot.atSetpoint() },
                 wrist.hold().onlyIf { wrist.atSetpoint() },
@@ -159,9 +160,7 @@ class SuperstructureManager(
                 WaitUntilCommand { elevator.atSetpoint() },
                 holdAll()
               )
-
-            ) { goal == SuperstructureGoal.ALGAE_GROUND }
-
+            ) { goal == SuperstructureGoal.ALGAE_GROUND  && prevGoal == SuperstructureGoal.GROUND_INTAKE_CORAL }
           ),
 
           // if retracting
@@ -202,7 +201,7 @@ class SuperstructureManager(
                   InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) }),
                   holdAll()
                 )
-              ) { goal == SuperstructureGoal.GROUND_INTAKE_CORAL }
+              ) { goal == SuperstructureGoal.GROUND_INTAKE_CORAL && prevGoal == SuperstructureGoal.ALGAE_GROUND }
             )
           ) { prevGoal == SuperstructureGoal.L4 || prevGoal == SuperstructureGoal.L4_PIVOT }
         ) { goal.elevator.`in`(Meters) >= elevator.positionSupplier.get() }
@@ -211,22 +210,21 @@ class SuperstructureManager(
       .andThen(InstantCommand({ ready = true }))
   }
 
-  fun requestL4(goal: SuperstructureGoal.SuperstructureState = SuperstructureGoal.L4): Command {
+  fun requestHigh(goal: SuperstructureGoal.SuperstructureState = SuperstructureGoal.L4): Command {
     return InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) })
+      .andThen(PrintCommand("\n\n l4 request start \n\n"))
       .andThen(InstantCommand({ ready = false }))
       .andThen(InstantCommand({ lastGoal = goal }))
       .andThen(
         ConditionalCommand(
           // if extending
           Commands.sequence(
-            InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) }),
             Commands.parallel(
               wrist.setPosition(goal.wrist.`in`(Radians)),
               pivot.setPosition(goal.pivot.`in`(Radians))
             ),
             WaitUntilCommand { wrist.elevatorReady() && pivot.elevatorReady() },
             elevator.setPositionCarriage(goal.elevator.`in`(Meters)),
-//            WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() && elevator.atSetpoint() },
             WaitUntilCommand { wrist.atSetpoint() || pivot.atSetpoint() },
             pivot.hold().onlyIf { pivot.atSetpoint() },
             wrist.hold().onlyIf { wrist.atSetpoint() },
@@ -253,7 +251,6 @@ class SuperstructureManager(
               wrist.setPosition(goal.wrist.`in`(Radians))
             ),
             WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() && elevator.atSetpoint() },
-            InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) }),
             Commands.parallel(
               pivot.hold(),
               wrist.hold(),
@@ -262,6 +259,7 @@ class SuperstructureManager(
           )
         ) { goal.elevator.`in`(Meters) >= elevator.positionSupplier.get() }
       )
+      .andThen(PrintCommand("\n\n l4 request done \n\n"))
       .andThen(InstantCommand({ prevGoal = goal }))
       .andThen(InstantCommand({ ready = true }))
   }

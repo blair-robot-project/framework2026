@@ -360,10 +360,10 @@ class ControllerBindings(
   private fun score_l4_net() {
     driveController.y().onTrue(
       ConditionalCommand(
-        robot.superstructureManager.requestL4(SuperstructureGoal.NET),
+        robot.superstructureManager.requestHigh(SuperstructureGoal.NET),
         ConditionalCommand(
-          robot.superstructureManager.requestL4(SuperstructureGoal.L4_PIVOT),
-          robot.superstructureManager.requestL4(SuperstructureGoal.L4)
+          robot.superstructureManager.requestHigh(SuperstructureGoal.L4_PIVOT),
+          robot.superstructureManager.requestHigh(SuperstructureGoal.L4)
         ) { robot.poseSubsystem.isPivotSide() }
           .alongWith(robot.intake.holdCoral())
       ) { robot.intake.algaeDetected() }
