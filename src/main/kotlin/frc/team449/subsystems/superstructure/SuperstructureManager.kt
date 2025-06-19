@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.PrintCommand
+import edu.wpi.first.wpilibj2.command.WaitCommand
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand
 import frc.team449.Robot
 import frc.team449.subsystems.drive.swerve.SwerveDrive
@@ -93,7 +94,7 @@ class SuperstructureManager(
       .andThen(InstantCommand({ ready = true }))
   }
 
-  private fun retractFromHigh(goal: SuperstructureGoal.SuperstructureState): Command {
+  private fun retractFromHigh(goal: SuperstructureGoal.SuperstructureState, wristPremoveTime: Double): Command {
     return Commands.sequence(
       wrist.setPosition(Units.degreesToRadians(90.0))
         .onlyIf { prevGoal == SuperstructureGoal.L4 || prevGoal == SuperstructureGoal.NET },
@@ -103,19 +104,17 @@ class SuperstructureManager(
         .onlyIf { prevGoal == SuperstructureGoal.L4 || prevGoal == SuperstructureGoal.NET },
       WaitUntilCommand { wrist.positionSupplier.get() < Units.degreesToRadians(10.0) }
         .onlyIf { prevGoal == SuperstructureGoal.L4_PIVOT || prevGoal == SuperstructureGoal.NET_PIVOT },
-      elevator.setPosition(goal.elevator.`in`(Meters)),
+      elevator.setPosition(goal.elevator.`in`(Meters)).alongWith(
+        WaitCommand(wristPremoveTime).andThen(wrist.setPosition(goal.wrist.`in`(Radians)))),
       WaitUntilCommand { elevator.pivotReady() },
-      Commands.parallel(
-        pivot.setPosition(goal.pivot.`in`(Radians)),
-        wrist.setPosition(goal.wrist.`in`(Radians))
-      ),
+      pivot.setPosition(goal.pivot.`in`(Radians)),
       WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() && elevator.atSetpoint() },
       InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) }),
       holdAll()
     )
   }
 
-  fun requestGoal(goal: SuperstructureGoal.SuperstructureState): Command {
+  fun requestGoal(goal: SuperstructureGoal.SuperstructureState, wristPremoveTime: Double = 0.25): Command {
     return InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) })
       .andThen(InstantCommand({ ready = false }))
       .andThen(InstantCommand({ lastGoal = goal }))
@@ -166,7 +165,7 @@ class SuperstructureManager(
           // if retracting
           ConditionalCommand(
             // this function will check if we're retracting from l4/net and make necessary adjustments
-            retractFromHigh(goal),
+            retractFromHigh(goal, wristPremoveTime),
             Commands.sequence(
               ConditionalCommand(
                 // going to ground coral
@@ -212,7 +211,6 @@ class SuperstructureManager(
 
   fun requestHigh(goal: SuperstructureGoal.SuperstructureState = SuperstructureGoal.L4): Command {
     return InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) })
-      .andThen(PrintCommand("\n\n l4 request start \n\n"))
       .andThen(InstantCommand({ ready = false }))
       .andThen(InstantCommand({ lastGoal = goal }))
       .andThen(
@@ -259,7 +257,6 @@ class SuperstructureManager(
           )
         ) { goal.elevator.`in`(Meters) >= elevator.positionSupplier.get() }
       )
-      .andThen(PrintCommand("\n\n l4 request done \n\n"))
       .andThen(InstantCommand({ prevGoal = goal }))
       .andThen(InstantCommand({ ready = true }))
   }

@@ -310,21 +310,24 @@ open class Routines(
 
   private fun algaeAuto(): AutoRoutine {
     val routine = autoFactory.newRoutine("algae auto")
-
-    val preloadedL4Score = routine.trajectory("OneL4ThreeAL/1")
-    val algaePickupMiddle = routine.trajectory("OneL4ThreeAL/2")
-    val netScoreMiddle = routine.trajectory("OneL4ThreeAL/3")
-    val algaePickupLeft = routine.trajectory("OneL4ThreeAL/4")
-    val netScoreLeft = routine.trajectory("OneL4ThreeAL/5")
-    val algaePickupRight = routine.trajectory("OneL4ThreeAL/6")
-    val netScoreRight = routine.trajectory("OneL4ThreeAL/7")
-    val getTaxi = routine.trajectory("OneL4ThreeAL/8")
+    val algaeAutoType = "OneL4ThreeALClose"
+    val farWaitTimes = listOf(0.5, 0.7, 0.7, 0.7)
+    val closeWaitTimes = listOf(0.5, 0.63, 0.63, 0.63)
+    val waitTimes = closeWaitTimes
+    val preloadedL4Score = routine.trajectory("$algaeAutoType/1")
+    val algaePickupMiddle = routine.trajectory("$algaeAutoType/2")
+    val netScoreMiddle = routine.trajectory("$algaeAutoType/3")
+    val algaePickupLeft = routine.trajectory("$algaeAutoType/4")
+    val netScoreLeft = routine.trajectory("$algaeAutoType/5")
+    val algaePickupRight = routine.trajectory("$algaeAutoType/6")
+    val netScoreRight = routine.trajectory("$algaeAutoType/7")
+    val getTaxi = routine.trajectory("$algaeAutoType/8")
 
     routine.active().onTrue(
       Commands.sequence(
         robot.intake.resetPiece(),
         preloadedL4Score.resetOdometry(),
-        preloadedL4Score.cmd().alongWith(getPremoveCommand(-4, 1.1))
+        preloadedL4Score.cmd().alongWith(getPremoveCommand(-4, waitTimes[0]))
       )
     )
 
@@ -335,7 +338,7 @@ open class Routines(
         algaePickupMiddle.cmd().andThen(robot.drive.driveStop())
           .alongWith(intakeAlgae(2)),
         netScoreMiddle.cmd()
-          .alongWith(getPremoveCommand(5, 0.85)),
+          .alongWith(getPremoveCommand(5, waitTimes[1])),
       )
     )
 
@@ -347,7 +350,7 @@ open class Routines(
           .alongWith(intakeAlgae(3))
           .until { robot.intake.algaeDetected() },
         netScoreLeft.cmd()
-          .alongWith(getPremoveCommand(5, 0.9)),
+          .alongWith(getPremoveCommand(5, waitTimes[2])),
       )
     )
 
@@ -359,7 +362,7 @@ open class Routines(
           .alongWith(intakeAlgae(3))
           .until { robot.intake.algaeDetected() },
         netScoreRight.cmd()
-          .alongWith(getPremoveCommand(5, 0.9)),
+          .alongWith(getPremoveCommand(5, waitTimes[3])),
       )
     )
 
@@ -367,14 +370,14 @@ open class Routines(
       Commands.sequence(
         robot.drive.driveStop(),
         scoreAlgaePivot(),
-        getTaxi.cmd().alongWith(robot.superstructureManager.requestGoal(
+        robot.superstructureManager.requestGoal(
           SuperstructureGoal.SuperstructureState(
             SuperstructureGoal.NET_PIVOT.pivot,
             SuperstructureGoal.STOW.elevator,
             SuperstructureGoal.NET_PIVOT.wrist,
             SuperstructureGoal.NET_PIVOT.driveDynamics
           )
-        ))
+        ).alongWith(WaitCommand(0.25).andThen(getTaxi.cmd()))
       )
     )
 
@@ -471,7 +474,7 @@ open class Routines(
 
   private fun intakeAlgae(level: Int): Command {
     return ConditionalCommand(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.L2_ALGAE_INTAKE),
+      robot.superstructureManager.requestGoal(SuperstructureGoal.L2_ALGAE_INTAKE, 0.15),
       robot.superstructureManager.requestGoal(SuperstructureGoal.SuperstructureState(
         SuperstructureGoal.NET_PIVOT.pivot,
         SuperstructureGoal.L3_ALGAE_INTAKE.elevator,
@@ -482,6 +485,8 @@ open class Routines(
       .alongWith(WaitCommand(0.3).andThen(robot.intake.intakeAlgae()))
       .andThen(
         WaitUntilCommand { robot.intake.algaeDetected() || !RobotBase.isReal() }
+      ).andThen(
+        WaitCommand(0.1)
       )
       .andThen(
         robot.intake.stop()
