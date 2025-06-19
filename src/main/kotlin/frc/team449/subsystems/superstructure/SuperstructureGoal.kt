@@ -73,15 +73,15 @@ object SuperstructureGoal {
 
   val L4_PIVOT = SuperstructureState(
     Degrees.of(83.822214),
-    Inches.of(38.827654-2)- MIN_ELEVATOR_HEIGHT,
-    Degrees.of(90-34.000000), // -138.5
+    Inches.of(38.827654 - 2) - MIN_ELEVATOR_HEIGHT,
+    Degrees.of(90 - 34.000000), // -138.5
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
   val GROUND_INTAKE_CORAL = SuperstructureState(
     Degrees.of(4.790334),
     Inches.of(0.0) - MIN_ELEVATOR_HEIGHT,
-    Degrees.of(90-53.797419), // true angle is -84.87
+    Degrees.of(90 - 53.797419), // true angle is -84.87
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
@@ -117,7 +117,7 @@ object SuperstructureGoal {
 
   val NET = SuperstructureState(
     Degrees.of(80.297259),
-    Inches.of(51.653671-2) - MIN_ELEVATOR_HEIGHT,
+    Inches.of(51.653671 - 2) - MIN_ELEVATOR_HEIGHT,
     Degrees.of(76.644829),
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
@@ -131,9 +131,9 @@ object SuperstructureGoal {
 
   // TODO: FIND NET PIVOT POSE
   val NET_PIVOT = SuperstructureState(
-    Radians.of(80.297259*Math.PI/180),
-    Inches.of(49.121867-2) - MIN_ELEVATOR_HEIGHT,
-    Radians.of((180-149.437262)*Math.PI/180), // -138.5
+    Radians.of(80.297259 * Math.PI / 180),
+    Inches.of(49.121867 - 2) - MIN_ELEVATOR_HEIGHT,
+    Radians.of((180 - 149.437262) * Math.PI / 180), // -138.5
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
@@ -148,15 +148,15 @@ object SuperstructureGoal {
   // TODO: FIND ALGAE GROUND INTAKE POSE
   val ALGAE_GROUND = SuperstructureState(
     Degrees.of(18.453609),
-    Inches.of(2.088062-2)- MIN_ELEVATOR_HEIGHT,
-    Degrees.of(180-111.968774),
+    Inches.of(2.088062 - 2) - MIN_ELEVATOR_HEIGHT,
+    Degrees.of(180 - 111.968774),
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
   // TODO: FIND ALGAE L2 INTAKE POSE
   val L2_ALGAE_INTAKE = SuperstructureState(
     Degrees.of(53.449538),
-    Inches.of(7.694820-2)- MIN_ELEVATOR_HEIGHT,
+    Inches.of(7.694820 - 2) - MIN_ELEVATOR_HEIGHT,
     Degrees.of(-90.0), // true angle is -84.87
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
@@ -164,7 +164,7 @@ object SuperstructureGoal {
   // TODO: FIND ALGAE L3 INTAKE POSE
   val L3_ALGAE_INTAKE = SuperstructureState(
     Degrees.of(64.804651),
-    Inches.of(20.926871-2) - MIN_ELEVATOR_HEIGHT,
+    Inches.of(20.926871 - 2) - MIN_ELEVATOR_HEIGHT,
     Degrees.of(-90.0), // true angle is -84.87
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )

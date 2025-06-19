@@ -100,7 +100,6 @@ class ControllerBindings(
   }
 
   private fun climbTriggers() {
-
     Trigger {
       driveController.hid.aButton &&
         !robot.intake.coralDetected()

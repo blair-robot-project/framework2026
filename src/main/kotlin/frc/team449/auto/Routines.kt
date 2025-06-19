@@ -12,7 +12,6 @@ import frc.team449.commands.Commands.ScoreL4
 import frc.team449.commands.driveAlign.SimpleReefAlign
 import frc.team449.subsystems.FieldConstants
 import frc.team449.subsystems.superstructure.SuperstructureGoal
-import frc.team449.subsystems.superstructure.SuperstructureManager
 import java.util.Optional
 
 open class Routines(
@@ -311,8 +310,8 @@ open class Routines(
   private fun algaeAuto(): AutoRoutine {
     val routine = autoFactory.newRoutine("algae auto")
     val algaeAutoType = "OneL4ThreeALClose"
-    val farWaitTimes = listOf(0.5, 0.7, 0.7, 0.7)
-    val closeWaitTimes = listOf(0.5, 0.63, 0.63, 0.63)
+    val farWaitTimes = listOf(0.7, 0.7, 0.7, 0.7)
+    val closeWaitTimes = listOf(0.7, 0.63, 0.63, 0.63)
     val waitTimes = closeWaitTimes
     val preloadedL4Score = routine.trajectory("$algaeAutoType/1")
     val algaePickupMiddle = routine.trajectory("$algaeAutoType/2")
@@ -475,13 +474,15 @@ open class Routines(
   private fun intakeAlgae(level: Int): Command {
     return ConditionalCommand(
       robot.superstructureManager.requestGoal(SuperstructureGoal.L2_ALGAE_INTAKE, 0.15),
-      robot.superstructureManager.requestGoal(SuperstructureGoal.SuperstructureState(
-        SuperstructureGoal.NET_PIVOT.pivot,
-        SuperstructureGoal.L3_ALGAE_INTAKE.elevator,
-        SuperstructureGoal.NET_PIVOT.wrist,
-        SuperstructureGoal.L3_ALGAE_INTAKE.driveDynamics
-      )).andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.L3_ALGAE_INTAKE))
-      ) { level == 2}
+      robot.superstructureManager.requestGoal(
+        SuperstructureGoal.SuperstructureState(
+          SuperstructureGoal.NET_PIVOT.pivot,
+          SuperstructureGoal.L3_ALGAE_INTAKE.elevator,
+          SuperstructureGoal.NET_PIVOT.wrist,
+          SuperstructureGoal.L3_ALGAE_INTAKE.driveDynamics
+        )
+      ).andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.L3_ALGAE_INTAKE))
+    ) { level == 2 }
       .alongWith(WaitCommand(0.3).andThen(robot.intake.intakeAlgae()))
       .andThen(
         WaitUntilCommand { robot.intake.algaeDetected() || !RobotBase.isReal() }
@@ -491,7 +492,6 @@ open class Routines(
       .andThen(
         robot.intake.stop()
       )
-
   }
 
   private fun getPremoveCommand(reefLevel: Int, waitTime: Double = 0.0): Command {

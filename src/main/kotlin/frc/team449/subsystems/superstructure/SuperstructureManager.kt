@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import edu.wpi.first.wpilibj2.command.InstantCommand
-import edu.wpi.first.wpilibj2.command.PrintCommand
 import edu.wpi.first.wpilibj2.command.WaitCommand
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand
 import frc.team449.Robot
@@ -105,7 +104,8 @@ class SuperstructureManager(
       WaitUntilCommand { wrist.positionSupplier.get() < Units.degreesToRadians(10.0) }
         .onlyIf { prevGoal == SuperstructureGoal.L4_PIVOT || prevGoal == SuperstructureGoal.NET_PIVOT },
       elevator.setPosition(goal.elevator.`in`(Meters)).alongWith(
-        WaitCommand(wristPremoveTime).andThen(wrist.setPosition(goal.wrist.`in`(Radians)))),
+        WaitCommand(wristPremoveTime).andThen(wrist.setPosition(goal.wrist.`in`(Radians)))
+      ),
       WaitUntilCommand { elevator.pivotReady() },
       pivot.setPosition(goal.pivot.`in`(Radians)),
       WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() && elevator.atSetpoint() },
@@ -159,7 +159,7 @@ class SuperstructureManager(
                 WaitUntilCommand { elevator.atSetpoint() },
                 holdAll()
               )
-            ) { goal == SuperstructureGoal.ALGAE_GROUND  && prevGoal == SuperstructureGoal.GROUND_INTAKE_CORAL }
+            ) { goal == SuperstructureGoal.ALGAE_GROUND && prevGoal == SuperstructureGoal.GROUND_INTAKE_CORAL }
           ),
 
           // if retracting
