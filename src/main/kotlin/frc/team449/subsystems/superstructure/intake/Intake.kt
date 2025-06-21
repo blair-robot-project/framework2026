@@ -279,7 +279,7 @@ class Intake(
 
   private fun laserCanUnplugged(laserCan: LaserCanInterface): Boolean {
     val measurement = laserCan.measurement
-    return measurement.status == null // returns TRUE if the laserCan is unplugged
+    return measurement == null // returns TRUE if the laserCan is unplugged
   }
 
   fun coralDetected(): Boolean {
@@ -385,10 +385,14 @@ class Intake(
 
     DogLog.log("Intake/HorizontalIntake", coralHorizontalDetected())
 
-    DogLog.log("Intake/LaserCan/Back Sensor Distance (mm)", if (backCoralSensor.measurement == null) -1.0 else backCoralSensor.measurement.distance_mm.toDouble())
-    DogLog.log("Intake/LaserCan/Left Sensor Distance (mm)", if (leftCoralSensor.measurement == null) -1.0 else leftCoralSensor.measurement.distance_mm.toDouble())
-    DogLog.log("Intake/LaserCan/Right Sensor Distance (mm)", if (rightCoralSensor.measurement == null) -1.0 else rightCoralSensor.measurement.distance_mm.toDouble())
-    DogLog.log("Intake/LaserCan/Middle Sensor Distance (mm)", if (middleCoralSensor.measurement == null) -1.0 else middleCoralSensor.measurement.distance_mm.toDouble())
+    val back: LaserCanInterface.Measurement? = backCoralSensor.measurement
+    val left: LaserCanInterface.Measurement? = leftCoralSensor.measurement
+    val right: LaserCanInterface.Measurement? = rightCoralSensor.measurement
+    val middle: LaserCanInterface.Measurement? = middleCoralSensor.measurement
+    DogLog.log("Intake/LaserCan/Back Sensor Distance (mm)", back?.distance_mm?.toDouble() ?: -1.0)
+    DogLog.log("Intake/LaserCan/Left Sensor Distance (mm)", left?.distance_mm?.toDouble() ?: -1.0)
+    DogLog.log("Intake/LaserCan/Right Sensor Distance (mm)", right?.distance_mm?.toDouble() ?: -1.0)
+    DogLog.log("Intake/LaserCan/Middle Sensor Distance (mm)", middle?.distance_mm?.toDouble() ?: -1.0)
     DogLog.log("Intake/ Back sensor", laserCanDetected(backCoralSensor))
     DogLog.log("Intake/ Right sensor", laserCanDetected(rightCoralSensor))
     DogLog.log("Intake/ Left sensor", laserCanDetected(leftCoralSensor))
