@@ -12,6 +12,7 @@ import dev.doglog.DogLog
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.RobotBase.isSimulation
 import edu.wpi.first.wpilibj2.command.*
+import edu.wpi.first.wpilibj2.command.Commands.waitUntil
 import frc.team449.system.motor.KrakenDogLog
 
 enum class Piece {
@@ -60,49 +61,50 @@ class Intake(
 
   private fun toTheRight(): Command {
     return runOnce {
-      setVoltageSides(IntakeConstants.RUN_SIDES_TO_RIGHT)
-    }
+      rightMotor.setVoltage(-IntakeConstants.RUN_SIDES)
+      leftMotor.setVoltage(IntakeConstants.RUN_SIDES)    }
   }
 
   private fun toTheLeft(): Command {
     return runOnce {
-      setVoltageSides(IntakeConstants.RUN_SIDES_TO_LEFT)
+      rightMotor.setVoltage(IntakeConstants.RUN_SIDES)
+      leftMotor.setVoltage(-IntakeConstants.RUN_SIDES)
     }
   }
 
   private fun inwards(): Command {
-    return run {
-      setVoltageRight(IntakeConstants.RUN_SIDES_TO_RIGHT)
-      setVoltageLeft(IntakeConstants.RUN_SIDES_TO_LEFT)
-      setVoltageTop(IntakeConstants.CORAL_INTAKE_VOLTAGE)
+    return runOnce {
+      topMotor.setVoltage(IntakeConstants.TOP_ROLLER_IN_VOLTAGE)
+      rightMotor.setVoltage(IntakeConstants.SIDE_ROLLER_IN_VOLTAGE)
+      leftMotor.setVoltage(IntakeConstants.SIDE_ROLLER_IN_VOLTAGE)
     }
   }
 
   fun outwards(): Command {
     return run {
-      setVoltageRight(IntakeConstants.RUN_SIDES_TO_RIGHT)
-      setVoltageLeft(IntakeConstants.RUN_SIDES_TO_LEFT)
-      setVoltageTop(IntakeConstants.CORAL_INTAKE_VOLTAGE)
+      topMotor.setVoltage(IntakeConstants.CORAL_OUTTAKE_VOLTAGE)
+      rightMotor.setVoltage(IntakeConstants.CORAL_OUTTAKE_VOLTAGE)
+      leftMotor.setVoltage(IntakeConstants.CORAL_OUTTAKE_VOLTAGE)
     }
   }
 
   fun intakeCoralHorizontal(): Command {
     changePieceToCoral().schedule()
     return ConditionalCommand( // if coral not detected
-      setVoltageTop(IntakeConstants.TOP_ROLLER_VOLTAGE)
+      setVoltageTop(IntakeConstants.TOP_ROLLER_IN_VOLTAGE)
         .until({ coralDetected() }),
       ConditionalCommand( // if coral detected by the three sensors
-        setVoltageSides(IntakeConstants.RUN_SIDES_TO_LEFT)
+        setVoltageSides(IntakeConstants.RUN_SIDES)
           .until { !rightlaserCan() }
-          .andThen(setVoltageSides(IntakeConstants.RUN_SIDES_TO_RIGHT)).withTimeout(0.5)
+          .andThen(setVoltageSides(IntakeConstants.RUN_SIDES)).withTimeout(0.5)
           .andThen(holdCoral()),
         ConditionalCommand( // if coral detected by right sensor
-          setVoltageSides(IntakeConstants.RUN_SIDES_TO_LEFT)
+          setVoltageSides(IntakeConstants.RUN_SIDES)
             .until { coralHorizontalDetected() },
           ConditionalCommand( // if coral detected by left sensor
-            setVoltageSides(IntakeConstants.RUN_SIDES_TO_RIGHT)
+            setVoltageSides(IntakeConstants.RUN_SIDES)
               .until { coralHorizontalDetected() },
-            setVoltageTop(IntakeConstants.TOP_ROLLER_VOLTAGE)
+            setVoltageTop(IntakeConstants.TOP_ROLLER_IN_VOLTAGE)
           ) { leftLaserCan() }
         ) { rightlaserCan() }
       ) { coralHorizontalDetected() }
@@ -111,28 +113,28 @@ class Intake(
 
   fun intakeCoralVertical(): Command {
     changePieceToCoral().schedule()
-    return ConditionalCommand( // if coral not detected
-      inwards().until({ coralDetected() }),
+    return inwards().andThen(
+      waitUntil { coralDetected() })
+      .andThen(
       ConditionalCommand( // if coral detected by middle sensor
-        inwards().until({ backLaserCan() })
+        inwards().until { backLaserCan() }
           .andThen(holdCoral()),
         ConditionalCommand( // if coral detected by left sensor
-          toTheRight().until({ middleLaserCan() })
+          toTheRight().until { middleLaserCan() }
             .andThen(
-              inwards().until({ backLaserCan() })
+              inwards().until { backLaserCan() }
                 .andThen(holdCoral())
             ),
           ConditionalCommand( // if coral detected by right sensor
-            toTheLeft().until({ middleLaserCan() })
+            toTheLeft().until { middleLaserCan() }
               .andThen(
-                inwards().until({ backLaserCan() })
+                inwards().until { backLaserCan() }
                   .andThen(holdCoral())
               ),
             inwards()
           ) { rightlaserCan() }
         ) { leftLaserCan() }
-      ) { middleLaserCan() }
-    ) { coralNotDetected() }
+      ) { middleLaserCan() })
   }
 
 //
@@ -418,13 +420,20 @@ class Intake(
       val leftMotor = TalonFX(IntakeConstants.RIGHT_MOTOR_ID)
       val config = TalonFXConfiguration()
 
-      config.MotorOutput.Inverted = IntakeConstants.INVERTED
+//      config.MotorOutput.Inverted = IntakeConstants.INVERTED
       config.MotorOutput.NeutralMode = IntakeConstants.BRAKE_MODE
 
       config.CurrentLimits.StatorCurrentLimitEnable = true
       config.CurrentLimits.SupplyCurrentLimitEnable = true
       config.CurrentLimits.SupplyCurrentLimit = IntakeConstants.SUPPLY_LIM
       config.CurrentLimits.StatorCurrentLimit = IntakeConstants.STATOR_LIM
+
+      config.MotorOutput.Inverted = IntakeConstants.TOP_INVERTED
+      topMotor.configurator.apply(config)
+      config.MotorOutput.Inverted = IntakeConstants.LEFT_INVERTED
+      leftMotor.configurator.apply(config)
+      config.MotorOutput.Inverted = IntakeConstants.RIGHT_INVERTED
+      rightMotor.configurator.apply(config)
 
       // Use MockLaserCan in Simulation
       if (isSimulation()) {

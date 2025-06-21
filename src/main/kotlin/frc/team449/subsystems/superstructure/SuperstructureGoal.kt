@@ -79,9 +79,9 @@ object SuperstructureGoal {
   )
 
   val GROUND_INTAKE_CORAL = SuperstructureState(
-    Degrees.of(4.790334),
-    Inches.of(0.0) - MIN_ELEVATOR_HEIGHT,
-    Degrees.of(90 - 53.797419), // true angle is -84.87
+    Radian.of(-0.02239 + 0.02),
+    Inches.of(0.0) ,
+    Radians.of(-0.335),
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 

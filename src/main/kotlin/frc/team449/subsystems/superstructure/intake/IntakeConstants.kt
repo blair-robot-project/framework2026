@@ -19,16 +19,21 @@ object IntakeConstants {
 
   const val MOTOR_INVERTED = false
 
-  val INVERTED = InvertedValue.Clockwise_Positive
+  val TOP_INVERTED = InvertedValue.Clockwise_Positive
+  val RIGHT_INVERTED = InvertedValue.CounterClockwise_Positive
+  val LEFT_INVERTED = InvertedValue.Clockwise_Positive
+
   val BRAKE_MODE = NeutralModeValue.Brake
 
-  // voltage for different scenarios and motors
-  const val TOP_ROLLER_VOLTAGE = 10.0 // TODO
-  const val RUN_SIDES_TO_LEFT = 7.0
-  const val RUN_SIDES_TO_RIGHT = 7.0
 
-  const val CORAL_INTAKE_VOLTAGE = 11.0
-  const val CORAL_INTAKE_VOLTAGE_LOWER = 2.0
+  // voltage for different scenarios and motors
+  const val TOP_ROLLER_IN_VOLTAGE = 10.0 // TODO
+  const val SIDE_ROLLER_IN_VOLTAGE = 6.0
+
+  const val RUN_SIDES = 7.0
+
+  //const val CORAL_INTAKE_VOLTAGE = 11.0
+  //const val CORAL_INTAKE_VOLTAGE_LOWER = 2.0
 
 // TODO: intake voltage for different scenarios and motors
   const val ALGAE_INTAKE_VOLTAGE = 9.0
@@ -36,7 +41,7 @@ object IntakeConstants {
   const val ALGAE_HOLD_VOLTAGE = 4.15
   const val CORAL_HOLD_VOLTAGE = 0.35
 
-  const val CORAL_OUTTAKE_VOLTAGE = 3.0
+  const val CORAL_OUTTAKE_VOLTAGE = -3.0
   const val CORAL_OUTTAKE_PIVOT_SIDE_VOLTAGE = -3.0
   const val L1_OUTTAKE = -2.1678
   const val ALGAE_OUTTAKE_VOLTAGE = -11.0

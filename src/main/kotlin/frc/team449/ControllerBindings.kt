@@ -71,6 +71,8 @@ class ControllerBindings(
     algaeGroundIntake()
     intakeCoral()
     outtakeCoral()
+
+    wristCharacterizaton()
   }
 
   private fun characterizationBindings() {
