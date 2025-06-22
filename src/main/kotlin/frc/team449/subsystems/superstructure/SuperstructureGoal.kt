@@ -30,23 +30,23 @@ object SuperstructureGoal {
   )
 
   val L2 = SuperstructureState(
-    Radians.of(0.839355),
+    Radians.of(-0.0168),
     MIN_ELEVATOR_HEIGHT,
-    Radians.of(-0.193115),
+    Radians.of(2.1213),
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
   val L3 = SuperstructureState(
-    Radians.of(1.044059),
-    Meters.of(0.249023),
-    Radians.of(0.037354),
+    Radians.of(0.892578),
+    Meters.of(0.21777),
+    Radians.of(1.0114746),
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
   val L4 = SuperstructureState(
-    Radians.of(1.287598),
-    Meters.of(0.997070),
-    Radians.of(-0.933105), // -138.5
+    Radians.of(1.208008),
+    Meters.of(0.8537597),
+    Radians.of(0.256591), // -138.5
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
@@ -65,23 +65,23 @@ object SuperstructureGoal {
   )
 
   val L3_PIVOT = SuperstructureState(
-    Degrees.of(78.349558),
-    Meters.of(0.148438),
-    Radians.of(0.859375),
+    Radians.of(1.345947),
+    Meters.of(0.184082),
+    Radians.of(1.9582519),
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
   val L4_PIVOT = SuperstructureState(
-    Degrees.of(83.822214),
-    Inches.of(38.827654 - 2) - MIN_ELEVATOR_HEIGHT,
-    Degrees.of(90 - 34.000000), // -138.5
+    Radians.of(1.45019),
+    Meters.of(0.885253),
+    Radians.of(2.33081), // -138.5
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
   val GROUND_INTAKE_CORAL = SuperstructureState(
-    Radian.of(-0.02239 + 0.02),
-    Inches.of(0.0) ,
-    Radians.of(-0.335),
+    Radian.of(-0.02239 - 0.01),
+    Inches.of(0.0),
+    Radians.of(-0.335 -0.05 + 0.005+0.005),
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
@@ -147,9 +147,9 @@ object SuperstructureGoal {
 
   // TODO: FIND ALGAE GROUND INTAKE POSE
   val ALGAE_GROUND = SuperstructureState(
-    Degrees.of(18.453609),
-    Inches.of(2.088062 - 2) - MIN_ELEVATOR_HEIGHT,
-    Degrees.of(180 - 111.968774),
+    Radian.of(-0.333740),
+    Inches.of(0.0),
+    Radians.of(-1.477050),
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
@@ -173,7 +173,7 @@ object SuperstructureGoal {
     Radians.of(-0.00239),
     Inches.of(0.0),
     Degrees.of(-50.0),
-    DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL , RobotConstants.MAX_ROT_SPEED)
+    DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
   data class SuperstructureState(

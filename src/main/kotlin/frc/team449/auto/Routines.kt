@@ -307,7 +307,7 @@ open class Routines(
     return groundBack2L4L2("l", intArrayOf(2, 4, 4, 2))
   }
 
-  private fun algaeAuto(threePointFive: Boolean = false, closeLaunch : Boolean = true): AutoRoutine {
+  private fun algaeAuto(threePointFive: Boolean = false, closeLaunch: Boolean = true): AutoRoutine {
     val routine = autoFactory.newRoutine("algae auto")
     val algaeAutoType = if (closeLaunch) "OneL4ThreeAlClose" else "OneL4ThreeALFar"
     val farWaitTimes = listOf(0.7, 0.7, 0.7, 0.7)
@@ -389,7 +389,7 @@ open class Routines(
             )
           ).alongWith(WaitCommand(0.25).andThen(getTaxi.cmd()))
         ),
-        InstantCommand() //getTaxi.cmd() this is just a spin
+        InstantCommand() // getTaxi.cmd() this is just a spin
       ) { !threePointFive }
 
     )
