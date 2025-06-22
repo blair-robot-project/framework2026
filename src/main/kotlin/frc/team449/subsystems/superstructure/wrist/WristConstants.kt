@@ -35,9 +35,9 @@ object WristConstants {
 
   val CLIMB_DOWN = Degrees.of(90.0)
 
-  const val KS = 0.020
-  const val KG = 0.208
-  const val KV = 0.63027
+  const val KS = 0.020 // overcome static/ friction
+  const val KG = 0.208 // overcome gravity
+  const val KV = 0.63027 // keep moving
 
   const val KP = 12.9119
   const val KI = 0.0

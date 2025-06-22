@@ -144,7 +144,7 @@ class BuiltInTests(robot: Robot) {
       WaitCommand(1.5),
       intake.stop(),
       intake.outtakeL1(),
-      WaitUntilCommand { intake.coralNotDetected() }.withDeadline(WaitCommand(2.0)).finallyDo(
+      WaitUntilCommand { !intake.coralDetected() }.withDeadline(WaitCommand(2.0)).finallyDo(
         Runnable {
           if (intake.coralDetected()) {
             println("ir sensor is not detecting the coral leaving the robot!")

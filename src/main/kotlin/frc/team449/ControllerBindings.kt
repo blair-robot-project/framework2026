@@ -326,7 +326,7 @@ class ControllerBindings(
       ConditionalCommand(
         ConditionalCommand(
           robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT)
-            .alongWith(robot.intake.holdCoral()),
+            .alongWith(robot.intake.holdCoralToPivot()),
           robot.superstructureManager.requestGoal(SuperstructureGoal.L2)
             .alongWith(robot.intake.holdCoralForward())
         ) { robot.poseSubsystem.isPivotSide() },
@@ -344,8 +344,10 @@ class ControllerBindings(
     driveController.b().onTrue(
       ConditionalCommand(
         ConditionalCommand(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.L3_PIVOT),
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L3_PIVOT)
+            .alongWith(robot.intake.holdCoralToPivot()),
           robot.superstructureManager.requestGoal(SuperstructureGoal.L3)
+            .alongWith(robot.intake.holdCoralToFront())
         ) { robot.poseSubsystem.isPivotSide() }
           .alongWith(robot.intake.holdCoral()),
         robot.superstructureManager.requestGoal(SuperstructureGoal.L3_ALGAE_INTAKE)
@@ -363,8 +365,10 @@ class ControllerBindings(
       ConditionalCommand(
         robot.superstructureManager.requestHigh(SuperstructureGoal.NET),
         ConditionalCommand(
-          robot.superstructureManager.requestHigh(SuperstructureGoal.L4_PIVOT),
+          robot.superstructureManager.requestHigh(SuperstructureGoal.L4_PIVOT)
+            .alongWith(robot.intake.holdCoralToPivot()),
           robot.superstructureManager.requestHigh(SuperstructureGoal.L4)
+            .alongWith(robot.intake.holdCoralToFront())
         ) { robot.poseSubsystem.isPivotSide() }
           .alongWith(robot.intake.holdCoral())
       ) { robot.intake.algaeDetected() }
@@ -376,9 +380,7 @@ class ControllerBindings(
     driveController.start().onTrue(
       robot.superstructureManager.requestGroundIntake(SuperstructureGoal.ALGAE_GROUND)
         .alongWith(robot.intake.intakeAlgae())
-        .andThen(WaitCommand(.75))
         .andThen(robot.intake.holdAlgae())
-
     )
   }
 

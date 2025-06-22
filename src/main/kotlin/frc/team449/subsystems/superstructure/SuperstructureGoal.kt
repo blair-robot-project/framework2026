@@ -169,6 +169,13 @@ object SuperstructureGoal {
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
+  val PROC = SuperstructureState(
+    Radians.of(-0.00239),
+    Inches.of(0.0),
+    Degrees.of(-50.0),
+    DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL , RobotConstants.MAX_ROT_SPEED)
+  )
+
   data class SuperstructureState(
     var pivot: Angle,
     var elevator: Distance,
