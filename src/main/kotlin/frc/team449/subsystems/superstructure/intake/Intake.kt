@@ -11,6 +11,7 @@ import com.ctre.phoenix6.hardware.TalonFX
 import dev.doglog.DogLog
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.RobotBase.isSimulation
+import edu.wpi.first.wpilibj.SynchronousInterrupt.WaitResult
 import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.Commands.waitUntil
 import edu.wpi.first.wpilibj2.command.Commands.*
@@ -66,13 +67,13 @@ class Intake(
   private fun setVoltageTop(voltage: Double): Command { return setVoltage(topMotor, voltage = voltage) }
   private fun setVoltageSides(voltage: Double): Command { return setVoltage(rightMotor, leftMotor, voltage = voltage) }
 
-   fun toTheRight(): Command {
+   private fun toTheRight(): Command {
     return runOnce {
       rightMotor.setVoltage(-IntakeConstants.RUN_SIDES)
       leftMotor.setVoltage(IntakeConstants.RUN_SIDES)    }
   }
 
-   fun toTheLeft(): Command {
+   private fun toTheLeft(): Command {
     return runOnce {
       rightMotor.setVoltage(IntakeConstants.RUN_SIDES)
       leftMotor.setVoltage(-IntakeConstants.RUN_SIDES)
@@ -92,7 +93,7 @@ class Intake(
       topMotor.setVoltage(IntakeConstants.TOP_ROLLER_IN_VOLTAGE)
     }
   }
-  fun outwards(): Command {
+  private fun outwards(): Command {
     return run {
       topMotor.setVoltage(IntakeConstants.CORAL_OUTTAKE_VOLTAGE)
       rightMotor.setVoltage(IntakeConstants.CORAL_OUTTAKE_VOLTAGE)
@@ -123,6 +124,9 @@ class Intake(
     ) { coralNotDetected() }
   }
 
+  private fun allFrontSensorsDetected() : Boolean {
+    return middleLaserCanDetected() && rightLaserCanDetected() && leftLaserCanDetected()
+  }
 
   fun horizontal(): Command{
     return sequence(
@@ -160,8 +164,17 @@ class Intake(
         Commands.sequence(
           inwards(),
           WaitUntilCommand { backLaserCanDetected() },
-          holdCoral()
-        ),
+        ).onlyWhile { !allFrontSensorsDetected() }.withDeadline(
+          Commands.sequence(
+            WaitUntilCommand { allFrontSensorsDetected() }.andThen(
+              Commands.sequence(
+                toTheRight(),
+                WaitUntilCommand { middleLaserCanDetected() },
+                inwards(),
+              )
+            )
+          ).onlyWhile { !backLaserCanDetected() }
+        ).andThen(holdCoral()),
         // otherwise run it to a side until it can be intaked at an angle
         Commands.sequence(
           ConditionalCommand( // if coral detected by left sensor
@@ -174,8 +187,9 @@ class Intake(
           WaitUntilCommand { middleLaserCanDetected() },
           inwards(),
           WaitUntilCommand{ backLaserCanDetected() },
-          holdCoral())
-      ) { middleLaserCanDetected() }
+          stop()
+        )
+      ) { middleLaserCanDetected() && !rightLaserCanDetected() && !leftLaserCanDetected() }
     )
   }
 

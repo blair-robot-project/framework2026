@@ -484,7 +484,7 @@ open class Routines(
         WaitUntilCommand { robot.intake.coralDetected() || !RobotBase.isReal() }
       )
       .andThen(
-        robot.intake.stop()
+        robot.intake.holdCoral()
       )
   }
 
@@ -507,7 +507,7 @@ open class Routines(
         WaitCommand(0.1)
       )
       .andThen(
-        robot.intake.stop()
+        robot.intake.holdAlgae()
       )
   }
 
