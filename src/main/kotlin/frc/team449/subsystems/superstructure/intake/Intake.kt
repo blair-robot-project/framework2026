@@ -12,6 +12,7 @@ import dev.doglog.DogLog
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.RobotBase.isSimulation
 import edu.wpi.first.wpilibj2.command.*
+import edu.wpi.first.wpilibj2.command.Commands.waitUntil
 import edu.wpi.first.wpilibj2.command.Commands.*
 import frc.team449.system.motor.KrakenDogLog
 
@@ -65,13 +66,13 @@ class Intake(
   private fun setVoltageTop(voltage: Double): Command { return setVoltage(topMotor, voltage = voltage) }
   private fun setVoltageSides(voltage: Double): Command { return setVoltage(rightMotor, leftMotor, voltage = voltage) }
 
-  private fun toTheRight(): Command {
+   fun toTheRight(): Command {
     return runOnce {
       rightMotor.setVoltage(-IntakeConstants.RUN_SIDES)
       leftMotor.setVoltage(IntakeConstants.RUN_SIDES)    }
   }
 
-  private fun toTheLeft(): Command {
+   fun toTheLeft(): Command {
     return runOnce {
       rightMotor.setVoltage(IntakeConstants.RUN_SIDES)
       leftMotor.setVoltage(-IntakeConstants.RUN_SIDES)
@@ -106,7 +107,7 @@ class Intake(
         .until({ coralDetected() }),
       ConditionalCommand( // if coral detected by the three sensors
         setVoltageSides(IntakeConstants.RUN_SIDES)
-          .until { !rightlaserCan() }
+          .until { !rightLaserCanDetected() }
           .andThen(setVoltageSides(IntakeConstants.RUN_SIDES)).withTimeout(0.5)
           .andThen(holdCoral()),
         ConditionalCommand( // if coral detected by right sensor
@@ -116,8 +117,8 @@ class Intake(
             setVoltageSides(IntakeConstants.RUN_SIDES)
               .until { coralHorizontalDetected() },
             setVoltageTop(IntakeConstants.TOP_ROLLER_IN_VOLTAGE)
-          ) { leftLaserCan() }
-        ) { rightlaserCan() }
+          ) { leftLaserCanDetected() }
+        ) { rightLaserCanDetected() }
       ) { coralHorizontalDetected() }
     ) { coralNotDetected() }
   }
@@ -151,28 +152,31 @@ class Intake(
 
   fun intakeCoralVertical(): Command {
     changePieceToCoral().schedule()
-    return inwards().andThen(
-      waitUntil { coralDetected() })
-      .andThen(
+    return Commands.sequence(
+      inwards(),
+      WaitUntilCommand { coralDetected() },
       ConditionalCommand( // if coral detected by middle sensor
-        inwards().until { backLaserCanDetected() }
-          .andThen(holdCoral()),
-        ConditionalCommand( // if coral detected by left sensor
-          toTheRight().until { middleLaserCanDetected() }
-            .andThen(
-              inwards().until { backLaserCanDetected() }
-                .andThen(holdCoral())
-            ),
-          ConditionalCommand( // if coral detected by right sensor
-            toTheLeft().until { middleLaserCanDetected() }
-              .andThen(
-                inwards().until { backLaserCanDetected() }
-                  .andThen(holdCoral())
-              ),
-            inwards()
-          ) { rightLaserCanDetected() }
-        ) { leftLaserCanDetected() }
-      ) { middleLaserCanDetected() })
+        // its in a good position for vertical so just run it back and then hold
+        Commands.sequence(
+          inwards(),
+          WaitUntilCommand { backLaserCanDetected() },
+          holdCoral()
+        ),
+        // otherwise run it to a side until it can be intaked at an angle
+        Commands.sequence(
+          ConditionalCommand( // if coral detected by left sensor
+            // run it to the right and then intake
+            toTheRight(),
+            // if it wasn't (detected by right) run it to the left
+            toTheLeft()
+          ) { leftLaserCanDetected() },
+          // then intake it
+          WaitUntilCommand { middleLaserCanDetected() },
+          inwards(),
+          WaitUntilCommand{ backLaserCanDetected() },
+          holdCoral())
+      ) { middleLaserCanDetected() }
+    )
   }
 
   fun holdCoral(): Command {
