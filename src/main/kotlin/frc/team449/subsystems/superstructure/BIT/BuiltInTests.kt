@@ -62,7 +62,7 @@ class BuiltInTests(robot: Robot) {
       checkTime(manager.requestGoal(SuperstructureGoal.L2_PIVOT), "L2 Pivot"),
       checkTime(manager.requestGoal(SuperstructureGoal.L3_PIVOT), "L3 Pivot"),
       checkTime(manager.requestGoal(SuperstructureGoal.L4_PIVOT), "L4 Pivot"),
-      manager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL).andThen(intake.intakeCoralVertical()),
+      manager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL).andThen(intake.intakeToVertical()),
       WaitUntilCommand { intake.coralDetected() }.andThen(WaitCommand(0.25)),
       manager.requestGoal(SuperstructureGoal.STOW).andThen(intake.stop()),
       getDriveTests()
@@ -129,7 +129,7 @@ class BuiltInTests(robot: Robot) {
     return Commands.sequence(
       PrintCommand("Running intake tests. Grab a coral."),
       WaitCommand(1.0),
-      intake.intakeCoralVertical(),
+      intake.intakeToVertical(),
       PrintCommand("Please feed the robot a coral."),
       WaitUntilCommand { intake.coralDetected() }.withDeadline(WaitCommand(4.0)).finallyDo(
         Runnable {

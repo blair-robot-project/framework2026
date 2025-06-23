@@ -20,7 +20,6 @@ object IntakeConstants {
   const val TOP_ROLLER_IN_VOLTAGE = 10.0
   const val SIDE_ROLLER_IN_VOLTAGE = 6.0
   const val RUN_SIDES = 7.0
-  const val CORAL_HOLD_VOLTAGE = 0.35
   const val CORAL_OUTTAKE_VOLTAGE = -3.0
   const val CORAL_OUTTAKE_PIVOT_SIDE_VOLTAGE = -3.0
   const val L1_OUTTAKE = -2.1678
@@ -29,13 +28,15 @@ object IntakeConstants {
   const val ALGAE_INTAKE_VOLTAGE = 9.0
   const val ALGAE_HOLD_VOLTAGE = 4.15
   const val ALGAE_OUTTAKE_VOLTAGE = -11.0
-  const val ALGAE_STALL_TRESHHOLD = 500.0
+  const val ALGAE_STALL_THRESHOLD = 30.0
 
   const val DESCORE_ALGAE_VOLTAGE = -3.0
   const val WAIT_AFTER_ALGAE_DETECTED = 0.5
   const val ALGAE_SENSOR_DIO_PORT = 11
   const val PIVOT_SENSOR_DIO_PORT = 12
   const val READY_PIVOT_CORAL_TIME = 0.25
+
+  const val HOLDING_FINISH_VELOCITY = 0.1
 
   // TODO Add CAN IDs for new LaserCAN sensors
 

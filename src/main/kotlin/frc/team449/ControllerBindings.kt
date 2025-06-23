@@ -20,7 +20,6 @@ import frc.team449.subsystems.drive.swerve.SwerveSim
 import frc.team449.subsystems.drive.swerve.WheelRadiusCharacterization
 import frc.team449.subsystems.superstructure.SuperstructureGoal
 import frc.team449.subsystems.superstructure.wrist.WristConstants
-import io.javalin.plugin.bundled.RouteOverviewUtil.metaInfo
 import java.util.Optional
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.PI
@@ -234,9 +233,8 @@ class ControllerBindings(
   private fun groundIntakeVertical() {
     driveController.leftBumper().onTrue(
       robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL)
-        .alongWith(robot.intake.vertical())
+        .alongWith(robot.intake.intakeToVertical())
         .andThen(robot.intake.holdCoral())
-        .andThen(WaitCommand(0.15))
         .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
     )
   }
@@ -244,7 +242,7 @@ class ControllerBindings(
   private fun groundIntakeL1() {
     driveController.back().onTrue(
       robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL)
-        .alongWith(robot.intake.horizontal())
+        .alongWith(robot.intake.intakeToHorizontal())
         .andThen(robot.intake.holdCoral())
         .andThen(WaitCommand(0.4))
         .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
