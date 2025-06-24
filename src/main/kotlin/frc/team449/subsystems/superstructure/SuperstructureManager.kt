@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand
 import frc.team449.Robot
 import frc.team449.subsystems.drive.swerve.SwerveDrive
 import frc.team449.subsystems.superstructure.elevator.Elevator
+import frc.team449.subsystems.superstructure.elevator.ElevatorConstants
 import frc.team449.subsystems.superstructure.pivot.Pivot
 import frc.team449.subsystems.superstructure.wrist.Wrist
 import frc.team449.subsystems.superstructure.wrist.WristConstants
@@ -27,77 +28,11 @@ class SuperstructureManager(
   private var prevGoal = SuperstructureGoal.STOW
   private var ready = false
 
-  // request algae ground intake
-  // pivot has to get in set point before moving wrist for ground intake
-// wait for pivot and elevator to get at setpoint and move wrist
-
-  fun requestGroundIntake(goal: SuperstructureGoal.SuperstructureState): Command {
-    return InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) })
-      .andThen(InstantCommand({ ready = false }))
-      .andThen(InstantCommand({ lastGoal = goal }))
-      .andThen(
-        ConditionalCommand(
-          // if ground algae
-          Commands.sequence(
-            Commands.parallel(
-              elevator.setPosition(goal.elevator.`in`(Meters)),
-              pivot.setPosition(goal.pivot.`in`(Radians))
-            ),
-            WaitUntilCommand { wrist.elevatorReady() && wrist.pivotReady() }, // TODO: check wrist constants for real values
-
-            wrist.setPosition(goal.wrist.`in`(Radians)),
-            WaitUntilCommand { pivot.atSetpoint() },
-
-            pivot.hold().onlyIf { pivot.atSetpoint() },
-            elevator.hold().onlyIf { elevator.atSetpoint() },
-            wrist.hold().onlyIf { wrist.atSetpoint() },
-            WaitUntilCommand { elevator.atSetpoint() && pivot.atSetpoint() },
-            pivot.hold(),
-            elevator.hold(),
-            WaitUntilCommand { wrist.atSetpoint() },
-            Commands.parallel(
-              pivot.hold(),
-              wrist.hold(),
-              elevator.hold()
-            )
-          ),
-
-          // if ground coral
-          Commands.sequence(
-            InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) }),
-            Commands.parallel(
-              elevator.setPosition(goal.elevator.`in`(Meters)),
-              pivot.setPosition(goal.pivot.`in`(Radians))
-            ),
-            WaitUntilCommand { wrist.elevatorReady() && wrist.pivotReady() }, // TODO: check wrist constants for real values and maybe
-
-            wrist.setPosition(goal.wrist.`in`(Radians)),
-            WaitUntilCommand { pivot.atSetpoint() },
-
-            pivot.hold().onlyIf { pivot.atSetpoint() },
-            elevator.hold().onlyIf { elevator.atSetpoint() },
-            wrist.hold().onlyIf { wrist.atSetpoint() },
-            WaitUntilCommand { elevator.atSetpoint() && pivot.atSetpoint() },
-            pivot.hold(),
-            elevator.hold(),
-            WaitUntilCommand { wrist.atSetpoint() },
-            Commands.parallel(
-              pivot.hold(),
-              wrist.hold(),
-              elevator.hold()
-            )
-          )
-        ) { goal.elevator.`in`(Meters) >= elevator.positionSupplier.get() }
-      )
-      .andThen(InstantCommand({ prevGoal = goal }))
-      .andThen(InstantCommand({ ready = true }))
-  }
-
   private fun retractFromHigh(goal: SuperstructureGoal.SuperstructureState, wristPremoveTime: Double): Command {
     return Commands.sequence(
-      wrist.setPosition(Units.degreesToRadians(90.0))
+      wrist.setPosition(Units.degreesToRadians(60.0)) // TODO: check positions
         .onlyIf { prevGoal == SuperstructureGoal.L4 || prevGoal == SuperstructureGoal.NET },
-      wrist.setPosition(Units.degreesToRadians(-70.0))
+      wrist.setPosition(Units.degreesToRadians(50.0)) // TODO: check positions
         .onlyIf { prevGoal == SuperstructureGoal.L4_PIVOT || prevGoal == SuperstructureGoal.NET_PIVOT },
       WaitUntilCommand { wrist.positionSupplier.get() > Units.degreesToRadians(20.0) }
         .onlyIf { prevGoal == SuperstructureGoal.L4 || prevGoal == SuperstructureGoal.NET },
@@ -164,8 +99,30 @@ class SuperstructureManager(
 
           // if retracting
           ConditionalCommand(
-            // this function will check if we're retracting from l4/net and make necessary adjustments
-            retractFromHigh(goal, wristPremoveTime),
+
+            ConditionalCommand( // if scored on pivot side on the reef, then retract without killing climb
+              Commands.sequence(
+                wrist.setPosition(goal.wrist.`in`(Radians)),
+                WaitUntilCommand { (wrist.atSetpoint(Units.degreesToRadians(10.0))) }, // set wrist atSetpoint
+                elevator.setPosition(ElevatorConstants.CLIMB_ABOVE_TROUGH.`in`(Meters)), // elevator down until climb is above trough
+                elevator.hold(),
+                pivot.setPosition(goal.pivot.`in`(Radians)),
+                elevator.setPosition(goal.elevator.`in`(Meters))
+                  .onlyIf { (pivot.atSetpoint(Units.degreesToRadians(20.0))) }, // let pivot down before moving the elevator further down
+                WaitUntilCommand { pivot.atSetpoint() && elevator.atSetpoint() && wrist.atSetpoint() },
+                holdAll()
+              ),
+
+              // this function will check if we're retracting from l4/net and make necessary adjustments
+              retractFromHigh(goal, wristPremoveTime)
+            ) {
+              (
+                prevGoal == SuperstructureGoal.L4_PIVOT ||
+                  prevGoal == SuperstructureGoal.L3_PIVOT ||
+                  prevGoal == SuperstructureGoal.L2_PIVOT
+                ) && // prob don't need it for l2_pivot?
+                goal == SuperstructureGoal.STOW
+            },
             Commands.sequence(
               ConditionalCommand(
                 // going to ground coral

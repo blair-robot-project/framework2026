@@ -254,7 +254,9 @@ class Intake(
   }
 
   fun holdAlgae(): Command {
-    return setVoltageTop(IntakeConstants.ALGAE_HOLD_VOLTAGE)
+    return run {
+      topMotor.setControl(VoltageOut(IntakeConstants.ALGAE_HOLD_VOLTAGE))
+    }
   }
 
   fun outtakeL1(): Command {
@@ -264,14 +266,17 @@ class Intake(
 
   fun outtakeCoral(): Command {
     changePieceToNone(true).schedule()
-    return setVoltageSides(IntakeConstants.CORAL_OUTTAKE_VOLTAGE).andThen(setVoltageTop(IntakeConstants.CORAL_OUTTAKE_VOLTAGE))
+    return runOnce {
+      setVoltageSides(IntakeConstants.SIDES_OUT_VOLTAGE)
+        .alongWith(setVoltageTop(IntakeConstants.TOP_ROLLER_OUT_VOLTAGE))
+    }
   }
 
   fun outtakeCoralPivot(): Command {
     changePieceToNone(true).schedule()
     return runOnce {
-      setVoltageSides(IntakeConstants.CORAL_OUTTAKE_VOLTAGE)
-      setVoltageTop(IntakeConstants.CORAL_OUTTAKE_VOLTAGE)
+      setVoltageSides(IntakeConstants.SIDES_OUT_VOLTAGE)
+      setVoltageTop(IntakeConstants.TOP_ROLLER_OUT_VOLTAGE)
     }
   }
 
@@ -405,7 +410,7 @@ class Intake(
     DogLog.log("Intake/ Right sensor", laserCanDetected(rightCoralSensor))
     DogLog.log("Intake/ Left sensor", laserCanDetected(leftCoralSensor))
     DogLog.log("Intake/ Middle sensor", laserCanDetected(middleCoralSensor))
-    DogLog.log("Intake/ sensorConfig", sensorInitFailed)
+    DogLog.log("Intake/ Sensor Config failed?", sensorInitFailed)
     DogLog.log("Intake/ Middle sensor state", laserCanUnplugged(middleCoralSensor))
     DogLog.log("Intake/ Right sensor state", laserCanUnplugged(rightCoralSensor))
     DogLog.log("Intake/ Left sensor state", laserCanUnplugged(leftCoralSensor))
