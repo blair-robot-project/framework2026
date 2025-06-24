@@ -65,29 +65,23 @@ class Intake(
 
   private fun moveCoralRight(): Command {
     return runOnce {
-      rightMotor.setVoltage(-IntakeConstants.RUN_SIDES)
-      leftMotor.setVoltage(IntakeConstants.RUN_SIDES)
+      rightMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+      leftMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
     }
   }
 
   private fun moveCoralLeft(): Command {
     return runOnce {
-      rightMotor.setVoltage(IntakeConstants.RUN_SIDES)
-      leftMotor.setVoltage(-IntakeConstants.RUN_SIDES)
+      rightMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+      leftMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
     }
   }
 
   fun inwards(): Command {
     return runOnce {
-      topMotor.setVoltage(IntakeConstants.TOP_ROLLER_IN_VOLTAGE)
-      rightMotor.setVoltage(IntakeConstants.SIDE_ROLLER_IN_VOLTAGE)
-      leftMotor.setVoltage(IntakeConstants.SIDE_ROLLER_IN_VOLTAGE)
-    }
-  }
-
-  private fun topRollerIn(): Command {
-    return runOnce {
-      topMotor.setVoltage(IntakeConstants.TOP_ROLLER_IN_VOLTAGE)
+      topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE)
+      rightMotor.setVoltage(IntakeConstants.SIDES_CORAL_INWARDS_VOLTAGE)
+      leftMotor.setVoltage(IntakeConstants.SIDES_CORAL_INWARDS_VOLTAGE)
     }
   }
 
@@ -97,6 +91,46 @@ class Intake(
       rightMotor.setVoltage(IntakeConstants.CORAL_OUTTAKE_VOLTAGE)
       leftMotor.setVoltage(IntakeConstants.CORAL_OUTTAKE_VOLTAGE)
     }
+  }
+
+  fun holdCoral(): Command {
+    return stop().andThen(
+      runOnce {
+        topMotor.setControl(PositionVoltage(topMotor.position.valueAsDouble))
+        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble))
+        leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble))
+      }
+    )
+  }
+
+  fun holdCoralOppSide(): Command {
+    return stop().andThen(
+      runOnce {
+        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble - 1))
+        leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble - 1))
+      }.andThen(
+        WaitUntilCommand {
+          // velocities are in rps
+          rightMotor.velocity.valueAsDouble < IntakeConstants.HOLDING_FINISH_VELOCITY &&
+          leftMotor.velocity.valueAsDouble < IntakeConstants.HOLDING_FINISH_VELOCITY
+        }
+      ).andThen(holdCoral())
+    )
+  }
+
+  fun holdCoralPivotSide(): Command {
+    return stop().andThen(
+      runOnce {
+        rightMotor.setControl(PositionDutyCycle(rightMotor.position.valueAsDouble + 1))
+        leftMotor.setControl(PositionDutyCycle(leftMotor.position.valueAsDouble + 1))
+      }.andThen(
+        WaitUntilCommand {
+          // velocities are in rps
+          rightMotor.velocity.valueAsDouble < IntakeConstants.HOLDING_FINISH_VELOCITY &&
+            leftMotor.velocity.valueAsDouble < IntakeConstants.HOLDING_FINISH_VELOCITY
+        }
+      ).andThen(holdCoral())
+    )
   }
 
   fun centerCoralHorizontally(): Command {
@@ -109,39 +143,57 @@ class Intake(
     )
   }
 
-  private var unmiddling = false
+  private var unverticaling = false
   fun intakeToHorizontal(): Command {
     changePieceToCoral().schedule()
     return Commands.sequence(
-      topRollerIn().until { coralDetected() },
+      runOnce { topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE) },
+      WaitUntilCommand { coralDetected() },
       FunctionalCommand(
-        { unmiddling = false },
+        { unverticaling = false },
         {
           if (rightSensorDetected()) {
-            if (!unmiddling) {
-              // move left
-              rightMotor.setVoltage(IntakeConstants.RUN_SIDES)
-              leftMotor.setVoltage(-IntakeConstants.RUN_SIDES)
+            if (!unverticaling) {
+              // move left, pulling coral in a bit with top roller to keep it steady
+              topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE / 10)
+              rightMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+              leftMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
             } else {
-              // move right until just right sensor
-              rightMotor.setVoltage(-IntakeConstants.RUN_SIDES)
-              leftMotor.setVoltage(IntakeConstants.RUN_SIDES)
               if (onlyRightSensor()) {
-                unmiddling = false
+                unverticaling = false
+              } else {
+                // move right until just right sensor
+                topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE / 7)
+                rightMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+                leftMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
               }
             }
           }
           if (leftSensorDetected()) {
             // move right
-            rightMotor.setVoltage(-IntakeConstants.RUN_SIDES)
-            leftMotor.setVoltage(IntakeConstants.RUN_SIDES)
+            rightMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+            leftMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
           }
           if (onlyMiddleSensor()) {
-            // move right and out slowly
-            rightMotor.setVoltage(-IntakeConstants.RUN_SIDES)
-            leftMotor.setVoltage(IntakeConstants.RUN_SIDES)
-            topMotor.setVoltage(IntakeConstants.CORAL_OUTTAKE_VOLTAGE / 2)
-            unmiddling = true
+            if(!backSensorDetected()) {
+              if(unverticaling) {
+                // move right and out slowly
+                rightMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+                leftMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+                topMotor.setVoltage(IntakeConstants.CORAL_OUTTAKE_VOLTAGE / 2)
+              } else {
+                //run inwards till we hit back sensor
+                topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE)
+                rightMotor.setVoltage(IntakeConstants.SIDES_CORAL_INWARDS_VOLTAGE)
+                leftMotor.setVoltage(IntakeConstants.SIDES_CORAL_INWARDS_VOLTAGE)
+              }
+            } else { // hitting back sensor
+              unverticaling = true
+              // move right and out slowly
+              rightMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+              leftMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+              topMotor.setVoltage(IntakeConstants.CORAL_OUTTAKE_VOLTAGE / 2)
+            }
           }
         },
         {
@@ -162,13 +214,13 @@ class Intake(
       {
         if (leftSensorDetected() && rightSensorDetected()) {
           // run to a side
-          rightMotor.setVoltage(-IntakeConstants.RUN_SIDES)
-          leftMotor.setVoltage(IntakeConstants.RUN_SIDES)
+          rightMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+          leftMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
         } else {
           // inwards
-          topMotor.setVoltage(IntakeConstants.TOP_ROLLER_IN_VOLTAGE)
-          rightMotor.setVoltage(IntakeConstants.SIDE_ROLLER_IN_VOLTAGE)
-          leftMotor.setVoltage(IntakeConstants.SIDE_ROLLER_IN_VOLTAGE)
+          topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE)
+          rightMotor.setVoltage(IntakeConstants.SIDES_CORAL_INWARDS_VOLTAGE)
+          leftMotor.setVoltage(IntakeConstants.SIDES_CORAL_INWARDS_VOLTAGE)
         }
       },
       {
@@ -178,70 +230,6 @@ class Intake(
         leftMotor.stopMotor()
       },
       { backSensorDetected() },
-    )
-  }
-
-  fun holdCoral(): Command {
-    return stop().andThen(
-      runOnce {
-        topMotor.setControl(PositionVoltage(topMotor.position.valueAsDouble))
-        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble))
-        leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble))
-      }
-    )
-  }
-
-  fun holdCoralToFront(): Command {
-    return Commands.sequence(
-      outwards().onlyWhile { backSensorDetected() },
-      holdCoral(),
-      WaitCommand(0.25),
-      inwards().until { middleSensorDetected() && backSensorDetected() }.withTimeout(0.3),
-      holdCoral()
-    )
-  }
-
-  fun holdCoralToPivot(): Command {
-    return Commands.sequence(
-      inwards().onlyWhile { middleSensorDetected() },
-      holdCoral(),
-      WaitCommand(0.5),
-      outwards().until { middleSensorDetected() && backSensorDetected() }.withTimeout(0.2),
-      holdCoral()
-    )
-  }
-
-  fun holdCoralForward(): Command {
-    return stop().andThen(
-      runOnce {
-        topMotor.setControl(PositionDutyCycle(topMotor.position.valueAsDouble + 1))
-        rightMotor.setControl(PositionDutyCycle(rightMotor.position.valueAsDouble + 1))
-        leftMotor.setControl(PositionDutyCycle(leftMotor.position.valueAsDouble + 1))
-      }.andThen(
-        WaitUntilCommand {
-          // velocities are in rps
-          topMotor.velocity.valueAsDouble < IntakeConstants.HOLDING_FINISH_VELOCITY &&
-            rightMotor.velocity.valueAsDouble < IntakeConstants.HOLDING_FINISH_VELOCITY &&
-            leftMotor.velocity.valueAsDouble < IntakeConstants.HOLDING_FINISH_VELOCITY
-        }
-      ).andThen(holdCoral())
-    )
-  }
-
-  fun holdCoralForwardAuto(): Command {
-    return stop().andThen(
-      runOnce {
-        topMotor.setControl(PositionDutyCycle(topMotor.position.valueAsDouble + 1.875))
-        rightMotor.setControl(PositionDutyCycle(rightMotor.position.valueAsDouble + 1.875))
-        leftMotor.setControl(PositionDutyCycle(leftMotor.position.valueAsDouble + 1.875))
-      }.andThen(
-        WaitUntilCommand {
-          // velocities are in rps
-          topMotor.velocity.valueAsDouble < IntakeConstants.HOLDING_FINISH_VELOCITY &&
-            rightMotor.velocity.valueAsDouble < IntakeConstants.HOLDING_FINISH_VELOCITY &&
-            leftMotor.velocity.valueAsDouble < IntakeConstants.HOLDING_FINISH_VELOCITY
-        }
-      ).andThen(holdCoral())
     )
   }
 
@@ -256,19 +244,19 @@ class Intake(
 
   fun outtakeL1(): Command {
     changePieceToNone(true).schedule()
-    return setVoltageTop(IntakeConstants.L1_OUTTAKE)
+    return setVoltageTop(IntakeConstants.TOP_L1_OUTTAKE)
   }
 
   fun outtakeCoral(): Command {
     changePieceToNone(true).schedule()
-    return setVoltageSides(IntakeConstants.SIDES_OUT_VOLTAGE)
-      .andThen(setVoltageTop(IntakeConstants.TOP_ROLLER_OUT_VOLTAGE))
+    return setVoltageSides(IntakeConstants.SIDES_CORAL_OUTTAKE_VOLTAGE)
+      .andThen(setVoltageTop(IntakeConstants.TOP_CORAL_OUTTAKE_VOLTAGE))
   }
 
   fun outtakeCoralPivot(): Command {
     changePieceToNone(true).schedule()
-    return setVoltageSides(IntakeConstants.SIDES_OUT_VOLTAGE)
-      .andThen(setVoltageTop(IntakeConstants.TOP_ROLLER_OUT_VOLTAGE))
+    return setVoltageSides(IntakeConstants.SIDES_CORAL_OUTTAKE_VOLTAGE)
+      .andThen(setVoltageTop(IntakeConstants.TOP_CORAL_OUTTAKE_VOLTAGE))
   }
 
   fun outtakeAlgae(): Command {
@@ -340,7 +328,7 @@ class Intake(
   private fun changePieceToAlgae(): Command {
     return WaitUntilCommand {
       topMotor.motorVoltage.valueAsDouble >
-        IntakeConstants.ALGAE_STALL_THRESHOLD
+        IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD
     }.onlyIf { RobotBase.isReal() }
       .andThen(runOnce { gamePiece = Piece.ALGAE })
   }
@@ -357,7 +345,7 @@ class Intake(
         WaitCommand(0.1).andThen(
           WaitUntilCommand {
             topMotor.motorStallCurrent.valueAsDouble <
-              IntakeConstants.ALGAE_STALL_THRESHOLD
+              IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD
           }
         )
       ) { coralOuttaken },

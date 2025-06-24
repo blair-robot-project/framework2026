@@ -181,10 +181,7 @@ class ControllerBindings(
 /** driver controller A,B,X,Y **/
   private fun scoreL1() {
     Trigger { driveController.hid.aButton && robot.intake.coralDetected() }.onTrue(
-      Commands.sequence(
-        robot.superstructureManager.requestGoal(SuperstructureGoal.L1)
-          .alongWith(robot.intake.holdCoral())
-      )
+      robot.superstructureManager.requestGoal(SuperstructureGoal.L1)
     )
   }
   private fun climbTriggers() {
@@ -214,10 +211,8 @@ class ControllerBindings(
     driveController.b().onTrue(
       ConditionalCommand(
         ConditionalCommand(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.L3_PIVOT)
-            .alongWith(robot.intake.holdCoralToPivot()),
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L3_PIVOT),
           robot.superstructureManager.requestGoal(SuperstructureGoal.L3)
-            .alongWith(robot.intake.holdCoralToFront())
         ) { robot.poseSubsystem.isPivotSide() },
         robot.superstructureManager.requestGoal(SuperstructureGoal.L3_ALGAE_INTAKE)
           .alongWith(robot.intake.intakeAlgae())
@@ -232,10 +227,8 @@ class ControllerBindings(
     driveController.x().onTrue(
       ConditionalCommand(
         ConditionalCommand(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT)
-            .alongWith(robot.intake.holdCoralToPivot()),
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT),
           robot.superstructureManager.requestGoal(SuperstructureGoal.L2)
-            .alongWith(robot.intake.holdCoralForward())
         ) { robot.poseSubsystem.isPivotSide() },
         robot.superstructureManager.requestGoal(SuperstructureGoal.L2_ALGAE_INTAKE)
           .alongWith(robot.intake.intakeAlgae())
@@ -250,10 +243,8 @@ class ControllerBindings(
     driveController.y().onTrue(
       ConditionalCommand(
         ConditionalCommand(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PIVOT)
-            .alongWith(robot.intake.holdCoralToPivot()),
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PIVOT),
           robot.superstructureManager.requestGoal(SuperstructureGoal.L4)
-            .alongWith(robot.intake.holdCoralToFront())
         ) { robot.poseSubsystem.isPivotSide() },
         robot.superstructureManager.requestGoal(SuperstructureGoal.NET)
           .alongWith(robot.intake.holdAlgae())

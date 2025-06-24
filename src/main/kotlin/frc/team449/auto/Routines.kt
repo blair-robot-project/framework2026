@@ -513,25 +513,16 @@ open class Routines(
 
   private fun getPremoveCommand(reefLevel: Int, waitTime: Double = 0.0): Command {
     return when (reefLevel) {
-      2 -> Commands.deadline(
-        robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT),
-        robot.intake.holdCoralForward()
-      )
-      4 -> Commands.deadline(
-        Commands.sequence(
+      2 -> robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT)
+      4 -> Commands.sequence(
           robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOT)
             .withDeadline(WaitCommand(waitTime)),
           robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PIVOT)
-        ),
-        robot.intake.holdCoralForwardAuto()
-      )
-      -4 -> Commands.deadline( // -4 is oppo l4
-        Commands.sequence(
+        )
+      -4 -> Commands.sequence(
           robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)
             .withDeadline(WaitCommand(waitTime)),
           robot.superstructureManager.requestGoal(SuperstructureGoal.L4)
-        ),
-        robot.intake.holdCoralForwardAuto()
       )
       5 -> Commands.deadline( // 5 is net
         Commands.sequence(
@@ -539,12 +530,8 @@ open class Routines(
             .withDeadline(WaitCommand(waitTime)),
           robot.superstructureManager.requestGoal(SuperstructureGoal.NET_PIVOT)
         ),
-        robot.intake.holdCoralForwardAuto()
       )
-      else -> Commands.parallel(
-        robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT),
-        robot.intake.holdCoralForward()
-      )
+      else -> robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT)
     }
   }
 }

@@ -132,7 +132,7 @@ class RobotLoop : TimedRobot() {
 
   override fun teleopInit() {
     robot.superstructureManager.requestGoal(SuperstructureGoal.STOW).schedule()
-    robot.intake.holdCoralForward().schedule()
+    robot.intake.holdCoral().schedule()
 
     (robot.light.currentCommand ?: InstantCommand()).cancel()
 
