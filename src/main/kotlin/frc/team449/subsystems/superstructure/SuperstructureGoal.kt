@@ -149,7 +149,7 @@ object SuperstructureGoal {
   val ALGAE_GROUND = SuperstructureState(
     Radian.of(-0.333740),
     Inches.of(0.0),
-    Radians.of(-1.477050),
+    Radians.of(-1.477050 + 0.02),
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 

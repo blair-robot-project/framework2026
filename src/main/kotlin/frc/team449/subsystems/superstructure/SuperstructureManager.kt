@@ -220,7 +220,6 @@ class SuperstructureManager(
 
         // normal high retraction
         retractFromHigh(goal, wristPremoveTime)
-
       ) {
         prevGoal == SuperstructureGoal.L4_PIVOT || prevGoal == SuperstructureGoal.L3_PIVOT ||
           goal == SuperstructureGoal.STOW

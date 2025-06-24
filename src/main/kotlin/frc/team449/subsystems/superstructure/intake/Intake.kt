@@ -67,15 +67,15 @@ class Intake(
 
   private fun moveCoralRight(): Command {
     return runOnce {
-      rightMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
-      leftMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+      rightMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+      leftMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
     }
   }
 
   private fun moveCoralLeft(): Command {
     return runOnce {
-      rightMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
-      leftMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+      rightMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+      leftMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
     }
   }
 
@@ -137,10 +137,19 @@ class Intake(
 
   fun centerCoralHorizontally(): Command {
     return Commands.sequence(
+      runOnce { topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE / 10) },
       moveCoralLeft(),
       WaitUntilCommand { !rightSensorDetected() },
-      moveCoralRight(),
-      WaitCommand(IntakeConstants.CORAL_CENTER_WAIT_TIME),
+      runOnce {
+        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble + 0.5))
+        leftMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble - 0.5))
+      }.andThen(
+        WaitUntilCommand {
+          // velocities are in rps
+          rightMotor.velocity.valueAsDouble < IntakeConstants.HOLDING_FINISH_VELOCITY &&
+            leftMotor.velocity.valueAsDouble < IntakeConstants.HOLDING_FINISH_VELOCITY
+        }
+      ),
       holdCoral()
     )
   }
@@ -156,32 +165,31 @@ class Intake(
         {
           if (rightSensorDetected()) {
             if (!unverticaling) {
-              // move left, pulling coral in a bit with top roller to keep it steady
-              topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE / 10)
-              rightMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
-              leftMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+              // move left
+              rightMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+              leftMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
             } else {
               if (onlyRightSensor()) {
                 unverticaling = false
               } else {
                 // move right until just right sensor
-                topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE / 7)
-                rightMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+                topMotor.setVoltage(-IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE / 10)
+                rightMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
                 leftMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
               }
             }
           }
           if (leftSensorDetected()) {
             // move right
-            rightMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
-            leftMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+            rightMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+            leftMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
           }
           if (onlyMiddleSensor()) {
             if(!backSensorDetected()) {
               if(unverticaling) {
                 // move right and out slowly
-                rightMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
-                leftMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+                rightMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+                leftMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
                 topMotor.setVoltage(IntakeConstants.CORAL_OUTTAKE_VOLTAGE / 2)
               } else {
                 //run inwards till we hit back sensor
@@ -192,10 +200,13 @@ class Intake(
             } else { // hitting back sensor
               unverticaling = true
               // move right and out slowly
-              rightMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
-              leftMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
-              topMotor.setVoltage(IntakeConstants.CORAL_OUTTAKE_VOLTAGE / 2)
+              rightMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+              leftMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+              topMotor.setVoltage(IntakeConstants.CORAL_OUTTAKE_VOLTAGE / 3)
             }
+          }
+          if (coralNotDetected()) {
+            topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE)
           }
         },
         {

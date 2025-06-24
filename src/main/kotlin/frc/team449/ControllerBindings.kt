@@ -169,11 +169,10 @@ class ControllerBindings(
           robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL),
           robot.intake.intakeToHorizontal()
         ),
+        robot.intake.centerCoralHorizontally(),
         Commands.parallel(
           robot.superstructureManager.requestGoal(SuperstructureGoal.STOW),
-          robot.intake.holdCoral()
         ),
-        robot.intake.centerCoralHorizontally()
       )
     )
   }
@@ -211,7 +210,8 @@ class ControllerBindings(
     driveController.b().onTrue(
       ConditionalCommand(
         ConditionalCommand(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.L3_PIVOT),
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L3_PIVOT)
+            .alongWith(),
           robot.superstructureManager.requestGoal(SuperstructureGoal.L3)
         ) { robot.poseSubsystem.isPivotSide() },
         robot.superstructureManager.requestGoal(SuperstructureGoal.L3_ALGAE_INTAKE)
@@ -227,15 +227,17 @@ class ControllerBindings(
     driveController.x().onTrue(
       ConditionalCommand(
         ConditionalCommand(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT),
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT)
+            .alongWith(robot.intake.holdCoralPivotSide()),
           robot.superstructureManager.requestGoal(SuperstructureGoal.L2)
+            .alongWith(robot.intake.holdCoralOppSide())
         ) { robot.poseSubsystem.isPivotSide() },
         robot.superstructureManager.requestGoal(SuperstructureGoal.L2_ALGAE_INTAKE)
           .alongWith(robot.intake.intakeAlgae())
           .andThen(WaitUntilCommand { robot.intake.algaeDetected() && RobotBase.isReal() })
-          .andThen(WaitCommand(0.275))
           .andThen(robot.intake.stop())
           .andThen(robot.intake.holdAlgae())
+          .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
       ) { robot.intake.coralDetected() }
     )
   }
@@ -243,12 +245,12 @@ class ControllerBindings(
     driveController.y().onTrue(
       ConditionalCommand(
         ConditionalCommand(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PIVOT),
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PIVOT)
+            .alongWith(robot.intake.holdCoralPivotSide()),
           robot.superstructureManager.requestGoal(SuperstructureGoal.L4)
+            .alongWith(robot.intake.holdCoralOppSide())
         ) { robot.poseSubsystem.isPivotSide() },
         robot.superstructureManager.requestGoal(SuperstructureGoal.NET)
-          .alongWith(robot.intake.holdAlgae())
-
       ) { robot.intake.coralDetected() }
     )
   }
@@ -266,13 +268,13 @@ class ControllerBindings(
   private fun scoreL2() {
     driveController.povLeft().onTrue(
       robot.superstructureManager.requestGoal(SuperstructureGoal.L2)
-        .alongWith(robot.intake.holdCoral())
+        .alongWith(robot.intake.holdCoralOppSide())
     )
   } // povLeft can/should change to proc
   private fun scoreL3() {
     driveController.povRight().onTrue(
       robot.superstructureManager.requestGoal(SuperstructureGoal.L3)
-        .alongWith(robot.intake.holdCoral())
+        .alongWith(robot.intake.holdCoralOppSide())
     )
   }
 
@@ -307,11 +309,15 @@ class ControllerBindings(
       robot.wrist.manualDown()
     ).onFalse(robot.wrist.hold())
   }
-/** mech controller START **/
+/** mech controller START and BACK **/
   private fun stopReefAlign() {
     mechanismController.start().onTrue(
       robot.driveCommand
     )
+
+  mechanismController.back().onTrue(
+    robot.intake.intakeToHorizontal()
+  ).onFalse(robot.intake.stop())
   }
 
 /** mech controller A,B,X,Y **/

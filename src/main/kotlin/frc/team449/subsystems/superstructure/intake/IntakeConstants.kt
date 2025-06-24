@@ -39,8 +39,8 @@ object IntakeConstants {
   const val TOP_CORAL_OUTTAKE_VOLTAGE = -7.0
   const val TOP_L1_OUTTAKE = -2.1678
 
-  const val SIDES_CORAL_INWARDS_VOLTAGE = 6.0
-  const val SIDES_CORAL_OUTTAKE_VOLTAGE = -6.0
+  const val SIDES_CORAL_INWARDS_VOLTAGE = 2.0
+  const val SIDES_CORAL_OUTTAKE_VOLTAGE = -2.0
   const val SIDES_RUN_TO_SIDE_VOLTAGE = 7.0
 
   const val CORAL_OUTTAKE_VOLTAGE = -7.0
@@ -51,7 +51,7 @@ object IntakeConstants {
   const val ALGAE_STALL_VOLTAGE_THRESHOLD = 30.0
 
   const val HOLDING_FINISH_VELOCITY = 0.25
-  const val CORAL_CENTER_WAIT_TIME = 0.1
+  const val CORAL_CENTER_WAIT_TIME = 0.3
 
   const val RIGHT_CORAL_SENSOR_CAN_ID = 20
   const val MIDDLE_CORAL_SENSOR_CAN_ID = 21
