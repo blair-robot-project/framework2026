@@ -45,17 +45,19 @@ class Intake(
     }
   }
 
-  private var sucessfulSensorInitializations = listOf<Boolean>()
+  private var allSensorsConfigured = true
+  private var lasercanConfigured = listOf<Boolean>()
 
   init {
     for (sensor in sensors) {
       try {
-        sucessfulSensorInitializations.plus(true)
         sensor.setTimingBudget(LaserCanInterface.TimingBudget.TIMING_BUDGET_20MS)
         sensor.setRegionOfInterest(LaserCanInterface.RegionOfInterest(8, 8, 4, 4))
         sensor.setRangingMode(LaserCanInterface.RangingMode.SHORT)
+        lasercanConfigured.plus(true)
       } catch (_: Exception) {
-        sucessfulSensorInitializations.plus(false)
+        lasercanConfigured.plus(false)
+        allSensorsConfigured = false
       }
     }
   }
@@ -272,9 +274,9 @@ class Intake(
       )
   }
 
-  private fun laserCanUnplugged(laserCan: LaserCanInterface): Boolean {
+  private fun laserCanIsPlugged(laserCan: LaserCanInterface): Boolean {
     val measurement = laserCan.measurement
-    return measurement == null // returns TRUE if the laserCan is unplugged
+    if (measurement == null){ return false } else{ return true }
   }
 
   fun coralDetected(): Boolean {
@@ -383,22 +385,23 @@ class Intake(
     val left: LaserCanInterface.Measurement? = leftSensor.measurement
     val right: LaserCanInterface.Measurement? = rightSensor.measurement
     val middle: LaserCanInterface.Measurement? = middleSensor.measurement
-    DogLog.log("Intake/LaserCan/Back Sensor Distance (mm)", back?.distance_mm?.toDouble() ?: -1.0)
-    DogLog.log("Intake/LaserCan/Left Sensor Distance (mm)", left?.distance_mm?.toDouble() ?: -1.0)
-    DogLog.log("Intake/LaserCan/Right Sensor Distance (mm)", right?.distance_mm?.toDouble() ?: -1.0)
-    DogLog.log("Intake/LaserCan/Middle Sensor Distance (mm)", middle?.distance_mm?.toDouble() ?: -1.0)
+    DogLog.log("Intake/LaserCan/Distance(mm)/Back Sensor", back?.distance_mm?.toDouble() ?: -1.0)
+    DogLog.log("Intake/LaserCan/Distance(mm)/Left Sensor", left?.distance_mm?.toDouble() ?: -1.0)
+    DogLog.log("Intake/LaserCan/Distance(mm)/Right Sensor", right?.distance_mm?.toDouble() ?: -1.0)
+    DogLog.log("Intake/LaserCan/Distance(mm)/Middle Sensor", middle?.distance_mm?.toDouble() ?: -1.0)
 
-    DogLog.log("Intake/LaserCan/Back sensor", laserCanDetected(backSensor))
-    DogLog.log("Intake/LaserCan/Left sensor", laserCanDetected(leftSensor))
-    DogLog.log("Intake/LaserCan/Right sensor", laserCanDetected(rightSensor))
-    DogLog.log("Intake/LaserCan/Middle sensor", laserCanDetected(middleSensor))
+    DogLog.log("Intake/LaserCan/ Detecting/ Back", laserCanDetected(backSensor))
+    DogLog.log("Intake/LaserCan/ Detecting/ Right", laserCanDetected(rightSensor))
+    DogLog.log("Intake/LaserCan/ Detecting/ Left", laserCanDetected(leftSensor))
+    DogLog.log("Intake/LaserCan/ Detecting/ Middle", laserCanDetected(middleSensor))
 
-    DogLog.log("Intake/LaserCan/Back sensor state", laserCanUnplugged(middleSensor))
-    DogLog.log("Intake/LaserCan/Left sensor state", laserCanUnplugged(rightSensor))
-    DogLog.log("Intake/LaserCan/Right sensor state", laserCanUnplugged(leftSensor))
-    DogLog.log("Intake/LaserCan/Middle sensor state", laserCanUnplugged(backSensor))
+    DogLog.log("Intake/LaserCan/ Connection/ Middle", laserCanIsPlugged(middleSensor))
+    DogLog.log("Intake/LaserCan/ Connection/ Right", laserCanIsPlugged(rightSensor))
+    DogLog.log("Intake/LaserCan/ Connection/ Left", laserCanIsPlugged(leftSensor))
+    DogLog.log("Intake/LaserCan/ Connection/ Back", laserCanIsPlugged(backSensor))
 
-    DogLog.log("Intake/LaserCan/Sensor Initialization Status", sucessfulSensorInitializations.toBooleanArray())
+    DogLog.log("Intake/LaserCan/All Sensors Configured",allSensorsConfigured)
+    DogLog.log("Intake/LaserCan/ Configured list",lasercanConfigured.toBooleanArray())
 
     val pieceName = when (gamePiece) {
       Piece.NONE -> "none"
