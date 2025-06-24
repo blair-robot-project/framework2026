@@ -310,8 +310,8 @@ open class Routines(
   private fun algaeAuto(threePointFive: Boolean = false, closeLaunch: Boolean = true): AutoRoutine {
     val routine = autoFactory.newRoutine("algae auto")
     val algaeAutoType = if (closeLaunch) "OneL4ThreeAlClose" else "OneL4ThreeALFar"
-    val farWaitTimes = listOf(0.7, 0.7, 0.7, 0.7)
-    val closeWaitTimes = listOf(0.7, 0.63, 0.63, 0.63)
+    val farWaitTimes = listOf(0.8, 0.9, 1.2, 1.2)
+    val closeWaitTimes = listOf(0.8, 0.83, 1.13, 0.93)
     val waitTimes = closeWaitTimes
     val preloadedL4Score = routine.trajectory("$algaeAutoType/1")
     val algaePickupMiddle = routine.trajectory("$algaeAutoType/2")
@@ -389,7 +389,7 @@ open class Routines(
             )
           ).alongWith(WaitCommand(0.25).andThen(getTaxi.cmd()))
         ),
-        InstantCommand() // getTaxi.cmd() this is just a spin
+        InstantCommand()
       ) { !threePointFive }
 
     )
@@ -490,7 +490,7 @@ open class Routines(
 
   private fun intakeAlgae(level: Int): Command {
     return ConditionalCommand(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.L2_ALGAE_INTAKE, 0.15),
+      robot.superstructureManager.requestGoal(SuperstructureGoal.L2_ALGAE_INTAKE, 0.2),
       robot.superstructureManager.requestGoal(
         SuperstructureGoal.SuperstructureState(
           SuperstructureGoal.NET_PIVOT.pivot,
@@ -521,7 +521,7 @@ open class Routines(
         Commands.sequence(
           robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOT)
             .withDeadline(WaitCommand(waitTime)),
-          robot.superstructureManager.requestHigh(SuperstructureGoal.L4_PIVOT)
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PIVOT)
         ),
         robot.intake.holdCoralForwardAuto()
       )
@@ -529,7 +529,7 @@ open class Routines(
         Commands.sequence(
           robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)
             .withDeadline(WaitCommand(waitTime)),
-          robot.superstructureManager.requestHigh(SuperstructureGoal.L4)
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L4)
         ),
         robot.intake.holdCoralForwardAuto()
       )
@@ -537,7 +537,7 @@ open class Routines(
         Commands.sequence(
           robot.superstructureManager.requestGoal(SuperstructureGoal.NET_PREMOVE_PIVOT)
             .withDeadline(WaitCommand(waitTime)),
-          robot.superstructureManager.requestHigh(SuperstructureGoal.NET_PIVOT)
+          robot.superstructureManager.requestGoal(SuperstructureGoal.NET_PIVOT)
         ),
         robot.intake.holdCoralForwardAuto()
       )

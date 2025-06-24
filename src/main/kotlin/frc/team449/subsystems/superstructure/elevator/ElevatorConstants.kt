@@ -44,7 +44,6 @@ object ElevatorConstants {
   const val CLIMB_HEIGHT = 0.035
   val CLIMB_VOLTAGE = -3.75
   val PIVOT_READY = Inches.of(12.0)
-  val CLIMB_ABOVE_TROUGH = Meters.of(0.318)
 
   const val TOLERANCE = 0.05 // TODO(Adjust tolerance.)
 

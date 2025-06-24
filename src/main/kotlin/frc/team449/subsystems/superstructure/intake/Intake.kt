@@ -6,7 +6,6 @@ import au.grapplerobotics.simulation.MockLaserCan
 import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.controls.PositionDutyCycle
 import com.ctre.phoenix6.controls.PositionVoltage
-import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.TalonFX
 import dev.doglog.DogLog
 import edu.wpi.first.wpilibj.RobotBase
@@ -25,39 +24,38 @@ class Intake(
   private val topMotor: TalonFX, // kraken x60
   private val rightMotor: TalonFX, // kraken x44
   private val leftMotor: TalonFX, // kraken x44
-  private val backCoralSensor: LaserCanInterface,
-  private val leftCoralSensor: LaserCanInterface,
-  private val rightCoralSensor: LaserCanInterface,
-  private val middleCoralSensor: LaserCanInterface
+  private val backSensor: LaserCanInterface,
+  private val leftSensor: LaserCanInterface,
+  private val rightSensor: LaserCanInterface,
+  private val middleSensor: LaserCanInterface
 ) : SubsystemBase() {
 
   private val sensors = listOf(
-    backCoralSensor,
-    leftCoralSensor,
-    rightCoralSensor,
-    middleCoralSensor
+    backSensor,
+    leftSensor,
+    rightSensor,
+    middleSensor
   )
 
   private var gamePiece = Piece.CORAL
 
   private fun setVoltage(vararg motors: TalonFX, voltage: Double): Command {
     return runOnce {
-      motors.forEach { it.setControl(VoltageOut(voltage)) }
+      motors.forEach { it.setVoltage(voltage) }
     }
   }
 
-  private var sensorInitFailed = false
-  private var failedSensors = listOf(sensors)
+  private var sucessfulSensorInitializations = listOf<Boolean>()
 
   init {
     for (sensor in sensors) {
       try {
+        sucessfulSensorInitializations.plus(true)
         sensor.setTimingBudget(LaserCanInterface.TimingBudget.TIMING_BUDGET_20MS)
         sensor.setRegionOfInterest(LaserCanInterface.RegionOfInterest(8, 8, 4, 4))
         sensor.setRangingMode(LaserCanInterface.RangingMode.SHORT)
       } catch (_: Exception) {
-        sensorInitFailed = true
-        failedSensors.indexOf(sensors)
+        sucessfulSensorInitializations.plus(false)
       }
     }
   }
@@ -101,12 +99,12 @@ class Intake(
     }
   }
 
-  fun centerHorizontally(): Command {
+  fun centerCoralHorizontally(): Command {
     return Commands.sequence(
       moveCoralLeft(),
       WaitUntilCommand { !rightSensorDetected() },
       moveCoralRight(),
-      WaitCommand(0.1),
+      WaitCommand(IntakeConstants.CORAL_CENTER_WAIT_TIME),
       holdCoral()
     )
   }
@@ -185,13 +183,12 @@ class Intake(
 
   fun holdCoral(): Command {
     return stop().andThen(
-      run {
+      runOnce {
         topMotor.setControl(PositionVoltage(topMotor.position.valueAsDouble))
         rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble))
         leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble))
       }
     )
-      .andThen(stop())
   }
 
   fun holdCoralToFront(): Command {
@@ -254,9 +251,7 @@ class Intake(
   }
 
   fun holdAlgae(): Command {
-    return run {
-      topMotor.setControl(VoltageOut(IntakeConstants.ALGAE_HOLD_VOLTAGE))
-    }
+    return setVoltageTop(IntakeConstants.ALGAE_HOLD_VOLTAGE)
   }
 
   fun outtakeL1(): Command {
@@ -266,18 +261,14 @@ class Intake(
 
   fun outtakeCoral(): Command {
     changePieceToNone(true).schedule()
-    return runOnce {
-      setVoltageSides(IntakeConstants.SIDES_OUT_VOLTAGE)
-        .alongWith(setVoltageTop(IntakeConstants.TOP_ROLLER_OUT_VOLTAGE))
-    }
+    return setVoltageSides(IntakeConstants.SIDES_OUT_VOLTAGE)
+      .andThen(setVoltageTop(IntakeConstants.TOP_ROLLER_OUT_VOLTAGE))
   }
 
   fun outtakeCoralPivot(): Command {
     changePieceToNone(true).schedule()
-    return runOnce {
-      setVoltageSides(IntakeConstants.SIDES_OUT_VOLTAGE)
-      setVoltageTop(IntakeConstants.TOP_ROLLER_OUT_VOLTAGE)
-    }
+    return setVoltageSides(IntakeConstants.SIDES_OUT_VOLTAGE)
+      .andThen(setVoltageTop(IntakeConstants.TOP_ROLLER_OUT_VOLTAGE))
   }
 
   fun outtakeAlgae(): Command {
@@ -299,7 +290,7 @@ class Intake(
   }
 
   fun coralDetected(): Boolean {
-    return laserCanDetected(backCoralSensor) || laserCanDetected(leftCoralSensor) || laserCanDetected(rightCoralSensor) || laserCanDetected(middleCoralSensor)
+    return laserCanDetected(backSensor) || laserCanDetected(leftSensor) || laserCanDetected(rightSensor) || laserCanDetected(middleSensor)
   }
 
   fun coralNotDetected(): Boolean {
@@ -307,39 +298,39 @@ class Intake(
   }
 
   private fun coralIsVertical(): Boolean {
-    return laserCanDetected(backCoralSensor) && laserCanDetected(middleCoralSensor) && !laserCanDetected(leftCoralSensor) && !laserCanDetected(rightCoralSensor)
+    return laserCanDetected(backSensor) && laserCanDetected(middleSensor) && !laserCanDetected(leftSensor) && !laserCanDetected(rightSensor)
   }
 
   private fun coralIsHorizontal(): Boolean {
-    return !laserCanDetected(backCoralSensor) && laserCanDetected(leftCoralSensor) && laserCanDetected(rightCoralSensor) && laserCanDetected(middleCoralSensor)
+    return !laserCanDetected(backSensor) && laserCanDetected(leftSensor) && laserCanDetected(rightSensor) && laserCanDetected(middleSensor)
   }
 
   private fun rightSensorDetected(): Boolean {
-    return laserCanDetected(rightCoralSensor)
+    return laserCanDetected(rightSensor)
   }
 
   private fun leftSensorDetected(): Boolean {
-    return laserCanDetected(leftCoralSensor)
+    return laserCanDetected(leftSensor)
   }
 
   private fun middleSensorDetected(): Boolean {
-    return laserCanDetected(middleCoralSensor)
+    return laserCanDetected(middleSensor)
   }
 
   private fun backSensorDetected(): Boolean {
-    return laserCanDetected(backCoralSensor)
+    return laserCanDetected(backSensor)
   }
 
   private fun onlyRightSensor(): Boolean {
-    return !laserCanDetected(leftCoralSensor) && laserCanDetected(rightCoralSensor) && !laserCanDetected(middleCoralSensor)
+    return !laserCanDetected(leftSensor) && laserCanDetected(rightSensor) && !laserCanDetected(middleSensor)
   }
 
   private fun onlyLeftSensor(): Boolean {
-    return laserCanDetected(leftCoralSensor) && !laserCanDetected(rightCoralSensor) && !laserCanDetected(middleCoralSensor)
+    return laserCanDetected(leftSensor) && !laserCanDetected(rightSensor) && !laserCanDetected(middleSensor)
   }
 
   private fun onlyMiddleSensor(): Boolean {
-    return !laserCanDetected(leftCoralSensor) && !laserCanDetected(rightCoralSensor) && laserCanDetected(middleCoralSensor)
+    return !laserCanDetected(leftSensor) && !laserCanDetected(rightSensor) && laserCanDetected(middleSensor)
   }
 
   fun algaeDetected(): Boolean {
@@ -398,30 +389,36 @@ class Intake(
     KrakenDogLog.log("Intake/leftMotor", leftMotor)
 
     DogLog.log("Intake/HorizontalIntake", coralIsHorizontal())
-    val back: LaserCanInterface.Measurement? = backCoralSensor.measurement
-    val left: LaserCanInterface.Measurement? = leftCoralSensor.measurement
-    val right: LaserCanInterface.Measurement? = rightCoralSensor.measurement
-    val middle: LaserCanInterface.Measurement? = middleCoralSensor.measurement
+    DogLog.log("Intake/VerticalIntake", coralIsVertical())
+
+    val back: LaserCanInterface.Measurement? = backSensor.measurement
+    val left: LaserCanInterface.Measurement? = leftSensor.measurement
+    val right: LaserCanInterface.Measurement? = rightSensor.measurement
+    val middle: LaserCanInterface.Measurement? = middleSensor.measurement
     DogLog.log("Intake/LaserCan/Back Sensor Distance (mm)", back?.distance_mm?.toDouble() ?: -1.0)
     DogLog.log("Intake/LaserCan/Left Sensor Distance (mm)", left?.distance_mm?.toDouble() ?: -1.0)
     DogLog.log("Intake/LaserCan/Right Sensor Distance (mm)", right?.distance_mm?.toDouble() ?: -1.0)
     DogLog.log("Intake/LaserCan/Middle Sensor Distance (mm)", middle?.distance_mm?.toDouble() ?: -1.0)
-    DogLog.log("Intake/ Back sensor", laserCanDetected(backCoralSensor))
-    DogLog.log("Intake/ Right sensor", laserCanDetected(rightCoralSensor))
-    DogLog.log("Intake/ Left sensor", laserCanDetected(leftCoralSensor))
-    DogLog.log("Intake/ Middle sensor", laserCanDetected(middleCoralSensor))
-    DogLog.log("Intake/ Sensor Config failed?", sensorInitFailed)
-    DogLog.log("Intake/ Middle sensor state", laserCanUnplugged(middleCoralSensor))
-    DogLog.log("Intake/ Right sensor state", laserCanUnplugged(rightCoralSensor))
-    DogLog.log("Intake/ Left sensor state", laserCanUnplugged(leftCoralSensor))
-    DogLog.log("Intake/ Back sensor state", laserCanUnplugged(backCoralSensor))
+
+    DogLog.log("Intake/LaserCan/Back sensor", laserCanDetected(backSensor))
+    DogLog.log("Intake/LaserCan/Left sensor", laserCanDetected(leftSensor))
+    DogLog.log("Intake/LaserCan/Right sensor", laserCanDetected(rightSensor))
+    DogLog.log("Intake/LaserCan/Middle sensor", laserCanDetected(middleSensor))
+
+    DogLog.log("Intake/LaserCan/Back sensor state", laserCanUnplugged(middleSensor))
+    DogLog.log("Intake/LaserCan/Left sensor state", laserCanUnplugged(rightSensor))
+    DogLog.log("Intake/LaserCan/Right sensor state", laserCanUnplugged(leftSensor))
+    DogLog.log("Intake/LaserCan/Middle sensor state", laserCanUnplugged(backSensor))
+
+    DogLog.log("Intake/LaserCan/Sensor Initialization Status", sucessfulSensorInitializations.toBooleanArray())
+
     val pieceName = when (gamePiece) {
       Piece.NONE -> "none"
       Piece.ALGAE -> "algae"
       Piece.CORAL -> "coral"
     }
     DogLog.log("Intake/Piece", pieceName)
-    DogLog.log("Intake/Stall Current", topMotor.motorStallCurrent.valueAsDouble)
+    DogLog.log("Intake/Voltage", topMotor.motorVoltage.valueAsDouble)
   }
 
   companion object {

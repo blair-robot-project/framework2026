@@ -40,7 +40,8 @@ object IntakeConstants {
   const val PIVOT_SENSOR_DIO_PORT = 12
   const val READY_PIVOT_CORAL_TIME = 0.25
 
-  const val HOLDING_FINISH_VELOCITY = 0.1
+  const val HOLDING_FINISH_VELOCITY = 0.25
+  const val CORAL_CENTER_WAIT_TIME = 0.1
 
   const val RIGHT_CORAL_SENSOR_CAN_ID = 20
   const val MIDDLE_CORAL_SENSOR_CAN_ID = 21

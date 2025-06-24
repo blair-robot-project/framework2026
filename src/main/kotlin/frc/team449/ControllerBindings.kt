@@ -108,10 +108,16 @@ class ControllerBindings(
 /** driver controller BUMPER **/
   private fun groundIntakeVertical() {
     driveController.leftBumper().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL)
-        .alongWith(robot.intake.intakeToVertical())
-        .andThen(robot.intake.holdCoral())
-        .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
+      Commands.sequence(
+        Commands.parallel(
+          robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL),
+          robot.intake.intakeToVertical()
+        ),
+        Commands.parallel(
+          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW),
+          robot.intake.holdCoral()
+        )
+      )
     )
   }
   private fun outtake() {
@@ -158,11 +164,17 @@ class ControllerBindings(
   }
   private fun groundIntakeL1() {
     driveController.back().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL)
-        .alongWith(robot.intake.intakeToHorizontal())
-        .andThen(robot.intake.holdCoral())
-        .andThen(WaitCommand(0.4))
-        .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
+      Commands.sequence(
+        Commands.parallel(
+          robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL),
+          robot.intake.intakeToHorizontal()
+        ),
+        Commands.parallel(
+          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW),
+          robot.intake.holdCoral()
+        ),
+        robot.intake.centerCoralHorizontally()
+      )
     )
   }
 
@@ -238,12 +250,12 @@ class ControllerBindings(
     driveController.y().onTrue(
       ConditionalCommand(
         ConditionalCommand(
-          robot.superstructureManager.requestHigh(SuperstructureGoal.L4_PIVOT)
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PIVOT)
             .alongWith(robot.intake.holdCoralToPivot()),
-          robot.superstructureManager.requestHigh(SuperstructureGoal.L4)
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L4)
             .alongWith(robot.intake.holdCoralToFront())
         ) { robot.poseSubsystem.isPivotSide() },
-        robot.superstructureManager.requestHigh(SuperstructureGoal.NET)
+        robot.superstructureManager.requestGoal(SuperstructureGoal.NET)
           .alongWith(robot.intake.holdAlgae())
 
       ) { robot.intake.coralDetected() }
