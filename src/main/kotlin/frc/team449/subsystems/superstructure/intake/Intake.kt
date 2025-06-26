@@ -193,6 +193,7 @@ class Intake(
           }
         }
 
+
         if (onlyMiddleSensor()) {
           if (!backSensorDetected()) {
             if (unverticaling) {
