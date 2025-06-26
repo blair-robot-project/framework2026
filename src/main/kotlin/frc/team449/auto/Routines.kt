@@ -93,7 +93,7 @@ open class Routines(
     middlesides.active().onTrue(
       Commands.sequence(
         robot.intake.resetPiece(),
-        preloadScore.resetOdometry().alongWith(robot.intake.stop()),
+        preloadScore.resetOdometry().alongWith(robot.intake.stopMotors()),
         preloadScore.cmd().alongWith(
           robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOT)
             .withDeadline(WaitCommand(1.5))
@@ -428,7 +428,7 @@ open class Routines(
         WaitUntilCommand { !robot.intake.coralDetected() || !RobotBase.isReal() }
       )
       .andThen(WaitCommand(0.050))
-      .andThen(robot.intake.stop())
+      .andThen(robot.intake.stopMotors())
   }
 
   private fun scoreCoral(pivotSide: Boolean = true): Command {
@@ -446,7 +446,7 @@ open class Routines(
       )
       .andThen(PrintCommand("Piece left the robot!"))
       .andThen(WaitCommand(0.050))
-      .andThen(robot.intake.stop())
+      .andThen(robot.intake.stopMotors())
   }
 
   private fun scoreAlgaePivot(): Command {
@@ -458,7 +458,7 @@ open class Routines(
       )
       .andThen(PrintCommand("Piece left the robot!"))
       .andThen(WaitCommand(0.1))
-      .andThen(robot.intake.stop())
+      .andThen(robot.intake.stopMotors())
   }
 
   private fun scoreL2PivotDirectional(reefSide: FieldConstants.ReefSide): Command {
@@ -474,7 +474,7 @@ open class Routines(
         WaitUntilCommand { !robot.intake.coralDetected() || !RobotBase.isReal() }
       )
       .andThen(WaitCommand(0.050))
-      .andThen(robot.intake.stop())
+      .andThen(robot.intake.stopMotors())
   }
 
   private fun intakeCoral(): Command {
@@ -513,16 +513,16 @@ open class Routines(
 
   private fun getPremoveCommand(reefLevel: Int, waitTime: Double = 0.0): Command {
     return when (reefLevel) {
-      2 -> robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT)
+      2 -> robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT).alongWith(robot.intake.holdCoralPivotSide())
       4 -> Commands.sequence(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOT)
-            .withDeadline(WaitCommand(waitTime)),
-          robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PIVOT)
-        )
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOT).alongWith(robot.intake.holdCoralPivotSide())
+          .withDeadline(WaitCommand(waitTime)),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PIVOT)
+      )
       -4 -> Commands.sequence(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE)
-            .withDeadline(WaitCommand(waitTime)),
-          robot.superstructureManager.requestGoal(SuperstructureGoal.L4)
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).alongWith(robot.intake.holdCoralOppSide())
+          .withDeadline(WaitCommand(waitTime)),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L4)
       )
       5 -> Commands.deadline( // 5 is net
         Commands.sequence(
@@ -531,7 +531,7 @@ open class Routines(
           robot.superstructureManager.requestGoal(SuperstructureGoal.NET_PIVOT)
         ),
       )
-      else -> robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT)
+      else -> InstantCommand()
     }
   }
 }

@@ -65,38 +65,42 @@ class Intake(
   private fun setVoltageTop(voltage: Double): Command { return setVoltage(topMotor, voltage = voltage) }
   private fun setVoltageSides(voltage: Double): Command { return setVoltage(rightMotor, leftMotor, voltage = voltage) }
 
-  private fun moveCoralRight(): Command {
-    return runOnce {
-      rightMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
-      leftMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
-    }
+  private fun setMotorsRight(voltage: Double = IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE) {
+    rightMotor.setVoltage(voltage)
+    leftMotor.setVoltage(-voltage)
   }
 
-  private fun moveCoralLeft(): Command {
-    return runOnce {
-      rightMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
-      leftMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
-    }
+  private fun setMotorsLeft(voltage: Double = IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE) {
+    rightMotor.setVoltage(-voltage)
+    leftMotor.setVoltage(voltage)
+  }
+
+  private fun setMotorsInwards(slowdownConstant: Double = 1.0) {
+    topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE / slowdownConstant)
+    rightMotor.setVoltage(IntakeConstants.SIDES_CORAL_INWARDS_VOLTAGE / slowdownConstant)
+    leftMotor.setVoltage(IntakeConstants.SIDES_CORAL_INWARDS_VOLTAGE / slowdownConstant)
   }
 
   fun inwards(): Command {
     return runOnce {
-      topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE)
-      rightMotor.setVoltage(IntakeConstants.SIDES_CORAL_INWARDS_VOLTAGE)
-      leftMotor.setVoltage(IntakeConstants.SIDES_CORAL_INWARDS_VOLTAGE)
+      setMotorsInwards()
     }
+  }
+
+  private fun setMotorsOutwards(slowdownConstant: Double = 1.0) {
+    topMotor.setVoltage(IntakeConstants.TOP_CORAL_OUTTAKE_VOLTAGE / slowdownConstant)
+    rightMotor.setVoltage(IntakeConstants.SIDES_CORAL_OUTTAKE_VOLTAGE / slowdownConstant)
+    leftMotor.setVoltage(IntakeConstants.SIDES_CORAL_OUTTAKE_VOLTAGE / slowdownConstant)
   }
 
   private fun outwards(): Command {
     return runOnce {
-      topMotor.setVoltage(IntakeConstants.CORAL_OUTTAKE_VOLTAGE)
-      rightMotor.setVoltage(IntakeConstants.CORAL_OUTTAKE_VOLTAGE)
-      leftMotor.setVoltage(IntakeConstants.CORAL_OUTTAKE_VOLTAGE)
+      setMotorsOutwards()
     }
   }
 
   fun holdCoral(): Command {
-    return stop().andThen(
+    return stopMotors().andThen(
       runOnce {
         topMotor.setControl(PositionVoltage(topMotor.position.valueAsDouble))
         rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble))
@@ -106,7 +110,7 @@ class Intake(
   }
 
   fun holdCoralOppSide(): Command {
-    return stop().andThen(
+    return stopMotors().andThen(
       runOnce {
         rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble - 1))
         leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble - 1))
@@ -114,14 +118,14 @@ class Intake(
         WaitUntilCommand {
           // velocities are in rps
           rightMotor.velocity.valueAsDouble < IntakeConstants.HOLDING_FINISH_VELOCITY &&
-          leftMotor.velocity.valueAsDouble < IntakeConstants.HOLDING_FINISH_VELOCITY
+            leftMotor.velocity.valueAsDouble < IntakeConstants.HOLDING_FINISH_VELOCITY
         }
       ).andThen(holdCoral())
     )
   }
 
   fun holdCoralPivotSide(): Command {
-    return stop().andThen(
+    return stopMotors().andThen(
       runOnce {
         rightMotor.setControl(PositionDutyCycle(rightMotor.position.valueAsDouble + 1))
         leftMotor.setControl(PositionDutyCycle(leftMotor.position.valueAsDouble + 1))
@@ -135,120 +139,107 @@ class Intake(
     )
   }
 
-  fun centerCoralHorizontally(): Command {
-    return Commands.sequence(
-      runOnce { topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE / 10) },
-      moveCoralLeft(),
-      WaitUntilCommand { !rightSensorDetected() },
-      runOnce {
-        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble + 0.5))
-        leftMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble - 0.5))
-      }.andThen(
-        WaitUntilCommand {
-          // velocities are in rps
-          rightMotor.velocity.valueAsDouble < IntakeConstants.HOLDING_FINISH_VELOCITY &&
-            leftMotor.velocity.valueAsDouble < IntakeConstants.HOLDING_FINISH_VELOCITY
-        }
-      ),
-      holdCoral()
-    )
-  }
-
   private var unverticaling = false
+  private var coralIn = true
   fun intakeToHorizontal(): Command {
-    changePieceToCoral().schedule()
-    return Commands.sequence(
-      runOnce { topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE) },
-      WaitUntilCommand { coralDetected() },
-      FunctionalCommand(
-        { unverticaling = false },
-        {
-          if (rightSensorDetected()) {
-            if (!unverticaling) {
-              // move left
-              rightMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
-              leftMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+    return FunctionalCommand(
+      {
+        changePieceToCoral().schedule()
+        unverticaling = false
+        coralIn = true // source: trust me bro
+      },
+      {
+        if (coralNotDetected()) {
+          // pull in coral until a sensor detects
+          coralIn = false
+          topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE)
+        } else {
+          // stop top motor once a coral is detected so we don't have it running when it shouldn't be
+          if (!coralIn) {
+            coralIn = true
+            topMotor.stopMotor()
+          }
+        }
+
+        if (rightSensorDetected()) {
+          if (!unverticaling) {
+            if (middleSensorDetected()) {
+              // move left and slow down to prevent overshoot
+              setMotorsLeft(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE / IntakeConstants.SIDES_SLOWDOWN_CONSTANT)
             } else {
-              if (onlyRightSensor()) {
-                unverticaling = false
-              } else {
-                // move right until just right sensor
-                topMotor.setVoltage(-IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE / 10)
-                rightMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
-                leftMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
-              }
+              // move left
+              setMotorsLeft()
+            }
+          } else { // unverticaling
+
+            if (onlyRightSensor()) {
+              // if it's only the right sensor we've successfully gotten the coral horizontal
+              // so end the process
+              unverticaling = false
+            } else {
+              // coral should be diagonal right now in between middle and right sensor
+              // move right until just right sensor, pulling in slightly for steadiness
+              topMotor.setVoltage(IntakeConstants.TOP_CORAL_OUTTAKE_VOLTAGE / 10)
+              setMotorsRight()
             }
           }
-          if (leftSensorDetected()) {
+        }
+
+        if (leftSensorDetected()) {
+          if (middleSensorDetected()) {
+            // move right and slow down to prevent overshoot
+            setMotorsRight(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE / IntakeConstants.SIDES_SLOWDOWN_CONSTANT)
+          } else {
             // move right
-            rightMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
-            leftMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+            setMotorsRight()
           }
-          if (onlyMiddleSensor()) {
-            if(!backSensorDetected()) {
-              if(unverticaling) {
-                // move right and out slowly
-                rightMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
-                leftMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
-                topMotor.setVoltage(IntakeConstants.CORAL_OUTTAKE_VOLTAGE / 2)
-              } else {
-                //run inwards till we hit back sensor
-                topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE)
-                rightMotor.setVoltage(IntakeConstants.SIDES_CORAL_INWARDS_VOLTAGE)
-                leftMotor.setVoltage(IntakeConstants.SIDES_CORAL_INWARDS_VOLTAGE)
-              }
-            } else { // hitting back sensor
-              unverticaling = true
+        }
+
+        if (onlyMiddleSensor()) {
+          if (!backSensorDetected()) {
+            if (unverticaling) {
               // move right and out slowly
-              rightMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
-              leftMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
-              topMotor.setVoltage(IntakeConstants.CORAL_OUTTAKE_VOLTAGE / 3)
+              setMotorsRight()
+              topMotor.setVoltage(IntakeConstants.TOP_CORAL_OUTTAKE_VOLTAGE / 3)
+            } else {
+              // run inwards till we hit back sensor
+              setMotorsInwards()
             }
+          } else { // hitting back sensor
+            unverticaling = true
+            // move right and out slowly
+            setMotorsRight()
+            topMotor.setVoltage(IntakeConstants.TOP_CORAL_OUTTAKE_VOLTAGE / 3)
           }
-          if (coralNotDetected()) {
-            topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE)
-          }
-        },
-        {
-          // stop at end
-          topMotor.stopMotor()
-          rightMotor.stopMotor()
-          leftMotor.stopMotor()
-        },
-        { coralIsHorizontal() }
-      ),
-    )
+        }
+      },
+      { },
+      { coralIsHorizontal() }
+    ).andThen(changePieceToCoral()).andThen(runOnce { topMotor.setVoltage(IntakeConstants.TOP_L1_HOLD) })
   }
 
   fun intakeToVertical(): Command {
-    changePieceToCoral().schedule()
     return FunctionalCommand(
       { },
       {
         if (leftSensorDetected() && rightSensorDetected()) {
-          // run to a side
-          rightMotor.setVoltage(-IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
-          leftMotor.setVoltage(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE)
+          // if it's horizontal, just run it right
+          setMotorsRight()
         } else {
           // inwards
-          topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE)
-          rightMotor.setVoltage(IntakeConstants.SIDES_CORAL_INWARDS_VOLTAGE)
-          leftMotor.setVoltage(IntakeConstants.SIDES_CORAL_INWARDS_VOLTAGE)
+          setMotorsInwards()
         }
       },
-      {
-        // stop at end
-        topMotor.stopMotor()
-        rightMotor.stopMotor()
-        leftMotor.stopMotor()
-      },
+      { },
       { backSensorDetected() },
-    )
+    ).andThen(changePieceToCoral())
   }
 
   fun intakeAlgae(): Command {
-    changePieceToAlgae().schedule()
-    return setVoltageTop(IntakeConstants.ALGAE_INTAKE_VOLTAGE)
+    return Commands.sequence(
+      setVoltageTop(IntakeConstants.ALGAE_INTAKE_VOLTAGE),
+      changePieceToAlgae(),
+    )
   }
 
   fun holdAlgae(): Command {
@@ -256,38 +247,42 @@ class Intake(
   }
 
   fun outtakeL1(): Command {
-    changePieceToNone(true).schedule()
-    return setVoltageTop(IntakeConstants.TOP_L1_OUTTAKE)
+    return Commands.sequence(
+      setVoltageTop(IntakeConstants.TOP_L1_OUTTAKE),
+      changePieceToNone(),
+    )
   }
 
   fun outtakeCoral(): Command {
-    changePieceToNone(true).schedule()
-    return setVoltageSides(IntakeConstants.SIDES_CORAL_OUTTAKE_VOLTAGE)
-      .andThen(setVoltageTop(IntakeConstants.TOP_CORAL_OUTTAKE_VOLTAGE))
+    return Commands.sequence(
+      outwards(),
+      changePieceToNone(),
+    )
   }
 
   fun outtakeCoralPivot(): Command {
-    changePieceToNone(true).schedule()
-    return setVoltageSides(IntakeConstants.SIDES_CORAL_OUTTAKE_VOLTAGE)
-      .andThen(setVoltageTop(IntakeConstants.TOP_CORAL_OUTTAKE_VOLTAGE))
+    return Commands.sequence(
+      runOnce { setMotorsOutwards(-1.0) },
+      changePieceToNone()
+    )
   }
 
   fun outtakeAlgae(): Command {
-    changePieceToNone(false).schedule()
-    return setVoltageTop(IntakeConstants.ALGAE_OUTTAKE_VOLTAGE)
+    return Commands.sequence(
+      setVoltageTop(IntakeConstants.ALGAE_OUTTAKE_VOLTAGE),
+      changePieceToNone(false),
+    )
   }
 
   private fun laserCanDetected(laserCan: LaserCanInterface): Boolean {
-    val measurement: LaserCanInterface.Measurement? = laserCan.measurement
-    return measurement != null && (
-      measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT &&
-        measurement.distance_mm <= IntakeConstants.CORAL_DETECTION_THRESHOLD
+    return laserCan.measurement != null && (
+      laserCan.measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT &&
+        laserCan.measurement.distance_mm <= IntakeConstants.CORAL_DETECTION_THRESHOLD
       )
   }
 
   private fun laserCanIsPlugged(laserCan: LaserCanInterface): Boolean {
-    val measurement = laserCan.measurement
-    if (measurement == null){ return false } else{ return true }
+    return laserCan.measurement == null
   }
 
   fun coralDetected(): Boolean {
@@ -343,26 +338,29 @@ class Intake(
       topMotor.motorVoltage.valueAsDouble >
         IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD
     }.onlyIf { RobotBase.isReal() }
+      .andThen(WaitCommand(IntakeConstants.WAIT_BEFORE_ALGAE_IN))
       .andThen(runOnce { gamePiece = Piece.ALGAE })
+      .andThen(stopMotors())
   }
 
   private fun changePieceToCoral(): Command {
-    return WaitUntilCommand { coralDetected() }.onlyIf { RobotBase.isReal() }
-      .andThen(runOnce { gamePiece = Piece.CORAL })
+    return runOnce { gamePiece = Piece.CORAL }.andThen(stopMotors())
   }
 
-  private fun changePieceToNone(coralOuttaken: Boolean): Command {
+  private fun changePieceToNone(coralOuttaken: Boolean = true): Command {
     return Commands.sequence(
       ConditionalCommand(
+        // coral
         WaitUntilCommand { !coralDetected() },
-        WaitCommand(0.1).andThen(
-          WaitUntilCommand {
-            topMotor.motorStallCurrent.valueAsDouble <
-              IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD
-          }
-        )
+        // algae
+        WaitUntilCommand {
+          topMotor.motorVoltage.valueAsDouble >
+            IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD
+        }.andThen(WaitCommand(IntakeConstants.WAIT_BEFORE_ALGAE_OUT))
+
       ) { coralOuttaken },
-      runOnce { gamePiece = Piece.NONE }
+      runOnce { gamePiece = Piece.NONE },
+      stopMotors()
     )
   }
 
@@ -372,7 +370,7 @@ class Intake(
     }
   }
 
-  fun stop(): Command {
+  fun stopMotors(): Command {
     return runOnce {
       topMotor.stopMotor()
       rightMotor.stopMotor()
@@ -411,8 +409,8 @@ class Intake(
     DogLog.log("Intake/LaserCan/ Connection/ Left", laserCanIsPlugged(leftSensor))
     DogLog.log("Intake/LaserCan/ Connection/ Back", laserCanIsPlugged(backSensor))
 
-    DogLog.log("Intake/LaserCan/All Sensors Configured",allSensorsConfigured)
-    DogLog.log("Intake/LaserCan/ Configured list",lasercanConfigured.toBooleanArray())
+    DogLog.log("Intake/LaserCan/All Sensors Configured", allSensorsConfigured)
+    DogLog.log("Intake/LaserCan/ Configured list", lasercanConfigured.toBooleanArray())
 
     val pieceName = when (gamePiece) {
       Piece.NONE -> "none"

@@ -64,7 +64,7 @@ class BuiltInTests(robot: Robot) {
       checkTime(manager.requestGoal(SuperstructureGoal.L4_PIVOT), "L4 Pivot"),
       manager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL).andThen(intake.intakeToVertical()),
       WaitUntilCommand { intake.coralDetected() }.andThen(WaitCommand(0.25)),
-      manager.requestGoal(SuperstructureGoal.STOW).andThen(intake.stop()),
+      manager.requestGoal(SuperstructureGoal.STOW).andThen(intake.stopMotors()),
       getDriveTests()
     ).onlyWhile { !userInput }.finallyDo(
       Runnable {
@@ -142,7 +142,7 @@ class BuiltInTests(robot: Robot) {
       ),
       PrintCommand("Going to outtake coral. Please step back."),
       WaitCommand(1.5),
-      intake.stop(),
+      intake.stopMotors(),
       intake.outtakeL1(),
       WaitUntilCommand { !intake.coralDetected() }.withDeadline(WaitCommand(2.0)).finallyDo(
         Runnable {
@@ -153,7 +153,7 @@ class BuiltInTests(robot: Robot) {
           }
         }
       ),
-      intake.stop(),
+      intake.stopMotors(),
       manager.requestGoal(SuperstructureGoal.STOW)
     ).onlyWhile { !userInput }.finallyDo(
       Runnable {

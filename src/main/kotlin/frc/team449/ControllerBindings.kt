@@ -134,16 +134,10 @@ class ControllerBindings(
             ) { robot.superstructureManager.requestedPivotSide() }
 
           ) { robot.superstructureManager.lastRequestedGoal() == SuperstructureGoal.L1 }
-            .andThen(WaitUntilCommand { !robot.intake.coralDetected() })
-            .andThen(WaitCommand(0.10))
-            .andThen(robot.intake.stop())
             .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)),
 
           // dont have coral
           robot.intake.outtakeAlgae()
-            .andThen(WaitUntilCommand { !robot.intake.algaeDetected() })
-            .andThen(WaitCommand(0.15))
-            .andThen(robot.intake.stop())
 
         ) { robot.intake.coralDetected() },
         WaitCommand(0.15)
@@ -169,10 +163,7 @@ class ControllerBindings(
           robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL),
           robot.intake.intakeToHorizontal()
         ),
-        robot.intake.centerCoralHorizontally(),
-        Commands.parallel(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW),
-        ),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.STOW),
       )
     )
   }
@@ -218,7 +209,7 @@ class ControllerBindings(
           .alongWith(robot.intake.intakeAlgae())
           .andThen(WaitUntilCommand { robot.intake.algaeDetected() && RobotBase.isReal() })
           .andThen(WaitCommand(0.275))
-          .andThen(robot.intake.stop())
+          .andThen(robot.intake.stopMotors())
           .andThen(robot.intake.holdAlgae())
       ) { robot.intake.coralDetected() }
     )
@@ -235,7 +226,7 @@ class ControllerBindings(
         robot.superstructureManager.requestGoal(SuperstructureGoal.L2_ALGAE_INTAKE)
           .alongWith(robot.intake.intakeAlgae())
           .andThen(WaitUntilCommand { robot.intake.algaeDetected() && RobotBase.isReal() })
-          .andThen(robot.intake.stop())
+          .andThen(robot.intake.stopMotors())
           .andThen(robot.intake.holdAlgae())
           .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
       ) { robot.intake.coralDetected() }
@@ -283,7 +274,7 @@ class ControllerBindings(
     driveController.povDown().onTrue(
       robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
         .deadlineFor(robot.light.progressMaskGradient(percentageElevatorPosition))
-        .alongWith(robot.intake.stop())
+        .alongWith(robot.intake.stopMotors())
         .alongWith(robot.climb.stop())
     )
   }
@@ -309,15 +300,16 @@ class ControllerBindings(
       robot.wrist.manualDown()
     ).onFalse(robot.wrist.hold())
   }
+
 /** mech controller START and BACK **/
   private fun stopReefAlign() {
     mechanismController.start().onTrue(
       robot.driveCommand
     )
 
-  mechanismController.back().onTrue(
-    robot.intake.intakeToHorizontal()
-  ).onFalse(robot.intake.stop())
+    mechanismController.back().onTrue(
+      robot.intake.intakeToHorizontal()
+    ).onFalse(robot.intake.stopMotors())
   }
 
 /** mech controller A,B,X,Y **/
@@ -325,23 +317,23 @@ class ControllerBindings(
     // intake algae
     mechanismController.a().onTrue(
       robot.intake.intakeAlgae()
-    ).onFalse(robot.intake.stop())
+    ).onFalse(robot.intake.stopMotors())
 
     // outtake algae
     mechanismController.b().onTrue(
       robot.intake.outtakeAlgae()
-    ).onFalse(robot.intake.stop())
+    ).onFalse(robot.intake.stopMotors())
   }
   private fun manualCoral() {
     // intake coral
     mechanismController.x().onTrue(
       robot.intake.inwards()
-    ).onFalse(robot.intake.stop())
+    ).onFalse(robot.intake.stopMotors())
 
     // outtake coral
     mechanismController.y().onTrue(
       robot.intake.outtakeCoral()
-    ).onFalse(robot.intake.stop())
+    ).onFalse(robot.intake.stopMotors())
   }
 
 /** mech controller dpad **/
@@ -404,12 +396,6 @@ class ControllerBindings(
           .deadlineFor(robot.light.gradient(MetersPerSecond.of(0.35), Color.kPurple, Color.kWhite)),
         Commands.parallel(
           robot.intake.outtakeCoral()
-            .andThen(
-              WaitUntilCommand { !robot.intake.coralDetected() && RobotBase.isReal() }
-                .onlyIf { RobotBase.isReal() }
-            )
-            .andThen(WaitCommand(0.10))
-            .andThen(robot.intake.stop())
             .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
             .onlyIf {
               robot.superstructureManager.lastRequestedGoal() == SuperstructureGoal.L3 ||
@@ -430,12 +416,6 @@ class ControllerBindings(
           .deadlineFor(robot.light.gradient(MetersPerSecond.of(0.35), Color.kPurple, Color.kWhite)),
         Commands.parallel(
           robot.intake.outtakeCoral()
-            .andThen(
-              WaitUntilCommand { !robot.intake.coralDetected() && RobotBase.isReal() }
-                .onlyIf { RobotBase.isReal() }
-            )
-            .andThen(WaitCommand(0.10))
-            .andThen(robot.intake.stop())
             .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
             .onlyIf {
               robot.superstructureManager.lastRequestedGoal() == SuperstructureGoal.L3 ||
