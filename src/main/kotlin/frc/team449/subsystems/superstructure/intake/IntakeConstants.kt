@@ -20,15 +20,17 @@ object IntakeConstants {
   // voltage for different scenarios and motors
   const val TOP_CORAL_INWARDS_VOLTAGE = 10.0
   const val TOP_CORAL_OUTTAKE_VOLTAGE = -7.0
-  const val TOP_L1_HOLD = 3.0
+  const val TOP_L1_HOLD = 1.690
   const val TOP_L1_OUTTAKE = -2.1678
+  const val TOP_MOTOR_UNVERTICALING_SLOWDOWN = 10.0
+  const val TOP_MOTOR_HORIZONTAL_SLOWDOWN = 3.0
 
   const val SIDES_CORAL_INWARDS_VOLTAGE = 6.0
   const val SIDES_CORAL_OUTTAKE_VOLTAGE = -6.0
-  const val SIDES_RUN_TO_SIDE_VOLTAGE = 5.0
-  const val SIDES_SLOWDOWN_CONSTANT = 2
+  const val SIDES_RUN_TO_SIDE_VOLTAGE = 8.0
+  const val SIDES_SLOWDOWN_CONSTANT = 1.2
 
-  const val ALGAE_INTAKE_VOLTAGE = -11.0
+  const val ALGAE_INTAKE_VOLTAGE = -8.0
   const val ALGAE_HOLD_VOLTAGE = -4.0
   const val ALGAE_OUTTAKE_VOLTAGE = 11.0
   const val ALGAE_STALL_VOLTAGE_THRESHOLD = 30.0

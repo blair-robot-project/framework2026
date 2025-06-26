@@ -151,11 +151,11 @@ class ControllerBindings(
     driveController.start().onTrue(
       robot.superstructureManager.requestGoal(SuperstructureGoal.ALGAE_GROUND)
         .alongWith(robot.intake.intakeAlgae())
-        .andThen(robot.intake.holdAlgae())
         .andThen(WaitCommand(0.15))
         .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
     )
   }
+
   private fun groundIntakeL1() {
     driveController.back().onTrue(
       Commands.sequence(
@@ -317,12 +317,12 @@ class ControllerBindings(
     // intake algae
     mechanismController.a().onTrue(
       robot.intake.intakeAlgae()
-    ).onFalse(robot.intake.stopMotors())
+    )
 
     // outtake algae
     mechanismController.b().onTrue(
       robot.intake.outtakeAlgae()
-    ).onFalse(robot.intake.stopMotors())
+    )
   }
   private fun manualCoral() {
     // intake coral

@@ -4,7 +4,6 @@ import au.grapplerobotics.LaserCan
 import au.grapplerobotics.interfaces.LaserCanInterface
 import au.grapplerobotics.simulation.MockLaserCan
 import com.ctre.phoenix6.configs.TalonFXConfiguration
-import com.ctre.phoenix6.controls.PositionDutyCycle
 import com.ctre.phoenix6.controls.PositionVoltage
 import com.ctre.phoenix6.hardware.TalonFX
 import dev.doglog.DogLog
@@ -125,8 +124,8 @@ class Intake(
   fun holdCoralPivotSide(): Command {
     return stopMotors().andThen(
       runOnce {
-        rightMotor.setControl(PositionDutyCycle(rightMotor.position.valueAsDouble + IntakeConstants.HOLD_ANGLE_CHANGE))
-        leftMotor.setControl(PositionDutyCycle(leftMotor.position.valueAsDouble + IntakeConstants.HOLD_ANGLE_CHANGE))
+        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble + IntakeConstants.HOLD_ANGLE_CHANGE))
+        leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble + IntakeConstants.HOLD_ANGLE_CHANGE))
       }.andThen(
         WaitUntilCommand {
           // velocities are in rps
@@ -160,6 +159,7 @@ class Intake(
 
         if (rightSensorDetected()) {
           if (!unverticaling) {
+            topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE / IntakeConstants.TOP_MOTOR_HORIZONTAL_SLOWDOWN)
             if (middleSensorDetected()) {
               // move left and slow down to prevent overshoot
               setMotorsLeft(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE / IntakeConstants.SIDES_SLOWDOWN_CONSTANT)
@@ -176,13 +176,14 @@ class Intake(
             } else {
               // coral should be diagonal right now in between middle and right sensor
               // move right until just right sensor, pulling in slightly for steadiness
-              topMotor.setVoltage(IntakeConstants.TOP_CORAL_OUTTAKE_VOLTAGE / 10)
+              topMotor.setVoltage(IntakeConstants.TOP_CORAL_OUTTAKE_VOLTAGE / IntakeConstants.TOP_MOTOR_HORIZONTAL_SLOWDOWN)
               setMotorsRight()
             }
           }
         }
 
         if (leftSensorDetected()) {
+          topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE / IntakeConstants.TOP_MOTOR_HORIZONTAL_SLOWDOWN)
           if (middleSensorDetected()) {
             // move right and slow down to prevent overshoot
             setMotorsRight(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE / IntakeConstants.SIDES_SLOWDOWN_CONSTANT)
@@ -221,6 +222,8 @@ class Intake(
       {
         if (leftSensorDetected() && rightSensorDetected()) {
           // if it's horizontal, just run it right
+          //run in a bit because our side motors tweaking lowk
+          topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE / IntakeConstants.TOP_MOTOR_HORIZONTAL_SLOWDOWN)
           setMotorsRight()
         } else {
           // inwards
@@ -279,7 +282,7 @@ class Intake(
   }
 
   private fun laserCanIsPlugged(laserCan: LaserCanInterface): Boolean {
-    return laserCan.measurement == null
+    return laserCan.measurement != null
   }
 
   fun coralDetected(): Boolean {
@@ -332,12 +335,12 @@ class Intake(
 
   private fun changePieceToAlgae(): Command {
     return WaitUntilCommand {
-      topMotor.motorVoltage.valueAsDouble >
+      topMotor.statorCurrent.valueAsDouble >
         IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD
     }.onlyIf { RobotBase.isReal() }
       .andThen(WaitCommand(IntakeConstants.WAIT_BEFORE_ALGAE_IN))
       .andThen(runOnce { gamePiece = Piece.ALGAE })
-      .andThen(stopMotors())
+      .andThen(holdAlgae())
   }
 
   private fun changePieceToCoral(): Command {
@@ -346,16 +349,19 @@ class Intake(
 
   private fun changePieceToNone(coralOuttaken: Boolean = true): Command {
     return Commands.sequence(
-      ConditionalCommand(
-        // coral
-        WaitUntilCommand { !coralDetected() },
-        // algae
-        WaitUntilCommand {
-          topMotor.motorVoltage.valueAsDouble >
-            IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD
-        }.andThen(WaitCommand(IntakeConstants.WAIT_BEFORE_ALGAE_OUT))
+      Commands.race(
+        ConditionalCommand(
+          // coral
+          WaitUntilCommand { !coralDetected() },
+          // algae
+          WaitUntilCommand {
+            topMotor.statorCurrent.valueAsDouble >
+              IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD
+          }.andThen(WaitCommand(IntakeConstants.WAIT_BEFORE_ALGAE_OUT))
 
-      ) { coralOuttaken },
+        ) { coralOuttaken },
+        WaitCommand(2.0)
+      ),
       runOnce { gamePiece = Piece.NONE },
       stopMotors()
     )
