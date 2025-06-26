@@ -77,8 +77,7 @@ class Intake(
 
   private fun setMotorsInwards(slowdownConstant: Double = 1.0) {
     topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE / slowdownConstant)
-    rightMotor.setVoltage(IntakeConstants.SIDES_CORAL_INWARDS_VOLTAGE / slowdownConstant)
-    leftMotor.setVoltage(IntakeConstants.SIDES_CORAL_INWARDS_VOLTAGE / slowdownConstant)
+    setVoltageSides(IntakeConstants.SIDES_CORAL_INWARDS_VOLTAGE / slowdownConstant)
   }
 
   fun inwards(): Command {
@@ -89,8 +88,7 @@ class Intake(
 
   private fun setMotorsOutwards(slowdownConstant: Double = 1.0) {
     topMotor.setVoltage(IntakeConstants.TOP_CORAL_OUTTAKE_VOLTAGE / slowdownConstant)
-    rightMotor.setVoltage(IntakeConstants.SIDES_CORAL_OUTTAKE_VOLTAGE / slowdownConstant)
-    leftMotor.setVoltage(IntakeConstants.SIDES_CORAL_OUTTAKE_VOLTAGE / slowdownConstant)
+    setVoltageSides(IntakeConstants.SIDES_CORAL_OUTTAKE_VOLTAGE / slowdownConstant)
   }
 
   private fun outwards(): Command {
@@ -112,8 +110,8 @@ class Intake(
   fun holdCoralOppSide(): Command {
     return stopMotors().andThen(
       runOnce {
-        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble - 1))
-        leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble - 1))
+        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble - IntakeConstants.HOLD_ANGLE_CHANGE))
+        leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble - IntakeConstants.HOLD_ANGLE_CHANGE))
       }.andThen(
         WaitUntilCommand {
           // velocities are in rps
@@ -127,8 +125,8 @@ class Intake(
   fun holdCoralPivotSide(): Command {
     return stopMotors().andThen(
       runOnce {
-        rightMotor.setControl(PositionDutyCycle(rightMotor.position.valueAsDouble + 1))
-        leftMotor.setControl(PositionDutyCycle(leftMotor.position.valueAsDouble + 1))
+        rightMotor.setControl(PositionDutyCycle(rightMotor.position.valueAsDouble + IntakeConstants.HOLD_ANGLE_CHANGE))
+        leftMotor.setControl(PositionDutyCycle(leftMotor.position.valueAsDouble + IntakeConstants.HOLD_ANGLE_CHANGE))
       }.andThen(
         WaitUntilCommand {
           // velocities are in rps
@@ -144,7 +142,6 @@ class Intake(
   fun intakeToHorizontal(): Command {
     return FunctionalCommand(
       {
-        changePieceToCoral().schedule()
         unverticaling = false
         coralIn = true // source: trust me bro
       },

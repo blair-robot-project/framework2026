@@ -287,11 +287,11 @@ class SuperstructureManager(
 
   fun requestGoal(goal: SuperstructureGoal.SuperstructureState, wristPremoveTime: Double = 0.4): Command {
     // don't crash into reef with ground intake
-    if ((
-      goal == SuperstructureGoal.ALGAE_GROUND ||
+    if (
+      (
+        goal == SuperstructureGoal.ALGAE_GROUND ||
         goal == SuperstructureGoal.GROUND_INTAKE_CORAL
-      ) &&
-      requestedOppSide()
+      ) && requestedOppSide()
     ) {
       return requestGoal(SuperstructureGoal.STOW, wristPremoveTime)
     }
