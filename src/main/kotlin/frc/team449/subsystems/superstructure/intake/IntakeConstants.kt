@@ -1,7 +1,9 @@
 package frc.team449.subsystems.superstructure.intake
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.signals.InvertedValue
 import com.ctre.phoenix6.signals.NeutralModeValue
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs
 
 object IntakeConstants {
 
@@ -17,7 +19,15 @@ object IntakeConstants {
   const val SUPPLY_LIM = 40.0
   const val STATOR_LIM = 80.0
 
-  // voltage for different scenarios and motors
+  val config = TalonFXConfiguration()
+  val TOP_MOTOR_INTAKING_CONFIG: CurrentLimitsConfigs = CurrentLimitsConfigs()
+    .withSupplyCurrentLimit(40.0)
+    .withStatorCurrentLimit(80.0)
+  val TOP_MOTOR_HOLDING_CONFIG: CurrentLimitsConfigs = CurrentLimitsConfigs()
+    .withSupplyCurrentLimit(30.0)
+    .withStatorCurrentLimit(60.0)
+
+    // voltage for different scenarios and motors
   const val TOP_CORAL_INWARDS_VOLTAGE = 10.0
   const val TOP_CORAL_OUTTAKE_VOLTAGE = -7.0
   const val TOP_L1_HOLD = 1.690
@@ -48,4 +58,13 @@ object IntakeConstants {
 
   // Minimum distance in mm on the LaserCAN sensors to count as a detection
   const val CORAL_DETECTION_THRESHOLD = 50
+
+  init {
+    config.MotorOutput.NeutralMode = BRAKE_MODE
+
+    config.CurrentLimits.StatorCurrentLimitEnable = true
+    config.CurrentLimits.SupplyCurrentLimitEnable = true
+    config.CurrentLimits.SupplyCurrentLimit = SUPPLY_LIM
+    config.CurrentLimits.StatorCurrentLimit = STATOR_LIM
+  }
 }

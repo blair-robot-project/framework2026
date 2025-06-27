@@ -3,7 +3,6 @@ package frc.team449.subsystems.superstructure.intake
 import au.grapplerobotics.LaserCan
 import au.grapplerobotics.interfaces.LaserCanInterface
 import au.grapplerobotics.simulation.MockLaserCan
-import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.controls.PositionVoltage
 import com.ctre.phoenix6.hardware.TalonFX
 import dev.doglog.DogLog
@@ -11,6 +10,7 @@ import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.RobotBase.isSimulation
 import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.Commands
+import frc.team449.subsystems.superstructure.intake.IntakeConstants.config
 import frc.team449.system.motor.KrakenDogLog
 
 enum class Piece {
@@ -238,13 +238,17 @@ class Intake(
 
   fun intakeAlgae(): Command {
     return Commands.sequence(
+//      runOnce { topMotor.configurator.apply(IntakeConstants.TOP_MOTOR_INTAKING_CONFIG) },
       setVoltageTop(IntakeConstants.ALGAE_INTAKE_VOLTAGE),
       changePieceToAlgae(),
     )
   }
 
   fun holdAlgae(): Command {
-    return setVoltageTop(IntakeConstants.ALGAE_HOLD_VOLTAGE)
+    return Commands.sequence(
+//      runOnce { topMotor.configurator.apply(IntakeConstants.TOP_MOTOR_HOLDING_CONFIG) },
+      setVoltageTop(IntakeConstants.ALGAE_HOLD_VOLTAGE),
+    )
   }
 
   fun outtakeL1(): Command {
@@ -430,14 +434,6 @@ class Intake(
       val topMotor = TalonFX(IntakeConstants.TOP_MOTOR_ID)
       val rightMotor = TalonFX(IntakeConstants.LEFT_MOTOR_ID)
       val leftMotor = TalonFX(IntakeConstants.RIGHT_MOTOR_ID)
-      val config = TalonFXConfiguration()
-
-      config.MotorOutput.NeutralMode = IntakeConstants.BRAKE_MODE
-
-      config.CurrentLimits.StatorCurrentLimitEnable = true
-      config.CurrentLimits.SupplyCurrentLimitEnable = true
-      config.CurrentLimits.SupplyCurrentLimit = IntakeConstants.SUPPLY_LIM
-      config.CurrentLimits.StatorCurrentLimit = IntakeConstants.STATOR_LIM
 
       config.MotorOutput.Inverted = IntakeConstants.TOP_INVERTED
       topMotor.configurator.apply(config)
