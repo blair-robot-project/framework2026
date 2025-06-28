@@ -23,9 +23,9 @@ object SuperstructureGoal {
   )
 
   val L1 = SuperstructureState(
-    Degrees.of(31.22),
+    Radians.of(0.644),
     MIN_ELEVATOR_HEIGHT,
-    Radians.of(-1.347656),
+    Radians.of(-0.902),
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 

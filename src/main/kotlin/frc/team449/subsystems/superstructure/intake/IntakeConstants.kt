@@ -24,8 +24,8 @@ object IntakeConstants {
     .withSupplyCurrentLimit(40.0)
     .withStatorCurrentLimit(80.0)
   val TOP_MOTOR_HOLDING_CONFIG: CurrentLimitsConfigs = CurrentLimitsConfigs()
-    .withSupplyCurrentLimit(30.0)
-    .withStatorCurrentLimit(60.0)
+    .withSupplyCurrentLimit(25.0)
+    .withStatorCurrentLimit(50.0)
 
     // voltage for different scenarios and motors
   const val TOP_CORAL_INWARDS_VOLTAGE = 10.0
@@ -37,7 +37,8 @@ object IntakeConstants {
 
   const val SIDES_CORAL_INWARDS_VOLTAGE = 6.0
   const val SIDES_CORAL_OUTTAKE_VOLTAGE = -6.0
-  const val SIDES_RUN_TO_SIDE_VOLTAGE = 8.0
+  const val SIDES_RUN_TO_SIDE_LEFT_VOLTAGE = 8.0
+  const val SIDES_RUN_TO_SIDE_RIGHT_VOLTAGE = 8.0
   const val SIDES_SLOWDOWN_CONSTANT = 1.2
 
   const val ALGAE_INTAKE_VOLTAGE = -8.0

@@ -61,22 +61,24 @@ class Intake(
     }
   }
 
-  private fun setVoltageTop(voltage: Double): Command { return setVoltage(topMotor, voltage = voltage) }
-  private fun setVoltageSides(voltage: Double): Command { return setVoltage(rightMotor, leftMotor, voltage = voltage) }
-
-  private fun setMotorsRight(voltage: Double = IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE) {
-    rightMotor.setVoltage(voltage)
-    leftMotor.setVoltage(-voltage)
+  private fun setVoltageTop(voltage: Double): Command {
+    return runOnce { topMotor.setVoltage(voltage) }
   }
 
-  private fun setMotorsLeft(voltage: Double = IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE) {
-    rightMotor.setVoltage(-voltage)
-    leftMotor.setVoltage(voltage)
+  private fun setMotorsRight(rightVoltage: Double = IntakeConstants.SIDES_RUN_TO_SIDE_LEFT_VOLTAGE, leftVoltage: Double = rightVoltage) {
+    rightMotor.setVoltage(rightVoltage)
+    leftMotor.setVoltage(-leftVoltage)
+  }
+
+  private fun setMotorsLeft(rightVoltage: Double = IntakeConstants.SIDES_RUN_TO_SIDE_LEFT_VOLTAGE, leftVoltage: Double = rightVoltage) {
+    rightMotor.setVoltage(-rightVoltage)
+    leftMotor.setVoltage(leftVoltage)
   }
 
   private fun setMotorsInwards(slowdownConstant: Double = 1.0) {
     topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE / slowdownConstant)
-    setVoltageSides(IntakeConstants.SIDES_CORAL_INWARDS_VOLTAGE / slowdownConstant)
+    rightMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE / slowdownConstant)
+    leftMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE / slowdownConstant)
   }
 
   fun inwards(): Command {
@@ -87,7 +89,8 @@ class Intake(
 
   private fun setMotorsOutwards(slowdownConstant: Double = 1.0) {
     topMotor.setVoltage(IntakeConstants.TOP_CORAL_OUTTAKE_VOLTAGE / slowdownConstant)
-    setVoltageSides(IntakeConstants.SIDES_CORAL_OUTTAKE_VOLTAGE / slowdownConstant)
+    rightMotor.setVoltage(IntakeConstants.TOP_CORAL_OUTTAKE_VOLTAGE / slowdownConstant)
+    leftMotor.setVoltage(IntakeConstants.TOP_CORAL_OUTTAKE_VOLTAGE / slowdownConstant)
   }
 
   private fun outwards(): Command {
@@ -162,7 +165,7 @@ class Intake(
             topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE / IntakeConstants.TOP_MOTOR_HORIZONTAL_SLOWDOWN)
             if (middleSensorDetected()) {
               // move left and slow down to prevent overshoot
-              setMotorsLeft(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE / IntakeConstants.SIDES_SLOWDOWN_CONSTANT)
+              setMotorsLeft(IntakeConstants.SIDES_RUN_TO_SIDE_LEFT_VOLTAGE / IntakeConstants.SIDES_SLOWDOWN_CONSTANT * 1.65)
             } else {
               // move left
               setMotorsLeft()
@@ -186,7 +189,7 @@ class Intake(
           topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE / IntakeConstants.TOP_MOTOR_HORIZONTAL_SLOWDOWN)
           if (middleSensorDetected()) {
             // move right and slow down to prevent overshoot
-            setMotorsRight(IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE / IntakeConstants.SIDES_SLOWDOWN_CONSTANT)
+            setMotorsRight(IntakeConstants.SIDES_RUN_TO_SIDE_LEFT_VOLTAGE / IntakeConstants.SIDES_SLOWDOWN_CONSTANT)
           } else {
             // move right
             setMotorsRight()
@@ -238,7 +241,7 @@ class Intake(
 
   fun intakeAlgae(): Command {
     return Commands.sequence(
-//      runOnce { topMotor.configurator.apply(IntakeConstants.TOP_MOTOR_INTAKING_CONFIG) },
+      runOnce { topMotor.configurator.apply(IntakeConstants.TOP_MOTOR_INTAKING_CONFIG) },
       setVoltageTop(IntakeConstants.ALGAE_INTAKE_VOLTAGE),
       changePieceToAlgae(),
     )
@@ -246,7 +249,7 @@ class Intake(
 
   fun holdAlgae(): Command {
     return Commands.sequence(
-//      runOnce { topMotor.configurator.apply(IntakeConstants.TOP_MOTOR_HOLDING_CONFIG) },
+      runOnce { topMotor.configurator.apply(IntakeConstants.TOP_MOTOR_HOLDING_CONFIG) },
       setVoltageTop(IntakeConstants.ALGAE_HOLD_VOLTAGE),
     )
   }
@@ -267,7 +270,7 @@ class Intake(
 
   fun outtakeCoralPivot(): Command {
     return Commands.sequence(
-      runOnce { setMotorsOutwards(-1.0) },
+      runOnce { setMotorsOutwards() },
       changePieceToNone()
     )
   }
@@ -349,7 +352,7 @@ class Intake(
   }
 
   private fun changePieceToCoral(): Command {
-    return runOnce { gamePiece = Piece.CORAL }.andThen(stopMotors())
+    return runOnce { gamePiece = Piece.CORAL }.andThen(holdCoral())
   }
 
   private fun changePieceToNone(coralOuttaken: Boolean = true): Command {
@@ -437,6 +440,7 @@ class Intake(
 
       config.MotorOutput.Inverted = IntakeConstants.TOP_INVERTED
       topMotor.configurator.apply(config)
+      topMotor.configurator.apply(IntakeConstants.TOP_MOTOR_INTAKING_CONFIG)
       config.MotorOutput.Inverted = IntakeConstants.LEFT_INVERTED
       leftMotor.configurator.apply(config)
       config.MotorOutput.Inverted = IntakeConstants.RIGHT_INVERTED

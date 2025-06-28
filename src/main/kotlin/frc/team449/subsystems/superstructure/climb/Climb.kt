@@ -20,20 +20,13 @@ class Climb(
     }
   }
 
-  fun holdClimbWheels(): Command {
-    return runOnce {
-      motor.setVoltage(ClimbConstants.HOLD_VOLTAGE)
-    }
-  }
-
 //  fun cageDetected(): Boolean {
 //    return !sensor.get()
 //  }
 
   fun waitUntilCurrentSpike(): Command {
     return WaitCommand(0.1750)
-//      .andThen(WaitUntilCommand { motor.outputCurrent > 55.0 })
-      .andThen(WaitUntilCommand { motor.supplyCurrent.valueAsDouble > 55.0 })
+      .andThen(WaitUntilCommand { motor.statorCurrent.valueAsDouble > 40.0 })
   }
 
   fun stop(): Command {
@@ -47,7 +40,7 @@ class Climb(
   }
 
   private fun logData() {
-    KrakenDogLog.log("Intake/topMotor", motor)
+    KrakenDogLog.log("Climb/Climb Motor", motor)
   }
 
   companion object {
@@ -62,10 +55,9 @@ class Climb(
       config.CurrentLimits.SupplyCurrentLimitEnable = true
       config.CurrentLimits.SupplyCurrentLimit = ClimbConstants.SUPPLY_LIM
       config.CurrentLimits.StatorCurrentLimit = ClimbConstants.STATOR_LIM
+      motor.configurator.apply(config)
 
-//      val sensor = DigitalInput(ClimbConstants.SENSOR_DIO_PORT)
-
-      return Climb(motor) // , sensor)
+      return Climb(motor)
     }
   }
 }

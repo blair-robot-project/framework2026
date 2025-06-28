@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.util.Color
 import edu.wpi.first.wpilibj2.command.*
+import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
@@ -19,6 +20,7 @@ import frc.team449.subsystems.RobotConstants
 import frc.team449.subsystems.drive.swerve.SwerveSim
 import frc.team449.subsystems.drive.swerve.WheelRadiusCharacterization
 import frc.team449.subsystems.superstructure.SuperstructureGoal
+import frc.team449.subsystems.superstructure.wrist.Wrist
 import frc.team449.subsystems.superstructure.wrist.WristConstants
 import java.util.Optional
 import kotlin.jvm.optionals.getOrNull
@@ -113,10 +115,7 @@ class ControllerBindings(
           robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL),
           robot.intake.intakeToVertical()
         ),
-        Commands.parallel(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW),
-          robot.intake.holdCoral()
-        )
+        robot.superstructureManager.requestGoal(SuperstructureGoal.STOW),
       )
     )
   }
@@ -133,18 +132,20 @@ class ControllerBindings(
               robot.intake.outtakeCoral()
             ) { robot.superstructureManager.requestedPivotSide() }
 
-          ) { robot.superstructureManager.lastRequestedGoal() == SuperstructureGoal.L1 }
-            .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)),
+          ) { robot.superstructureManager.lastRequestedGoal() == SuperstructureGoal.L1 },
 
           // dont have coral
           robot.intake.outtakeAlgae()
 
-        ) { robot.intake.coralDetected() },
-        WaitCommand(0.15)
-
+        ) { robot.intake.coralDetected() }.andThen(WaitCommand(0.15)),
+        WaitCommand(0.15),
       ) { RobotBase.isReal() }
+        .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
     )
   }
+
+
+
 
 /** driver controller START and BACK **/
   private fun algaeGroundIntake() {
@@ -160,6 +161,7 @@ class ControllerBindings(
     driveController.back().onTrue(
       Commands.sequence(
         Commands.parallel(
+          PrintCommand("\n\n\n horizontal \n\n\n"),
           robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL),
           robot.intake.intakeToHorizontal()
         ),
@@ -187,13 +189,13 @@ class ControllerBindings(
         robot.climb.waitUntilCurrentSpike(),
         WaitCommand(0.3276),
         Commands.parallel(
-          robot.wrist.setPosition(WristConstants.CLIMB_DOWN.`in`(Radians)),
+          robot.wrist.setPosition(WristConstants.STARTUP_ANGLE.`in`(Radians)),
           robot.climb.stop(),
           robot.pivot.climbDown(),
           WaitUntilCommand { robot.pivot.climbReady() }
             .andThen(robot.elevator.climbDown())
         ),
-        robot.climb.holdClimbWheels()
+        WaitCommand(0.5).andThen(robot.climb.stop())
       )
     )
   }

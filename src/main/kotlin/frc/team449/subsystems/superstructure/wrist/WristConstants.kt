@@ -36,7 +36,7 @@ object WristConstants {
   val CLIMB_DOWN = Degrees.of(90.0)
 
   const val KS = 0.020 // overcome static/ friction
-  const val KG = 0.208 + 0.28 // overcome gravity
+  const val KG = 0.208 + 0.48 // overcome gravity
   const val KV = 0.63027 // keep moving
 
   const val KP = 12.9119
@@ -44,7 +44,7 @@ object WristConstants {
   const val KD = 0.096482
 
   val CRUISE_VEL = RotationsPerSecond.of(2.75) // should get to 2.5, max theoretical 2.95
-  val MAX_ACCEL = RotationsPerSecondPerSecond.of(4.0) // should get to 3.0, max theoretical 18.842
+  val MAX_ACCEL = RotationsPerSecondPerSecond.of(3.5) // should get to 3.0, max theoretical 18.842
 
   val STARTUP_ANGLE = Degrees.of(129.7339) // TODO: Change to back hardstop angle
 }
