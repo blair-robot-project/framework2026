@@ -18,7 +18,7 @@ object SuperstructureGoal {
   val STOW = SuperstructureState(
     Degrees.of(40.0),
     MIN_ELEVATOR_HEIGHT,
-    Degrees.of(90.0),
+    Radians.of(2.047607421875),
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
@@ -37,16 +37,16 @@ object SuperstructureGoal {
   )
 
   val L3 = SuperstructureState(
-    Radians.of(0.892578),
-    Meters.of(0.21777),
-    Radians.of(1.0114746),
+    Radians.of(0.912),
+    Meters.of(0.170),
+    Radians.of(1.269),
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
   val L4 = SuperstructureState(
     Radians.of(1.208008),
     Meters.of(0.8537597),
-    Radians.of(0.256591), // -138.5
+    Radians.of(0.256591),
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
@@ -65,9 +65,9 @@ object SuperstructureGoal {
   )
 
   val L3_PIVOT = SuperstructureState(
-    Radians.of(1.345947),
-    Meters.of(0.184082),
-    Radians.of(1.9582519), //112 deg
+    Radians.of(1.326904296875),
+    Meters.of(0.252197265625),
+    Radians.of(2.11376953125), // 112 deg
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 

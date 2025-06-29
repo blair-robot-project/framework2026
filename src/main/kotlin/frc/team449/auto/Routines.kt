@@ -490,7 +490,7 @@ open class Routines(
 
   private fun intakeAlgae(level: Int): Command {
     return ConditionalCommand(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.L2_ALGAE_INTAKE, 0.2),
+      robot.superstructureManager.requestGoal(SuperstructureGoal.L2_ALGAE_INTAKE),
       robot.superstructureManager.requestGoal(
         SuperstructureGoal.SuperstructureState(
           SuperstructureGoal.NET_PIVOT.pivot,

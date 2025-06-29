@@ -1,9 +1,9 @@
 package frc.team449.subsystems.superstructure.intake
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs
 import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.signals.InvertedValue
 import com.ctre.phoenix6.signals.NeutralModeValue
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs
 
 object IntakeConstants {
 
@@ -27,7 +27,7 @@ object IntakeConstants {
     .withSupplyCurrentLimit(25.0)
     .withStatorCurrentLimit(50.0)
 
-    // voltage for different scenarios and motors
+  // voltage for different scenarios and motors
   const val TOP_CORAL_INWARDS_VOLTAGE = 10.0
   const val TOP_CORAL_OUTTAKE_VOLTAGE = -7.0
   const val TOP_L1_HOLD = 1.690
@@ -45,6 +45,9 @@ object IntakeConstants {
   const val ALGAE_HOLD_VOLTAGE = -4.0
   const val ALGAE_OUTTAKE_VOLTAGE = 11.0
   const val ALGAE_STALL_VOLTAGE_THRESHOLD = 30.0
+
+  const val SLIDE_CORAL_TO_OPP = -0.5
+  const val SLIDE_CORAL_TO_PIVOT = 0.5
 
   const val HOLD_ANGLE_CHANGE = 0.5
   const val HOLDING_FINISH_VELOCITY = 0.25

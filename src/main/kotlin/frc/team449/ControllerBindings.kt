@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.util.Color
 import edu.wpi.first.wpilibj2.command.*
-import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
@@ -20,7 +19,6 @@ import frc.team449.subsystems.RobotConstants
 import frc.team449.subsystems.drive.swerve.SwerveSim
 import frc.team449.subsystems.drive.swerve.WheelRadiusCharacterization
 import frc.team449.subsystems.superstructure.SuperstructureGoal
-import frc.team449.subsystems.superstructure.wrist.Wrist
 import frc.team449.subsystems.superstructure.wrist.WristConstants
 import java.util.Optional
 import kotlin.jvm.optionals.getOrNull
@@ -58,7 +56,7 @@ class ControllerBindings(
     climbTriggers()
     climbwheels()
     scoreL2()
-    scoreL3()
+    scorePROC()
     stopReefAlign()
 
     autoTest()
@@ -128,7 +126,7 @@ class ControllerBindings(
           ConditionalCommand( // outtaking to l1
             robot.intake.outtakeL1(),
 
-            ConditionalCommand( //scoring on pivot side
+            ConditionalCommand( // scoring on pivot side
               robot.intake.outtakeCoralPivot(),
               robot.intake.outtakeCoral()
             ) { robot.superstructureManager.requestedPivotSide() }
@@ -141,12 +139,9 @@ class ControllerBindings(
         ) { robot.intake.coralDetected() }.andThen(WaitCommand(0.15)),
         WaitCommand(0.15),
       ) { RobotBase.isReal() }
-        .andThen(robot.superstructureManager.stowFromScoring())
+        .andThen(robot.superstructureManager.requestRetraction(SuperstructureGoal.STOW))
     )
   }
-
-
-
 
 /** driver controller START and BACK **/
   private fun algaeGroundIntake() {
@@ -173,9 +168,14 @@ class ControllerBindings(
 
 /** driver controller A,B,X,Y **/
   private fun scoreL1() {
-    Trigger { driveController.hid.aButton && robot.intake.coralDetected() }.onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.L1)
+  Trigger {
+    driveController.hid.aButton &&
+      robot.intake.coralDetected()
+  }.onTrue(
+    robot.superstructureManager.requestGoal(SuperstructureGoal.L1).alongWith(
+      robot.intake.holdCoral()
     )
+  )
   }
   private fun climbTriggers() {
     Trigger {
@@ -205,8 +205,9 @@ class ControllerBindings(
       ConditionalCommand(
         ConditionalCommand(
           robot.superstructureManager.requestGoal(SuperstructureGoal.L3_PIVOT)
-            .alongWith(),
+            .alongWith(robot.intake.holdCoralPivotSide()),
           robot.superstructureManager.requestGoal(SuperstructureGoal.L3)
+            .alongWith(robot.intake.holdCoralOppSide())
         ) { robot.poseSubsystem.isPivotSide() },
         robot.superstructureManager.requestGoal(SuperstructureGoal.L3_ALGAE_INTAKE)
           .alongWith(robot.intake.intakeAlgae())
@@ -247,9 +248,9 @@ class ControllerBindings(
         ConditionalCommand(
           robot.superstructureManager.requestGoal(SuperstructureGoal.NET),
           robot.superstructureManager.requestGoal(SuperstructureGoal.NET_PIVOT)
-        ){robot.poseSubsystem.isPivotSide()}
+        ) { robot.poseSubsystem.isPivotSide() }
           .alongWith(robot.intake.holdAlgae())
-        ) { robot.intake.coralDetected() }
+      ) { robot.intake.coralDetected() }
     )
   }
 
@@ -269,7 +270,7 @@ class ControllerBindings(
         .alongWith(robot.intake.holdCoralOppSide())
     )
   } // povLeft can/should change to proc
-  private fun scoreL3() {
+  private fun scorePROC() {
     driveController.povRight().onTrue(
       robot.superstructureManager.requestGoal(SuperstructureGoal.PROC)
         .alongWith(robot.intake.holdAlgae())

@@ -42,7 +42,7 @@ object PivotConstants {
 
   val ELEVATOR_READY = Degrees.of(45.0)
 
-  const val KP = 8.1048
+  const val KP = 7.4
   const val KI = 0.0
   const val KD = 0.048099
 
