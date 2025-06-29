@@ -127,7 +127,8 @@ class ControllerBindings(
 
           ConditionalCommand( // outtaking to l1
             robot.intake.outtakeL1(),
-            ConditionalCommand(
+
+            ConditionalCommand( //scoring on pivot side
               robot.intake.outtakeCoralPivot(),
               robot.intake.outtakeCoral()
             ) { robot.superstructureManager.requestedPivotSide() }
@@ -140,7 +141,7 @@ class ControllerBindings(
         ) { robot.intake.coralDetected() }.andThen(WaitCommand(0.15)),
         WaitCommand(0.15),
       ) { RobotBase.isReal() }
-        .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
+        .andThen(robot.superstructureManager.stowFromScoring())
     )
   }
 
@@ -243,8 +244,12 @@ class ControllerBindings(
           robot.superstructureManager.requestGoal(SuperstructureGoal.L4)
             .alongWith(robot.intake.holdCoralOppSide())
         ) { robot.poseSubsystem.isPivotSide() },
-        robot.superstructureManager.requestGoal(SuperstructureGoal.NET)
-      ) { robot.intake.coralDetected() }
+        ConditionalCommand(
+          robot.superstructureManager.requestGoal(SuperstructureGoal.NET),
+          robot.superstructureManager.requestGoal(SuperstructureGoal.NET_PIVOT)
+        ){robot.poseSubsystem.isPivotSide()}
+          .alongWith(robot.intake.holdAlgae())
+        ) { robot.intake.coralDetected() }
     )
   }
 
@@ -266,8 +271,8 @@ class ControllerBindings(
   } // povLeft can/should change to proc
   private fun scoreL3() {
     driveController.povRight().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.L3)
-        .alongWith(robot.intake.holdCoralOppSide())
+      robot.superstructureManager.requestGoal(SuperstructureGoal.PROC)
+        .alongWith(robot.intake.holdAlgae())
     )
   }
 

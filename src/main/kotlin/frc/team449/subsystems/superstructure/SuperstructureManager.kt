@@ -103,16 +103,17 @@ class SuperstructureManager(
     )
   }
 
-  private fun retractFromL4(goal: SuperstructureGoal.SuperstructureState, wristPremoveTime: Double): Command {
+  //retract from front side scoring
+  private fun retractFromL4(goal: SuperstructureGoal.SuperstructureState = SuperstructureGoal.STOW ): Command {
     return Commands.sequence(
-      wrist.setPosition(Units.degreesToRadians(50.0)),
-      WaitUntilCommand { wrist.positionSupplier.get() < Units.degreesToRadians(60.0) },
-      elevator.setPosition(goal.elevator.`in`(Meters)).alongWith(
-        WaitCommand(wristPremoveTime).andThen(wrist.setPosition(goal.wrist.`in`(Radians)))
-      ),
+      wrist.setPosition(goal.wrist.`in`(Radians)),
+      WaitUntilCommand { wrist.positionSupplier.get() < Units.degreesToRadians(100.0) },
+      elevator.setPosition(goal.elevator.`in`(Meters)),
       WaitUntilCommand { elevator.pivotReady() },
-      pivot.setPosition(goal.pivot.`in`(Radians)),
+      pivot.setPosition(goal.pivot.`in`(Radians))
+        .onlyIf{elevator.atSetpoint()},
       WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() && elevator.atSetpoint() },
+      holdAll(),
       InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) }),
       holdAll()
     )
@@ -135,18 +136,23 @@ class SuperstructureManager(
     )
   }
 
-  private fun retractL4Pivot(): Command {
+
+
+
+
+  // retracting from l4 pivot side and l3 pivot side// could work for net too
+  private fun retractFromPivot(): Command {
     val goal = SuperstructureGoal.STOW
     return Commands.sequence(
 
-      wrist.setPosition(Units.degreesToRadians(50.0)),
-      WaitUntilCommand { wrist.positionSupplier.get() < Units.degreesToRadians(60.0) },
+      wrist.setPosition(goal.wrist.`in`(Radians)), // stow angle is 90 deg
+      WaitUntilCommand { wrist.positionSupplier.get() < Units.degreesToRadians(100.0) },
 
-      elevator.setPosition(SuperstructureGoal.L3_PIVOT.elevator.`in`(Meters)),
-      WaitUntilCommand { elevator.atSetpoint() },
+      elevator.setPosition(SuperstructureGoal.CLIMB_SAFE.elevator.`in`(Meters)), // about 0.15 meter
+      WaitUntilCommand { elevator.atSetpoint() || elevator.pivotReady() },
 
-      pivot.setPosition(goal.pivot.`in`(Radians)),
-      wrist.setPosition(goal.wrist.`in`(Radians)),
+      pivot.setPosition(goal.pivot.`in`(Radians)) // 40 deg
+        .onlyIf{elevator.atSetpoint() || elevator.pivotReady()},
 
       WaitUntilCommand { wrist.atSetpoint() || pivot.atSetpoint() },
       pivot.hold().onlyIf { pivot.atSetpoint() },
@@ -162,28 +168,25 @@ class SuperstructureManager(
     )
   }
 
-  private fun handleL3PivotRetraction(): Command {
-    val goal = SuperstructureGoal.STOW
-    return Commands.sequence(
-      wrist.setPosition(Units.degreesToRadians(50.0)),
-      WaitUntilCommand { wrist.positionSupplier.get() < Units.degreesToRadians(60.0) },
-
-      pivot.setPosition(goal.pivot.`in`(Radians)),
-      wrist.setPosition(goal.wrist.`in`(Radians)),
-
-      WaitUntilCommand { wrist.atSetpoint() || pivot.atSetpoint() },
-      pivot.hold().onlyIf { pivot.atSetpoint() },
-      wrist.hold().onlyIf { wrist.atSetpoint() },
-
-      WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() },
-      pivot.hold(),
-      wrist.hold(),
-
-      elevator.setPosition(goal.elevator.`in`(Meters)),
-      WaitUntilCommand { elevator.atSetpoint() },
-      holdAll()
-    )
-  }
+//  private fun retractL3Pivot(): Command {
+//    val goal = SuperstructureGoal.STOW
+//    return Commands.sequence(
+//      pivot.setPosition(goal.pivot.`in`(Radians)),
+//      // wait until pivot is almost at setpoint before moving wrist and elevator
+//      WaitUntilCommand { pivot.atSetpoint(Units.degreesToRadians(5.0)) },
+//      wrist.setPosition(goal.wrist.`in`(Radians)),
+//      WaitUntilCommand { wrist.elevatorReady() && pivot.elevatorReady() },
+//      elevator.setPosition(goal.elevator.`in`(Meters)),
+//      WaitUntilCommand { wrist.atSetpoint() || pivot.atSetpoint() },
+//      pivot.hold().onlyIf { pivot.atSetpoint() },
+//      wrist.hold().onlyIf { wrist.atSetpoint() },
+//      WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() },
+//      pivot.hold(),
+//      wrist.hold(),
+//      WaitUntilCommand { elevator.atSetpoint() },
+//      holdAll()
+//    )
+//  }
 
   private fun handleAlgaeIntakeRetraction(goal: SuperstructureGoal.SuperstructureState): Command {
     return Commands.sequence(
@@ -207,39 +210,39 @@ class SuperstructureManager(
     )
   }
 
-  private fun requestRetraction(goal: SuperstructureGoal.SuperstructureState, wristPremoveTime: Double): Command {
-    return ConditionalCommand( // previous goal needs special retraction case
-
-      ConditionalCommand( // pivot side retraction comparison
-
-        // if we scored l4 or l3 pivot side we need to watch out for climb
-        ConditionalCommand(
-          handleL3PivotRetraction(),
-          retractL4Pivot()
-        ) { lastCompletedGoal == SuperstructureGoal.L3_PIVOT },
-
-        // if not pivot side then l4 retraction
-        retractFromL4(goal, wristPremoveTime)
-
-      ) { requestedPivotSide() },
-
-      // not coming from high
-      ConditionalCommand( // intook algae from reef comparison
-        // if we intook algae from reef do special retraction (going to stow is dangerous)
-        handleAlgaeIntakeRetraction(goal),
-
-        // regular retraction
-        handleRetraction(goal)
-
-      ) {
-        lastCompletedGoal == SuperstructureGoal.L2_ALGAE_INTAKE ||
-          lastCompletedGoal == SuperstructureGoal.L3_ALGAE_INTAKE
-      }
-
-    ) {  lastCompletedGoal == SuperstructureGoal.L4
-      || lastCompletedGoal == SuperstructureGoal.L4_PIVOT
-      || lastCompletedGoal == SuperstructureGoal.L3_PIVOT }
-  }
+//  private fun requestRetraction(goal: SuperstructureGoal.SuperstructureState, wristPremoveTime: Double): Command {
+//    return ConditionalCommand( // previous goal needs special retraction case
+//
+//      ConditionalCommand( // pivot side retraction comparison
+//
+//        // if we scored l4 or l3 pivot side we need to watch out for climb
+//        ConditionalCommand(
+//          handleL3PivotRetraction(),
+//          retractL4Pivot()
+//        ) { lastCompletedGoal == SuperstructureGoal.L3_PIVOT },
+//
+//        // if not pivot side then l4 retraction
+//        retractFromL4(goal, wristPremoveTime)
+//
+//      ) { requestedPivotSide() },
+//
+//      // not coming from high
+//      ConditionalCommand( // intook algae from reef comparison
+//        // if we intook algae from reef do special retraction (going to stow is dangerous)
+//        handleAlgaeIntakeRetraction(goal),
+//
+//        // regular retraction
+//        handleRetraction(goal)
+//
+//      ) {
+//        lastCompletedGoal == SuperstructureGoal.L2_ALGAE_INTAKE ||
+//          lastCompletedGoal == SuperstructureGoal.L3_ALGAE_INTAKE
+//      }
+//
+//    ) {  lastCompletedGoal == SuperstructureGoal.L4
+//      || lastCompletedGoal == SuperstructureGoal.L4_PIVOT
+//      || lastCompletedGoal == SuperstructureGoal.L3_PIVOT }
+//  }
 
   private fun requestHigh(goal: SuperstructureGoal.SuperstructureState = SuperstructureGoal.L4): Command {
     return ConditionalCommand(
@@ -286,6 +289,32 @@ class SuperstructureManager(
     ) { goal.elevator.`in`(Meters) >= elevator.positionSupplier.get() }
   }
 
+  fun stowFromScoring(goal: SuperstructureGoal.SuperstructureState = SuperstructureGoal.STOW): Command{
+    return InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) })
+      .andThen(InstantCommand({ ready = false }))
+      .andThen(InstantCommand({ lastCompletedGoal = goal }))
+      .andThen(
+
+        ConditionalCommand( // if scored on pivot side
+          retractFromPivot(),
+
+          ConditionalCommand(
+            retractFromL4(),
+          WaitCommand(0.5)
+
+          ){requestedOppSide() ||
+            requestedGoal ==  SuperstructureGoal.PROC}
+
+        ){requestedGoal == SuperstructureGoal.L4_PIVOT||
+          requestedGoal == SuperstructureGoal.L3_PIVOT||
+          requestedGoal == SuperstructureGoal.NET_PIVOT
+        }
+    )
+      .andThen(InstantCommand({ lastCompletedGoal = goal }))
+      .andThen(InstantCommand({ ready = true }))
+  }
+
+
   fun requestGoal(goal: SuperstructureGoal.SuperstructureState, wristPremoveTime: Double = 0.4): Command {
     // don't crash into reef with ground intake
     if (
@@ -313,7 +342,7 @@ class SuperstructureManager(
             requestExtension(goal),
 
             // if retracting
-            requestRetraction(goal, wristPremoveTime)
+            handleRetraction(SuperstructureGoal.STOW)
 
           ) { goal.elevator.`in`(Meters) >= elevator.positionSupplier.get() }
 
@@ -333,6 +362,26 @@ class SuperstructureManager(
 
   fun lastRequestedGoal(): SuperstructureGoal.SuperstructureState {
     return requestedGoal
+  }
+
+  private fun requestedOppSide(): Boolean {
+    return (
+      requestedGoal == SuperstructureGoal.L1 ||
+        requestedGoal == SuperstructureGoal.L2 ||
+        requestedGoal == SuperstructureGoal.L3 ||
+        requestedGoal == SuperstructureGoal.L4 ||
+        requestedGoal == SuperstructureGoal.NET ||
+        requestedGoal == SuperstructureGoal.L2_ALGAE_INTAKE ||
+        requestedGoal == SuperstructureGoal.L3_ALGAE_INTAKE
+      )
+  }
+
+  private fun requestedOppBranch(): Boolean {
+    return (
+      requestedGoal == SuperstructureGoal.L2 ||
+        requestedGoal == SuperstructureGoal.L3 ||
+        requestedGoal == SuperstructureGoal.L4
+      )
   }
 
   fun requestedPivotSide(): Boolean {

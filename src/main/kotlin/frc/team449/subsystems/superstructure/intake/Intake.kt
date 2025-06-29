@@ -8,10 +8,12 @@ import com.ctre.phoenix6.hardware.TalonFX
 import dev.doglog.DogLog
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.RobotBase.isSimulation
+import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.Commands
 import frc.team449.subsystems.superstructure.intake.IntakeConstants.config
 import frc.team449.system.motor.KrakenDogLog
+import kotlin.concurrent.timer
 
 enum class Piece {
   CORAL,
@@ -141,13 +143,50 @@ class Intake(
 
   private var unverticaling = false
   private var coralIn = true
+
+  private var sensorsOut =
+    (rightSensor.measurement == null ||
+      middleSensor.measurement == null ||
+      leftSensor.measurement == null ||
+      backSensor.measurement == null )
+
+  private var sensorsOutExceptBack =
+      ((rightSensor.measurement == null ||
+        middleSensor.measurement == null ||
+        leftSensor.measurement == null )&&
+        backSensor.measurement != null )
+
+
+  // TODO: check coral motor stall current
+  private fun horizontalCoralStall(): Boolean{
+    return topMotor.motorStallCurrent.valueAsDouble < 40.0
+  }
+
+  private fun verticalCoralStall(): Boolean{
+    return if (
+      leftMotor.motorStallCurrent.valueAsDouble < 40.0 ||
+      rightMotor.motorStallCurrent.valueAsDouble < 40.0 ){
+      true
+    }
+    else{
+      false
+    }
+  }
+
   fun intakeToHorizontal(): Command {
     return FunctionalCommand(
       {
         unverticaling = false
         coralIn = true // source: trust me bro
+        sensorsOut
       },
       {
+
+
+        if (sensorsOut){
+          topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE)
+        }
+
         if (coralNotDetected()) {
           // pull in coral until a sensor detects
           coralIn = false
@@ -216,7 +255,9 @@ class Intake(
         }
       },
       { },
-      { coralIsHorizontal() }
+      {
+        if(sensorsOut){ horizontalCoralStall() } else{ coralIsHorizontal() }
+      }
     ).andThen(changePieceToCoral()).andThen(runOnce { topMotor.setVoltage(IntakeConstants.TOP_L1_HOLD) })
   }
 
@@ -224,6 +265,18 @@ class Intake(
     return FunctionalCommand(
       { },
       {
+
+        if (sensorsOut){
+          setMotorsInwards()
+        } else if(sensorsOutExceptBack ){
+          Commands.sequence(
+          inwards().andThen(
+            WaitUntilCommand{backSensorDetected()}
+          )
+          )
+        }
+
+
         if (leftSensorDetected() && rightSensorDetected()) {
           // if it's horizontal, just run it right
           //run in a bit because our side motors tweaking lowk
@@ -235,7 +288,14 @@ class Intake(
         }
       },
       { },
-      { backSensorDetected() },
+      {
+        if (sensorsOut){
+          verticalCoralStall()
+//        }else if (sensorsOutExceptBack){
+//          backSensorDetected()
+        } else
+        backSensorDetected()
+      },
     ).andThen(changePieceToCoral())
   }
 
@@ -395,6 +455,7 @@ class Intake(
 
   private fun logData() {
     KrakenDogLog.log("Intake/topMotor", topMotor)
+    DogLog.log("Intake/topMotorTemperature", topMotor.deviceTemp.valueAsDouble)
     KrakenDogLog.log("Intake/rightMotor", rightMotor)
     KrakenDogLog.log("Intake/leftMotor", leftMotor)
 

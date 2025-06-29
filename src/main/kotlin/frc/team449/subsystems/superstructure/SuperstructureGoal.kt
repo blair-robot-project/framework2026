@@ -67,14 +67,14 @@ object SuperstructureGoal {
   val L3_PIVOT = SuperstructureState(
     Radians.of(1.345947),
     Meters.of(0.184082),
-    Radians.of(1.9582519),
+    Radians.of(1.9582519), //112 deg
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
   val L4_PIVOT = SuperstructureState(
     Radians.of(1.45019), // 83 deg
     Meters.of(0.885253),
-    Radians.of(2.33081), // -138.5
+    Radians.of(2.33081), // 133 deg
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
@@ -145,7 +145,6 @@ object SuperstructureGoal {
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
-  // TODO: FIND ALGAE GROUND INTAKE POSE
   val ALGAE_GROUND = SuperstructureState(
     Radian.of(0.306),
     Inches.of(0.0),
@@ -153,7 +152,6 @@ object SuperstructureGoal {
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
-  // TODO: FIND ALGAE L2 INTAKE POSE
   val L2_ALGAE_INTAKE = SuperstructureState(
     Radians.of(0.905),
     MIN_ELEVATOR_HEIGHT,
@@ -161,7 +159,6 @@ object SuperstructureGoal {
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
-  // TODO: FIND ALGAE L3 INTAKE POSE
   val L3_ALGAE_INTAKE = SuperstructureState(
     Radians.of(1.155),
     Meters.of(0.402),
@@ -170,10 +167,17 @@ object SuperstructureGoal {
   )
 
   val PROC = SuperstructureState(
-    Radians.of(-0.00239),
+    Radians.of(0.289),
     Inches.of(0.0),
-    Degrees.of(-50.0),
+    Degrees.of(-60.0),
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+  )
+
+  val CLIMB_SAFE = SuperstructureState(
+    Radians.of(1.0928),
+    Meters.of(0.1504),
+    Radians.of(1.5708),
+    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
   data class SuperstructureState(
