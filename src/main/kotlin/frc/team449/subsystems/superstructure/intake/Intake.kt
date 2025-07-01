@@ -403,6 +403,7 @@ class Intake(
       .andThen(holdAlgae())
   }
 
+
   private fun changePieceToCoral(): Command {
     return runOnce { gamePiece = Piece.CORAL }
   }
