@@ -4,6 +4,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs
 import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.signals.InvertedValue
 import com.ctre.phoenix6.signals.NeutralModeValue
+import kotlin.math.PI
 
 object IntakeConstants {
 
@@ -46,11 +47,11 @@ object IntakeConstants {
   const val ALGAE_OUTTAKE_VOLTAGE = 11.0
   const val ALGAE_STALL_VOLTAGE_THRESHOLD = 30.0
 
-  const val SLIDE_CORAL_TO_OPP = -0.5
-  const val SLIDE_CORAL_TO_PIVOT = 0.5
+  const val SLIDE_CORAL_TO_OPP = -PI / 4 // radians
+  const val SLIDE_CORAL_TO_PIVOT = PI / 4 // radians
 
   const val HOLD_ANGLE_CHANGE = 0.5
-  const val HOLDING_FINISH_VELOCITY = 0.25
+  const val HOLDING_FINISH_VELOCITY = 0.125
 
   const val RIGHT_CORAL_SENSOR_CAN_ID = 20
   const val MIDDLE_CORAL_SENSOR_CAN_ID = 21

@@ -513,14 +513,14 @@ open class Routines(
 
   private fun getPremoveCommand(reefLevel: Int, waitTime: Double = 0.0): Command {
     return when (reefLevel) {
-      2 -> robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT).alongWith(robot.intake.holdCoralPivotSide())
+      2 -> robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT).alongWith(robot.intake.moveCoralPivotSide())
       4 -> Commands.sequence(
-        robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOT).alongWith(robot.intake.holdCoralPivotSide())
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOT).alongWith(robot.intake.moveCoralPivotSide())
           .withDeadline(WaitCommand(waitTime)),
         robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PIVOT)
       )
       -4 -> Commands.sequence(
-        robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).alongWith(robot.intake.holdCoralOppSide())
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE).alongWith(robot.intake.moveCoralOppSide())
           .withDeadline(WaitCommand(waitTime)),
         robot.superstructureManager.requestGoal(SuperstructureGoal.L4)
       )

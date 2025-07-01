@@ -1,13 +1,11 @@
 package frc.team449.subsystems.superstructure
 
 import edu.wpi.first.math.util.Units
-import edu.wpi.first.units.Units.Meters
-import edu.wpi.first.units.Units.Radians
+import edu.wpi.first.units.Units.*
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import edu.wpi.first.wpilibj2.command.InstantCommand
-import edu.wpi.first.wpilibj2.command.WaitCommand
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand
 import frc.team449.Robot
 import frc.team449.subsystems.drive.swerve.SwerveDrive
@@ -35,7 +33,7 @@ class SuperstructureManager(
         // move wrist 30 degrees forward to prevent crashing
         .alongWith(wrist.setPosition(wrist.positionSupplier.get() + 0.5)),
       // wait until pivot is almost at setpoint before moving wrist
-      WaitUntilCommand { pivot.atSetpoint(Units.degreesToRadians(5.0)) },
+      WaitUntilCommand { pivot.atSetpoint(Degrees.of(6.0)) },
       wrist.setPosition(goal.wrist.`in`(Radians)),
       WaitUntilCommand { wrist.atSetpoint() || pivot.atSetpoint() },
       pivot.hold().onlyIf { pivot.atSetpoint() },
@@ -152,23 +150,20 @@ class SuperstructureManager(
       elevator.setPosition(SuperstructureGoal.L3_PIVOT.elevator.`in`(Meters)), // about 0.15 meter
       WaitUntilCommand { elevator.atSetpoint() },
 
-      pivot.setPosition(pivot.positionSupplier.get() + 0.17),
-      WaitUntilCommand { pivot.atSetpoint(6.0) },
+      pivot.setPosition(goal.pivot.`in`(Radians)),
+      WaitUntilCommand { pivot.atSetpoint(Degrees.of(6.0)) },
 
       elevator.setPosition(goal.elevator.`in`(Meters)),
-      wrist.setPosition(goal.wrist.`in`(Radians)) ,
+      wrist.setPosition(goal.wrist.`in`(Radians)),
+
+      WaitUntilCommand { pivot.atSetpoint() },
+      pivot.hold(),
 
       WaitUntilCommand { wrist.atSetpoint() || elevator.atSetpoint() },
       elevator.hold().onlyIf { elevator.atSetpoint() },
       wrist.hold().onlyIf { wrist.atSetpoint() },
 
-      pivot.setPosition(goal.pivot.`in`(Radians)),
-
       WaitUntilCommand { wrist.atSetpoint() && elevator.atSetpoint() },
-      elevator.hold(),
-      wrist.hold(),
-
-      WaitUntilCommand { pivot.atSetpoint() },
       holdAll()
     )
   }
@@ -189,9 +184,11 @@ class SuperstructureManager(
       // regular retraction
       handleRetraction(goal)
 
-    ) {  lastCompletedGoal == SuperstructureGoal.L4
-      || lastCompletedGoal == SuperstructureGoal.L4_PIVOT
-      || lastCompletedGoal == SuperstructureGoal.L3_PIVOT }
+    ) {
+      lastCompletedGoal == SuperstructureGoal.L4 ||
+        lastCompletedGoal == SuperstructureGoal.L4_PIVOT ||
+        lastCompletedGoal == SuperstructureGoal.L3_PIVOT
+    }
   }
 
   private fun requestHigh(goal: SuperstructureGoal.SuperstructureState = SuperstructureGoal.L4): Command {

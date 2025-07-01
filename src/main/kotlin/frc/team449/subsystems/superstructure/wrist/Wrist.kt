@@ -55,10 +55,6 @@ class Wrist(
     motor.setControl(VoltageOut(volts))
   }
 
-  fun getMotorVoltage(): Double {
-    return motor.motorVoltage.valueAsDouble
-  }
-
   fun manualDown(): Command {
     return run {
       motor.setVoltage(-1.0)

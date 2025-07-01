@@ -8,6 +8,7 @@ import com.ctre.phoenix6.controls.PositionVoltage
 import com.ctre.phoenix6.hardware.TalonFX
 import dev.doglog.DogLog
 import edu.wpi.first.units.Units.*
+import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.Command
@@ -145,8 +146,8 @@ class Pivot(
     return (abs(positionSupplier.get() - request.Position) < PivotConstants.TOLERANCE.`in`(Radians))
   }
 
-  fun atSetpoint(tolerance: Double): Boolean {
-    return (abs(positionSupplier.get() - request.Position) < tolerance)
+  fun atSetpoint(tolerance: Angle): Boolean {
+    return (abs(positionSupplier.get() - request.Position) < tolerance.`in`(Radians))
   }
 
   override fun periodic() {

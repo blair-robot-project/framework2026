@@ -93,12 +93,6 @@ class Intake(
     leftMotor.setVoltage(IntakeConstants.TOP_CORAL_OUTTAKE_VOLTAGE / slowdownConstant)
   }
 
-  private fun outwards(): Command {
-    return runOnce {
-      setMotorsOutwards()
-    }
-  }
-
   fun holdCoral(): Command {
     return stopMotors().andThen(
       runOnce {
@@ -109,12 +103,18 @@ class Intake(
     )
   }
 
-  fun holdCoralOppSide(): Command {
+  private fun moveCoral(position: Double): Command {
     return stopMotors().andThen(
       runOnce {
-        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble + IntakeConstants.SLIDE_CORAL_TO_OPP))
-        leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble + IntakeConstants.SLIDE_CORAL_TO_OPP))
+        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble + position))
+        leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble + position))
       }.andThen(
+        WaitUntilCommand {
+          // velocities are in rps
+          rightMotor.velocity.valueAsDouble > IntakeConstants.HOLDING_FINISH_VELOCITY * 2 &&
+            leftMotor.velocity.valueAsDouble > IntakeConstants.HOLDING_FINISH_VELOCITY * 2
+        }
+      ).andThen(
         WaitUntilCommand {
           // velocities are in rps
           rightMotor.velocity.valueAsDouble < IntakeConstants.HOLDING_FINISH_VELOCITY &&
@@ -124,19 +124,12 @@ class Intake(
     )
   }
 
-  fun holdCoralPivotSide(): Command {
-    return stopMotors().andThen(
-      runOnce {
-        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble + IntakeConstants.SLIDE_CORAL_TO_PIVOT))
-        leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble + IntakeConstants.SLIDE_CORAL_TO_PIVOT))
-      }.andThen(
-        WaitUntilCommand {
-          // velocities are in rps
-          rightMotor.velocity.valueAsDouble < IntakeConstants.HOLDING_FINISH_VELOCITY &&
-            leftMotor.velocity.valueAsDouble < IntakeConstants.HOLDING_FINISH_VELOCITY
-        }
-      ).andThen(holdCoral())
-    )
+  fun moveCoralOppSide(): Command {
+    return moveCoral(IntakeConstants.SLIDE_CORAL_TO_OPP)
+  }
+
+  fun moveCoralPivotSide(): Command {
+    return moveCoral(IntakeConstants.SLIDE_CORAL_TO_PIVOT)
   }
 
   private var unverticaling = false
@@ -293,8 +286,7 @@ class Intake(
 //        }else if (sensorsOutExceptBack){
 //          backSensorDetected()
 //        } else {
-          backSensorDetected()
-
+        backSensorDetected()
       },
     ).andThen(changePieceToCoral())
   }
@@ -323,7 +315,7 @@ class Intake(
 
   fun outtakeCoral(): Command {
     return Commands.sequence(
-      outwards(),
+      runOnce { setMotorsOutwards(-1.0) },
       changePieceToNone(),
     )
   }
