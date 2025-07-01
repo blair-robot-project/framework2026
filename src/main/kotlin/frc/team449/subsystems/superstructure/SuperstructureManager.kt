@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import edu.wpi.first.wpilibj2.command.InstantCommand
+import edu.wpi.first.wpilibj2.command.WaitCommand
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand
 import frc.team449.Robot
 import frc.team449.subsystems.drive.swerve.SwerveDrive
@@ -65,6 +66,9 @@ class SuperstructureManager(
         wrist.setPosition(goal.wrist.`in`(Radians)),
         pivot.setPosition(goal.pivot.`in`(Radians))
       ),
+      WaitUntilCommand { wrist.atSetpoint() || pivot.atSetpoint() },
+      pivot.hold().onlyIf { pivot.atSetpoint() },
+      wrist.hold().onlyIf { wrist.atSetpoint() },
 
       WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() },
       pivot.hold(),
@@ -148,10 +152,15 @@ class SuperstructureManager(
       WaitUntilCommand { wrist.positionSupplier.get() < Units.degreesToRadians(70.0) },
 
       elevator.setPosition(SuperstructureGoal.L3_PIVOT.elevator.`in`(Meters)), // about 0.15 meter
+      WaitCommand(0.2),
+
+      pivot.setPosition(pivot.positionSupplier.get() - 0.045).onlyIf{
+        lastCompletedGoal == SuperstructureGoal.L4_PIVOT},
+
       WaitUntilCommand { elevator.atSetpoint() },
 
+
       pivot.setPosition(goal.pivot.`in`(Radians)),
-      WaitUntilCommand { pivot.atSetpoint(Degrees.of(6.0)) },
 
       elevator.setPosition(goal.elevator.`in`(Meters)),
       wrist.setPosition(goal.wrist.`in`(Radians)),

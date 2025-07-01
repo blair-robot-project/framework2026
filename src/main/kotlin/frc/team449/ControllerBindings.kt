@@ -111,6 +111,7 @@ class ControllerBindings(
           robot.intake.intakeToVertical()
         ),
         robot.superstructureManager.requestGoal(SuperstructureGoal.STOW),
+        robot.intake.moveCoral(-PI/4)
       )
     )
   }

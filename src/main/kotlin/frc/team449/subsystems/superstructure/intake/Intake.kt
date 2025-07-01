@@ -103,7 +103,7 @@ class Intake(
     )
   }
 
-  private fun moveCoral(position: Double): Command {
+  fun moveCoral(position: Double): Command {
     return stopMotors().andThen(
       runOnce {
         rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble + position))
@@ -288,7 +288,7 @@ class Intake(
 //        } else {
         backSensorDetected()
       },
-    ).andThen(changePieceToCoral())
+    ).andThen(changePieceToCoral()).andThen(holdCoral())
   }
 
   fun intakeAlgae(): Command {
@@ -404,7 +404,7 @@ class Intake(
   }
 
   private fun changePieceToCoral(): Command {
-    return runOnce { gamePiece = Piece.CORAL }.andThen(holdCoral())
+    return runOnce { gamePiece = Piece.CORAL }
   }
 
   private fun changePieceToNone(coralOuttaken: Boolean = true): Command {
