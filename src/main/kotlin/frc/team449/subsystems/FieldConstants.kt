@@ -13,6 +13,8 @@ object FieldConstants {
   val REEF_LOCATIONS = arrayListOf<Pose2d>()
   val REEF_LOCATIONS_PIVOT = arrayListOf<Pose2d>()
   val REEF_CENTER_LOCATIONS = arrayListOf<Pose2d>()
+  const val DIST_FOR_SAFE_GI = 0.4
+  var FIELD_CONFIGURED = false
 
   enum class ReefSide {
     LEFT,
@@ -20,6 +22,7 @@ object FieldConstants {
   }
 
   fun configureReef(alliance: Alliance) {
+    FIELD_CONFIGURED = true
     val allianceComp = alliance == Alliance.Red
 
     val REEF_A = if (!allianceComp) {

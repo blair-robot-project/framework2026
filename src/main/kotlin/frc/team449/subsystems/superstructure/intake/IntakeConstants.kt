@@ -45,10 +45,10 @@ object IntakeConstants {
   const val ALGAE_INTAKE_VOLTAGE = -8.0
   const val ALGAE_HOLD_VOLTAGE = -4.0
   const val ALGAE_OUTTAKE_VOLTAGE = 11.0
-  const val ALGAE_STALL_VOLTAGE_THRESHOLD = 30.0
+  const val ALGAE_STALL_VOLTAGE_THRESHOLD = 60.0
 
-  const val SLIDE_CORAL_TO_OPP = -PI / 4 // radians
-  const val SLIDE_CORAL_TO_PIVOT = PI / 4 // radians
+  const val SLIDE_CORAL_TO_OPP = -PI / 3 // radians
+  const val SLIDE_CORAL_TO_PIVOT = PI / 3 // radians
 
   const val HOLD_ANGLE_CHANGE = 0.5
   const val HOLDING_FINISH_VELOCITY = 0.125

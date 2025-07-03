@@ -166,6 +166,7 @@ open class Routines(
     val missFarPickup = routine.trajectory("TwoL4L2/failfar1$direction")
     val missFarScore = routine.trajectory("TwoL4L2/failfar2$direction")
 
+    //first path
     routine.active().onTrue(
       Commands.sequence(
         robot.intake.resetPiece(),
@@ -174,125 +175,134 @@ open class Routines(
       )
     )
 
+    //first piece score second piece pickup
     scorePreloadB.done().onTrue(
       Commands.sequence(
+
         robot.drive.driveStop(),
         scoreCoral(),
         pickupMiddle.cmd()
-          .alongWith(intakeCoral())
-          .andThen(robot.drive.driveStop())
-          .until { robot.intake.coralDetected() }
+          .alongWith(robot.intake.intakeToVertical())
           .withTimeout(firstPickupTime + AutoConstants.INTAKE_TIMEOUT),
+
         ConditionalCommand(
+          //if we picked it up regularly
           scoreMiddleA.cmd()
             .alongWith(getPremoveCommand(reefLevels[1], 1.15)),
+
+          //if we didnt
           Commands.sequence(
+            //do the miss pickup
             missMidPickup.cmd()
               .alongWith(
+                //if its partially intakken outtake it
                 robot.intake.outtakeL1()
                   .withTimeout(0.5)
-                  .andThen(intakeCoral())
+                  .andThen(robot.intake.intakeToVertical())
               )
               .andThen(robot.drive.driveStop())
-              .until { robot.intake.coralDetected() }
               .withTimeout(firstPickupTime + AutoConstants.INTAKE_TIMEOUT),
+
             ConditionalCommand(
+              //if we landed the miss pickup
               missMidScore.cmd()
                 .alongWith(getPremoveCommand(reefLevels[1], 0.85)),
+
+              //if we did not we're buns but anyways
               Commands.sequence(
+                //pick up the third
                 robot.drive.driveStop(),
                 missFarPickup.cmd()
                   .alongWith(
                     robot.intake.outtakeL1()
                       .withTimeout(0.5)
-                      .andThen(intakeCoral())
+                      .andThen(robot.intake.intakeToVertical())
                   )
-                  .andThen(robot.drive.driveStop())
-                  .until { robot.intake.coralDetected() },
+                  .andThen(robot.drive.driveStop()),
+
+                //score it
                 missFarScore.cmd().alongWith(
                   getPremoveCommand(reefLevels[1], 1.0)
                 ),
                 robot.drive.driveStop(),
                 scoreCoral(),
                 robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
-              )
-            ) { robot.intake.coralDetected() || !RobotBase.isReal() }
+                //end the jaunt cause we running out of time lmao
 
+              )
+
+            ) { robot.intake.coralDetected() || !RobotBase.isReal() }
           )
+
         ) { robot.intake.coralDetected() || !RobotBase.isReal() }
       )
     )
 
-    // first miss backup
+    // first miss backup second score logic
     missMidScore.done().onTrue(
       Commands.sequence(
+
         robot.drive.driveStop(),
         scoreCoral(),
+
         missMidSecondPickup.cmd()
-          .alongWith(intakeCoral())
-          .andThen(robot.drive.driveStop())
-          .until { robot.intake.coralDetected() },
+          .alongWith(robot.intake.intakeToVertical())
+          .andThen(robot.drive.driveStop()),
+
         missMidSecondScore.cmd()
           .alongWith(getPremoveCommand(reefLevels[2], 1.15)),
         robot.drive.driveStop(),
+
         scoreCoral(),
         robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
       )
     )
 
+    //second piece score third piece pickup
     scoreMiddleA.done().onTrue(
+
       Commands.sequence(
+
         robot.drive.driveStop(),
         scoreCoral(),
+
         pickupLeft.cmd()
-          .alongWith(intakeCoral())
+          .alongWith(robot.intake.intakeToVertical())
           .andThen(robot.drive.driveStop())
-          .until { robot.intake.coralDetected() }
           .withTimeout(secondPickupTime + AutoConstants.INTAKE_TIMEOUT),
+
         ConditionalCommand(
+          //picked it up reg
           scoreRightB.cmd()
             .alongWith(getPremoveCommand(reefLevels[2], 1.15)),
+          //safety
           Commands.sequence(
             missFarPickup.cmd()
               .alongWith(
                 robot.intake.outtakeL1()
                   .withTimeout(0.5)
-                  .andThen(intakeCoral())
+                  .andThen(robot.intake.intakeToVertical())
               )
-              .andThen(robot.drive.driveStop())
-              .until { robot.intake.coralDetected() },
+              .andThen(robot.drive.driveStop()),
+
             missFarScore.cmd().alongWith(
               getPremoveCommand(reefLevels[2], 0.85)
             ),
             robot.drive.driveStop(),
             scoreCoral()
           )
-        ) { robot.intake.coralDetected() || !RobotBase.isReal() }
 
+        ) { robot.intake.coralDetected() || !RobotBase.isReal() }
       )
+
     )
 
+    //third piece score
     scoreRightB.done()
       .onTrue(
         Commands.sequence(
           robot.drive.driveStop(),
           scoreCoral(),
-          pickupRight.cmd()
-            .alongWith(intakeCoral())
-            .andThen(robot.drive.driveStop())
-            .until { robot.intake.coralDetected() }
-            .withTimeout(thirdPickupTime + AutoConstants.INTAKE_TIMEOUT),
-          scoreLeftA.cmd()
-            .alongWith(getPremoveCommand(reefLevels[3]))
-        )
-      )
-
-    scoreLeftA.done()
-      .onTrue(
-        Commands.sequence(
-          robot.drive.driveStop(),
-          scoreCoral(),
-          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
         )
       )
 
@@ -424,11 +434,7 @@ open class Routines(
       )
       .andThen(WaitCommand(0.10))
       .andThen(robot.intake.outtakeCoralPivot())
-      .andThen(
-        WaitUntilCommand { !robot.intake.coralDetected() || !RobotBase.isReal() }
-      )
-      .andThen(WaitCommand(0.050))
-      .andThen(robot.intake.stopMotors())
+      .andThen(PrintCommand("Outook Piece!"))
   }
 
   private fun scoreCoral(pivotSide: Boolean = true): Command {
@@ -441,24 +447,12 @@ open class Routines(
         ) { pivotSide }
       )
       .andThen(PrintCommand("Outook Piece!"))
-      .andThen(
-        WaitUntilCommand { !robot.intake.coralDetected() || !RobotBase.isReal() }
-      )
-      .andThen(PrintCommand("Piece left the robot!"))
-      .andThen(WaitCommand(0.050))
-      .andThen(robot.intake.stopMotors())
   }
 
   private fun scoreAlgaePivot(): Command {
     return WaitUntilCommand { robot.pivot.atSetpoint() && robot.elevator.atSetpoint() && robot.wrist.atSetpoint() }
       .andThen(robot.intake.outtakeAlgae())
       .andThen(PrintCommand("Outook Piece!"))
-      .andThen(
-        WaitUntilCommand { !robot.intake.algaeDetected() || !RobotBase.isReal() }
-      )
-      .andThen(PrintCommand("Piece left the robot!"))
-      .andThen(WaitCommand(0.1))
-      .andThen(robot.intake.stopMotors())
   }
 
   private fun scoreL2PivotDirectional(reefSide: FieldConstants.ReefSide): Command {
@@ -470,22 +464,12 @@ open class Routines(
       )
       .andThen(WaitCommand(0.10))
       .andThen(robot.intake.outtakeCoralPivot())
-      .andThen(
-        WaitUntilCommand { !robot.intake.coralDetected() || !RobotBase.isReal() }
-      )
-      .andThen(WaitCommand(0.050))
-      .andThen(robot.intake.stopMotors())
+      .andThen(PrintCommand("Outook Piece!"))
   }
 
   private fun intakeCoral(): Command {
     return robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL)
       .alongWith(robot.intake.intakeToVertical())
-      .andThen(
-        WaitUntilCommand { robot.intake.coralDetected() || !RobotBase.isReal() }
-      )
-      .andThen(
-        robot.intake.holdCoral()
-      )
   }
 
   private fun intakeAlgae(level: Int): Command {
@@ -501,14 +485,6 @@ open class Routines(
       ).andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.L3_ALGAE_INTAKE))
     ) { level == 2 }
       .alongWith(WaitCommand(0.3).andThen(robot.intake.intakeAlgae()))
-      .andThen(
-        WaitUntilCommand { robot.intake.algaeDetected() || !RobotBase.isReal() }
-      ).andThen(
-        WaitCommand(0.1)
-      )
-      .andThen(
-        robot.intake.holdAlgae()
-      )
   }
 
   private fun getPremoveCommand(reefLevel: Int, waitTime: Double = 0.0): Command {

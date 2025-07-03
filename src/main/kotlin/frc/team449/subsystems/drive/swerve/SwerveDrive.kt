@@ -38,8 +38,6 @@ open class SwerveDrive(
   val maxModuleSpeed: Double
 ) : SubsystemBase() {
 
-  var pose: Pose2d = Pose2d()
-
   /** The kinematics that convert [ChassisSpeeds] into multiple [SwerveModuleState] objects. */
   val kinematics = SwerveDriveKinematics(
     *this.modules.map { it.location }.toTypedArray()

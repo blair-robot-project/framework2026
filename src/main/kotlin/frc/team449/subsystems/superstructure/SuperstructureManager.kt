@@ -2,29 +2,35 @@ package frc.team449.subsystems.superstructure
 
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.*
+import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
+import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.WaitCommand
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand
 import frc.team449.Robot
+import frc.team449.subsystems.FieldConstants
 import frc.team449.subsystems.drive.swerve.SwerveDrive
 import frc.team449.subsystems.superstructure.elevator.Elevator
 import frc.team449.subsystems.superstructure.pivot.Pivot
 import frc.team449.subsystems.superstructure.wrist.Wrist
 import frc.team449.subsystems.superstructure.wrist.WristConstants
+import frc.team449.subsystems.vision.PoseSubsystem
 
 class SuperstructureManager(
   private val elevator: Elevator,
   private val pivot: Pivot,
   private val wrist: Wrist,
-  private val drive: SwerveDrive
+  private val drive: SwerveDrive,
+  private val poseSubsystem: PoseSubsystem
 ) {
 
   private var requestedGoal = SuperstructureGoal.STOW
   private var lastCompletedGoal = SuperstructureGoal.STOW
   private var ready = false
+  private val timer = Timer()
 
   private fun handleCoralToAlgaeGround(): Command {
     val goal = SuperstructureGoal.ALGAE_GROUND
@@ -246,44 +252,50 @@ class SuperstructureManager(
   }
 
   fun requestGoal(goal: SuperstructureGoal.SuperstructureState): Command {
-    // don't crash into reef with ground intake
-    if (
-      (
-        goal == SuperstructureGoal.ALGAE_GROUND ||
-          goal == SuperstructureGoal.GROUND_INTAKE_CORAL
-        ) && lastCompletedGoal != SuperstructureGoal.STOW
-    ) {
-      return requestGoal(SuperstructureGoal.STOW)
-    }
-
     return InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) })
-      .andThen(InstantCommand({ ready = false }))
-      .andThen(InstantCommand({ requestedGoal = goal }))
-      .andThen(
+        .andThen(InstantCommand({ ready = false }))
+        .andThen(InstantCommand({ requestedGoal = goal }))
+        .andThen(runOnce ({
+          timer.reset()
+        }))
+        .andThen(
 
-        ConditionalCommand( // goal is high comparison
-          // use special function for high goals
-          requestHigh(goal),
+          ConditionalCommand( // goal is high comparison
+            // use special function for high goals
+            requestHigh(goal),
 
-          // not a high goal
-          ConditionalCommand( // elevator height comparison
+            // not a high goal
+            ConditionalCommand( // elevator height comparison
 
-            // if extending or elevator the same
-            requestExtension(goal),
+              // if extending or elevator the same
+              requestExtension(goal),
 
-            // if retracting
-            requestRetraction(goal)
+              // if retracting
+              requestRetraction(goal)
 
-          ) { goal.elevator.`in`(Meters) >= elevator.positionSupplier.get() }
+            ) { goal.elevator.`in`(Meters) >= elevator.positionSupplier.get() }
 
-        ) {
-          goal == SuperstructureGoal.L4 || goal == SuperstructureGoal.L4_PIVOT ||
-            goal == SuperstructureGoal.NET || goal == SuperstructureGoal.NET_PIVOT
-        }
+          ) {
+            goal == SuperstructureGoal.L4 || goal == SuperstructureGoal.L4_PIVOT ||
+              goal == SuperstructureGoal.NET || goal == SuperstructureGoal.NET_PIVOT
+          }
 
-      )
+        )
+      .andThen(runOnce({ timer.reset() }))
       .andThen(InstantCommand({ lastCompletedGoal = goal }))
       .andThen(InstantCommand({ ready = true }))
+//    {
+//        FieldConstants.FIELD_CONFIGURED &&
+//
+//        ( goal == SuperstructureGoal.ALGAE_GROUND ||
+//          goal == SuperstructureGoal.GROUND_INTAKE_CORAL ) &&
+//
+//        poseSubsystem.pose.translation.getDistance(
+//          poseSubsystem.pose.nearest(FieldConstants.REEF_LOCATIONS).translation
+//        ) < FieldConstants.DIST_FOR_SAFE_GI
+//
+//        && !poseSubsystem.isPivotSide()
+//    }
   }
 
   fun isAtPos(): Boolean {
@@ -292,26 +304,6 @@ class SuperstructureManager(
 
   fun lastRequestedGoal(): SuperstructureGoal.SuperstructureState {
     return requestedGoal
-  }
-
-  private fun requestedOppSide(): Boolean {
-    return (
-      requestedGoal == SuperstructureGoal.L1 ||
-        requestedGoal == SuperstructureGoal.L2 ||
-        requestedGoal == SuperstructureGoal.L3 ||
-        requestedGoal == SuperstructureGoal.L4 ||
-        requestedGoal == SuperstructureGoal.NET ||
-        requestedGoal == SuperstructureGoal.L2_ALGAE_INTAKE ||
-        requestedGoal == SuperstructureGoal.L3_ALGAE_INTAKE
-      )
-  }
-
-  private fun requestedOppBranch(): Boolean {
-    return (
-      requestedGoal == SuperstructureGoal.L2 ||
-        requestedGoal == SuperstructureGoal.L3 ||
-        requestedGoal == SuperstructureGoal.L4
-      )
   }
 
   fun requestedPivotSide(): Boolean {
@@ -334,7 +326,8 @@ class SuperstructureManager(
         robot.elevator,
         robot.pivot,
         robot.wrist,
-        robot.drive
+        robot.drive,
+        robot.poseSubsystem
       )
     }
   }

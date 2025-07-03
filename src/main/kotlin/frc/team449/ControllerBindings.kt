@@ -39,10 +39,10 @@ class ControllerBindings(
     /** Driver: https://docs.google.com/drawings/d/13W3qlIxzIh5MTraZGWON7IqwJvovVr8eNBvjq8_vYZI/edit
      * Operator: https://docs.google.com/drawings/d/1lF4Roftk6932jMCQthgKfoJVPuTVSgnGZSHs5j68uo4/edit
      */
-    scoreL1()
-    scoreIntake_l2()
-    scoreIntake_l3()
-    score_l4_net()
+    processor()
+    scoreIntakeL2()
+    scoreIntakeL3()
+    scoreL4Net()
 
     autoScoreLeft()
     autoScoreRight()
@@ -54,8 +54,7 @@ class ControllerBindings(
     stow()
     climbTriggers()
     climbwheels()
-    scoreL2()
-    scorePROC()
+
     stopReefAlign()
 
     manualElevator()
@@ -152,6 +151,10 @@ class ControllerBindings(
           // intake subsystem will stop motors automatically when finished outtaking so we don't need to do that here
           WaitCommand(0.15),
           robot.superstructureManager.requestRetraction(SuperstructureGoal.STOW)
+            .onlyIf {
+              robot.superstructureManager.lastRequestedGoal() != SuperstructureGoal.L1
+                && robot.superstructureManager.lastRequestedGoal() != SuperstructureGoal.PROC
+            }
 
         ),
 
@@ -161,28 +164,27 @@ class ControllerBindings(
             robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL),
             robot.intake.intakeToHorizontal()
           ),
-          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW),
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L1),
         )
 
-      ) { robot.intake.coralDetected() || robot.intake.algaeDetected() }
+      ) { robot.intake.hasPiece() }
     )
   }
 
 /** driver controller A,B,X,Y **/
-  private fun scoreL1() {
+  private fun processor() {
     Trigger {
       driveController.hid.aButton &&
-        robot.intake.coralDetected()
+        robot.intake.algaeDetected()
     }.onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.L1).alongWith(
-        robot.intake.holdCoral()
-      )
+      robot.superstructureManager.requestGoal(SuperstructureGoal.PROC)
     )
+
   }
   private fun climbTriggers() {
     Trigger {
       driveController.hid.aButton &&
-        !robot.intake.coralDetected()
+        !robot.intake.hasPiece()
     }.onTrue(
       Commands.sequence(
         robot.elevator.manualDown()
@@ -202,62 +204,67 @@ class ControllerBindings(
       )
     )
   }
-  private fun scoreIntake_l3() {
-    driveController.b().onTrue(
-      ConditionalCommand(
-        ConditionalCommand(
-          robot.superstructureManager.requestGoal(SuperstructureGoal.L3_PIVOT)
-            .alongWith(robot.intake.moveCoralPivotSide()),
-          robot.superstructureManager.requestGoal(SuperstructureGoal.L3)
-            .alongWith(robot.intake.moveCoralOppSide())
-        ) { robot.poseSubsystem.isPivotSide() },
-        robot.superstructureManager.requestGoal(SuperstructureGoal.L3_ALGAE_INTAKE)
-          .alongWith(robot.intake.intakeAlgae())
-          .andThen(WaitUntilCommand { robot.intake.algaeDetected() && RobotBase.isReal() })
-          .andThen(WaitCommand(0.275))
-          .andThen(robot.intake.stopMotors())
-          .andThen(robot.intake.holdAlgae())
-      ) { robot.intake.coralDetected() }
-    )
-  }
-  private fun scoreIntake_l2() {
+
+  private fun scoreIntakeL2() {
     driveController.x().onTrue(
       ConditionalCommand(
+
         ConditionalCommand(
           robot.superstructureManager.requestGoal(SuperstructureGoal.L2_PIVOT)
             .alongWith(robot.intake.moveCoralPivotSide()),
           robot.superstructureManager.requestGoal(SuperstructureGoal.L2)
             .alongWith(robot.intake.moveCoralOppSide())
         ) { robot.poseSubsystem.isPivotSide() },
+
         robot.superstructureManager.requestGoal(SuperstructureGoal.L2_ALGAE_INTAKE)
           .alongWith(robot.intake.intakeAlgae())
-          .andThen(WaitUntilCommand { robot.intake.algaeDetected() && RobotBase.isReal() })
-          .andThen(robot.intake.stopMotors())
-          .andThen(robot.intake.holdAlgae())
           .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
       ) { robot.intake.coralDetected() }
     )
   }
-  private fun score_l4_net() {
+
+  private fun scoreIntakeL3() {
+    driveController.b().onTrue(
+      ConditionalCommand(
+
+        ConditionalCommand(
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L3_PIVOT)
+            .alongWith(robot.intake.moveCoralPivotSide()),
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L3)
+            .alongWith(robot.intake.moveCoralOppSide())
+        ) { robot.poseSubsystem.isPivotSide() },
+
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L3_ALGAE_INTAKE)
+          .alongWith(robot.intake.intakeAlgae())
+          .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
+      ) { robot.intake.coralDetected() }
+    )
+  }
+
+  private fun scoreL4Net() {
     driveController.y().onTrue(
       ConditionalCommand(
+
         ConditionalCommand(
           robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PIVOT)
             .alongWith(robot.intake.moveCoralPivotSide()),
+
           robot.superstructureManager.requestGoal(SuperstructureGoal.L4)
             .alongWith(robot.intake.moveCoralOppSide())
+
         ) { robot.poseSubsystem.isPivotSide() },
+
         ConditionalCommand(
           robot.superstructureManager.requestGoal(SuperstructureGoal.NET),
           robot.superstructureManager.requestGoal(SuperstructureGoal.NET_PIVOT)
         ) { robot.poseSubsystem.isPivotSide() }
-          .alongWith(robot.intake.holdAlgae())
+
       ) { robot.intake.coralDetected() }
     )
   }
 
 /** driver controller dpad **/
-// povUp
+  // povUp
   private fun resetGyro() {
     driveController.povUp().onTrue(
       ConditionalCommand(
@@ -266,20 +273,8 @@ class ControllerBindings(
       ) { DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red }
     )
   }
-  private fun scoreL2() {
-    driveController.povLeft().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.L2)
-        .alongWith(robot.intake.moveCoralOppSide())
-    )
-  } // povLeft can/should change to proc
-  private fun scorePROC() {
-    driveController.povRight().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.PROC)
-        .alongWith(robot.intake.holdAlgae())
-    )
-  }
 
-// povDown
+  // povDown
   private fun stow() {
     driveController.povDown().onTrue(
       robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
@@ -289,7 +284,7 @@ class ControllerBindings(
     )
   }
 
-/** mech controller TRIGGERS **/
+  /** mech controller TRIGGERS **/
   private fun climbwheels() {
     mechanismController.leftTrigger().onTrue(
       robot.climb.runClimbWheels()

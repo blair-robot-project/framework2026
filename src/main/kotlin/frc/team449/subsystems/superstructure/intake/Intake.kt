@@ -299,7 +299,7 @@ class Intake(
     )
   }
 
-  fun holdAlgae(): Command {
+  private fun holdAlgae(): Command {
     return Commands.sequence(
       runOnce { topMotor.configurator.apply(IntakeConstants.TOP_MOTOR_HOLDING_CONFIG) },
       setVoltageTop(IntakeConstants.ALGAE_HOLD_VOLTAGE),
@@ -414,18 +414,23 @@ class Intake(
         ConditionalCommand(
           // coral
           WaitUntilCommand { !coralDetected() },
+
           // algae
           WaitUntilCommand {
             topMotor.statorCurrent.valueAsDouble >
               IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD
           }.andThen(WaitCommand(IntakeConstants.WAIT_BEFORE_ALGAE_OUT))
 
-        ) { coralOuttaken },
+        ) { coralOuttaken }.onlyIf { RobotBase.isReal() },
         WaitCommand(2.0)
       ),
       runOnce { gamePiece = Piece.NONE },
       stopMotors()
     )
+  }
+
+  fun hasPiece(): Boolean {
+    return algaeDetected() || coralDetected()
   }
 
   fun resetPiece(): Command {
