@@ -4,13 +4,16 @@ import au.grapplerobotics.LaserCan
 import au.grapplerobotics.interfaces.LaserCanInterface
 import au.grapplerobotics.simulation.MockLaserCan
 import com.ctre.phoenix6.controls.PositionVoltage
+import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.TalonFX
 import dev.doglog.DogLog
+import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.RobotBase.isSimulation
 import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.Commands
 import frc.team449.subsystems.superstructure.intake.IntakeConstants.config
+import frc.team449.subsystems.superstructure.wrist.WristConstants
 import frc.team449.system.motor.KrakenDogLog
 
 enum class Piece {
@@ -96,32 +99,21 @@ class Intake(
   fun holdCoral(): Command {
     return stopMotors().andThen(
       runOnce {
-        topMotor.setControl(PositionVoltage(topMotor.position.valueAsDouble))
-        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble))
-        leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble))
+        topMotor.setControl(VoltageOut(topMotor.position.valueAsDouble))
+        rightMotor.setControl(VoltageOut(rightMotor.position.valueAsDouble))
+        leftMotor.setControl(VoltageOut(leftMotor.position.valueAsDouble))
       }
     )
   }
 
+
+
   fun moveCoral(position: Double): Command {
-    return stopMotors().andThen(
-      runOnce {
-        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble + position))
-        leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble + position))
-      }.andThen(
-        WaitUntilCommand {
-          // velocities are in rps
-          rightMotor.velocity.valueAsDouble > IntakeConstants.HOLDING_FINISH_VELOCITY * 2 &&
-            leftMotor.velocity.valueAsDouble > IntakeConstants.HOLDING_FINISH_VELOCITY * 2
-        }
-      ).andThen(
-        WaitUntilCommand {
-          // velocities are in rps
-          rightMotor.velocity.valueAsDouble < IntakeConstants.HOLDING_FINISH_VELOCITY &&
-            leftMotor.velocity.valueAsDouble < IntakeConstants.HOLDING_FINISH_VELOCITY
-        }
-      ).andThen(holdCoral())
-    )
+    return runOnce {
+        rightMotor.setControl(VoltageOut(rightMotor.position.valueAsDouble + position))
+        leftMotor.setControl(VoltageOut(leftMotor.position.valueAsDouble + position))
+      }
+
   }
 
   fun moveCoralOppSide(): Command {
@@ -403,7 +395,6 @@ class Intake(
       .andThen(holdAlgae())
   }
 
-
   private fun changePieceToCoral(): Command {
     return runOnce { gamePiece = Piece.CORAL }
   }
@@ -497,11 +488,17 @@ class Intake(
       val rightMotor = TalonFX(IntakeConstants.LEFT_MOTOR_ID)
       val leftMotor = TalonFX(IntakeConstants.RIGHT_MOTOR_ID)
 
+      config.Slot0.kP = IntakeConstants.KP
+      config.Slot0.kI = IntakeConstants.KI
+      config.Slot0.kD = IntakeConstants.KD
+
       config.MotorOutput.Inverted = IntakeConstants.TOP_INVERTED
       topMotor.configurator.apply(config)
       topMotor.configurator.apply(IntakeConstants.TOP_MOTOR_INTAKING_CONFIG)
+
       config.MotorOutput.Inverted = IntakeConstants.LEFT_INVERTED
       leftMotor.configurator.apply(config)
+
       config.MotorOutput.Inverted = IntakeConstants.RIGHT_INVERTED
       rightMotor.configurator.apply(config)
 

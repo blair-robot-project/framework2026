@@ -166,7 +166,7 @@ open class Routines(
     val missFarPickup = routine.trajectory("TwoL4L2/failfar1$direction")
     val missFarScore = routine.trajectory("TwoL4L2/failfar2$direction")
 
-    //first path
+    // first path
     routine.active().onTrue(
       Commands.sequence(
         robot.intake.resetPiece(),
@@ -175,7 +175,7 @@ open class Routines(
       )
     )
 
-    //first piece score second piece pickup
+    // first piece score second piece pickup
     scorePreloadB.done().onTrue(
       Commands.sequence(
 
@@ -186,16 +186,16 @@ open class Routines(
           .withTimeout(firstPickupTime + AutoConstants.INTAKE_TIMEOUT),
 
         ConditionalCommand(
-          //if we picked it up regularly
+          // if we picked it up regularly
           scoreMiddleA.cmd()
             .alongWith(getPremoveCommand(reefLevels[1], 1.15)),
 
-          //if we didnt
+          // if we didnt
           Commands.sequence(
-            //do the miss pickup
+            // do the miss pickup
             missMidPickup.cmd()
               .alongWith(
-                //if its partially intakken outtake it
+                // if its partially intakken outtake it
                 robot.intake.outtakeL1()
                   .withTimeout(0.5)
                   .andThen(robot.intake.intakeToVertical())
@@ -204,13 +204,13 @@ open class Routines(
               .withTimeout(firstPickupTime + AutoConstants.INTAKE_TIMEOUT),
 
             ConditionalCommand(
-              //if we landed the miss pickup
+              // if we landed the miss pickup
               missMidScore.cmd()
                 .alongWith(getPremoveCommand(reefLevels[1], 0.85)),
 
-              //if we did not we're buns but anyways
+              // if we did not we're buns but anyways
               Commands.sequence(
-                //pick up the third
+                // pick up the third
                 robot.drive.driveStop(),
                 missFarPickup.cmd()
                   .alongWith(
@@ -220,14 +220,14 @@ open class Routines(
                   )
                   .andThen(robot.drive.driveStop()),
 
-                //score it
+                // score it
                 missFarScore.cmd().alongWith(
                   getPremoveCommand(reefLevels[1], 1.0)
                 ),
                 robot.drive.driveStop(),
                 scoreCoral(),
                 robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
-                //end the jaunt cause we running out of time lmao
+                // end the jaunt cause we running out of time lmao
 
               )
 
@@ -258,7 +258,7 @@ open class Routines(
       )
     )
 
-    //second piece score third piece pickup
+    // second piece score third piece pickup
     scoreMiddleA.done().onTrue(
 
       Commands.sequence(
@@ -272,10 +272,10 @@ open class Routines(
           .withTimeout(secondPickupTime + AutoConstants.INTAKE_TIMEOUT),
 
         ConditionalCommand(
-          //picked it up reg
+          // picked it up reg
           scoreRightB.cmd()
             .alongWith(getPremoveCommand(reefLevels[2], 1.15)),
-          //safety
+          // safety
           Commands.sequence(
             missFarPickup.cmd()
               .alongWith(
@@ -297,7 +297,7 @@ open class Routines(
 
     )
 
-    //third piece score
+    // third piece score
     scoreRightB.done()
       .onTrue(
         Commands.sequence(

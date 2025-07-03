@@ -72,9 +72,9 @@ object SuperstructureGoal {
   )
 
   val L4_PIVOT = SuperstructureState(
-    Radians.of(1.457763671875), // 83 deg
-    Meters.of(0.899609375),
-    Radians.of(2.44580078125), // 133 deg
+    Radians.of(1.467041015625), // 83 deg
+    Meters.of(0.929443359375),
+    Radians.of(2.28857421875), // 133 deg
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
@@ -161,11 +161,10 @@ object SuperstructureGoal {
 
   val STATION_INTAKE = SuperstructureState(
     Radians.of(1.11767578125),
-     Meters.of(0.12548828125),
+    Meters.of(0.12548828125),
     Radians.of(-0.640869140625),
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
-
 
   val L3_ALGAE_INTAKE = SuperstructureState(
     Radians.of(1.155),

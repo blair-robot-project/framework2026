@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.WaitCommand
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand
 import frc.team449.Robot
-import frc.team449.subsystems.FieldConstants
 import frc.team449.subsystems.drive.swerve.SwerveDrive
 import frc.team449.subsystems.superstructure.elevator.Elevator
 import frc.team449.subsystems.superstructure.pivot.Pivot
@@ -160,11 +159,11 @@ class SuperstructureManager(
       elevator.setPosition(SuperstructureGoal.L3_PIVOT.elevator.`in`(Meters)), // about 0.15 meter
       WaitCommand(0.2),
 
-      pivot.setPosition(pivot.positionSupplier.get() - 0.045).onlyIf{
-        lastCompletedGoal == SuperstructureGoal.L4_PIVOT},
+      pivot.setPosition(pivot.positionSupplier.get() - 0.045).onlyIf {
+        lastCompletedGoal == SuperstructureGoal.L4_PIVOT
+      },
 
       WaitUntilCommand { elevator.atSetpoint() },
-
 
       pivot.setPosition(goal.pivot.`in`(Radians)),
 
@@ -253,34 +252,36 @@ class SuperstructureManager(
 
   fun requestGoal(goal: SuperstructureGoal.SuperstructureState): Command {
     return InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) })
-        .andThen(InstantCommand({ ready = false }))
-        .andThen(InstantCommand({ requestedGoal = goal }))
-        .andThen(runOnce ({
+      .andThen(InstantCommand({ ready = false }))
+      .andThen(InstantCommand({ requestedGoal = goal }))
+      .andThen(
+        runOnce({
           timer.reset()
-        }))
-        .andThen(
+        })
+      )
+      .andThen(
 
-          ConditionalCommand( // goal is high comparison
-            // use special function for high goals
-            requestHigh(goal),
+        ConditionalCommand( // goal is high comparison
+          // use special function for high goals
+          requestHigh(goal),
 
-            // not a high goal
-            ConditionalCommand( // elevator height comparison
+          // not a high goal
+          ConditionalCommand( // elevator height comparison
 
-              // if extending or elevator the same
-              requestExtension(goal),
+            // if extending or elevator the same
+            requestExtension(goal),
 
-              // if retracting
-              requestRetraction(goal)
+            // if retracting
+            requestRetraction(goal)
 
-            ) { goal.elevator.`in`(Meters) >= elevator.positionSupplier.get() }
+          ) { goal.elevator.`in`(Meters) >= elevator.positionSupplier.get() }
 
-          ) {
-            goal == SuperstructureGoal.L4 || goal == SuperstructureGoal.L4_PIVOT ||
-              goal == SuperstructureGoal.NET || goal == SuperstructureGoal.NET_PIVOT
-          }
+        ) {
+          goal == SuperstructureGoal.L4 || goal == SuperstructureGoal.L4_PIVOT ||
+            goal == SuperstructureGoal.NET || goal == SuperstructureGoal.NET_PIVOT
+        }
 
-        )
+      )
       .andThen(runOnce({ timer.reset() }))
       .andThen(InstantCommand({ lastCompletedGoal = goal }))
       .andThen(InstantCommand({ ready = true }))
