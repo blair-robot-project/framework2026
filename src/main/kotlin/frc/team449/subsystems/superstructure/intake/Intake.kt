@@ -5,13 +5,18 @@ import au.grapplerobotics.interfaces.LaserCanInterface
 import au.grapplerobotics.simulation.MockLaserCan
 import com.ctre.phoenix6.controls.PositionVoltage
 import com.ctre.phoenix6.hardware.TalonFX
+import com.ctre.phoenix6.signals.ControlModeValue
 import dev.doglog.DogLog
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.RobotBase.isSimulation
 import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.Commands
+import frc.team449.subsystems.superstructure.elevator.ElevatorConstants
 import frc.team449.subsystems.superstructure.intake.IntakeConstants.config
 import frc.team449.system.motor.KrakenDogLog
+import org.ejml.dense.block.MatrixOps_DDRB.set
+import javax.swing.text.Position
+import kotlin.math.PI
 
 enum class Piece {
   CORAL,
@@ -103,6 +108,46 @@ class Intake(
     )
   }
 
+
+  /** ideas to test for holding coral + some position movement**/
+
+  //provided new position as a target
+  fun holdCoralWithNewPosition(): Command{
+    return stopMotors().andThen(
+      runOnce {
+        topMotor.setControl(PositionVoltage(topMotor.position.valueAsDouble).withPosition(1.0))//in rotation
+        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble).withPosition(1.5))
+        leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble).withPosition(1.5))
+      }
+    )
+  }
+
+
+  // apply a pid control with specified slot, in this case p
+  fun holdCoralWithSlot(): Command{
+    return stopMotors().andThen(
+      runOnce {
+        topMotor.setControl(PositionVoltage(topMotor.position.valueAsDouble).withSlot(0))// slot 0 = KP
+        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble).withSlot(0))
+        leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble).withSlot(0))
+      }
+    )
+  }
+
+
+  // basically ignores all hardware limits and execute the given command -use cautiously:skull:
+  fun holdCoralWithIgnore(): Command{
+    return stopMotors().andThen(
+      runOnce {
+        topMotor.setControl(PositionVoltage(topMotor.position.valueAsDouble + 0).withIgnoreHardwareLimits(true))
+        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble + 2).withIgnoreHardwareLimits(true))
+        leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble + 2).withIgnoreHardwareLimits(true))
+      }
+    )
+  }
+
+
+
   fun moveCoral(position: Double): Command {
     return stopMotors().andThen(
       runOnce {
@@ -130,6 +175,22 @@ class Intake(
 
   fun moveCoralPivotSide(): Command {
     return moveCoral(IntakeConstants.SLIDE_CORAL_TO_PIVOT)
+  }
+
+
+
+
+// questionable but could work
+  fun holdCoralToFront(): Command {
+    return Commands.sequence(
+      outtakeCoral().withTimeout(0.02)
+    )
+  }
+
+  fun holdCoralToPivot(): Command {
+    return Commands.sequence(
+      outtakeCoralPivot().withTimeout(0.02)
+    )
   }
 
   private var unverticaling = false
@@ -496,6 +557,10 @@ class Intake(
       val topMotor = TalonFX(IntakeConstants.TOP_MOTOR_ID)
       val rightMotor = TalonFX(IntakeConstants.LEFT_MOTOR_ID)
       val leftMotor = TalonFX(IntakeConstants.RIGHT_MOTOR_ID)
+
+      config.Slot0.kP = IntakeConstants.KP
+      config.Slot0.kI = IntakeConstants.KI
+      config.Slot0.kD = IntakeConstants.KD
 
       config.MotorOutput.Inverted = IntakeConstants.TOP_INVERTED
       topMotor.configurator.apply(config)

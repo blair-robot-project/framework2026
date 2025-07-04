@@ -12,6 +12,11 @@ object IntakeConstants {
   const val RIGHT_MOTOR_ID = 46
   const val LEFT_MOTOR_ID = 48
 
+  const val RIGHT_CORAL_SENSOR_CAN_ID = 20
+  const val MIDDLE_CORAL_SENSOR_CAN_ID = 21
+  const val LEFT_CORAL_SENSOR_CAN_ID = 22
+  const val BACK_CORAL_SENSOR_CAN_ID = 23
+
   const val KP = 2.0
   const val KI = 0.0
   const val KD = 0.5
@@ -57,10 +62,6 @@ object IntakeConstants {
   const val HOLD_ANGLE_CHANGE = 0.5
   const val HOLDING_FINISH_VELOCITY = 0.125
 
-  const val RIGHT_CORAL_SENSOR_CAN_ID = 20
-  const val MIDDLE_CORAL_SENSOR_CAN_ID = 21
-  const val LEFT_CORAL_SENSOR_CAN_ID = 22
-  const val BACK_CORAL_SENSOR_CAN_ID = 23
 
   const val WAIT_BEFORE_ALGAE_IN = 0.3
   const val WAIT_BEFORE_ALGAE_OUT = 0.15
