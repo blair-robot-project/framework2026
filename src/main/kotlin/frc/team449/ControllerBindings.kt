@@ -110,7 +110,7 @@ class ControllerBindings(
           robot.intake.intakeToVertical()
         ),
         robot.superstructureManager.requestGoal(SuperstructureGoal.STOW),
-        robot.intake.moveCoral(-PI/4)
+        robot.intake.moveCoral( PI)
       )
     )
   }
@@ -152,8 +152,8 @@ class ControllerBindings(
           WaitCommand(0.15),
           robot.superstructureManager.requestRetraction(SuperstructureGoal.STOW)
             .onlyIf {
-              robot.superstructureManager.lastRequestedGoal() != SuperstructureGoal.L1
-                && robot.superstructureManager.lastRequestedGoal() != SuperstructureGoal.PROC
+              robot.superstructureManager.lastRequestedGoal() != SuperstructureGoal.L1 &&
+                robot.superstructureManager.lastRequestedGoal() != SuperstructureGoal.PROC
             }
 
         ),
@@ -179,7 +179,6 @@ class ControllerBindings(
     }.onTrue(
       robot.superstructureManager.requestGoal(SuperstructureGoal.PROC)
     )
-
   }
   private fun climbTriggers() {
     Trigger {

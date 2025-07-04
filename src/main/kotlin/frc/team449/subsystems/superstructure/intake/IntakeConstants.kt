@@ -12,6 +12,10 @@ object IntakeConstants {
   const val RIGHT_MOTOR_ID = 46
   const val LEFT_MOTOR_ID = 48
 
+  const val KP = 2.0
+  const val KI = 0.0
+  const val KD = 0.5
+
   val TOP_INVERTED = InvertedValue.Clockwise_Positive
   val RIGHT_INVERTED = InvertedValue.CounterClockwise_Positive
   val LEFT_INVERTED = InvertedValue.Clockwise_Positive
@@ -47,8 +51,8 @@ object IntakeConstants {
   const val ALGAE_OUTTAKE_VOLTAGE = 11.0
   const val ALGAE_STALL_VOLTAGE_THRESHOLD =  70.0
 
-  const val SLIDE_CORAL_TO_OPP = -PI / 3 // radians
-  const val SLIDE_CORAL_TO_PIVOT = PI / 3 // radians
+  const val SLIDE_CORAL_TO_OPP = -PI  // radians
+  const val SLIDE_CORAL_TO_PIVOT = PI  // radians
 
   const val HOLD_ANGLE_CHANGE = 0.5
   const val HOLDING_FINISH_VELOCITY = 0.125

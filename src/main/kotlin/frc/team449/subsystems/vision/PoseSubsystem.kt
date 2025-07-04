@@ -20,6 +20,7 @@ import frc.team449.subsystems.RobotConstants
 import frc.team449.subsystems.drive.swerve.SwerveDrive
 import frc.team449.subsystems.drive.swerve.SwerveSim
 import frc.team449.system.AHRS
+import kotlin.jvm.optionals.getOrNull
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.pow
@@ -106,6 +107,22 @@ class PoseSubsystem(
 
   fun resetOdometry(pose: Pose2d) {
     poseEstimator.resetPose(pose)
+  }
+
+  fun isFacingNet(): Boolean {
+    val alliance = DriverStation.getAlliance().getOrNull()
+    val tolerance = 40
+    return (
+      (
+        alliance == DriverStation.Alliance.Red &&
+          abs(heading.degrees - 180) < tolerance
+        ) ||
+
+        (
+          alliance == DriverStation.Alliance.Blue &&
+            abs(heading.degrees - 0) < tolerance
+          )
+      )
   }
 
   fun isPivotSide(): Boolean {
