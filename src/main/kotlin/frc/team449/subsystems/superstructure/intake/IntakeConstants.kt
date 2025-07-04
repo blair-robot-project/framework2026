@@ -43,9 +43,9 @@ object IntakeConstants {
   const val SIDES_SLOWDOWN_CONSTANT = 1.2
 
   const val ALGAE_INTAKE_VOLTAGE = -8.0
-  const val ALGAE_HOLD_VOLTAGE = -4.0
+  const val ALGAE_HOLD_VOLTAGE = -6.5
   const val ALGAE_OUTTAKE_VOLTAGE = 11.0
-  const val ALGAE_STALL_VOLTAGE_THRESHOLD = 60.0
+  const val ALGAE_STALL_VOLTAGE_THRESHOLD =  70.0
 
   const val SLIDE_CORAL_TO_OPP = -PI / 3 // radians
   const val SLIDE_CORAL_TO_PIVOT = PI / 3 // radians
@@ -58,7 +58,7 @@ object IntakeConstants {
   const val LEFT_CORAL_SENSOR_CAN_ID = 22
   const val BACK_CORAL_SENSOR_CAN_ID = 23
 
-  const val WAIT_BEFORE_ALGAE_IN = 0.15
+  const val WAIT_BEFORE_ALGAE_IN = 0.3
   const val WAIT_BEFORE_ALGAE_OUT = 0.15
 
   // Minimum distance in mm on the LaserCAN sensors to count as a detection

@@ -182,7 +182,10 @@ open class Routines(
         robot.drive.driveStop(),
         scoreCoral(),
         pickupMiddle.cmd()
-          .alongWith(robot.intake.intakeToVertical())
+          .alongWith(
+            robot.intake.intakeToVertical()).alongWith(
+              robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL)
+            )
           .withTimeout(firstPickupTime + AutoConstants.INTAKE_TIMEOUT),
 
         ConditionalCommand(
@@ -198,7 +201,9 @@ open class Routines(
                 //if its partially intakken outtake it
                 robot.intake.outtakeL1()
                   .withTimeout(0.5)
-                  .andThen(robot.intake.intakeToVertical())
+                  .andThen(robot.intake.intakeToVertical()).alongWith(
+                    robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL)
+                  )
               )
               .andThen(robot.drive.driveStop())
               .withTimeout(firstPickupTime + AutoConstants.INTAKE_TIMEOUT),
@@ -216,7 +221,9 @@ open class Routines(
                   .alongWith(
                     robot.intake.outtakeL1()
                       .withTimeout(0.5)
-                      .andThen(robot.intake.intakeToVertical())
+                      .andThen(robot.intake.intakeToVertical()).alongWith(
+                        robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL)
+                      )
                   )
                   .andThen(robot.drive.driveStop()),
 
@@ -246,7 +253,9 @@ open class Routines(
         scoreCoral(),
 
         missMidSecondPickup.cmd()
-          .alongWith(robot.intake.intakeToVertical())
+          .alongWith(robot.intake.intakeToVertical()).alongWith(
+            robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL)
+          )
           .andThen(robot.drive.driveStop()),
 
         missMidSecondScore.cmd()
@@ -266,8 +275,9 @@ open class Routines(
         robot.drive.driveStop(),
         scoreCoral(),
 
-        pickupLeft.cmd()
-          .alongWith(robot.intake.intakeToVertical())
+        pickupLeft.cmd().alongWith(
+        (robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL))).alongWith(
+        (robot.intake.intakeToVertical()))
           .andThen(robot.drive.driveStop())
           .withTimeout(secondPickupTime + AutoConstants.INTAKE_TIMEOUT),
 
@@ -281,7 +291,9 @@ open class Routines(
               .alongWith(
                 robot.intake.outtakeL1()
                   .withTimeout(0.5)
-                  .andThen(robot.intake.intakeToVertical())
+                  .andThen(robot.intake.intakeToVertical()).alongWith(
+                    robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL)
+                  )
               )
               .andThen(robot.drive.driveStop()),
 

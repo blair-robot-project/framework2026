@@ -58,9 +58,9 @@ object SuperstructureGoal {
   )
 
   val L2_PIVOT = SuperstructureState(
-    Radians.of(1.211914),
-    MIN_ELEVATOR_HEIGHT,
-    Radians.of(1.503662),
+    Radians.of(1.11328),
+    Meters.of(-0.0065),
+    Radians.of(2.3405),
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 
@@ -72,9 +72,9 @@ object SuperstructureGoal {
   )
 
   val L4_PIVOT = SuperstructureState(
-    Radians.of(1.457763671875), // 83 deg
-    Meters.of(0.899609375),
-    Radians.of(2.44580078125), // 133 deg
+    Radians.of(1.467), // 83 deg
+    Meters.of(0.929),
+    Radians.of(2.28857), // 133 deg
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 

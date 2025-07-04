@@ -150,14 +150,13 @@ class SuperstructureManager(
   }
 
   // retracting from l4 pivot side and l3 pivot side
-  private fun retractFromPivot(): Command {
-    val goal = SuperstructureGoal.STOW
+  private fun retractFromPivot(goal: SuperstructureGoal.SuperstructureState): Command {
     return Commands.sequence(
 
       wrist.setPosition(Units.degreesToRadians(60.0)),
       WaitUntilCommand { wrist.positionSupplier.get() < Units.degreesToRadians(70.0) },
 
-      elevator.setPosition(SuperstructureGoal.L3_PIVOT.elevator.`in`(Meters)), // about 0.15 meter
+      elevator.setPosition(goal.elevator.`in`(Meters)), // about 0.15 meter
       WaitCommand(0.2),
 
       pivot.setPosition(pivot.positionSupplier.get() - 0.045).onlyIf{
@@ -180,6 +179,7 @@ class SuperstructureManager(
 
       WaitUntilCommand { wrist.atSetpoint() && elevator.atSetpoint() },
       holdAll()
+
     )
   }
 
@@ -189,7 +189,7 @@ class SuperstructureManager(
       ConditionalCommand( // pivot side retraction comparison
 
         // if we scored l4 or l3 pivot side we need to watch out for climb
-        retractFromPivot(),
+        retractFromPivot(goal),
 
         // if not pivot side then l4 retraction
         retractFromL4(goal)
