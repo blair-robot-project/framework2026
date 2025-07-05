@@ -5,24 +5,21 @@ import au.grapplerobotics.interfaces.LaserCanInterface
 import au.grapplerobotics.simulation.MockLaserCan
 import com.ctre.phoenix6.controls.PositionVoltage
 import com.ctre.phoenix6.hardware.TalonFX
-import com.ctre.phoenix6.signals.ControlModeValue
 import dev.doglog.DogLog
+import edu.wpi.first.math.filter.Debouncer
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.RobotBase.isSimulation
 import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.Commands
-import frc.team449.subsystems.superstructure.elevator.ElevatorConstants
 import frc.team449.subsystems.superstructure.intake.IntakeConstants.config
 import frc.team449.system.motor.KrakenDogLog
-import org.ejml.dense.block.MatrixOps_DDRB.set
-import javax.swing.text.Position
-import kotlin.math.PI
 
 enum class Piece {
   CORAL,
   ALGAE,
   NONE
 }
+
 
 class Intake(
   private val topMotor: TalonFX, // kraken x60
@@ -92,6 +89,23 @@ class Intake(
     }
   }
 
+
+  fun manualIn(): Command {
+    return this.runOnce {
+      topMotor.setVoltage(8.0)
+      rightMotor.setVoltage(8.0)
+      leftMotor.setVoltage(8.0)
+    }
+  }
+
+  fun manualOut(): Command {
+    return this.runOnce {
+      topMotor.setVoltage(-5.0)
+      rightMotor.setVoltage(-5.0)
+      leftMotor.setVoltage(-5.0)
+    }
+  }
+
   private fun setMotorsOutwards(slowdownConstant: Double = 1.0) {
     topMotor.setVoltage(IntakeConstants.TOP_CORAL_OUTTAKE_VOLTAGE / slowdownConstant)
     rightMotor.setVoltage(IntakeConstants.TOP_CORAL_OUTTAKE_VOLTAGE / slowdownConstant)
@@ -111,7 +125,7 @@ class Intake(
 
   /** ideas to test for holding coral + some position movement**/
 
-  //provided new position as a target
+  //provided new position for a target
   fun holdCoralWithNewPosition(): Command{
     return stopMotors().andThen(
       runOnce {
@@ -454,15 +468,24 @@ class Intake(
     return gamePiece == Piece.ALGAE
   }
 
+
+  private var algaeDebouncer = Debouncer(0.5,Debouncer.DebounceType.kRising)
+  private var resetAlgaeDebouncer = WaitUntilCommand{algaeDebouncer.calculate(false)}.ignoringDisable(true)
+
   private fun changePieceToAlgae(): Command {
+    // waits until the spike stays for 1 sec
     return WaitUntilCommand {
-      topMotor.statorCurrent.valueAsDouble >
-        IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD
+//      topMotor.statorCurrent.valueAsDouble >
+//        IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD
+      this.algaeDebouncer.calculate(topMotor.statorCurrent.valueAsDouble >
+        IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD)
     }.onlyIf { RobotBase.isReal() }
-      .andThen(WaitCommand(IntakeConstants.WAIT_BEFORE_ALGAE_IN))
+//      .andThen(WaitCommand(IntakeConstants.WAIT_BEFORE_ALGAE_IN))
       .andThen(runOnce { gamePiece = Piece.ALGAE })
       .andThen(holdAlgae())
+      .andThen(runOnce {resetAlgaeDebouncer.schedule()}) // reset
   }
+
 
 
   private fun changePieceToCoral(): Command {

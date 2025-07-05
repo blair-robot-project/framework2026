@@ -70,7 +70,7 @@ class ControllerBindings(
 //    pivotCharacterizaton()
   }
   private fun nonRobotBindings() {
-    // slowDrive()
+     slowDrive()
     /** NOTE: If you want to see simulated vision convergence times with this function, go to simulationPeriodic in
      * RobotBase and change the passed in pose to it.simulationPeriodic to robot.drive.odometryPose
      */
@@ -331,12 +331,12 @@ class ControllerBindings(
   private fun manualCoral() {
     // intake coral
     mechanismController.x().onTrue(
-      robot.intake.inwards()
+      robot.intake.manualIn()
     ).onFalse(robot.intake.stopMotors())
 
     // outtake coral
     mechanismController.y().onTrue(
-      robot.intake.outtakeCoral()
+      robot.intake.manualOut()
     ).onFalse(robot.intake.stopMotors())
   }
 
