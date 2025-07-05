@@ -19,6 +19,7 @@ import frc.team449.subsystems.RobotConstants
 import frc.team449.subsystems.drive.swerve.SwerveSim
 import frc.team449.subsystems.drive.swerve.WheelRadiusCharacterization
 import frc.team449.subsystems.superstructure.SuperstructureGoal
+import frc.team449.subsystems.superstructure.intake.IntakeConstants
 import frc.team449.subsystems.superstructure.wrist.WristConstants
 import java.util.Optional
 import kotlin.jvm.optionals.getOrNull
@@ -110,7 +111,7 @@ class ControllerBindings(
           robot.intake.intakeToVertical()
         ),
         robot.superstructureManager.requestGoal(SuperstructureGoal.STOW),
-        robot.intake.moveCoral( PI)
+        robot.intake.holdCoral()
       )
     )
   }
@@ -177,7 +178,10 @@ class ControllerBindings(
       driveController.hid.aButton &&
         robot.intake.algaeDetected()
     }.onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.PROC)
+      robot.superstructureManager.requestGoal(SuperstructureGoal.PROC).alongWith(
+        robot.intake.holdAlgaeProc()
+
+      )
     )
   }
   private fun climbTriggers() {
@@ -256,7 +260,7 @@ class ControllerBindings(
         ConditionalCommand(
           robot.superstructureManager.requestGoal(SuperstructureGoal.NET),
           robot.superstructureManager.requestGoal(SuperstructureGoal.NET_PIVOT)
-        ) { robot.poseSubsystem.isPivotSide() }
+        ) { robot.poseSubsystem.isFacingNet() }
 
       ) { robot.intake.coralDetected() }
     )
@@ -278,9 +282,20 @@ class ControllerBindings(
     driveController.povDown().onTrue(
       robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
         .deadlineFor(robot.light.progressMaskGradient(percentageElevatorPosition))
-        .alongWith(robot.intake.stopMotors())
         .alongWith(robot.climb.stop())
-    )
+        .alongWith(
+          ConditionalCommand(
+            robot.intake.holdAlgae() ,
+            robot.intake.stopMotors()
+          ){ robot.intake.algaeDetected() })
+
+        .andThen(ConditionalCommand(
+          robot.intake.stopMotors(),
+            robot.intake.holdAlgae()
+        ){ robot.intake.topMotor.statorCurrent.valueAsDouble <
+          10.0}))
+
+
   }
 
   /** mech controller TRIGGERS **/

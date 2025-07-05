@@ -174,9 +174,9 @@ object SuperstructureGoal {
   )
 
   val PROC = SuperstructureState(
-    Radians.of(0.644),
+    Radians.of(0.20458984375),
     MIN_ELEVATOR_HEIGHT,
-    Radians.of(-0.7),
+    Radians.of(-0.281005859375),
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 

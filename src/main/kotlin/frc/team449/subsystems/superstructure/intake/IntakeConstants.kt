@@ -19,7 +19,7 @@ object IntakeConstants {
 
   const val KP = 2.0
   const val KI = 0.0
-  const val KD = 0.5
+  const val KD = 0.0
 
   val TOP_INVERTED = InvertedValue.Clockwise_Positive
   val RIGHT_INVERTED = InvertedValue.CounterClockwise_Positive
@@ -35,7 +35,12 @@ object IntakeConstants {
     .withStatorCurrentLimit(80.0)
   val TOP_MOTOR_HOLDING_CONFIG: CurrentLimitsConfigs = CurrentLimitsConfigs()
     .withSupplyCurrentLimit(25.0)
-    .withStatorCurrentLimit(50.0)
+    .withStatorCurrentLimit(70.0)
+
+
+  val TOP_MOTOR_HOLDING_CONFIG_PROC: CurrentLimitsConfigs = CurrentLimitsConfigs()
+    .withSupplyCurrentLimit(25.0)
+    .withStatorCurrentLimit(75.0)
 
   // voltage for different scenarios and motors
   const val TOP_CORAL_INWARDS_VOLTAGE = 10.0
@@ -52,7 +57,7 @@ object IntakeConstants {
   const val SIDES_SLOWDOWN_CONSTANT = 1.2
 
   const val ALGAE_INTAKE_VOLTAGE = -8.0
-  const val ALGAE_HOLD_VOLTAGE = -6.5
+  const val ALGAE_HOLD_VOLTAGE = -7.0
   const val ALGAE_OUTTAKE_VOLTAGE = 11.0
   const val ALGAE_STALL_VOLTAGE_THRESHOLD =  70.0
 

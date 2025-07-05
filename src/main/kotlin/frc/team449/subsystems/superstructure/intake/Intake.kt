@@ -22,7 +22,7 @@ enum class Piece {
 
 
 class Intake(
-  private val topMotor: TalonFX, // kraken x60
+  val topMotor: TalonFX, // kraken x60
   private val rightMotor: TalonFX, // kraken x44
   private val leftMotor: TalonFX, // kraken x44
   private val backSensor: LaserCanInterface,
@@ -66,6 +66,7 @@ class Intake(
   private fun setVoltageTop(voltage: Double): Command {
     return runOnce { topMotor.setVoltage(voltage) }
   }
+
 
   private fun setMotorsRight(rightVoltage: Double = IntakeConstants.SIDES_RUN_TO_SIDE_LEFT_VOLTAGE, leftVoltage: Double = rightVoltage) {
     rightMotor.setVoltage(rightVoltage)
@@ -115,51 +116,12 @@ class Intake(
   fun holdCoral(): Command {
     return stopMotors().andThen(
       runOnce {
-        topMotor.setControl(PositionVoltage(topMotor.position.valueAsDouble))
-        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble))
-        leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble))
+        topMotor.setControl(PositionVoltage(topMotor.position.valueAsDouble  ).withSlot(0))
+        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble -5).withSlot(0))
+        leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble -5).withSlot(0))
       }
     )
   }
-
-
-  /** ideas to test for holding coral + some position movement**/
-
-  //provided new position for a target
-  fun holdCoralWithNewPosition(): Command{
-    return stopMotors().andThen(
-      runOnce {
-        topMotor.setControl(PositionVoltage(topMotor.position.valueAsDouble).withPosition(1.0))//in rotation
-        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble).withPosition(1.5))
-        leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble).withPosition(1.5))
-      }
-    )
-  }
-
-
-  // apply a pid control with specified slot, in this case p
-  fun holdCoralWithSlot(): Command{
-    return stopMotors().andThen(
-      runOnce {
-        topMotor.setControl(PositionVoltage(topMotor.position.valueAsDouble).withSlot(0))// slot 0 = KP
-        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble).withSlot(0))
-        leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble).withSlot(0))
-      }
-    )
-  }
-
-
-  // basically ignores all hardware limits and execute the given command -use cautiously:skull:
-  fun holdCoralWithIgnore(): Command{
-    return stopMotors().andThen(
-      runOnce {
-        topMotor.setControl(PositionVoltage(topMotor.position.valueAsDouble + 0).withIgnoreHardwareLimits(true))
-        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble + 2).withIgnoreHardwareLimits(true))
-        leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble + 2).withIgnoreHardwareLimits(true))
-      }
-    )
-  }
-
 
 
   fun moveCoral(position: Double): Command {
@@ -374,12 +336,21 @@ class Intake(
     )
   }
 
-  private fun holdAlgae(): Command {
+   fun holdAlgae(): Command {
     return Commands.sequence(
       runOnce { topMotor.configurator.apply(IntakeConstants.TOP_MOTOR_HOLDING_CONFIG) },
       setVoltageTop(IntakeConstants.ALGAE_HOLD_VOLTAGE),
     )
   }
+
+
+  fun holdAlgaeProc(): Command {
+    return Commands.sequence(
+      runOnce { topMotor.configurator.apply(IntakeConstants.TOP_MOTOR_HOLDING_CONFIG_PROC) },
+      setVoltageTop(IntakeConstants.ALGAE_HOLD_VOLTAGE),
+    )
+  }
+
 
   fun outtakeL1(): Command {
     return Commands.sequence(
@@ -469,21 +440,17 @@ class Intake(
   }
 
 
-  private var algaeDebouncer = Debouncer(0.5,Debouncer.DebounceType.kRising)
+   var algaeDebouncer = Debouncer(0.2,Debouncer.DebounceType.kRising)
   private var resetAlgaeDebouncer = WaitUntilCommand{algaeDebouncer.calculate(false)}.ignoringDisable(true)
 
   private fun changePieceToAlgae(): Command {
-    // waits until the spike stays for 1 sec
     return WaitUntilCommand {
-//      topMotor.statorCurrent.valueAsDouble >
-//        IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD
-      this.algaeDebouncer.calculate(topMotor.statorCurrent.valueAsDouble >
+      algaeDebouncer.calculate(topMotor.statorCurrent.valueAsDouble >
         IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD)
     }.onlyIf { RobotBase.isReal() }
-//      .andThen(WaitCommand(IntakeConstants.WAIT_BEFORE_ALGAE_IN))
       .andThen(runOnce { gamePiece = Piece.ALGAE })
       .andThen(holdAlgae())
-      .andThen(runOnce {resetAlgaeDebouncer.schedule()}) // reset
+//     .andThen(runOnce {resetAlgaeDebouncer.schedule()}) // reset
   }
 
 
