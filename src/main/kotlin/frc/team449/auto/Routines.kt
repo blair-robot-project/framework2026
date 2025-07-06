@@ -301,7 +301,8 @@ open class Routines(
               getPremoveCommand(reefLevels[2], 0.85)
             ),
             robot.drive.driveStop(),
-            scoreCoral()
+            scoreCoral(),
+            robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
           )
 
         ) { robot.intake.coralDetected() || !RobotBase.isReal() }
@@ -315,6 +316,7 @@ open class Routines(
         Commands.sequence(
           robot.drive.driveStop(),
           scoreCoral(),
+          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
         )
       )
 
@@ -327,6 +329,69 @@ open class Routines(
 
   fun leftGroundBack2L4L2(): AutoRoutine {
     return groundBack2L4L2("l", intArrayOf(2, 4, 4, 2))
+  }
+
+  private fun severnAuto(): AutoRoutine {
+    val routine = autoFactory.newRoutine("severn auto")
+    val waitTimes = listOf(1.0, 1.5, 1.4)
+
+    val scoreFirstPiece = routine.trajectory("subby3L4/1")
+    val pickupSecondPiece = routine.trajectory("subby3L4/2")
+    val scoreSecondPiece = routine.trajectory("subby3L4/3")
+    val pickupThirdPiece = routine.trajectory("subby3L4/4")
+    val scoreThirdPiece = routine.trajectory("subby3L4/5")
+
+    routine.active().onTrue(
+      Commands.sequence(
+        robot.intake.resetPiece(),
+        scoreFirstPiece.resetOdometry(),
+        scoreFirstPiece.cmd().alongWith(getPremoveCommand(4, waitTimes[0]))
+      )
+    )
+
+    scoreFirstPiece.done().onTrue(
+      Commands.sequence(
+        robot.drive.driveStop(),
+        scoreCoral(),
+        pickupSecondPiece.cmd()
+          .alongWith(WaitCommand(1.5)
+            .andThen(robot.intake.intakeToVertical()))
+          .alongWith(
+            robot.superstructureManager.requestGoal(SuperstructureGoal.STATION_INTAKE)
+          )
+      )
+    )
+
+    pickupSecondPiece.done().onTrue(
+      Commands.sequence(
+        robot.drive.driveStop(),
+        WaitUntilCommand { robot.intake.hasPiece() },
+        scoreSecondPiece.cmd().alongWith(getPremoveCommand(4, waitTimes[1]))
+      )
+    )
+
+    scoreSecondPiece.done().onTrue(
+      Commands.sequence(
+        robot.drive.driveStop(),
+        scoreCoral(),
+        pickupThirdPiece.cmd()
+          .alongWith(WaitCommand(1.5)
+            .andThen(robot.intake.intakeToVertical()))
+          .alongWith(
+            robot.superstructureManager.requestGoal(SuperstructureGoal.STATION_INTAKE)
+          )
+      )
+    )
+
+    pickupThirdPiece.done().onTrue(
+      Commands.sequence(
+        robot.drive.driveStop(),
+        WaitUntilCommand { robot.intake.hasPiece() },
+        scoreThirdPiece.cmd().alongWith(getPremoveCommand(4, waitTimes[2]))
+      )
+    )
+
+    return routine
   }
 
   private fun algaeAuto(threePointFive: Boolean = false, closeLaunch: Boolean = true): AutoRoutine {
@@ -423,14 +488,15 @@ open class Routines(
 
   // autoChooser that will be displayed on dashboard
   fun addOptions(autoChooser: AutoChooser) {
-    autoChooser.addRoutine("2 l4 and l2 Right", this::rightGroundBack2L4L2)
-    autoChooser.addRoutine("2 l4 and l2 Left", this::leftGroundBack2L4L2)
-
-    autoChooser.addRoutine("Left 3 L4 Middle & Sides", this::left3L4)
-    autoChooser.addRoutine("Right 3 L4 Middle & Sides", this::right3L4)
+    autoChooser.addRoutine("lollipop right", this::rightGroundBack2L4L2)
+    autoChooser.addRoutine("lollipop Left", this::leftGroundBack2L4L2)
 
     autoChooser.addRoutine("Center L4 & 3 Algae", this::algaeAuto)
     autoChooser.addRoutine("Center L4 & 2.5 Algae", this::hateKotlin)
+
+    autoChooser.addRoutine("Severn Left", this::severnAuto)
+
+    autoChooser.addRoutine("Center 1 L4", this::middleRoutine)
 
     autoChooser.addRoutine("Taxi", this::taxi)
 

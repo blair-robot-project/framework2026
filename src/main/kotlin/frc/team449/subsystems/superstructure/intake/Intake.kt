@@ -116,45 +116,26 @@ class Intake(
   fun holdCoral(): Command {
     return stopMotors().andThen(
       runOnce {
-        topMotor.setControl(PositionVoltage(topMotor.position.valueAsDouble  ).withSlot(0))
-        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble -5).withSlot(0))
-        leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble -5).withSlot(0))
+        topMotor.setControl(PositionVoltage(topMotor.position.valueAsDouble ).withSlot(0))
+        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble - 5).withSlot(0))
+        leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble - 5).withSlot(0))
       }
     )
   }
 
-
-  fun moveCoral(position: Double): Command {
-    return stopMotors().andThen(
-      runOnce {
-        rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble + position))
-        leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble + position))
-      }.andThen(
-        WaitUntilCommand {
-          // velocities are in rps
-          rightMotor.velocity.valueAsDouble > IntakeConstants.HOLDING_FINISH_VELOCITY * 2 &&
-            leftMotor.velocity.valueAsDouble > IntakeConstants.HOLDING_FINISH_VELOCITY * 2
-        }
-      ).andThen(
-        WaitUntilCommand {
-          // velocities are in rps
-          rightMotor.velocity.valueAsDouble < IntakeConstants.HOLDING_FINISH_VELOCITY &&
-            leftMotor.velocity.valueAsDouble < IntakeConstants.HOLDING_FINISH_VELOCITY
-        }
-      ).andThen(holdCoral())
-    )
-  }
-
   fun moveCoralOppSide(): Command {
-    return moveCoral(IntakeConstants.SLIDE_CORAL_TO_OPP)
+    return runOnce {
+      rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble - 5).withSlot(0))
+      leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble - 5).withSlot(0))
+    }
   }
 
   fun moveCoralPivotSide(): Command {
-    return moveCoral(IntakeConstants.SLIDE_CORAL_TO_PIVOT)
+    return runOnce {
+      rightMotor.setControl(PositionVoltage(rightMotor.position.valueAsDouble + 5).withSlot(0))
+      leftMotor.setControl(PositionVoltage(leftMotor.position.valueAsDouble + 5).withSlot(0))
+    }
   }
-
-
-
 
 // questionable but could work
   fun holdCoralToFront(): Command {
@@ -480,6 +461,10 @@ class Intake(
     )
   }
 
+  fun hasCoral(): Boolean {
+    return gamePiece == Piece.CORAL
+  }
+
   fun hasPiece(): Boolean {
     return algaeDetected() || coralDetected()
   }
@@ -551,6 +536,7 @@ class Intake(
       config.Slot0.kP = IntakeConstants.KP
       config.Slot0.kI = IntakeConstants.KI
       config.Slot0.kD = IntakeConstants.KD
+      config.Slot0.kS = IntakeConstants.KS
 
       config.MotorOutput.Inverted = IntakeConstants.TOP_INVERTED
       topMotor.configurator.apply(config)

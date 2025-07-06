@@ -111,12 +111,13 @@ class SuperstructureManager(
   // retract from front side scoring
   private fun retractFromL4(goal: SuperstructureGoal.SuperstructureState = SuperstructureGoal.STOW): Command {
     return Commands.sequence(
-      wrist.setPosition(goal.wrist.`in`(Radians)),
-      WaitUntilCommand { wrist.positionSupplier.get() > Units.degreesToRadians(100.0) },
+      wrist.setPosition(Units.degreesToRadians(60.0)),
+      WaitUntilCommand { wrist.positionSupplier.get() > Units.degreesToRadians(50.0) },
 
       elevator.setPosition(goal.elevator.`in`(Meters)),
       WaitUntilCommand { elevator.pivotReady() },
 
+      wrist.setPosition(goal.wrist.`in`(Radians)),
       pivot.setPosition(goal.pivot.`in`(Radians)),
       WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() && elevator.atSetpoint() },
       holdAll()
@@ -162,7 +163,13 @@ class SuperstructureManager(
         lastCompletedGoal == SuperstructureGoal.L4_PIVOT
       },
 
-      WaitUntilCommand { elevator.atSetpoint() },
+      WaitUntilCommand { pivot.atSetpoint() || elevator.atSetpoint() },
+      elevator.hold().onlyIf { elevator.atSetpoint() },
+      pivot.hold().onlyIf { pivot.atSetpoint() },
+
+      WaitUntilCommand { pivot.atSetpoint() && elevator.atSetpoint() },
+      pivot.hold(),
+      elevator.hold(),
 
       pivot.setPosition(goal.pivot.`in`(Radians)),
 
