@@ -17,10 +17,12 @@ object IntakeConstants {
   const val LEFT_CORAL_SENSOR_CAN_ID = 22
   const val BACK_CORAL_SENSOR_CAN_ID = 23
 
-  const val KP = 2.0
+  const val KP = 1.7
   const val KI = 0.0
   const val KD = 0.0
-  const val KS = 0.7
+  const val KS = 0.4
+
+  const val WHEEL_TOLERANCE = 0.01
 
   val TOP_INVERTED = InvertedValue.Clockwise_Positive
   val RIGHT_INVERTED = InvertedValue.CounterClockwise_Positive

@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.util.Color
 import edu.wpi.first.wpilibj2.command.*
+import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.button.Trigger
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
@@ -41,9 +42,13 @@ class ControllerBindings(
      * Operator: https://docs.google.com/drawings/d/1lF4Roftk6932jMCQthgKfoJVPuTVSgnGZSHs5j68uo4/edit
      */
     processor()
+    println("processor")
     scoreIntakeL2()
+    println("l2")
     scoreIntakeL3()
+    println("l3")
     scoreL4Net()
+    println("net")
 
     autoScoreLeft()
     autoScoreRight()
@@ -106,12 +111,13 @@ class ControllerBindings(
   private fun groundIntakeVertical() {
     driveController.leftBumper().onTrue(
       Commands.sequence(
+        runOnce ({ robot.intake.resetPos() }),
         Commands.parallel(
           robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL),
           robot.intake.intakeToVertical()
         ),
         robot.superstructureManager.requestGoal(SuperstructureGoal.STOW),
-        robot.intake.holdCoral()
+        robot.intake.recenterCoral()
       )
     )
   }
@@ -161,6 +167,7 @@ class ControllerBindings(
 
         // intake l1
         Commands.sequence(
+          runOnce ({ robot.intake.resetPos() }),
           Commands.parallel(
             robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL),
             robot.intake.intakeToHorizontal()
@@ -596,8 +603,12 @@ class ControllerBindings(
 
   /** Try not to touch, just add things to the robot or nonrobot bindings */
   fun bindButtons() {
+    println("Binding Buttons")
     nonRobotBindings()
+    println("\tBound non robot bindings")
     robotBindings()
+    println("\tBound robot bindings")
     characterizationBindings()
+    println("\tBound characterization bindings")
   }
 }
