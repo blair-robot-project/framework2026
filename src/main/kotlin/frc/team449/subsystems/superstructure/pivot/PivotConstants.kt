@@ -42,9 +42,9 @@ object PivotConstants {
 
   val ELEVATOR_READY = Degrees.of(45.0)
 
-  const val KP = 7.4
+  const val KP = 5.7
   const val KI = 0.0
-  const val KD = 0.048099
+  const val KD = 0.27
 
   // TODO(Adjust gains.)
   const val KS = 0.085813
@@ -53,7 +53,7 @@ object PivotConstants {
   const val KG_MAX = 0.58076 // (KG when elevator is fully extended.)
   const val KG_MAX_EXTENSION = 1.36934
 
-  val CRUISE_VEL = RotationsPerSecond.of(0.365) // max theoretical 0.3968  // 0.365 norm
+  val CRUISE_VEL = RotationsPerSecond.of(0.375) // max theoretical 0.3968  // 0.365 norm
   val MAX_ACCEL = RotationsPerSecondPerSecond.of(2.125) // 5.0, heavily limited by robot tipping // 2.125
 
   val RESET_ENC_LIMIT = Degrees.of(0.25)

@@ -78,8 +78,8 @@ class SuperstructureManager(
       WaitUntilCommand { wrist.atSetpoint() && pivot.atSetpoint() },
       pivot.hold(),
       wrist.hold(),
-      elevator.setPosition(goal.elevator.`in`(Meters)),
 
+      elevator.setPosition(goal.elevator.`in`(Meters)),
       WaitUntilCommand { elevator.atSetpoint() },
       holdAll()
     )
@@ -159,7 +159,7 @@ class SuperstructureManager(
       elevator.setPosition(goal.elevator.`in`(Meters)), // about 0.15 meter
       WaitCommand(0.2),
 
-      pivot.setPosition(pivot.positionSupplier.get() - 0.045).onlyIf {
+      pivot.setPosition(SuperstructureGoal.L4_PIVOT.pivot.`in`(Radians) + 0.045).onlyIf {
         lastCompletedGoal == SuperstructureGoal.L4_PIVOT
       },
 

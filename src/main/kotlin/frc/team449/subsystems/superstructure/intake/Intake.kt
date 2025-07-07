@@ -164,52 +164,49 @@ class Intake(
   }
 
   private fun centerCoral(): Command {
-    return runOnce { executing = true }.andThen(
+    return runOnce { coralPositioned = true }.andThen(
     ConditionalCommand (
 
-      Commands.sequence( // middle sensor on
-        runIntakeBackwards(5.0),
-        WaitUntilCommand { !middleSensorDetected() },
-        moveCoralForwardsByAmount(5.0)
-      ),
-
-      Commands.sequence( // middle sensor not on
+      //if both sensors are detecting, run it forwards back one isn't
+      Commands.sequence(
         runIntakeForwards(5.0),
         WaitUntilCommand { !backSensorDetected() },
-        moveCoralBackwardsByAmount(5.0)
-      )
+        runIntakeBackwards(2.5),
+        WaitUntilCommand { backSensorDetected() },
+        moveCoralBackwardsByAmount(2.0)
+      ),
 
-    ) { middleSensorDetected() })
-      .andThen(runOnce {
-        coralPositioned = true
-        executing = false
-      }).finallyDo( Runnable { executing = false })
+      ConditionalCommand(
+
+        //back sensor not on
+        Commands.sequence(
+          runIntakeBackwards(5.0),
+          WaitUntilCommand { backSensorDetected() },
+          moveCoralBackwardsByAmount(2.0)
+        ),
+
+        // middle sensor not on
+        Commands.sequence(
+          runIntakeForwards(5.0),
+          WaitUntilCommand { middleSensorDetected() },
+          moveCoralForwardsByAmount(3.0)
+        )
+
+      ) { middleSensorDetected() }
+
+    ) { backSensorDetected() && middleSensorDetected() })
   }
 
   private fun pivotCoralSequence(): Command {
     return Commands.sequence(
-      runOnce { executing = true },
-      runIntakeBackwards(2.0),
-      WaitUntilCommand { !middleSensorDetected() },
-      moveCoralForwardsByAmount(3.0),
-      WaitUntilCommand { middleSensorDetected() }
-    ).andThen(runOnce {
-      coralPositioned = true
-      executing = false
-    }).finallyDo( Runnable { executing = false })
+      moveCoralBackwardsByAmount(4.0),
+    )
   }
 
   private fun oppCoralSequence(): Command {
     return Commands.sequence(
-      runOnce { executing = true },
-      runIntakeForwards(2.0),
-      WaitUntilCommand { !backSensorDetected() },
-      moveCoralBackwardsByAmount(3.0),
-      WaitUntilCommand { backSensorDetected() }
-    ).andThen(runOnce {
-      coralPositioned = true
-      executing = false
-    }).finallyDo( Runnable { executing = false })
+      moveCoralForwardsByAmount(4.0),
+    )
   }
 
   private var unverticaling = false
@@ -252,9 +249,7 @@ class Intake(
   fun intakeToHorizontal(): Command {
     return FunctionalCommand(
       {
-        unverticaling = false
         coralIn = true // source: trust me bro
-        sensorsOut
       },
       {
 //        if (sensorsOut) {
@@ -274,27 +269,13 @@ class Intake(
         }
 
         if (rightSensorDetected()) {
-          if (!unverticaling) {
-            topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE / IntakeConstants.TOP_MOTOR_HORIZONTAL_SLOWDOWN)
-            if (middleSensorDetected()) {
-              // move left and slow down to prevent overshoot
-              setMotorsLeft(IntakeConstants.SIDES_RUN_TO_SIDE_LEFT_VOLTAGE / IntakeConstants.SIDES_SLOWDOWN_CONSTANT * 1.65)
-            } else {
-              // move left
-              setMotorsLeft()
-            }
-          } else { // unverticaling
-
-            if (onlyRightSensor()) {
-              // if it's only the right sensor we've successfully gotten the coral horizontal
-              // so end the process
-              unverticaling = false
-            } else {
-              // coral should be diagonal right now in between middle and right sensor
-              // move right until just right sensor, pulling in slightly for steadiness
-              topMotor.setVoltage(IntakeConstants.TOP_CORAL_OUTTAKE_VOLTAGE / IntakeConstants.TOP_MOTOR_HORIZONTAL_SLOWDOWN)
-              setMotorsRight()
-            }
+          topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE / IntakeConstants.TOP_MOTOR_HORIZONTAL_SLOWDOWN)
+          if (middleSensorDetected()) {
+            // move left and slow down to prevent overshoot
+            setMotorsLeft(IntakeConstants.SIDES_RUN_TO_SIDE_LEFT_VOLTAGE / IntakeConstants.SIDES_SLOWDOWN_CONSTANT * 1.65)
+          } else {
+            // move left
+            setMotorsLeft()
           }
         }
 
@@ -310,27 +291,14 @@ class Intake(
         }
 
         if (onlyMiddleSensor()) {
-          if (!backSensorDetected()) {
-            if (unverticaling) {
-              // move right and out slowly
-              setMotorsRight()
-              topMotor.setVoltage(IntakeConstants.TOP_CORAL_OUTTAKE_VOLTAGE / 3)
-            } else {
-              // run inwards till we hit back sensor
-              setMotorsInwards()
-            }
-          } else { // hitting back sensor
-            unverticaling = true
-            // move right and out slowly
-            setMotorsRight()
-            topMotor.setVoltage(IntakeConstants.TOP_CORAL_OUTTAKE_VOLTAGE / 3)
-          }
+          topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE / IntakeConstants.TOP_MOTOR_HORIZONTAL_SLOWDOWN)
+          setMotorsRight()
         }
+
       },
       { },
       {
-//        if (sensorsOut) { horizontalCoralStall() } else { coralIsHorizontal() }
-        coralIsHorizontal()
+        leftSensorDetected() && rightSensorDetected() && middleSensorDetected()
       }
     ).andThen(changePieceToCoral(true)).andThen(runOnce { topMotor.setVoltage(IntakeConstants.TOP_L1_HOLD) })
   }
@@ -503,7 +471,7 @@ class Intake(
         Piece.CORAL_VERTICAL
       }
       coralPos = CoralPlace.CENTERED
-    }
+    }.andThen(stopMotors())
   }
 
   fun recenterCoral() : Command {
@@ -578,10 +546,10 @@ class Intake(
   fun monitorCoral() : Command {
     val f =  FunctionalCommand (
       //initialization
-      { executing = false },
+      { },
       //execute
       {
-        if(coralIsVertical() && !executing) {
+        if(coralIsVertical()) {
           if(!coralPositioned || !middleSensorDetected() || !backSensorDetected()) {
             when (coralPos) {
               CoralPlace.CENTERED -> {
