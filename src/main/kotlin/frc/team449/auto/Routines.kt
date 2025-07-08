@@ -408,7 +408,7 @@ open class Routines(
     return routine
   }
 
-  private fun algaeAuto(threePointFive: Boolean = false, closeLaunch: Boolean = true): AutoRoutine {
+  private fun algaeAuto(closeLaunch: Boolean = true): AutoRoutine {
     val routine = autoFactory.newRoutine("algae auto")
     val algaeAutoType = if (closeLaunch) "OneL4ThreeAlClose" else "OneL4ThreeALFar"
     val farWaitTimes = listOf(0.8, 0.9, 1.2, 1.2)
@@ -420,8 +420,6 @@ open class Routines(
     val algaePickupLeft = routine.trajectory("$algaeAutoType/4")
     val netScoreLeft = routine.trajectory("$algaeAutoType/5")
     val algaePickupRight = routine.trajectory("$algaeAutoType/6")
-    val netScoreRight = routine.trajectory("${if (threePointFive) "AlgaeSafety" else algaeAutoType}/7")
-    val getTaxi = routine.trajectory("${if (threePointFive) "AlgaeSafety" else algaeAutoType}/8")
 
     routine.active().onTrue(
       Commands.sequence(
@@ -448,57 +446,24 @@ open class Routines(
         scoreAlgaePivot(),
         algaePickupLeft.cmd().andThen(robot.drive.driveStop())
           .alongWith(intakeAlgae(3))
-          .until { robot.intake.algaeDetected() },
+          .until { robot.intake.hasAlgae() },
         netScoreLeft.cmd()
           .alongWith(getPremoveCommand(5, waitTimes[2])),
       )
     )
 
     netScoreLeft.done().onTrue(
-      ConditionalCommand(
-        Commands.sequence(
-          robot.drive.driveStop(),
-          scoreAlgaePivot(),
-          algaePickupRight.cmd().andThen(robot.drive.driveStop())
-            .alongWith(intakeAlgae(3))
-            .until { robot.intake.algaeDetected() },
-          netScoreRight.cmd()
-            .alongWith(getPremoveCommand(5, waitTimes[3])),
-        ),
-        Commands.sequence(
-          robot.drive.driveStop(),
-          scoreAlgaePivot(),
-          algaePickupRight.cmd().andThen(robot.drive.driveStop())
-            .alongWith(intakeAlgae(3))
-            .until { robot.intake.algaeDetected() },
-          netScoreRight.cmd(),
-        )
-      ) { !threePointFive }
-    )
-
-    netScoreRight.done().onTrue(
-      ConditionalCommand(
-        Commands.sequence(
-          robot.drive.driveStop(),
-          scoreAlgaePivot(),
-          robot.superstructureManager.requestGoal(
-            SuperstructureGoal.SuperstructureState(
-              SuperstructureGoal.NET_PIVOT.pivot,
-              SuperstructureGoal.STOW.elevator,
-              SuperstructureGoal.NET_PIVOT.wrist,
-              SuperstructureGoal.NET_PIVOT.driveDynamics
-            )
-          ).alongWith(WaitCommand(0.25).andThen(getTaxi.cmd()))
-        ),
-        InstantCommand()
-      ) { !threePointFive }
-
+      Commands.sequence(
+        robot.drive.driveStop(),
+        scoreAlgaePivot(),
+        algaePickupRight.cmd().andThen(robot.drive.driveStop())
+          .alongWith(intakeAlgae(3))
+          .until { robot.intake.hasAlgae() }
+      )
     )
 
     return routine
   }
-
-  private fun hateKotlin(): AutoRoutine { return algaeAuto(true) }
 
   private fun severnLeft(): AutoRoutine { return severnAuto("l") }
   private fun severnRight(): AutoRoutine { return severnAuto("r") }
@@ -508,8 +473,7 @@ open class Routines(
     autoChooser.addRoutine("lollipop right", this::rightGroundBack2L4L2)
     autoChooser.addRoutine("lollipop Left", this::leftGroundBack2L4L2)
 
-    autoChooser.addRoutine("Center L4 & 3 Algae", this::algaeAuto)
-    autoChooser.addRoutine("Center L4 & 2.5 Algae", this::hateKotlin)
+    autoChooser.addRoutine("Center L4 & 2.5 Algae", this::algaeAuto)
 
     autoChooser.addRoutine("3L4 Left", this::severnLeft)
     autoChooser.addRoutine("3L4 Right", this::severnRight)

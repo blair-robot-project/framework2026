@@ -298,7 +298,9 @@ class Intake(
       },
       { },
       {
-        leftSensorDetected() && rightSensorDetected() && middleSensorDetected()
+        L1Debouncer.calculate(
+          leftSensorDetected() && middleSensorDetected() && rightSensorDetected()
+        )
       }
     ).andThen(changePieceToCoral(true)).andThen(runOnce { topMotor.setVoltage(IntakeConstants.TOP_L1_HOLD) })
   }
@@ -347,13 +349,12 @@ class Intake(
     )
   }
 
-   fun holdAlgae(): Command {
+  fun holdAlgae(): Command {
     return Commands.sequence(
       runOnce { topMotor.configurator.apply(IntakeConstants.TOP_MOTOR_HOLDING_CONFIG) },
       setVoltageTop(IntakeConstants.ALGAE_HOLD_VOLTAGE),
     )
   }
-
 
   fun holdAlgaeProc(): Command {
     return Commands.sequence(
@@ -361,7 +362,6 @@ class Intake(
       setVoltageTop(IntakeConstants.ALGAE_HOLD_VOLTAGE),
     )
   }
-
 
   fun outtakeL1(): Command {
     return Commands.sequence(
@@ -446,11 +446,13 @@ class Intake(
     return !laserCanDetected(leftSensor) && !laserCanDetected(rightSensor) && laserCanDetected(middleSensor)
   }
 
-  fun algaeDetected(): Boolean {
+  fun hasAlgae(): Boolean {
     return gamePiece == Piece.ALGAE
   }
 
   private var algaeDebouncer = Debouncer(0.2,Debouncer.DebounceType.kRising)
+  private var L1Debouncer = Debouncer(0.1,Debouncer.DebounceType.kRising)
+
   private var resetAlgaeDebouncer = WaitUntilCommand{algaeDebouncer.calculate(false)}.ignoringDisable(true)
 
   private fun changePieceToAlgae(): Command {
@@ -518,7 +520,7 @@ class Intake(
   }
 
   fun hasPiece(): Boolean {
-    return algaeDetected() || coralDetected()
+    return hasAlgae() || coralDetected()
   }
 
   fun resetPiece(): Command {

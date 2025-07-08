@@ -6,7 +6,6 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.DriverStation
-import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.util.Color
 import edu.wpi.first.wpilibj2.command.*
 import edu.wpi.first.wpilibj2.command.Commands.runOnce
@@ -20,7 +19,6 @@ import frc.team449.subsystems.RobotConstants
 import frc.team449.subsystems.drive.swerve.SwerveSim
 import frc.team449.subsystems.drive.swerve.WheelRadiusCharacterization
 import frc.team449.subsystems.superstructure.SuperstructureGoal
-import frc.team449.subsystems.superstructure.intake.IntakeConstants
 import frc.team449.subsystems.superstructure.wrist.WristConstants
 import java.util.Optional
 import kotlin.jvm.optionals.getOrNull
@@ -134,47 +132,31 @@ class ControllerBindings(
 
   private fun groundIntakeL1andOuttake() {
     driveController.rightBumper().onTrue(
-      ConditionalCommand(
-
-        // outtake
+      Commands.either(
+        //outtake
         Commands.sequence(
+          ConditionalCommand(
 
-          ConditionalCommand( // currently have coral
+            ConditionalCommand(
+              robot.intake.outtakeCoralPivot(),
+              robot.intake.outtakeCoral()
+            ) { robot.poseSubsystem.isPivotSide() },
 
-            ConditionalCommand( // outtaking to l1
-              robot.intake.outtakeL1(),
-
-              ConditionalCommand( // scoring on pivot side
-                robot.intake.outtakeCoralPivot(),
-                robot.intake.outtakeCoral()
-              ) { robot.superstructureManager.requestedPivotSide() }
-
-            ) { robot.superstructureManager.lastRequestedGoal() == SuperstructureGoal.L1 },
-
-            // dont have coral
             robot.intake.outtakeAlgae()
 
-          ) { robot.intake.coralDetected() }.onlyIf { RobotBase.isReal() },
-          // intake subsystem will stop motors automatically when finished outtaking so we don't need to do that here
-          WaitCommand(0.15),
-          robot.superstructureManager.requestRetraction(SuperstructureGoal.STOW)
-            .onlyIf {
-              robot.superstructureManager.lastRequestedGoal() != SuperstructureGoal.L1 &&
-                robot.superstructureManager.lastRequestedGoal() != SuperstructureGoal.PROC
-            }
+          ) { robot.intake.hasCoral() }
 
         ),
 
-        // intake l1
+        //intake
         Commands.sequence(
-          runOnce ({ robot.intake.resetPos() }),
-          Commands.parallel(
-            robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL),
-            robot.intake.intakeToHorizontal()
-          ),
-          robot.superstructureManager.requestGoal(SuperstructureGoal.L1),
+          robot.intake.resetPiece(),
+          robot.intake.intakeToHorizontal()
+            .alongWith(
+              robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL)
+            ),
+          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
         )
-
       ) { robot.intake.hasPiece() }
     )
   }
@@ -183,7 +165,7 @@ class ControllerBindings(
   private fun processor() {
     Trigger {
       driveController.hid.aButton &&
-        robot.intake.algaeDetected()
+        robot.intake.hasAlgae()
     }.onTrue(
       robot.superstructureManager.requestGoal(SuperstructureGoal.PROC).alongWith(
         robot.intake.holdAlgaeProc()
@@ -294,7 +276,7 @@ class ControllerBindings(
           ConditionalCommand(
             robot.intake.holdAlgae() ,
             robot.intake.stopMotors()
-          ){ robot.intake.algaeDetected() })
+          ){ robot.intake.hasAlgae() })
 
         .andThen(ConditionalCommand(
           robot.intake.stopMotors(),
