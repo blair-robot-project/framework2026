@@ -335,12 +335,12 @@ open class Routines(
     val routine = autoFactory.newRoutine("severn auto")
     val waitTimes = listOf(1.0, 1.3, 1.4)
 
-    val scoreFirstPiece = routine.trajectory("subby3L4/1$direction")
-    val pickupSecondPiece = routine.trajectory("subby3L4/2$direction")
-    val scoreSecondPiece = routine.trajectory("subby3L4/3$direction")
-    val pickupThirdPiece = routine.trajectory("subby3L4/4$direction")
-    val scoreThirdPiece = routine.trajectory("subby3L4/5$direction")
-    val pickupFourthPiece = routine.trajectory("subby3L4/6$direction")
+    val scoreFirstPiece = routine.trajectory("newSubby3L4/1$direction")
+    val pickupSecondPiece = routine.trajectory("newSubby3L4/2$direction")
+    val scoreSecondPiece = routine.trajectory("newSubby3L4/3$direction")
+    val pickupThirdPiece = routine.trajectory("newSubby3L4/4$direction")
+    val scoreThirdPiece = routine.trajectory("newSubby3L4/5$direction")
+    val pickupFourthPiece = routine.trajectory("newSubby3L4/6$direction")
 
     routine.active().onTrue(
       Commands.sequence(
