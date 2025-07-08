@@ -153,13 +153,13 @@ class SuperstructureManager(
   private fun retractFromPivot(goal: SuperstructureGoal.SuperstructureState): Command {
     return Commands.sequence(
 
-      wrist.setPosition(Units.degreesToRadians(60.0)),
+      wrist.setPosition(Units.degreesToRadians(30.0)),
       WaitUntilCommand { wrist.positionSupplier.get() < Units.degreesToRadians(70.0) },
 
       elevator.setPosition(goal.elevator.`in`(Meters)), // about 0.15 meter
       WaitCommand(0.2),
 
-      pivot.setPosition(SuperstructureGoal.L4_PIVOT.pivot.`in`(Radians) + 0.045).onlyIf {
+      pivot.setPosition(SuperstructureGoal.L4_PIVOT.pivot.`in`(Radians) + 0.17).onlyIf {
         lastCompletedGoal == SuperstructureGoal.L4_PIVOT
       },
 
