@@ -151,7 +151,7 @@ class Intake(
       WaitUntilCommand {
         abs(rightMotor.closedLoopError.valueAsDouble) < IntakeConstants.WHEEL_TOLERANCE &&
           abs(leftMotor.closedLoopError.valueAsDouble) < IntakeConstants.WHEEL_TOLERANCE
-      }
+      }.withTimeout(0.75)
     ).andThen(holdCoral())
   }
 
@@ -199,13 +199,15 @@ class Intake(
 
   private fun pivotCoralSequence(): Command {
     return Commands.sequence(
-      moveCoralBackwardsByAmount(4.0),
+      moveCoralBackwardsByAmount(2.5),
+      runOnce { coralPositioned = true }
     )
   }
 
   private fun oppCoralSequence(): Command {
     return Commands.sequence(
       moveCoralForwardsByAmount(4.0),
+      runOnce { coralPositioned = true }
     )
   }
 
@@ -352,7 +354,7 @@ class Intake(
   fun holdAlgae(): Command {
     return Commands.sequence(
       runOnce { topMotor.configurator.apply(IntakeConstants.TOP_MOTOR_HOLDING_CONFIG) },
-      setVoltageTop(IntakeConstants.ALGAE_HOLD_VOLTAGE),
+      setVoltageTop(IntakeConstants.ALGAE_HOLD_VOLTAGE)
     )
   }
 
@@ -450,7 +452,7 @@ class Intake(
     return gamePiece == Piece.ALGAE
   }
 
-  private var algaeDebouncer = Debouncer(0.2,Debouncer.DebounceType.kRising)
+  private var algaeDebouncer = Debouncer(IntakeConstants.ALGAE_DEBOUNCER_WAIT,Debouncer.DebounceType.kRising)
   private var L1Debouncer = Debouncer(0.1,Debouncer.DebounceType.kRising)
 
   private var resetAlgaeDebouncer = WaitUntilCommand{algaeDebouncer.calculate(false)}.ignoringDisable(true)
@@ -460,9 +462,14 @@ class Intake(
       algaeDebouncer.calculate(topMotor.statorCurrent.valueAsDouble >
         IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD)
     }.onlyIf { RobotBase.isReal() }
+      .andThen(runOnce { println("\n\n\n\n(*&^UGFWBNCOIUY^FWQ(*&^UGFWBNCOIUY^FWQ(*&^UGFWBNCOIUY^FWQ(*&^UGFWBNCOIUY^FWQ(*&^UGFWBNCOIUY^FWQ\n\n\n\n\n\n\n\n\n\n\n\n")})
       .andThen(runOnce { gamePiece = Piece.ALGAE })
+//      .andThen(runOnce { holdAlgaeCmd().schedule() } )
+  }
+
+  private fun holdAlgaeCmd(): Command {
+    return WaitCommand(IntakeConstants.WAIT_BEFORE_ALGAE_IN)
       .andThen(holdAlgae())
-//     .andThen(runOnce {resetAlgaeDebouncer.schedule()}) // reset
   }
 
   private fun changePieceToCoral(horizontal: Boolean): Command {

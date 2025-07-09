@@ -52,7 +52,9 @@ class ControllerBindings(
     autoScoreRight()
 
     groundIntakeVertical()
-    groundIntakeL1andOuttake()
+//    groundIntakeL1andOuttake()
+    outtake()
+    intakeL1()
     algaeGroundIntake()
 
     stow()
@@ -123,11 +125,62 @@ class ControllerBindings(
 /** driver controller START and BACK **/
   private fun algaeGroundIntake() {
     driveController.start().onTrue(
-      robot.superstructureManager.requestGoal(SuperstructureGoal.ALGAE_GROUND)
-        .alongWith(robot.intake.intakeAlgae())
-        .andThen(WaitCommand(0.15))
-        .andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.STOW))
+      Commands.sequence(
+        Commands.parallel(
+          robot.superstructureManager.requestGoal(SuperstructureGoal.ALGAE_GROUND)
+            .withTimeout(1.5),
+          robot.intake.intakeAlgae()
+        ),
+        WaitCommand(0.15),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.STOW).andThen(
+          robot.intake.holdAlgae()
+        )
+      )
     )
+  }
+
+  private fun outtake(){
+    Trigger{
+      driveController.rightBumper().asBoolean &&
+        robot.intake.hasPiece()
+    }.onTrue(
+      Commands.sequence(
+        ConditionalCommand(
+
+          ConditionalCommand(
+            robot.intake.outtakeCoralPivot(),
+            robot.intake.outtakeCoral()
+          ) { robot.poseSubsystem.isPivotSide() },
+
+          robot.intake.outtakeAlgae()
+
+        ) { robot.intake.hasCoral() },
+        robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
+          .onlyIf {
+            robot.superstructureManager.lastRequestedGoal() != SuperstructureGoal.L1 &&
+              robot.superstructureManager.lastRequestedGoal() != SuperstructureGoal.PROC
+          }
+      )
+    )
+
+  }
+
+  private fun intakeL1(){
+    Trigger{
+      driveController.rightBumper().asBoolean &&
+        !robot.intake.hasPiece()
+    }.onTrue(
+      Commands.sequence(
+        robot.intake.resetPiece(),
+        robot.intake.intakeToHorizontal()
+          .alongWith(
+            robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL)
+          ),
+        robot.superstructureManager.requestGoal(SuperstructureGoal.L1)
+      )
+    )
+
+
   }
 
   private fun groundIntakeL1andOuttake() {
@@ -144,8 +197,12 @@ class ControllerBindings(
 
             robot.intake.outtakeAlgae()
 
-          ) { robot.intake.hasCoral() }
-
+          ) { robot.intake.hasCoral() },
+          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
+            .onlyIf {
+              robot.superstructureManager.lastRequestedGoal() != SuperstructureGoal.L1 &&
+                robot.superstructureManager.lastRequestedGoal() != SuperstructureGoal.PROC
+            }
         ),
 
         //intake
@@ -155,8 +212,9 @@ class ControllerBindings(
             .alongWith(
               robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL)
             ),
-          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L1)
         )
+
       ) { robot.intake.hasPiece() }
     )
   }
@@ -273,18 +331,13 @@ class ControllerBindings(
         .deadlineFor(robot.light.progressMaskGradient(percentageElevatorPosition))
         .alongWith(robot.climb.stop())
         .alongWith(
-          ConditionalCommand(
-            robot.intake.holdAlgae() ,
-            robot.intake.stopMotors()
-          ){ robot.intake.hasAlgae() })
-
-        .andThen(ConditionalCommand(
-          robot.intake.stopMotors(),
-            robot.intake.holdAlgae()
-        ){ robot.intake.topMotor.statorCurrent.valueAsDouble <
-          10.0}))
-
-
+          robot.intake.stopMotors().onlyIf {
+            robot.superstructureManager.lastRequestedGoal() != SuperstructureGoal.L2_ALGAE_INTAKE &&
+            robot.superstructureManager.lastRequestedGoal() != SuperstructureGoal.L3_ALGAE_INTAKE &&
+            robot.superstructureManager.lastRequestedGoal() != SuperstructureGoal.GROUND_INTAKE_CORAL
+          }
+        )
+    )
   }
 
   /** mech controller TRIGGERS **/

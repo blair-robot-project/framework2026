@@ -23,7 +23,7 @@ object SuperstructureGoal {
   )
 
   val L1 = SuperstructureState(
-    Radians.of(0.644),
+    Radians.of(0.644 + 0.05),
     MIN_ELEVATOR_HEIGHT,
     Radians.of(-0.902 - 0.05),
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
@@ -38,7 +38,7 @@ object SuperstructureGoal {
 
   val L3 = SuperstructureState(
     Radians.of(0.912),
-    Meters.of(0.170),
+    Meters.of(0.170 + 0.08),
     Radians.of(1.269),
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
@@ -116,9 +116,9 @@ object SuperstructureGoal {
   )
 
   val NET = SuperstructureState(
-    Radians.of(1.289),
-    Meters.of(1.048), // 1.048
-    Radians.of(-0.072),
+    Radians.of(1.28076171875),
+    Meters.of(1.176513671875),
+    Radians.of(-0.768310546875),
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
 

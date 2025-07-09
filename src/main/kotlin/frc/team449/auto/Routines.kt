@@ -171,7 +171,7 @@ open class Routines(
       Commands.sequence(
         robot.intake.resetPiece(),
         scorePreloadB.resetOdometry(),
-        scorePreloadB.cmd().alongWith(getPremoveCommand(reefLevels[0], 1.65))
+        scorePreloadB.cmd().alongWith(getPremoveCommand(reefLevels[0], 1.35))
       )
     )
 
@@ -191,7 +191,7 @@ open class Routines(
         ConditionalCommand(
           // if we picked it up regularly
           scoreMiddleA.cmd()
-            .alongWith(getPremoveCommand(reefLevels[1], 1.15)),
+            .alongWith(getPremoveCommand(reefLevels[1], 1.0)),
 
           // if we didnt
           Commands.sequence(
@@ -284,7 +284,7 @@ open class Routines(
         ConditionalCommand(
           // picked it up reg
           scoreRightB.cmd()
-            .alongWith(getPremoveCommand(reefLevels[2], 1.15)),
+            .alongWith(getPremoveCommand(reefLevels[2], 1.0)),
           // safety
           Commands.sequence(
             missFarPickup.cmd()

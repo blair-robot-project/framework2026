@@ -38,7 +38,7 @@ object IntakeConstants {
     .withStatorCurrentLimit(80.0)
   val TOP_MOTOR_HOLDING_CONFIG: CurrentLimitsConfigs = CurrentLimitsConfigs()
     .withSupplyCurrentLimit(25.0)
-    .withStatorCurrentLimit(70.0)
+    .withStatorCurrentLimit(75.0)
 
 
   val TOP_MOTOR_HOLDING_CONFIG_PROC: CurrentLimitsConfigs = CurrentLimitsConfigs()
@@ -59,10 +59,10 @@ object IntakeConstants {
   const val SIDES_RUN_TO_SIDE_RIGHT_VOLTAGE = 8.0
   const val SIDES_SLOWDOWN_CONSTANT = 1.2
 
-  const val ALGAE_INTAKE_VOLTAGE = -8.0
-  const val ALGAE_HOLD_VOLTAGE = -7.0
+  const val ALGAE_INTAKE_VOLTAGE = -10.0
+  const val ALGAE_HOLD_VOLTAGE = -8.0
   const val ALGAE_OUTTAKE_VOLTAGE = 11.0
-  const val ALGAE_STALL_VOLTAGE_THRESHOLD =  70.0
+  const val ALGAE_STALL_VOLTAGE_THRESHOLD =  60.0
 
   const val SLIDE_CORAL_TO_OPP = -PI  // radians
   const val SLIDE_CORAL_TO_PIVOT = PI  // radians
@@ -70,8 +70,8 @@ object IntakeConstants {
   const val HOLD_ANGLE_CHANGE = 0.5
   const val HOLDING_FINISH_VELOCITY = 0.125
 
-
-  const val WAIT_BEFORE_ALGAE_IN = 0.3
+  const val ALGAE_DEBOUNCER_WAIT = 0.1
+  const val WAIT_BEFORE_ALGAE_IN = 0.8
   const val WAIT_BEFORE_ALGAE_OUT = 0.15
 
   // Minimum distance in mm on the LaserCAN sensors to count as a detection
