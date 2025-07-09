@@ -50,6 +50,7 @@ object IntakeConstants {
   const val L1_DEBOUNCER_WAIT = 0.15
   const val VERTICAL_DEBOUNCER_WAIT = 0.15
   const val PIECE_RESET_DEBOUNCER_WAIT = 0.1
+  const val PIECE_DETECT_DEBOUNCER_WAIT = 1.1
 
   // voltage for different scenarios and motors
   const val TOP_CORAL_INWARDS_VOLTAGE = 10.0

@@ -181,7 +181,7 @@ class Intake(
   private fun centerCoral(): Command {
     return Commands.sequence(
       runOnce { coralPositioned = true },
-      moveCoralBackwardsByAmount(3.3),
+      moveCoralForwardsByAmount(3.3),
       runOnce { holdCoral() }
     )
   }
@@ -189,7 +189,7 @@ class Intake(
   private fun pivotCoralSequence(): Command {
     return Commands.sequence(
       runOnce { coralPositioned = true },
-      moveCoralBackwardsByAmount(2.5),
+      moveCoralBackwardsByAmount(3.5),
       runOnce { holdCoral() }
     )
   }
@@ -197,7 +197,7 @@ class Intake(
   private fun oppCoralSequence(): Command {
     return Commands.sequence(
       runOnce { coralPositioned = true },
-      moveCoralForwardsByAmount(2.5),
+      moveCoralForwardsByAmount(3.5),
       runOnce { holdCoral() }
     )
   }
@@ -456,6 +456,7 @@ class Intake(
   private val l1Debouncer = Debouncer(IntakeConstants.L1_DEBOUNCER_WAIT, Debouncer.DebounceType.kRising)
   private val vertDebouncer = Debouncer(IntakeConstants.VERTICAL_DEBOUNCER_WAIT, Debouncer.DebounceType.kRising)
   private val pieceResetDebouncer = Debouncer(IntakeConstants.PIECE_RESET_DEBOUNCER_WAIT, Debouncer.DebounceType.kRising)
+  private val pieceDetectDebonucer = Debouncer(IntakeConstants.PIECE_DETECT_DEBOUNCER_WAIT, Debouncer.DebounceType.kRising)
 
   private fun changePieceToAlgae(): Command {
     return WaitUntilCommand {
@@ -530,36 +531,38 @@ class Intake(
   private fun moveTowardsBackSensor(): Command {
     return Commands.sequence(
       runOnce {
-        setMotorsInwards(3.0)
+        setMotorsInwards(5.0)
       },
-      WaitUntilCommand { backSensorDetected() }
+      WaitUntilCommand { backSensorDetected() },
+      runOnce { holdCoral() }
     )
   }
 
   private fun moveTowardsMiddleSensor(): Command {
     return Commands.sequence(
       runOnce {
-        setMotorsOutwards(3.0)
+        setMotorsOutwards(5.0)
       },
-      WaitUntilCommand { middleSensorDetected() }
+      WaitUntilCommand { middleSensorDetected() },
+      runOnce { holdCoral() }
     )
   }
 
   private fun moveTowardsLeftSensor(): Command {
     return Commands.sequence(
       runOnce {
-        setMotorsLeft(2.5)
+        setMotorsLeft(2.0)
       },
-      WaitUntilCommand { leftSensorDetected() }
+      WaitUntilCommand { leftSensorDetected() },
     )
   }
 
   private fun moveTowardsRightSensor(): Command {
     return Commands.sequence(
       runOnce {
-        setMotorsRight(2.5)
+        setMotorsRight(2.0)
       },
-      WaitUntilCommand { rightSensorDetected() }
+      WaitUntilCommand { rightSensorDetected() },
     )
   }
 
@@ -618,12 +621,12 @@ class Intake(
             }
           }
 
-          if(!backSensorDetected()) {
+          if(!backSensorDetected() && coralPos != CoralPlace.PIVOT && coralPos != CoralPlace.OPP) {
             command = "moving towards back sensor"
             moveTowardsBackSensor().schedule()
           }
 
-          if(!middleSensorDetected()) {
+          if(!middleSensorDetected() && coralPos != CoralPlace.PIVOT && coralPos != CoralPlace.OPP) {
             command = "moving towards middle sensor"
             moveTowardsMiddleSensor().schedule()
           }

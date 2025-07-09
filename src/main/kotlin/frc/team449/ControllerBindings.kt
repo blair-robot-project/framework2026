@@ -317,6 +317,17 @@ class ControllerBindings(
         .deadlineFor(robot.light.progressMaskGradient(percentageElevatorPosition))
         .alongWith(robot.climb.stop())
         .alongWith(robot.intake.stopMotors())
+        .andThen(
+          ConditionalCommand(
+            robot.intake.moveCoralOppSide(),
+            robot.intake.moveCoralPivotSide()
+          ) { robot.poseSubsystem.isPivotSide() }
+            .onlyIf {
+              (robot.superstructureManager.lastRequestedGoal() == SuperstructureGoal.L4 ||
+                robot.superstructureManager.lastRequestedGoal() == SuperstructureGoal.L4_PIVOT) &&
+                robot.intake.hasCoral()
+            }
+        )
     )
   }
 

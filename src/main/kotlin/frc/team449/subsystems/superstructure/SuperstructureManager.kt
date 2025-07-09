@@ -158,7 +158,7 @@ class SuperstructureManager(
       elevator.setPosition(goal.elevator.`in`(Meters)), // about 0.15 meter
       WaitCommand(0.2),
 
-      pivot.setPosition(SuperstructureGoal.L4_PIVOT.pivot.`in`(Radians) - 0.17).onlyIf {
+      pivot.setPosition(SuperstructureGoal.L4_PIVOT.pivot.`in`(Radians) - 0.25).onlyIf {
         lastCompletedGoal == SuperstructureGoal.L4_PIVOT
       },
 
@@ -188,6 +188,24 @@ class SuperstructureManager(
     )
   }
 
+  private fun handleNetPivotRetraction(goal: SuperstructureGoal.SuperstructureState): Command {
+    return Commands.sequence(
+      wrist.setPosition(SuperstructureGoal.NET.wrist.`in`(Radians)),
+      WaitUntilCommand { wrist.atSetpoint() },
+      elevator.setPosition(goal.elevator.`in`(Meters)),
+      WaitUntilCommand { elevator.pivotReady() },
+
+      pivot.setPosition(goal.pivot.`in`(Radians)),
+      WaitUntilCommand { pivot.atSetpoint() },
+      pivot.hold(),
+
+      WaitUntilCommand { elevator.atSetpoint() },
+      wrist.setPosition(goal.wrist.`in`(Radians)),
+
+      holdAll()
+    )
+  }
+
   private fun requestRetraction(goal: SuperstructureGoal.SuperstructureState): Command {
     return ConditionalCommand( // previous goal needs special retraction case
 
@@ -202,7 +220,10 @@ class SuperstructureManager(
       ) { requestedPivotSide() },
 
       // regular retraction
-      handleRetraction(goal)
+      ConditionalCommand(
+        handleNetPivotRetraction(goal),
+        handleRetraction(goal)
+      ) { lastCompletedGoal == SuperstructureGoal.NET_PIVOT }
 
     ) {
       lastCompletedGoal == SuperstructureGoal.L4 ||
