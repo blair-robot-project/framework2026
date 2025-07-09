@@ -41,9 +41,6 @@ object IntakeConstants {
     .withStatorCurrentLimit(75.0)
 
 
-  val TOP_MOTOR_HOLDING_CONFIG_PROC: CurrentLimitsConfigs = CurrentLimitsConfigs()
-    .withSupplyCurrentLimit(25.0)
-    .withStatorCurrentLimit(75.0)
 
   // voltage for different scenarios and motors
   const val TOP_CORAL_INWARDS_VOLTAGE = 10.0

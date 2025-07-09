@@ -358,12 +358,7 @@ class Intake(
     )
   }
 
-  fun holdAlgaeProc(): Command {
-    return Commands.sequence(
-      runOnce { topMotor.configurator.apply(IntakeConstants.TOP_MOTOR_HOLDING_CONFIG_PROC) },
-      setVoltageTop(IntakeConstants.ALGAE_HOLD_VOLTAGE),
-    )
-  }
+
 
   fun outtakeL1(): Command {
     return Commands.sequence(
@@ -455,16 +450,12 @@ class Intake(
   private var algaeDebouncer = Debouncer(IntakeConstants.ALGAE_DEBOUNCER_WAIT,Debouncer.DebounceType.kRising)
   private var L1Debouncer = Debouncer(0.1,Debouncer.DebounceType.kRising)
 
-  private var resetAlgaeDebouncer = WaitUntilCommand{algaeDebouncer.calculate(false)}.ignoringDisable(true)
-
   private fun changePieceToAlgae(): Command {
     return WaitUntilCommand {
       algaeDebouncer.calculate(topMotor.statorCurrent.valueAsDouble >
         IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD)
     }.onlyIf { RobotBase.isReal() }
-      .andThen(runOnce { println("\n\n\n\n(*&^UGFWBNCOIUY^FWQ(*&^UGFWBNCOIUY^FWQ(*&^UGFWBNCOIUY^FWQ(*&^UGFWBNCOIUY^FWQ(*&^UGFWBNCOIUY^FWQ\n\n\n\n\n\n\n\n\n\n\n\n")})
       .andThen(runOnce { gamePiece = Piece.ALGAE })
-//      .andThen(runOnce { holdAlgaeCmd().schedule() } )
   }
 
   private fun holdAlgaeCmd(): Command {
@@ -545,7 +536,7 @@ class Intake(
   }
 
   override fun periodic() {
-    if(!coralDetected()) {
+    if(!coralDetected() || !hasAlgae()) {
       gamePiece = Piece.NONE
     }
     logData()
