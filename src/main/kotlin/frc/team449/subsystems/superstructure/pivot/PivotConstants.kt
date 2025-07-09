@@ -44,7 +44,7 @@ object PivotConstants {
 
   const val KP = 5.7
   const val KI = 0.0
-  const val KD = 0.27
+  const val KD = 0.4
 
   // TODO(Adjust gains.)
   const val KS = 0.085813

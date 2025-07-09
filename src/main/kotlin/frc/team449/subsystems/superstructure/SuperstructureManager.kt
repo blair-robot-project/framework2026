@@ -29,7 +29,6 @@ class SuperstructureManager(
   private var requestedGoal = SuperstructureGoal.STOW
   private var lastCompletedGoal = SuperstructureGoal.STOW
   private var ready = false
-  private val timer = Timer()
 
   private fun handleCoralToAlgaeGround(): Command {
     val goal = SuperstructureGoal.ALGAE_GROUND
@@ -189,7 +188,7 @@ class SuperstructureManager(
     )
   }
 
-  fun requestRetraction(goal: SuperstructureGoal.SuperstructureState): Command {
+  private fun requestRetraction(goal: SuperstructureGoal.SuperstructureState): Command {
     return ConditionalCommand( // previous goal needs special retraction case
 
       ConditionalCommand( // pivot side retraction comparison
@@ -262,11 +261,6 @@ class SuperstructureManager(
       .andThen(InstantCommand({ ready = false }))
       .andThen(InstantCommand({ requestedGoal = goal }))
       .andThen(
-        runOnce({
-          timer.reset()
-        })
-      )
-      .andThen(
 
         ConditionalCommand( // goal is high comparison
           // use special function for high goals
@@ -289,21 +283,8 @@ class SuperstructureManager(
         }
 
       )
-      .andThen(runOnce({ timer.reset() }))
       .andThen(InstantCommand({ lastCompletedGoal = goal }))
       .andThen(InstantCommand({ ready = true }))
-//    {
-//        FieldConstants.FIELD_CONFIGURED &&
-//
-//        ( goal == SuperstructureGoal.ALGAE_GROUND ||
-//          goal == SuperstructureGoal.GROUND_INTAKE_CORAL ) &&
-//
-//        poseSubsystem.pose.translation.getDistance(
-//          poseSubsystem.pose.nearest(FieldConstants.REEF_LOCATIONS).translation
-//        ) < FieldConstants.DIST_FOR_SAFE_GI
-//
-//        && !poseSubsystem.isPivotSide()
-//    }
   }
 
   fun isAtPos(): Boolean {
