@@ -1,17 +1,11 @@
 package frc.team449.subsystems.superstructure.wrist
 
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs
-import com.ctre.phoenix6.configs.MotionMagicConfigs
 import com.ctre.phoenix6.signals.InvertedValue
 import com.ctre.phoenix6.signals.NeutralModeValue
 import edu.wpi.first.units.Units.*
-import edu.wpi.first.units.measure.AngularAcceleration
-import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.Frequency
 import edu.wpi.first.wpilibj.util.Color
 import edu.wpi.first.wpilibj.util.Color8Bit
-import edu.wpi.first.wpilibj2.command.Command
-import java.lang.module.Configuration
 import kotlin.math.PI
 
 object WristConstants {
@@ -52,7 +46,7 @@ object WristConstants {
   val LOW_VEL = RotationsPerSecond.of(1.0)
   val LOW_ACCEL = RotationsPerSecondPerSecond.of(2.0)
 
-  val CRUISE_VEL = RotationsPerSecond.of(2.75)// should get to 2.5, max theoretical 2.95
+  val CRUISE_VEL = RotationsPerSecond.of(2.75) // should get to 2.5, max theoretical 2.95
   val MAX_ACCEL = RotationsPerSecondPerSecond.of(3.5) // should get to 3.0, max theoretical 18.842
 
   val STARTUP_ANGLE = Degrees.of(129.7339) // TODO: Change to back hardstop angle

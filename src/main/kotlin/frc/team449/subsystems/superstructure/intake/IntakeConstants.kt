@@ -32,7 +32,7 @@ object IntakeConstants {
   const val SUPPLY_LIM = 40.0
   const val STATOR_LIM = 80.0
 
-  //configs
+  // configs
   val config = TalonFXConfiguration()
   val TOP_MOTOR_INTAKING_CONFIG: CurrentLimitsConfigs = CurrentLimitsConfigs()
     .withSupplyCurrentLimit(40.0)
@@ -44,8 +44,7 @@ object IntakeConstants {
     .withSupplyCurrentLimit(25.0)
     .withStatorCurrentLimit(75.0)
 
-
-  //debouncers
+  // debouncers
   const val ALGAE_DEBOUNCER_WAIT = 0.1
   const val L1_DEBOUNCER_WAIT = 0.15
   const val VERTICAL_DEBOUNCER_WAIT = 0.15
@@ -68,10 +67,10 @@ object IntakeConstants {
   const val ALGAE_INTAKE_VOLTAGE = -10.0
   const val ALGAE_HOLD_VOLTAGE = -8.0
   const val ALGAE_OUTTAKE_VOLTAGE = 11.0
-  const val ALGAE_STALL_VOLTAGE_THRESHOLD =  60.0
+  const val ALGAE_STALL_VOLTAGE_THRESHOLD = 60.0
 
-  const val SLIDE_CORAL_TO_OPP = -PI  // radians
-  const val SLIDE_CORAL_TO_PIVOT = PI  // radians
+  const val SLIDE_CORAL_TO_OPP = -PI // radians
+  const val SLIDE_CORAL_TO_PIVOT = PI // radians
 
   const val HOLD_ANGLE_CHANGE = 0.5
   const val HOLDING_FINISH_VELOCITY = 0.125

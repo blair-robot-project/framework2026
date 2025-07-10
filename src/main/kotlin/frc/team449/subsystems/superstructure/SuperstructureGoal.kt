@@ -117,7 +117,7 @@ object SuperstructureGoal {
 
   val NET = SuperstructureState(
     Radians.of(1.28076171875),
-    Meters.of(1.176513671875),
+    Meters.of(1.176513671875 + 0.08),
     Radians.of(-0.768310546875),
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )
@@ -132,7 +132,7 @@ object SuperstructureGoal {
   // TODO: FIND NET PIVOT POSE
   val NET_PIVOT = SuperstructureState(
     Radians.of(1.360),
-    Meters.of(1.055),
+    Meters.of(1.055 + 0.08),
     Radians.of(0.658), // -138.5
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
   )

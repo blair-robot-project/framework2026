@@ -40,16 +40,18 @@ class SimpleReefAlign(
   private val leftOrRight: Optional<FieldConstants.ReefSide> = Optional.empty()
 ) : Command() {
   init {
-    addRequirements(drive) //drive can't be used by others while this runs
+    addRequirements(drive) // drive can't be used by others while this runs
   }
-//motion-profiled pid for driving
+
+// motion-profiled pid for driving
   private val translationController = ProfiledPIDController(
     translationPID.first,
     translationPID.second,
     translationPID.third,
     TrapezoidProfile.Constraints(translationSpeedLim, translationAccelLim)
   )
-//motion-profiled pid for rotation/ heading control
+
+// motion-profiled pid for rotation/ heading control
   private val headingController = ProfiledPIDController(
     headingPID.first,
     headingPID.second,
@@ -68,7 +70,7 @@ class SimpleReefAlign(
 
     val currentPose = poseSubsystem.pose
 
-    //choose the closest reef face we're going for
+    // choose the closest reef face we're going for
     if (leftOrRight.isEmpty) {
       targetPose = if (poseSubsystem.isPivotSide()) {
         if (FieldConstants.REEF_LOCATIONS_PIVOT.isNotEmpty()) currentPose.nearest(FieldConstants.REEF_LOCATIONS) else Pose2d()
@@ -85,7 +87,7 @@ class SimpleReefAlign(
         FieldConstants.REEF_LOCATIONS[2 * index + if (leftOrRight.get() == FieldConstants.ReefSide.LEFT) 0 else 1]
       }
     }
-//pid setpoint using current motion
+// pid setpoint using current motion
     val fieldRelative = ChassisSpeeds.fromRobotRelativeSpeeds(
       drive.currentSpeeds.vxMetersPerSecond,
       drive.currentSpeeds.vyMetersPerSecond,

@@ -33,13 +33,13 @@ class Wrist(
 
   lateinit var wristFeedForward: WristFeedForward
 
-
   private fun setAccelAndVel(accel: AngularAcceleration, vel: AngularVelocity): Command {
     return runOnce {
       val config = MotionMagicConfigs()
         .withMotionMagicAcceleration(accel)
         .withMotionMagicCruiseVelocity(vel)
-      motor.configurator.apply(config) }
+      motor.configurator.apply(config)
+    }
   }
 
   fun slowWristSpeed(): Command {
@@ -51,7 +51,7 @@ class Wrist(
     }
   }
 
-  fun resetWristSpeed():Command{
+  fun resetWristSpeed(): Command {
     return runOnce {
       setAccelAndVel(
         WristConstants.MAX_ACCEL,

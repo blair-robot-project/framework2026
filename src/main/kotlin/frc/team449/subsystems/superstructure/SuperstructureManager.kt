@@ -2,10 +2,8 @@ package frc.team449.subsystems.superstructure
 
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.*
-import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
-import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.WaitCommand
@@ -70,6 +68,14 @@ class SuperstructureManager(
         wrist.setPosition(goal.wrist.`in`(Radians)),
         pivot.setPosition(goal.pivot.`in`(Radians))
       ),
+
+      // hold wrist if it gets there first but otherwise wait until pivot is almost there before moving elevator
+      WaitUntilCommand { pivot.atSetpoint(Degrees.of(8.0)) || wrist.atSetpoint() },
+      wrist.hold().onlyIf { wrist.atSetpoint() },
+      WaitUntilCommand { pivot.atSetpoint(Degrees.of(8.0)) },
+
+      elevator.setPosition(goal.elevator.`in`(Meters)),
+
       WaitUntilCommand { wrist.atSetpoint() || pivot.atSetpoint() },
       pivot.hold().onlyIf { pivot.atSetpoint() },
       wrist.hold().onlyIf { wrist.atSetpoint() },
@@ -78,7 +84,6 @@ class SuperstructureManager(
       pivot.hold(),
       wrist.hold(),
 
-      elevator.setPosition(goal.elevator.`in`(Meters)),
       WaitUntilCommand { elevator.atSetpoint() },
       holdAll()
     )

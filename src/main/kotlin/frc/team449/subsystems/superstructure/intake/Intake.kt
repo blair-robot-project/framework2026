@@ -79,7 +79,6 @@ class Intake(
     return runOnce { topMotor.setVoltage(voltage) }
   }
 
-
   private fun setMotorsRight(rightVoltage: Double = IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE, leftVoltage: Double = rightVoltage) {
     rightMotor.setVoltage(rightVoltage)
     leftMotor.setVoltage(-leftVoltage)
@@ -96,12 +95,12 @@ class Intake(
     leftMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE / slowdownConstant)
   }
 
-  private fun runIntakeBackwards(slowdownConstant: Double = 1.0) : Command {
-    return runOnce {setMotorsInwards(slowdownConstant)}
+  private fun runIntakeBackwards(slowdownConstant: Double = 1.0): Command {
+    return runOnce { setMotorsInwards(slowdownConstant) }
   }
 
-  private fun runIntakeForwards(slowdownConstant: Double = 1.0) : Command {
-    return runOnce {setMotorsOutwards(slowdownConstant)}
+  private fun runIntakeForwards(slowdownConstant: Double = 1.0): Command {
+    return runOnce { setMotorsOutwards(slowdownConstant) }
   }
 
   fun manualIn(): Command {
@@ -288,7 +287,6 @@ class Intake(
           topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE / IntakeConstants.TOP_MOTOR_HORIZONTAL_SLOWDOWN)
           setMotorsRight()
         }
-
       },
       { },
       {
@@ -460,8 +458,10 @@ class Intake(
 
   private fun changePieceToAlgae(): Command {
     return WaitUntilCommand {
-      algaeDebouncer.calculate(topMotor.statorCurrent.valueAsDouble >
-        IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD)
+      algaeDebouncer.calculate(
+        topMotor.statorCurrent.valueAsDouble >
+          IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD
+      )
     }.onlyIf { RobotBase.isReal() }
       .andThen(runOnce { gamePiece = Piece.ALGAE })
   }
@@ -485,8 +485,8 @@ class Intake(
     }
   }
 
-  fun recenterCoral() : Command {
-    return runOnce { coralPositioned = false}
+  fun recenterCoral(): Command {
+    return runOnce { coralPositioned = false }
   }
 
   private fun changePieceToNone(coralOuttaken: Boolean = true): Command {
@@ -589,22 +589,20 @@ class Intake(
   }
 
   override fun periodic() {
-    if( hasCoral() && pieceResetDebouncer.calculate(!coralDetected()) ) {
+    if (hasCoral() && pieceResetDebouncer.calculate(!coralDetected())) {
       gamePiece = Piece.NONE
     }
     logData()
   }
 
-
-  fun monitorCoral() : Command {
-    val f = FunctionalCommand (
-      //initialization
+  fun monitorCoral(): Command {
+    val f = FunctionalCommand(
+      // initialization
       { command = "monitoring" },
-      //execute
+      // execute
       {
-        if(coralIsVertical()) {
-
-          if(!coralPositioned) {
+        if (coralIsVertical()) {
+          if (!coralPositioned) {
             when (coralPos) {
               CoralPlace.CENTERED -> {
                 command = "centering"
@@ -621,34 +619,30 @@ class Intake(
             }
           }
 
-          if(!backSensorDetected() && coralPos != CoralPlace.PIVOT && coralPos != CoralPlace.OPP) {
+          if (!backSensorDetected() && coralPos != CoralPlace.PIVOT && coralPos != CoralPlace.OPP) {
             command = "moving towards back sensor"
             moveTowardsBackSensor().schedule()
           }
 
-          if(!middleSensorDetected() && coralPos != CoralPlace.PIVOT && coralPos != CoralPlace.OPP) {
+          if (!middleSensorDetected() && coralPos != CoralPlace.PIVOT && coralPos != CoralPlace.OPP) {
             command = "moving towards middle sensor"
             moveTowardsMiddleSensor().schedule()
           }
-
         } else if (coralIsHorizontal()) {
-
-          if(!rightSensorDetected()) {
+          if (!rightSensorDetected()) {
             command = "moving towards right sensor"
             moveTowardsRightSensor().schedule()
           }
 
-          if(!leftSensorDetected()) {
+          if (!leftSensorDetected()) {
             command = "moving towards left sensor"
             moveTowardsLeftSensor().schedule()
           }
-
         }
-
       },
-      //on end
+      // on end
       { },
-      //finish requirements
+      // finish requirements
       { false }
     )
     f.addRequirements(this)
@@ -656,24 +650,24 @@ class Intake(
   }
 
   private fun logData() {
-    //MOTORS
+    // MOTORS
     KrakenDogLog.log("Intake/Motors/topMotor", topMotor)
     KrakenDogLog.log("Intake/Motors/rightMotor", rightMotor)
     KrakenDogLog.log("Intake/Motors/leftMotor", leftMotor)
-    //VOLTAGE
+    // VOLTAGE
     DogLog.log("Intake/Motors/Voltage/topMotorVoltage", topMotor.motorVoltage.valueAsDouble)
     DogLog.log("Intake/Motors/Voltage/leftMotorVoltage", leftMotor.motorVoltage.valueAsDouble)
     DogLog.log("Intake/Motors/Voltage/rightMotorVoltage", rightMotor.motorVoltage.valueAsDouble)
-    //ERROR
+    // ERROR
     DogLog.log("Intake/Motors/Error/topMotorError", topMotor.closedLoopError.valueAsDouble)
     DogLog.log("Intake/Motors/Error/leftMotorError", leftMotor.closedLoopError.valueAsDouble)
     DogLog.log("Intake/Motors/Error/rightMotorError", rightMotor.closedLoopError.valueAsDouble)
-    //TEMP
+    // TEMP
     DogLog.log("Intake/Motors/Temp/topMotorTemperature", topMotor.deviceTemp.valueAsDouble)
     DogLog.log("Intake/Motors/Temp/leftMotorTemperature", leftMotor.deviceTemp.valueAsDouble)
     DogLog.log("Intake/Motors/Temp/rightMotorTemperature", rightMotor.deviceTemp.valueAsDouble)
 
-    //STATE
+    // STATE
     val pieceName = when (gamePiece) {
       Piece.NONE -> "none"
       Piece.ALGAE -> "algae"
@@ -684,7 +678,7 @@ class Intake(
     DogLog.log("Intake/State/Command", command)
     DogLog.log("Intake/State/In Tolerance", inTolerance)
 
-    //LASERCANS
+    // LASERCANS
     val back: LaserCanInterface.Measurement? = backSensor.measurement
     val left: LaserCanInterface.Measurement? = leftSensor.measurement
     val right: LaserCanInterface.Measurement? = rightSensor.measurement

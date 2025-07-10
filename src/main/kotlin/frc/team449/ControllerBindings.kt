@@ -75,7 +75,7 @@ class ControllerBindings(
 //    pivotCharacterizaton()
   }
   private fun nonRobotBindings() {
-     slowDrive()
+    slowDrive()
     /** NOTE: If you want to see simulated vision convergence times with this function, go to simulationPeriodic in
      * RobotBase and change the passed in pose to it.simulationPeriodic to robot.drive.odometryPose
      */
@@ -110,7 +110,7 @@ class ControllerBindings(
   private fun groundIntakeVertical() {
     driveController.leftBumper().onTrue(
       Commands.sequence(
-        runOnce ({ robot.intake.resetPos() }),
+        runOnce({ robot.intake.resetPos() }),
         Commands.parallel(
           robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL),
           robot.intake.intakeToVertical()
@@ -141,7 +141,7 @@ class ControllerBindings(
   }
 
   private fun outtake() {
-    Trigger{
+    Trigger {
       driveController.rightBumper().asBoolean &&
         robot.intake.hasPiece()
     }.onTrue(
@@ -168,7 +168,7 @@ class ControllerBindings(
   }
 
   private fun intakeL1() {
-    Trigger{
+    Trigger {
       driveController.rightBumper().asBoolean &&
         !robot.intake.hasPiece()
     }.onTrue(
@@ -181,8 +181,6 @@ class ControllerBindings(
         robot.superstructureManager.requestGoal(SuperstructureGoal.L1)
       )
     )
-
-
   }
 
 /** driver controller A,B,X,Y **/
@@ -247,7 +245,6 @@ class ControllerBindings(
           robot.intake.holdAlgae(),
           robot.wrist.resetWristSpeed()
         )
-
 
       ) { robot.intake.hasCoral() }
     )
@@ -323,8 +320,10 @@ class ControllerBindings(
             robot.intake.moveCoralPivotSide()
           ) { robot.poseSubsystem.isPivotSide() }
             .onlyIf {
-              (robot.superstructureManager.lastRequestedGoal() == SuperstructureGoal.L4 ||
-                robot.superstructureManager.lastRequestedGoal() == SuperstructureGoal.L4_PIVOT) &&
+              (
+                robot.superstructureManager.lastRequestedGoal() == SuperstructureGoal.L4 ||
+                  robot.superstructureManager.lastRequestedGoal() == SuperstructureGoal.L4_PIVOT
+                ) &&
                 robot.intake.hasCoral()
             }
         )

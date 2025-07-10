@@ -183,7 +183,8 @@ open class Routines(
         scoreCoral(),
         pickupMiddle.cmd()
           .alongWith(
-            robot.intake.intakeToVertical()).alongWith(
+            robot.intake.intakeToVertical()
+          ).alongWith(
             robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL)
           )
           .withTimeout(firstPickupTime + AutoConstants.INTAKE_TIMEOUT),
@@ -276,8 +277,10 @@ open class Routines(
         scoreCoral(),
 
         pickupLeft.cmd().alongWith(
-          (robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL))).alongWith(
-          (robot.intake.intakeToVertical()))
+          (robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL))
+        ).alongWith(
+          (robot.intake.intakeToVertical())
+        )
           .andThen(robot.drive.driveStop())
           .withTimeout(secondPickupTime + AutoConstants.INTAKE_TIMEOUT),
 
@@ -355,8 +358,10 @@ open class Routines(
         robot.drive.driveStop(),
         scoreCoral(),
         pickupSecondPiece.cmd()
-          .alongWith(WaitCommand(1.5)
-            .andThen(robot.intake.intakeToVertical()))
+          .alongWith(
+            WaitCommand(1.5)
+              .andThen(robot.intake.intakeToVertical())
+          )
           .alongWith(
             robot.superstructureManager.requestGoal(SuperstructureGoal.STATION_INTAKE)
           )
@@ -376,8 +381,10 @@ open class Routines(
         robot.drive.driveStop(),
         scoreCoral(),
         pickupThirdPiece.cmd()
-          .alongWith(WaitCommand(1.5)
-            .andThen(robot.intake.intakeToVertical()))
+          .alongWith(
+            WaitCommand(1.5)
+              .andThen(robot.intake.intakeToVertical())
+          )
           .alongWith(
             robot.superstructureManager.requestGoal(SuperstructureGoal.STATION_INTAKE)
           )
@@ -397,8 +404,10 @@ open class Routines(
         robot.drive.driveStop(),
         scoreCoral(),
         pickupFourthPiece.cmd()
-          .alongWith(WaitCommand(1.5)
-            .andThen(robot.intake.intakeToVertical()))
+          .alongWith(
+            WaitCommand(1.5)
+              .andThen(robot.intake.intakeToVertical())
+          )
           .alongWith(
             robot.superstructureManager.requestGoal(SuperstructureGoal.STATION_INTAKE)
           )
