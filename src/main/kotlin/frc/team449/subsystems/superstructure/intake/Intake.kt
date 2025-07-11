@@ -169,11 +169,11 @@ class Intake(
     )
   }
 
-  private fun moveCoralForwardsByAmount(distance: Double): Command {
+   fun moveCoralForwardsByAmount(distance: Double): Command {
     return moveCoralByAmount(distance)
   }
 
-  private fun moveCoralBackwardsByAmount(distance: Double): Command {
+   fun moveCoralBackwardsByAmount(distance: Double): Command {
     return moveCoralByAmount(-distance)
   }
 
@@ -516,15 +516,25 @@ class Intake(
 
   fun moveCoralOppSide(): Command {
     return runOnce {
-      coralPos = CoralPlace.OPP
-      coralPositioned = false
+      if(coralPos == CoralPlace.CENTERED) {
+        coralPos = CoralPlace.OPP
+        coralPositioned = false
+      }
+    }
+  }
+
+  fun setCentered(): Command {
+    return runOnce {
+      coralPos = CoralPlace.CENTERED
     }
   }
 
   fun moveCoralPivotSide(): Command {
     return runOnce {
-      coralPos = CoralPlace.PIVOT
-      coralPositioned = false
+      if(coralPos == CoralPlace.CENTERED) {
+        coralPos = CoralPlace.PIVOT
+        coralPositioned = false
+      }
     }
   }
 
@@ -674,9 +684,18 @@ class Intake(
       Piece.CORAL_VERTICAL -> "coral vertical"
       Piece.CORAL_HORIZONTAL -> "coral horizontal"
     }
+    val place = when (coralPos) {
+      CoralPlace.CENTERED -> "centered"
+      CoralPlace.PIVOT -> "pivot"
+      CoralPlace.OPP -> "opp"
+      CoralPlace.HORIZONTAL -> "horizontal"
+    }
     DogLog.log("Intake/State/Piece State", pieceName)
     DogLog.log("Intake/State/Command", command)
     DogLog.log("Intake/State/In Tolerance", inTolerance)
+    DogLog.log("Intake/State/Coral Positioned", coralPositioned)
+    DogLog.log("Intake/State/Coral Place", place)
+
 
     // LASERCANS
     val back: LaserCanInterface.Measurement? = backSensor.measurement

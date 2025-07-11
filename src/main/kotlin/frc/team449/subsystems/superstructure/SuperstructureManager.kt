@@ -1,5 +1,6 @@
 package frc.team449.subsystems.superstructure
 
+import dev.doglog.DogLog
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.wpilibj2.command.Command
@@ -25,6 +26,7 @@ class SuperstructureManager(
 ) {
 
   private var requestedGoal = SuperstructureGoal.STOW
+  private var previousRequestedGoal = SuperstructureGoal.STOW
   private var lastCompletedGoal = SuperstructureGoal.STOW
   private var ready = false
 
@@ -285,6 +287,7 @@ class SuperstructureManager(
   fun requestGoal(goal: SuperstructureGoal.SuperstructureState): Command {
     return InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) })
       .andThen(InstantCommand({ ready = false }))
+      .andThen(InstantCommand({previousRequestedGoal = requestedGoal}))
       .andThen(InstantCommand({ requestedGoal = goal }))
       .andThen(
 
@@ -317,14 +320,29 @@ class SuperstructureManager(
     return ready
   }
 
-  fun lastRequestedGoal(): SuperstructureGoal.SuperstructureState {
-    return requestedGoal
+  fun previousRequestedGoal(): SuperstructureGoal.SuperstructureState {
+    return previousRequestedGoal
+  }
+
+  fun lastCompletedGoal(): SuperstructureGoal.SuperstructureState {
+    return lastCompletedGoal
+  }
+
+  fun requestedOppSide(): Boolean {
+    return lastCompletedGoal == SuperstructureGoal.L2 ||
+      lastCompletedGoal == SuperstructureGoal.L3 ||
+      lastCompletedGoal == SuperstructureGoal.L4
   }
 
   fun requestedPivotSide(): Boolean {
     return lastCompletedGoal == SuperstructureGoal.L2_PIVOT ||
       lastCompletedGoal == SuperstructureGoal.L3_PIVOT ||
       lastCompletedGoal == SuperstructureGoal.L4_PIVOT
+  }
+
+    fun logData() {
+    DogLog.log("Superstructure/Current State", requestedGoal.toString())
+    DogLog.log("Superstructure/Last State", lastCompletedGoal.toString())
   }
 
   private fun holdAll(): Command {
