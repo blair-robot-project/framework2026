@@ -93,7 +93,7 @@ open class Routines(
     middlesides.active().onTrue(
       Commands.sequence(
         robot.intake.resetPiece(),
-        preloadScore.resetOdometry().alongWith(robot.intake.stopMotors()),
+        preloadScore.resetOdometry().alongWith(robot.intake.stopMotorsCmd()),
         preloadScore.cmd().alongWith(
           robot.superstructureManager.requestGoal(SuperstructureGoal.L4_PREMOVE_PIVOT)
             .withDeadline(WaitCommand(1.5))
@@ -549,7 +549,8 @@ open class Routines(
           SuperstructureGoal.NET_PIVOT.pivot,
           SuperstructureGoal.L3_ALGAE_INTAKE.elevator,
           SuperstructureGoal.NET_PIVOT.wrist,
-          SuperstructureGoal.L3_ALGAE_INTAKE.driveDynamics
+          SuperstructureGoal.L3_ALGAE_INTAKE.driveDynamics,
+          "algae auto reef intake intermediate"
         )
       ).andThen(robot.superstructureManager.requestGoal(SuperstructureGoal.L3_ALGAE_INTAKE))
     ) { level == 2 }

@@ -23,6 +23,7 @@ enum class Piece {
 }
 
 enum class CoralPlace {
+  INTAKEN,
   HORIZONTAL,
   CENTERED,
   PIVOT,
@@ -48,7 +49,8 @@ class Intake(
 
   private var gamePiece = Piece.CORAL_VERTICAL
   private var coralPos = CoralPlace.CENTERED
-  private var coralPositioned = true
+  private var coralPosGoal = CoralPlace.CENTERED
+
   private var command = "none"
   private var inTolerance = true
 
@@ -177,28 +179,39 @@ class Intake(
     return moveCoralByAmount(-distance)
   }
 
-  private fun centerCoral(): Command {
+  private fun runCoralMovingSequence(intermediateCommand: Command): Command {
     return Commands.sequence(
-      runOnce { coralPositioned = true },
-      moveCoralForwardsByAmount(3.3),
-      runOnce { holdCoral() }
+      intermediateCommand,
+      runOnce {
+        holdCoral()
+        coralPos = coralPosGoal
+      }
     )
+  }
+
+  private fun centerCoral(): Command {
+    return when(coralPos) {
+      CoralPlace.INTAKEN -> runCoralMovingSequence(moveCoralForwardsByAmount(IntakeConstants.INTAKEN_TO_CENTERED))
+      CoralPlace.OPP -> pivotCoralSequence()
+      CoralPlace.PIVOT -> oppCoralSequence()
+      else -> InstantCommand()
+    }
   }
 
   private fun pivotCoralSequence(): Command {
-    return Commands.sequence(
-      runOnce { coralPositioned = true },
-      moveCoralBackwardsByAmount(3.5),
-      runOnce { holdCoral() }
-    )
+    return when(coralPos) {
+      CoralPlace.CENTERED -> runCoralMovingSequence(moveCoralBackwardsByAmount(IntakeConstants.PIVOT_MOVEMENT))
+      CoralPlace.OPP -> runCoralMovingSequence(moveCoralBackwardsByAmount(IntakeConstants.PIVOT_MOVEMENT * 2))
+      else -> InstantCommand()
+    }
   }
 
   private fun oppCoralSequence(): Command {
-    return Commands.sequence(
-      runOnce { coralPositioned = true },
-      moveCoralForwardsByAmount(3.5),
-      runOnce { holdCoral() }
-    )
+    return when(coralPos) {
+      CoralPlace.CENTERED -> runCoralMovingSequence(moveCoralForwardsByAmount(IntakeConstants.OPP_MOVEMENT))
+      CoralPlace.OPP -> runCoralMovingSequence(moveCoralForwardsByAmount(IntakeConstants.OPP_MOVEMENT * 2))
+      else -> InstantCommand()
+    }
   }
 
   private var unverticaling = false
@@ -243,6 +256,8 @@ class Intake(
       {
         command = "intakeToHorizontal"
         coralIn = true // source: trust me bro
+        coralPos = CoralPlace.HORIZONTAL
+        coralPosGoal = CoralPlace.HORIZONTAL
       },
       {
 //        if (sensorsOut) {
@@ -300,7 +315,11 @@ class Intake(
 
   fun intakeToVertical(): Command {
     return FunctionalCommand(
-      { command = "intakeToVertical" },
+      {
+        command = "intakeToVertical"
+        coralPos = CoralPlace.CENTERED
+        coralPosGoal = CoralPlace.CENTERED
+      },
       {
 //        if (sensorsOut) {
 //          setMotorsInwards()
@@ -471,7 +490,6 @@ class Intake(
       topMotor.stopMotor()
       holdCoral()
       gamePiece = Piece.CORAL_VERTICAL
-      coralPos = CoralPlace.CENTERED
     }
   }
 
@@ -481,12 +499,7 @@ class Intake(
       rightMotor.stopMotor()
       topMotor.setVoltage(IntakeConstants.TOP_L1_HOLD)
       gamePiece = Piece.CORAL_HORIZONTAL
-      coralPos = CoralPlace.HORIZONTAL
     }
-  }
-
-  fun recenterCoral(): Command {
-    return runOnce { coralPositioned = false }
   }
 
   private fun changePieceToNone(coralOuttaken: Boolean = true): Command {
@@ -510,33 +523,15 @@ class Intake(
         WaitCommand(2.0)
       ),
       runOnce { gamePiece = Piece.NONE },
-      stopMotors()
+      stopMotorsCmd()
     )
   }
 
-  fun moveCoralOppSide(): Command {
-    return runOnce {
-      if(coralPos == CoralPlace.CENTERED) {
-        coralPos = CoralPlace.OPP
-        coralPositioned = false
-      }
-    }
-  }
-
-  fun setCentered(): Command {
-    return runOnce {
-      coralPos = CoralPlace.CENTERED
-    }
-  }
-
-  fun moveCoralPivotSide(): Command {
-    return runOnce {
-      if(coralPos == CoralPlace.CENTERED) {
-        coralPos = CoralPlace.PIVOT
-        coralPositioned = false
-      }
-    }
-  }
+  fun moveCoralOppSide(): Command { return runOnce { coralPosGoal = CoralPlace.OPP } }
+  fun moveCoralPivotSide(): Command { return runOnce { coralPosGoal = CoralPlace.PIVOT } }
+  fun moveCoralCentered(): Command { return runOnce { coralPosGoal = CoralPlace.CENTERED } }
+  //intake to vertical sets coralPosGoal to CoralPlace.CENTERED immediately
+  fun moveCoralFromIntake(): Command { return runOnce { coralPos = CoralPlace.INTAKEN } }
 
   private fun moveTowardsBackSensor(): Command {
     return Commands.sequence(
@@ -544,6 +539,7 @@ class Intake(
         setMotorsInwards(5.0)
       },
       WaitUntilCommand { backSensorDetected() },
+      stopMotorsCmd(),
       runOnce { holdCoral() }
     )
   }
@@ -554,6 +550,7 @@ class Intake(
         setMotorsOutwards(5.0)
       },
       WaitUntilCommand { middleSensorDetected() },
+      stopMotorsCmd(),
       runOnce { holdCoral() }
     )
   }
@@ -563,6 +560,7 @@ class Intake(
       runOnce {
         setMotorsLeft(2.0)
       },
+      stopMotorsCmd(),
       WaitUntilCommand { leftSensorDetected() },
     )
   }
@@ -572,6 +570,7 @@ class Intake(
       runOnce {
         setMotorsRight(2.0)
       },
+      stopMotorsCmd(),
       WaitUntilCommand { rightSensorDetected() },
     )
   }
@@ -590,12 +589,14 @@ class Intake(
     }
   }
 
-  fun stopMotors(): Command {
-    return runOnce {
-      topMotor.stopMotor()
-      rightMotor.stopMotor()
-      leftMotor.stopMotor()
-    }
+  private fun stopMotors() {
+    topMotor.stopMotor()
+    rightMotor.stopMotor()
+    leftMotor.stopMotor()
+  }
+
+  fun stopMotorsCmd(): Command {
+    return runOnce { stopMotors() }
   }
 
   override fun periodic() {
@@ -612,8 +613,9 @@ class Intake(
       // execute
       {
         if (coralIsVertical()) {
-          if (!coralPositioned) {
-            when (coralPos) {
+          if (coralPos != coralPosGoal) {
+            //if we're moving to a goal
+            when (coralPosGoal) {
               CoralPlace.CENTERED -> {
                 command = "centering"
                 centerCoral().schedule()
@@ -627,18 +629,21 @@ class Intake(
                 oppCoralSequence().schedule()
               }
             }
+
           }
 
-          if (!backSensorDetected() && coralPos != CoralPlace.PIVOT && coralPos != CoralPlace.OPP) {
+          if (!backSensorDetected()) {
             command = "moving towards back sensor"
             moveTowardsBackSensor().schedule()
           }
 
-          if (!middleSensorDetected() && coralPos != CoralPlace.PIVOT && coralPos != CoralPlace.OPP) {
+          if (!middleSensorDetected()) {
             command = "moving towards middle sensor"
             moveTowardsMiddleSensor().schedule()
           }
+
         } else if (coralIsHorizontal()) {
+
           if (!rightSensorDetected()) {
             command = "moving towards right sensor"
             moveTowardsRightSensor().schedule()
@@ -648,6 +653,7 @@ class Intake(
             command = "moving towards left sensor"
             moveTowardsLeftSensor().schedule()
           }
+
         }
       },
       // on end
@@ -689,11 +695,12 @@ class Intake(
       CoralPlace.PIVOT -> "pivot"
       CoralPlace.OPP -> "opp"
       CoralPlace.HORIZONTAL -> "horizontal"
+      CoralPlace.INTAKEN -> "intaken"
     }
     DogLog.log("Intake/State/Piece State", pieceName)
     DogLog.log("Intake/State/Command", command)
     DogLog.log("Intake/State/In Tolerance", inTolerance)
-    DogLog.log("Intake/State/Coral Positioned", coralPositioned)
+    DogLog.log("Intake/State/Coral Positioned", coralPos == coralPosGoal)
     DogLog.log("Intake/State/Coral Place", place)
 
 

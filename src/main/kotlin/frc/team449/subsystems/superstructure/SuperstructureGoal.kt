@@ -19,114 +19,112 @@ object SuperstructureGoal {
     Degrees.of(40.0),
     MIN_ELEVATOR_HEIGHT,
     Radians.of(2.047607421875),
-    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED),
+    "Stow"
   )
 
   val L1 = SuperstructureState(
     Radians.of(0.644 + 0.05),
     MIN_ELEVATOR_HEIGHT,
     Radians.of(-0.902 - 0.05),
-    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED),
+    "L1"
   )
 
   val L2 = SuperstructureState(
     Radians.of(0.343),
     MIN_ELEVATOR_HEIGHT,
     Radians.of(2.102),
-    DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
+    DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED),
+    "L2"
   )
 
   val L3 = SuperstructureState(
     Radians.of(0.912),
     Meters.of(0.170 + 0.08),
     Radians.of(1.269),
-    DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
+    DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED),
+    "L3"
   )
 
   val L4 = SuperstructureState(
     Radians.of(1.208008),
     Meters.of(0.8537597),
     Radians.of(0.256591),
-    DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
+    DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED),
+    "L4"
   )
 
   val L4_PREMOVE = SuperstructureState(
     L4.pivot,
     STOW.elevator,
     STOW.wrist,
-    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED),
+    "L4 Premove"
   )
 
   val L2_PIVOT = SuperstructureState(
     Radians.of(1.211914),
     MIN_ELEVATOR_HEIGHT,
     Radians.of(1.503662),
-    DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
+    DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED),
+    "L2 Pivot"
   )
 
   val L3_PIVOT = SuperstructureState(
     Radians.of(1.326904296875),
     Meters.of(0.252197265625),
     Radians.of(2.11376953125), // 112 deg
-    DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
+    DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED),
+    "L3 Pivot"
   )
 
   val L4_PIVOT = SuperstructureState(
     Radians.of(1.467041015625), // 83 deg
     Meters.of(0.929443359375),
     Radians.of(2.28857421875), // 133 deg
-    DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
+    DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED),
+    "L4 Pivot"
   )
 
   val GROUND_INTAKE_CORAL = SuperstructureState(
     Radian.of(-0.02239 - 0.01),
     MIN_ELEVATOR_HEIGHT,
     Radians.of(-0.372558 + 0.0249 + 0.025 + 0.02),
-    DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+    DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED),
+    "Ground Intake Coral"
   )
 
   val CLIMB_BEFORE = SuperstructureState(
     Degrees.of(90.0),
     Meters.of(0.178891),
     Degrees.of(-70.0),
-    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED),
+    "Climb Before"
   )
-
-//  // OLD L2 ALGAE DESCORE
-//  val L2_ALGAE_DESCORE = SuperstructureState(
-//    Degrees.of(53.449538),
-//    Inches.of(7.694820-2)- MIN_ELEVATOR_HEIGHT,
-//    Degrees.of(-90.0), // true angle is -84.87
-//    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
-//  )
-//
-//  // OLD L3 ALGAE DESCORE
-//  val L3_ALGAE_DESCORE = SuperstructureState(
-//    Radians.of(0.958984),
-//    Meters.of(0.291016),
-//    Radians.of(-1.064941),
-//    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
-//  )
 
   val L4_PREMOVE_PIVOT = SuperstructureState(
     Degrees.of(67.5),
     MIN_ELEVATOR_HEIGHT,
     L4_PIVOT.wrist,
-    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED),
+    "L4 Premove Pivot"
   )
 
   val NET = SuperstructureState(
     Radians.of(1.28076171875),
     Meters.of(1.176513671875 + 0.08),
     Radians.of(-0.768310546875),
-    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED),
+    "Net"
   )
 
   val NET_PREMOVE = SuperstructureState(
     NET.pivot,
     STOW.elevator,
     STOW.wrist,
-    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED),
+    "Net Premove"
   )
 
   // TODO: FIND NET PIVOT POSE
@@ -134,7 +132,8 @@ object SuperstructureGoal {
     Radians.of(1.360),
     Meters.of(1.055 + 0.08),
     Radians.of(0.658), // -138.5
-    DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED)
+    DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED),
+    "Net Pivot"
   )
 
   // TODO: FIND PIVOT FOR PREMOVE STATE
@@ -142,56 +141,64 @@ object SuperstructureGoal {
     Degrees.of(67.5),
     MIN_ELEVATOR_HEIGHT,
     NET_PIVOT.wrist,
-    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED),
+    "Net Pivot Premove"
   )
 
   val ALGAE_GROUND = SuperstructureState(
     Radian.of(0.306),
     Inches.of(0.0),
     Radians.of(-1.499),
-    DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+    DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED),
+    "Algae Ground"
   )
 
   val L2_ALGAE_INTAKE = SuperstructureState(
     Radians.of(0.905),
     MIN_ELEVATOR_HEIGHT,
     Radians.of(-0.958),
-    DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+    DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED),
+    "L2 Algae Intake"
   )
 
   val STATION_INTAKE = SuperstructureState(
     Radians.of(1.11767578125),
     Meters.of(0.12548828125),
     Radians.of(-0.640869140625),
-    DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+    DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED),
+    "Station Intake"
   )
 
   val L3_ALGAE_INTAKE = SuperstructureState(
     Radians.of(1.155),
     Meters.of(0.402),
     Radians.of(-1.420),
-    DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+    DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED),
+    "L3 Algae Intake"
   )
 
   val PROC = SuperstructureState(
     Radians.of(0.20458984375),
     MIN_ELEVATOR_HEIGHT,
     Radians.of(-0.281005859375),
-    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED),
+    "Processor"
   )
 
   val CLIMB_SAFE = SuperstructureState(
     Radians.of(1.0928),
     Meters.of(0.1504),
     Radians.of(1.5708),
-    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED)
+    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED),
+    "Elevator Climb Safe"
   )
 
   data class SuperstructureState(
     var pivot: Angle,
     var elevator: Distance,
     var wrist: Angle,
-    val driveDynamics: DriveDynamics
+    val driveDynamics: DriveDynamics,
+    val name: String
   )
 
   data class DriveDynamics(

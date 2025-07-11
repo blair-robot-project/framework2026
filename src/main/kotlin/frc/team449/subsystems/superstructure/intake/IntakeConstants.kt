@@ -51,6 +51,11 @@ object IntakeConstants {
   const val PIECE_RESET_DEBOUNCER_WAIT = 0.1
   const val PIECE_DETECT_DEBOUNCER_WAIT = 1.1
 
+  // moving constants
+  const val PIVOT_MOVEMENT = 3.5
+  const val OPP_MOVEMENT = 3.5
+  const val INTAKEN_TO_CENTERED = 3.3
+
   // voltage for different scenarios and motors
   const val TOP_CORAL_INWARDS_VOLTAGE = 10.0
   const val TOP_CORAL_OUTTAKE_VOLTAGE = -7.0

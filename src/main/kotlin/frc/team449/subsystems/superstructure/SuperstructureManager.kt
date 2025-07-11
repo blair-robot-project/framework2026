@@ -320,10 +320,6 @@ class SuperstructureManager(
     return ready
   }
 
-  fun previousRequestedGoal(): SuperstructureGoal.SuperstructureState {
-    return previousRequestedGoal
-  }
-
   fun lastCompletedGoal(): SuperstructureGoal.SuperstructureState {
     return lastCompletedGoal
   }
@@ -341,9 +337,9 @@ class SuperstructureManager(
   }
 
     fun logData() {
-    DogLog.log("Superstructure/Current State", requestedGoal.toString())
-    DogLog.log("Superstructure/Last State", lastCompletedGoal.toString())
-  }
+      DogLog.log("Superstructure/Current Requested Goal", requestedGoal.name)
+      DogLog.log("Superstructure/Last Completed Goal", lastCompletedGoal.name)
+    }
 
   private fun holdAll(): Command {
     return Commands.parallel(
