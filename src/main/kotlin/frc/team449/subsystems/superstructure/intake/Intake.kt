@@ -249,9 +249,7 @@ class Intake(
         coralPosGoal = CoralPlace.HORIZONTAL
       },
       {
-//        if (sensorsOut) {
-//          topMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE)
-//        }
+
 
         if (coralNotDetected()) {
           // pull in coral until a sensor detects
@@ -565,6 +563,8 @@ class Intake(
     )
   }
 
+
+
   fun hasCoral(): Boolean {
     return gamePiece == Piece.CORAL_HORIZONTAL || gamePiece == Piece.CORAL_VERTICAL
   }
@@ -732,6 +732,7 @@ class Intake(
     DogLog.log("Intake/LaserCan/Config/All Sensors Configured", allSensorsConfigured)
     DogLog.log("Intake/LaserCan/Config/Configured List", lasercanConfigured.toBooleanArray())
   }
+
 
   companion object {
     fun createIntake(): Intake {

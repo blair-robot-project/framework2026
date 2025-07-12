@@ -278,10 +278,7 @@ open class Routines(
 
         pickupLeft.cmd().alongWith(
           robot.intake.intakeToVertical(),
-          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
-            .andThen(
-              robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL)
-            )
+          robot.superstructureManager.handleAutoRetraction(SuperstructureGoal.GROUND_INTAKE_CORAL)
         )
 
           .andThen(robot.drive.driveStop())

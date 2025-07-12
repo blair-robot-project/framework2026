@@ -90,6 +90,31 @@ class SuperstructureManager(
     )
   }
 
+
+
+   fun handleAutoRetraction(goal: SuperstructureGoal.SuperstructureState): Command {
+    return Commands.sequence(
+      elevator.setPosition(goal.elevator.`in`(Meters)),
+      WaitCommand(0.25),
+      pivot.setPosition(goal.pivot.`in`(Radians)),
+
+      WaitUntilCommand { elevator.atSetpoint() || pivot.atSetpoint() },
+      elevator.hold().onlyIf { elevator.atSetpoint() },
+      pivot.hold().onlyIf { pivot.atSetpoint() },
+
+      wrist.setPosition(goal.wrist.`in`(Radians)),
+
+      WaitUntilCommand { wrist.atSetpoint() || pivot.atSetpoint() },
+      pivot.hold().onlyIf { pivot.atSetpoint() },
+      wrist.hold().onlyIf { wrist.atSetpoint() },
+
+      WaitUntilCommand { elevator.atSetpoint() && wrist.atSetpoint() && pivot.atSetpoint() },
+      holdAll()
+    )
+  }
+
+
+
   private fun requestExtension(goal: SuperstructureGoal.SuperstructureState): Command {
     return Commands.sequence(
 
