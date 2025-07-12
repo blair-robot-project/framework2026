@@ -280,7 +280,6 @@ open class Routines(
           robot.intake.intakeToVertical(),
           robot.superstructureManager.handleAutoRetraction(SuperstructureGoal.GROUND_INTAKE_CORAL)
         )
-
           .andThen(robot.drive.driveStop())
           .withTimeout(secondPickupTime + AutoConstants.INTAKE_TIMEOUT),
 
