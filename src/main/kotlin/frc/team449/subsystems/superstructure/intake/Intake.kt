@@ -64,18 +64,24 @@ class Intake(
   private var lasercanConfigured = listOf<Boolean>()
 
   init {
-    for (sensor in sensors) {
+
+
       try {
-        sensor.setTimingBudget(LaserCanInterface.TimingBudget.TIMING_BUDGET_20MS)
-        sensor.setRegionOfInterest(LaserCanInterface.RegionOfInterest(8, 8, 4, 4))
-        sensor.setRangingMode(LaserCanInterface.RangingMode.SHORT)
-        lasercanConfigured.plus(true)
+        backSensor.setTimingBudget(LaserCanInterface.TimingBudget.TIMING_BUDGET_20MS)
+        for (sensor in sensors) {
+          if (sensor != backSensor) {
+            sensor.setTimingBudget(LaserCanInterface.TimingBudget.TIMING_BUDGET_33MS)
+          }
+          sensor.setRegionOfInterest(LaserCanInterface.RegionOfInterest(8, 8, 4, 4))
+          sensor.setRangingMode(LaserCanInterface.RangingMode.SHORT)
+          lasercanConfigured.plus(true)
+        }
       } catch (_: Exception) {
         lasercanConfigured.plus(false)
         allSensorsConfigured = false
       }
     }
-  }
+
 
   private fun setVoltageTop(voltage: Double): Command {
     return runOnce { topMotor.setVoltage(voltage) }
@@ -201,7 +207,7 @@ class Intake(
   private fun pivotCoralSequence(): Command {
     return when(coralPos) {
       CoralPlace.CENTERED -> runCoralMovingSequence(moveCoralBackwardsByAmount(IntakeConstants.PIVOT_MOVEMENT))
-      CoralPlace.OPP -> runCoralMovingSequence(moveCoralBackwardsByAmount(IntakeConstants.PIVOT_MOVEMENT * 2))
+      CoralPlace.OPP -> runCoralMovingSequence(moveCoralBackwardsByAmount(IntakeConstants.PIVOT_MOVEMENT + IntakeConstants.OPP_MOVEMENT ))
       else -> InstantCommand()
     }
   }
@@ -209,7 +215,7 @@ class Intake(
   private fun oppCoralSequence(): Command {
     return when(coralPos) {
       CoralPlace.CENTERED -> runCoralMovingSequence(moveCoralForwardsByAmount(IntakeConstants.OPP_MOVEMENT))
-      CoralPlace.OPP -> runCoralMovingSequence(moveCoralForwardsByAmount(IntakeConstants.OPP_MOVEMENT * 2))
+      CoralPlace.PIVOT -> runCoralMovingSequence(moveCoralForwardsByAmount(IntakeConstants.OPP_MOVEMENT  + IntakeConstants.PIVOT_MOVEMENT))
       else -> InstantCommand()
     }
   }
@@ -217,23 +223,6 @@ class Intake(
   private var unverticaling = false
   private var coralIn = true
 
-  private var sensorsOut =
-    (
-      rightSensor.measurement == null ||
-        middleSensor.measurement == null ||
-        leftSensor.measurement == null ||
-        backSensor.measurement == null
-      )
-
-  private var sensorsOutExceptBack =
-    (
-      (
-        rightSensor.measurement == null ||
-          middleSensor.measurement == null ||
-          leftSensor.measurement == null
-        ) &&
-        backSensor.measurement != null
-      )
 
   // TODO: check coral motor stall current
   private fun horizontalCoralStall(): Boolean {
@@ -476,12 +465,13 @@ class Intake(
   private val pieceDetectDebonucer = Debouncer(IntakeConstants.PIECE_DETECT_DEBOUNCER_WAIT, Debouncer.DebounceType.kRising)
 
   private fun changePieceToAlgae(): Command {
-    return WaitUntilCommand {
-      algaeDebouncer.calculate(
-        topMotor.statorCurrent.valueAsDouble >
-          IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD
-      )
-    }.onlyIf { RobotBase.isReal() }
+   return WaitUntilCommand {
+//   return   WaitCommand(2.0)
+     algaeDebouncer.calculate(
+       topMotor.statorCurrent.valueAsDouble >
+         IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD
+     )
+   }.onlyIf { RobotBase.isReal() }
       .andThen(runOnce { gamePiece = Piece.ALGAE })
   }
 
@@ -520,7 +510,7 @@ class Intake(
         ) { coralOuttaken }.onlyIf { RobotBase.isReal() },
         // have this wait just so if we never current sense or we're stuck
         // or smth we're not trapped in the outtake command
-        WaitCommand(2.0)
+        WaitCommand(1.0)
       ),
       runOnce { gamePiece = Piece.NONE },
       stopMotorsCmd()
@@ -603,7 +593,22 @@ class Intake(
     if (hasCoral() && pieceResetDebouncer.calculate(!coralDetected())) {
       gamePiece = Piece.NONE
     }
+
+    if(!hasCoral() && (
+      pieceDetectDebonucer.calculate(middleSensorDetected()) ||
+      pieceDetectDebonucer.calculate(backSensorDetected())
+    )) {
+      gamePiece =
+        if(leftSensorDetected() || rightSensorDetected()) {
+          Piece.CORAL_HORIZONTAL
+        } else {
+          Piece.CORAL_VERTICAL
+        }
+    }
+
     logData()
+
+
   }
 
   fun monitorCoral(): Command {

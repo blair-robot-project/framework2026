@@ -45,16 +45,16 @@ object IntakeConstants {
     .withStatorCurrentLimit(75.0)
 
   // debouncers
-  const val ALGAE_DEBOUNCER_WAIT = 0.1
+  const val ALGAE_DEBOUNCER_WAIT = 0.4
   const val L1_DEBOUNCER_WAIT = 0.15
-  const val VERTICAL_DEBOUNCER_WAIT = 0.15
-  const val PIECE_RESET_DEBOUNCER_WAIT = 0.1
+  const val VERTICAL_DEBOUNCER_WAIT = 0.0
+  const val PIECE_RESET_DEBOUNCER_WAIT = 0.2
   const val PIECE_DETECT_DEBOUNCER_WAIT = 1.1
 
   // moving constants
   const val PIVOT_MOVEMENT = 3.5
   const val OPP_MOVEMENT = 3.5
-  const val INTAKEN_TO_CENTERED = 3.3
+  const val INTAKEN_TO_CENTERED = 1.0
 
   // voltage for different scenarios and motors
   const val TOP_CORAL_INWARDS_VOLTAGE = 10.0
@@ -70,7 +70,7 @@ object IntakeConstants {
   const val SIDES_SLOWDOWN_CONSTANT = 1.2
 
   const val ALGAE_INTAKE_VOLTAGE = -10.0
-  const val ALGAE_HOLD_VOLTAGE = -8.0
+  const val ALGAE_HOLD_VOLTAGE = -10.0
   const val ALGAE_OUTTAKE_VOLTAGE = 11.0
   const val ALGAE_STALL_VOLTAGE_THRESHOLD = 60.0
 

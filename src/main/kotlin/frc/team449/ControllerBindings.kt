@@ -39,7 +39,7 @@ class ControllerBindings(
     /** Driver: https://docs.google.com/drawings/d/13W3qlIxzIh5MTraZGWON7IqwJvovVr8eNBvjq8_vYZI/edit
      * Operator: https://docs.google.com/drawings/d/1lF4Roftk6932jMCQthgKfoJVPuTVSgnGZSHs5j68uo4/edit
      */
-    processor()
+    //processor()
     scoreIntakeL2()
     scoreIntakeL3()
     scoreL4Net()
@@ -49,7 +49,7 @@ class ControllerBindings(
 
     groundIntakeVertical()
     outtake()
-    intakeL1()
+    //intakeL1()
     algaeGroundIntake()
 
     stow()
@@ -115,11 +115,14 @@ class ControllerBindings(
         ),
 
         robot.wrist.slowWristSpeed(),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.STOW),
-        robot.wrist.resetWristSpeed(),
-        robot.intake.moveCoralFromIntake()
+        robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
+          .andThen(
+            robot.intake.moveCoralFromIntake()
+          ),
+        robot.wrist.resetWristSpeed()
 
       )
+
     )
   }
 
@@ -144,47 +147,45 @@ class ControllerBindings(
   }
 
   private fun outtake() {
-    Trigger {
-      driveController.rightBumper().asBoolean &&
-        robot.intake.hasPiece()
-    }.onTrue(
-      Commands.sequence(
+    driveController.rightBumper().onTrue(
+      ConditionalCommand(
 
-        ConditionalCommand(
-
+        Commands.sequence(
           ConditionalCommand(
-            robot.intake.outtakeCoralPivot(),
-            robot.intake.outtakeCoral()
-          ) { robot.poseSubsystem.isPivotSide() },
 
-          robot.intake.outtakeAlgae()
+            ConditionalCommand(
+              ConditionalCommand(
+                robot.intake.outtakeCoralPivot(),
+                robot.intake.outtakeCoral()
+              ) { robot.poseSubsystem.isPivotSide() },
 
-        ) { robot.intake.hasCoral() },
+              robot.intake.outtakeL1()
+            ) {  robot.superstructureManager.lastCompletedGoal() != SuperstructureGoal.L1 },
 
-        robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
-          .onlyIf {
-            robot.superstructureManager.lastCompletedGoal() != SuperstructureGoal.L1 &&
-              robot.superstructureManager.lastCompletedGoal() != SuperstructureGoal.PROC
-          }
-      )
+            robot.intake.outtakeAlgae()
+
+          ) { robot.intake.hasCoral() },
+
+          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
+            .onlyIf {
+              robot.superstructureManager.lastCompletedGoal() != SuperstructureGoal.L1 &&
+                robot.superstructureManager.lastCompletedGoal() != SuperstructureGoal.PROC
+            }
+        ),
+
+        Commands.sequence(
+          robot.intake.resetPiece(),
+          robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL)
+            .alongWith(robot.intake.intakeToHorizontal()),
+          robot.superstructureManager.requestGoal(SuperstructureGoal.L1)
+        )
+
+      ) { robot.intake.hasPiece() }
     )
   }
 
-  private fun intakeL1() {
-    Trigger {
-      driveController.rightBumper().asBoolean &&
-        !robot.intake.hasPiece()
-    }.onTrue(
-      Commands.sequence(
 
-        robot.intake.resetPiece(),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL)
-          .alongWith(robot.intake.intakeToHorizontal()),
-        robot.superstructureManager.requestGoal(SuperstructureGoal.L1)
 
-      )
-    )
-  }
 
 /** driver controller A,B,X,Y **/
   private fun processor() {
@@ -200,8 +201,8 @@ class ControllerBindings(
 
   private fun climbTriggers() {
     Trigger {
-      driveController.hid.aButton &&
-        !robot.intake.hasPiece()
+      driveController.hid.aButton// &&
+     //   !robot.intake.hasPiece()
     }.onTrue(
       Commands.sequence(
 

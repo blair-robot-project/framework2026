@@ -111,18 +111,21 @@ class PoseSubsystem(
 
   fun isFacingNet(): Boolean {
     val alliance = DriverStation.getAlliance().getOrNull()
-    val tolerance = 40
+    val tolerance = 90
     return (
-      (
-        alliance == DriverStation.Alliance.Red &&
-          abs(heading.degrees - 180) < tolerance
-        ) ||
-
-        (
-          alliance == DriverStation.Alliance.Blue &&
-            abs(heading.degrees - 0) < tolerance
-          )
-      )
+      if(alliance == DriverStation.Alliance.Red) {
+        abs(MathUtil.inputModulus(
+          heading.degrees - 180.0,
+          -180.0,
+          180.0
+        )) < tolerance
+      } else {
+        abs(MathUtil.inputModulus(
+          heading.degrees - 0.0,
+          -180.0,
+          180.0
+        )) < tolerance
+      })
   }
 
   fun isPivotSide(): Boolean {
@@ -292,6 +295,7 @@ class PoseSubsystem(
 
   private fun logData() {
     DogLog.log("PoseSubsystem/Estimated Pose", pose)
+    DogLog.log("PoseSubsystem/ IsFacing Net", isFacingNet())
 
     DogLog.log("PoseSubsystem/Vision Stats/Used Last Vision Estimate", usedVision)
     DogLog.log("PoseSubsystem/Vision Stats/Number of Targets", numTargets)

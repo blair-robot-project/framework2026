@@ -277,10 +277,13 @@ open class Routines(
         scoreCoral(),
 
         pickupLeft.cmd().alongWith(
-          (robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL))
-        ).alongWith(
-          (robot.intake.intakeToVertical())
+          robot.intake.intakeToVertical(),
+          robot.superstructureManager.requestGoal(SuperstructureGoal.STOW)
+            .andThen(
+              robot.superstructureManager.requestGoal(SuperstructureGoal.GROUND_INTAKE_CORAL)
+            )
         )
+
           .andThen(robot.drive.driveStop())
           .withTimeout(secondPickupTime + AutoConstants.INTAKE_TIMEOUT),
 
@@ -421,7 +424,7 @@ open class Routines(
     val routine = autoFactory.newRoutine("algae auto")
     val algaeAutoType = if (closeLaunch) "OneL4ThreeAlClose" else "OneL4ThreeALFar"
     val farWaitTimes = listOf(0.8, 0.9, 1.2, 1.2)
-    val closeWaitTimes = listOf(0.8, 0.83, 1.13, 0.93)
+    val closeWaitTimes = listOf(1.2, 0.83, 1.13, 0.93)
     val waitTimes = closeWaitTimes
     val preloadedL4Score = routine.trajectory("$algaeAutoType/1")
     val algaePickupMiddle = routine.trajectory("$algaeAutoType/2")
@@ -443,7 +446,7 @@ open class Routines(
         robot.drive.driveStop(),
         scoreCoral(false),
         algaePickupMiddle.cmd().andThen(robot.drive.driveStop())
-          .alongWith(intakeAlgae(2)),
+          .alongWith(intakeAlgae(3)),
         netScoreMiddle.cmd()
           .alongWith(getPremoveCommand(5, waitTimes[1])),
       )
@@ -454,8 +457,7 @@ open class Routines(
         robot.drive.driveStop(),
         scoreAlgaePivot(),
         algaePickupLeft.cmd().andThen(robot.drive.driveStop())
-          .alongWith(intakeAlgae(3))
-          .until { robot.intake.hasAlgae() },
+          .alongWith(intakeAlgae(2)),
         netScoreLeft.cmd()
           .alongWith(getPremoveCommand(5, waitTimes[2])),
       )
@@ -465,9 +467,6 @@ open class Routines(
       Commands.sequence(
         robot.drive.driveStop(),
         scoreAlgaePivot(),
-        algaePickupRight.cmd().andThen(robot.drive.driveStop())
-          .alongWith(intakeAlgae(3))
-          .until { robot.intake.hasAlgae() }
       )
     )
 

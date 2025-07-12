@@ -87,14 +87,14 @@ class Wrist(
 
   fun manualDown(): Command {
     return run {
-      motor.setVoltage(-1.0)
+      motor.setVoltage(-0.5)
       request.Position = positionSupplier.get()
     }
   }
 
   fun manualUp(): Command {
     return run {
-      motor.setVoltage(1.0)
+      motor.setVoltage(0.5)
       request.Position = positionSupplier.get()
     }
   }

@@ -26,7 +26,6 @@ class SuperstructureManager(
 ) {
 
   private var requestedGoal = SuperstructureGoal.STOW
-  private var previousRequestedGoal = SuperstructureGoal.STOW
   private var lastCompletedGoal = SuperstructureGoal.STOW
   private var ready = false
 
@@ -162,12 +161,13 @@ class SuperstructureManager(
       wrist.setPosition(Units.degreesToRadians(30.0)),
       WaitUntilCommand { wrist.positionSupplier.get() < Units.degreesToRadians(70.0) },
 
-      elevator.setPosition(goal.elevator.`in`(Meters)), // about 0.15 meter
+      elevator.setPosition(SuperstructureGoal.L3_PIVOT.elevator. `in`(Meters)),
       WaitCommand(0.2),
 
-      pivot.setPosition(SuperstructureGoal.L4_PIVOT.pivot.`in`(Radians) - 0.25).onlyIf {
-        lastCompletedGoal == SuperstructureGoal.L4_PIVOT
-      },
+      pivot.setPosition(SuperstructureGoal.L4_PIVOT.pivot.`in`(Radians) - 0.35).onlyIf {
+        lastCompletedGoal == SuperstructureGoal.L4_PIVOT},
+
+      elevator.setPosition(goal.elevator.`in`(Meters)), // about 0.15 meter
 
       WaitUntilCommand { pivot.atSetpoint() || elevator.atSetpoint() },
       elevator.hold().onlyIf { elevator.atSetpoint() },
@@ -287,7 +287,6 @@ class SuperstructureManager(
   fun requestGoal(goal: SuperstructureGoal.SuperstructureState): Command {
     return InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) })
       .andThen(InstantCommand({ ready = false }))
-      .andThen(InstantCommand({previousRequestedGoal = requestedGoal}))
       .andThen(InstantCommand({ requestedGoal = goal }))
       .andThen(
 

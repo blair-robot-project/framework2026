@@ -1,4 +1,5 @@
 package frc.team449.subsystems.superstructure.climb
+import com.ctre.phoenix6.BaseStatusSignal
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.hardware.TalonFX
@@ -6,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import edu.wpi.first.wpilibj2.command.WaitCommand
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand
+import frc.team449.subsystems.superstructure.elevator.ElevatorConstants
 import frc.team449.system.motor.KrakenDogLog
 
 // TODO(the entire class bru)
@@ -56,6 +58,17 @@ class Climb(
       config.CurrentLimits.SupplyCurrentLimit = ClimbConstants.SUPPLY_LIM
       config.CurrentLimits.StatorCurrentLimit = ClimbConstants.STATOR_LIM
       motor.configurator.apply(config)
+
+//      BaseStatusSignal.setUpdateFrequencyForAll(
+//        10,
+//        motor.position,
+//        motor.velocity,
+//        motor.motorVoltage,
+//        motor.closedLoopReference,
+//        motor.closedLoopReferenceSlope,
+//        motor.closedLoopFeedForward,
+//        motor.deviceTemp
+//      )
 
       return Climb(motor)
     }
