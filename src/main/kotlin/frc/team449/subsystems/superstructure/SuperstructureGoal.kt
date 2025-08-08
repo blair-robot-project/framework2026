@@ -31,7 +31,6 @@ object SuperstructureGoal {
     "L1"
   )
 
-
   val L2 = SuperstructureState(
     Radians.of(0.315185546875),
     MIN_ELEVATOR_HEIGHT,
@@ -51,7 +50,7 @@ object SuperstructureGoal {
   val L4 = SuperstructureState(
     Radians.of(1.2470703125) + Degrees.of(1.0),
     Meters.of(0.82666015625 + 0.02),
-    Radians.of(0.25634765625 ),
+    Radians.of(0.25634765625),
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED),
     "L4"
   )
@@ -63,7 +62,6 @@ object SuperstructureGoal {
     DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED),
     "L4 Premove"
   )
-
 
   val L2_PIVOT = SuperstructureState(
     Radians.of(1.6826171875),
@@ -92,7 +90,7 @@ object SuperstructureGoal {
   val GROUND_INTAKE_CORAL = SuperstructureState(
     Radian.of(-0.02239 - 0.01),
     MIN_ELEVATOR_HEIGHT,
-    Radians.of(-0.2900390625-0.01),
+    Radians.of(-0.2900390625 - 0.01),
     DriveDynamics(GROUND_INTAKE_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED),
     "Ground Intake Coral"
   )
@@ -132,7 +130,7 @@ object SuperstructureGoal {
   // TODO: FIND NET PIVOT POSE
   val NET_PIVOT = SuperstructureState(
     Radians.of(1.4404296875),
-    Meters.of(1.0732421875 ),
+    Meters.of(1.0732421875),
     Radians.of(0.69091796875),
 
     DriveDynamics(SCORING_SPEED, SCORING_ACCEL, RobotConstants.MAX_ROT_SPEED),

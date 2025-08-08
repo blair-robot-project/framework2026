@@ -12,7 +12,7 @@ import kotlin.math.hypot
 
 class WheelRadiusCharacterization(
   val drive: SwerveDrive,
-  val pose: PoseSubsystem,
+  val pose: PoseSubsystem
 ) : Command() {
   init {
     addRequirements(drive)

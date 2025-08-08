@@ -36,7 +36,7 @@ open class SwerveModuleNEO(
   private val driveController: PIDController,
   private val turnController: PIDController,
   private val driveFeedforward: SimpleMotorFeedforward,
-  override val location: Translation2d,
+  override val location: Translation2d
 ) : SwerveModule {
   init {
     turnController.enableContinuousInput(.0, 2 * PI)
@@ -118,7 +118,7 @@ open class SwerveModuleNEO(
     turningMotor.set(
       turnPid +
         sign(desiredState.angle.radians - turnEncoder.position) *
-        SwerveConstants.STEER_KS,
+          SwerveConstants.STEER_KS,
     )
   }
 
@@ -133,7 +133,7 @@ open class SwerveModuleNEO(
       turnEncoderChannel: Int,
       turnEncoderOffset: Double,
       turnEncoderInverted: Boolean,
-      location: Translation2d,
+      location: Translation2d
     ): SwerveModule {
       val driveMotor =
         createSparkMax(
@@ -215,17 +215,17 @@ class SwerveModuleSimNEO(
   driveController: PIDController,
   turnController: PIDController,
   driveFeedforward: SimpleMotorFeedforward,
-  location: Translation2d,
+  location: Translation2d
 ) : SwerveModuleNEO(
-    name,
-    drivingMotor,
-    turningMotor,
-    turnEncoder,
-    driveController,
-    turnController,
-    driveFeedforward,
-    location,
-  ) {
+  name,
+  drivingMotor,
+  turningMotor,
+  turnEncoder,
+  driveController,
+  turnController,
+  driveFeedforward,
+  location,
+) {
   private val turningMotorEncoder = Encoder.SimController(turnEncoder)
   private val driveEncoder =
     Encoder.SimController(

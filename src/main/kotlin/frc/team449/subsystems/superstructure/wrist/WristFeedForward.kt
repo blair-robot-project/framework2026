@@ -6,7 +6,7 @@ import kotlin.math.cos
 // Custom Wrist Feedforward based on pivot position.
 class WristFeedForward(
   private val pivot: Pivot,
-  private val kg: Double,
+  private val kg: Double
 ) {
   fun calculate(positionRadians: Double): Double = kg * cos(pivot.positionSupplier.get() + positionRadians)
 

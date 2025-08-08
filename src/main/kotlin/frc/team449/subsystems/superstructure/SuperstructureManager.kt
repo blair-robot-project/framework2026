@@ -90,9 +90,7 @@ class SuperstructureManager(
     )
   }
 
-
-
-   fun handleAutoRetraction(goal: SuperstructureGoal.SuperstructureState): Command {
+  fun handleAutoRetraction(goal: SuperstructureGoal.SuperstructureState): Command {
     return Commands.sequence(
       elevator.setPosition(goal.elevator.`in`(Meters)),
       WaitCommand(0.25),
@@ -112,8 +110,6 @@ class SuperstructureManager(
       holdAll()
     )
   }
-
-
 
   private fun requestExtension(goal: SuperstructureGoal.SuperstructureState): Command {
     return Commands.sequence(
@@ -186,11 +182,12 @@ class SuperstructureManager(
       wrist.setPosition(Units.degreesToRadians(30.0)),
       WaitUntilCommand { wrist.positionSupplier.get() < Units.degreesToRadians(70.0) },
 
-      elevator.setPosition(SuperstructureGoal.L3_PIVOT.elevator. `in`(Meters)),
+      elevator.setPosition(SuperstructureGoal.L3_PIVOT.elevator.`in`(Meters)),
       WaitCommand(0.2),
 
       pivot.setPosition(SuperstructureGoal.L4_PIVOT.pivot.`in`(Radians) - 0.35).onlyIf {
-        lastCompletedGoal == SuperstructureGoal.L4_PIVOT},
+        lastCompletedGoal == SuperstructureGoal.L4_PIVOT
+      },
 
       elevator.setPosition(goal.elevator.`in`(Meters)), // about 0.15 meter
 
@@ -360,10 +357,10 @@ class SuperstructureManager(
       lastCompletedGoal == SuperstructureGoal.L4_PIVOT
   }
 
-    fun logData() {
-      DogLog.log("Superstructure/Current Requested Goal", requestedGoal.name)
-      DogLog.log("Superstructure/Last Completed Goal", lastCompletedGoal.name)
-    }
+  fun logData() {
+    DogLog.log("Superstructure/Current Requested Goal", requestedGoal.name)
+    DogLog.log("Superstructure/Last Completed Goal", lastCompletedGoal.name)
+  }
 
   private fun holdAll(): Command {
     return Commands.parallel(

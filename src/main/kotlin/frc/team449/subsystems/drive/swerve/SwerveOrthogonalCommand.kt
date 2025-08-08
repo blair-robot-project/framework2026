@@ -23,7 +23,7 @@ class SwerveOrthogonalCommand(
   private val drive: SwerveDrive,
   private val poseEstimator: PoseSubsystem,
   private val controller: XboxController,
-  private val fieldOriented: () -> Boolean = { true },
+  private val fieldOriented: () -> Boolean = { true }
 ) : Command() {
   private var prevX = 0.0
   private var prevY = 0.0

@@ -25,7 +25,7 @@ fun createSparkMax(
   gearing: Double = 1.0,
   upr: Double = 1.0,
   controlPeriod: Time = Milliseconds.of(0.0),
-  currentLimit: Current = Amps.of(40.0),
+  currentLimit: Current = Amps.of(40.0)
 ): SparkMax {
   val motor = SparkMax(id, SparkLowLevel.MotorType.kBrushless)
   if (motor.lastError != REVLibError.kOk) {
@@ -60,7 +60,7 @@ fun createSparkMax(
 fun createFollowerSpark(
   id: Int,
   leader: SparkMax,
-  invertedFromLeader: Boolean,
+  invertedFromLeader: Boolean
 ): SparkMax {
   val follower = SparkMax(id, SparkLowLevel.MotorType.kBrushless)
   val config = SparkMaxConfig()
@@ -110,7 +110,7 @@ fun createKraken(
   cruiseVel: Double = 0.0,
   maxAccel: Double = 0.0,
   maxJerk: Double = Double.NaN,
-  updateFrequency: Frequency = Hertz.of(50.0),
+  updateFrequency: Frequency = Hertz.of(50.0)
 ): TalonFX {
   val motor = TalonFX(id)
   val config = TalonFXConfiguration()

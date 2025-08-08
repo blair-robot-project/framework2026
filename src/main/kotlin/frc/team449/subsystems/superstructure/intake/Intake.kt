@@ -65,23 +65,21 @@ class Intake(
 
   init {
 
-
-      try {
-        backSensor.setTimingBudget(LaserCanInterface.TimingBudget.TIMING_BUDGET_20MS)
-        for (sensor in sensors) {
-          if (sensor != backSensor) {
-            sensor.setTimingBudget(LaserCanInterface.TimingBudget.TIMING_BUDGET_33MS)
-          }
-          sensor.setRegionOfInterest(LaserCanInterface.RegionOfInterest(8, 8, 4, 4))
-          sensor.setRangingMode(LaserCanInterface.RangingMode.SHORT)
-          lasercanConfigured.plus(true)
+    try {
+      backSensor.setTimingBudget(LaserCanInterface.TimingBudget.TIMING_BUDGET_20MS)
+      for (sensor in sensors) {
+        if (sensor != backSensor) {
+          sensor.setTimingBudget(LaserCanInterface.TimingBudget.TIMING_BUDGET_33MS)
         }
-      } catch (_: Exception) {
-        lasercanConfigured.plus(false)
-        allSensorsConfigured = false
+        sensor.setRegionOfInterest(LaserCanInterface.RegionOfInterest(8, 8, 4, 4))
+        sensor.setRangingMode(LaserCanInterface.RangingMode.SHORT)
+        lasercanConfigured.plus(true)
       }
+    } catch (_: Exception) {
+      lasercanConfigured.plus(false)
+      allSensorsConfigured = false
     }
-
+  }
 
   private fun setVoltageTop(voltage: Double): Command {
     return runOnce { topMotor.setVoltage(voltage) }
@@ -160,11 +158,11 @@ class Intake(
     )
   }
 
-   fun moveCoralForwardsByAmount(distance: Double): Command {
+  fun moveCoralForwardsByAmount(distance: Double): Command {
     return moveCoralByAmount(distance)
   }
 
-   fun moveCoralBackwardsByAmount(distance: Double): Command {
+  fun moveCoralBackwardsByAmount(distance: Double): Command {
     return moveCoralByAmount(-distance)
   }
 
@@ -179,7 +177,7 @@ class Intake(
   }
 
   private fun centerCoral(): Command {
-    return when(coralPos) {
+    return when (coralPos) {
       CoralPlace.INTAKEN -> runCoralMovingSequence(moveCoralForwardsByAmount(IntakeConstants.INTAKEN_TO_CENTERED))
       CoralPlace.OPP -> pivotCoralSequence()
       CoralPlace.PIVOT -> oppCoralSequence()
@@ -188,25 +186,23 @@ class Intake(
   }
 
   private fun pivotCoralSequence(): Command {
-    return when(coralPos) {
+    return when (coralPos) {
       CoralPlace.CENTERED -> runCoralMovingSequence(moveCoralBackwardsByAmount(IntakeConstants.PIVOT_MOVEMENT))
-      CoralPlace.OPP -> runCoralMovingSequence(moveCoralBackwardsByAmount(IntakeConstants.PIVOT_MOVEMENT + IntakeConstants.OPP_MOVEMENT ))
+      CoralPlace.OPP -> runCoralMovingSequence(moveCoralBackwardsByAmount(IntakeConstants.PIVOT_MOVEMENT + IntakeConstants.OPP_MOVEMENT))
       else -> InstantCommand()
     }
   }
 
   private fun oppCoralSequence(): Command {
-    return when(coralPos) {
+    return when (coralPos) {
       CoralPlace.CENTERED -> runCoralMovingSequence(moveCoralForwardsByAmount(IntakeConstants.OPP_MOVEMENT))
-      CoralPlace.PIVOT -> runCoralMovingSequence(moveCoralForwardsByAmount(IntakeConstants.OPP_MOVEMENT  + IntakeConstants.PIVOT_MOVEMENT))
+      CoralPlace.PIVOT -> runCoralMovingSequence(moveCoralForwardsByAmount(IntakeConstants.OPP_MOVEMENT + IntakeConstants.PIVOT_MOVEMENT))
       else -> InstantCommand()
     }
   }
 
   private var unverticaling = false
   private var coralIn = true
-
-
 
   fun intakeToHorizontal(): Command {
     return FunctionalCommand(
@@ -217,8 +213,6 @@ class Intake(
         coralPosGoal = CoralPlace.HORIZONTAL
       },
       {
-
-
         if (coralNotDetected()) {
           // pull in coral until a sensor detects
           coralIn = false
@@ -276,8 +270,6 @@ class Intake(
         coralPosGoal = CoralPlace.CENTERED
       },
       {
-
-
         if (leftSensorDetected() && rightSensorDetected()) {
           // if it's horizontal, just run it right
           // run in a bit because our side motors tweaking lowk
@@ -290,7 +282,6 @@ class Intake(
       },
       { },
       {
-
         vertDebouncer.calculate(backSensorDetected())
       },
     )
@@ -418,13 +409,13 @@ class Intake(
   private val pieceDetectDebonucer = Debouncer(IntakeConstants.PIECE_DETECT_DEBOUNCER_WAIT, Debouncer.DebounceType.kRising)
 
   private fun changePieceToAlgae(): Command {
-   return WaitUntilCommand {
+    return WaitUntilCommand {
 //   return   WaitCommand(2.0)
-     algaeDebouncer.calculate(
-       topMotor.statorCurrent.valueAsDouble >
-         IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD
-     )
-   }.onlyIf { RobotBase.isReal() }
+      algaeDebouncer.calculate(
+        topMotor.statorCurrent.valueAsDouble >
+          IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD
+      )
+    }.onlyIf { RobotBase.isReal() }
       .andThen(runOnce { gamePiece = Piece.ALGAE })
   }
 
@@ -473,7 +464,8 @@ class Intake(
   fun moveCoralOppSide(): Command { return runOnce { coralPosGoal = CoralPlace.OPP } }
   fun moveCoralPivotSide(): Command { return runOnce { coralPosGoal = CoralPlace.PIVOT } }
   fun moveCoralCentered(): Command { return runOnce { coralPosGoal = CoralPlace.CENTERED } }
-  //intake to vertical sets coralPosGoal to CoralPlace.CENTERED immediately
+
+  // intake to vertical sets coralPosGoal to CoralPlace.CENTERED immediately
   fun moveCoralFromIntake(): Command { return runOnce { coralPos = CoralPlace.INTAKEN } }
 
   private fun moveTowardsBackSensor(): Command {
@@ -518,8 +510,6 @@ class Intake(
     )
   }
 
-
-
   fun hasCoral(): Boolean {
     return gamePiece == Piece.CORAL_HORIZONTAL || gamePiece == Piece.CORAL_VERTICAL
   }
@@ -549,12 +539,13 @@ class Intake(
       gamePiece = Piece.NONE
     }
 
-    if(!hasCoral() && (
+    if (!hasCoral() && (
       pieceDetectDebonucer.calculate(middleSensorDetected()) ||
-      pieceDetectDebonucer.calculate(backSensorDetected())
-    )) {
+        pieceDetectDebonucer.calculate(backSensorDetected())
+      )
+    ) {
       gamePiece =
-        if(leftSensorDetected() || rightSensorDetected()) {
+        if (leftSensorDetected() || rightSensorDetected()) {
           Piece.CORAL_HORIZONTAL
         } else {
           Piece.CORAL_VERTICAL
@@ -562,8 +553,6 @@ class Intake(
     }
 
     logData()
-
-
   }
 
   fun monitorCoral(): Command {
@@ -574,7 +563,7 @@ class Intake(
       {
         if (coralIsVertical()) {
           if (coralPos != coralPosGoal) {
-            //if we're moving to a goal
+            // if we're moving to a goal
             when (coralPosGoal) {
               CoralPlace.CENTERED -> {
                 command = "centering"
@@ -589,7 +578,6 @@ class Intake(
                 oppCoralSequence().schedule()
               }
             }
-
           }
 
           if (!backSensorDetected()) {
@@ -601,9 +589,7 @@ class Intake(
             command = "moving towards middle sensor"
             moveTowardsMiddleSensor().schedule()
           }
-
         } else if (coralIsHorizontal()) {
-
           if (!rightSensorDetected()) {
             command = "moving towards right sensor"
             moveTowardsRightSensor().schedule()
@@ -613,7 +599,6 @@ class Intake(
             command = "moving towards left sensor"
             moveTowardsLeftSensor().schedule()
           }
-
         }
       },
       // on end
@@ -663,7 +648,6 @@ class Intake(
     DogLog.log("Intake/State/Coral Positioned", coralPos == coralPosGoal)
     DogLog.log("Intake/State/Coral Place", place)
 
-
     // LASERCANS
     val back: LaserCanInterface.Measurement? = backSensor.measurement
     val left: LaserCanInterface.Measurement? = leftSensor.measurement
@@ -687,7 +671,6 @@ class Intake(
     DogLog.log("Intake/LaserCan/Config/All Sensors Configured", allSensorsConfigured)
     DogLog.log("Intake/LaserCan/Config/Configured List", lasercanConfigured.toBooleanArray())
   }
-
 
   companion object {
     fun createIntake(): Intake {

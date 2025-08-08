@@ -30,7 +30,7 @@ class ControllerBindings(
   private val mechanismController: CommandXboxController,
   private val characterizationController: CommandXboxController,
   private val testController: CommandXboxController,
-  private val robot: Robot,
+  private val robot: Robot
 ) {
   val percentageElevatorPosition = { robot.elevator.positionSupplier.get() / SuperstructureGoal.L4.elevator.`in`(Meters) }
 

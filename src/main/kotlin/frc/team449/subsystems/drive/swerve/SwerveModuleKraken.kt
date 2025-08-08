@@ -37,7 +37,7 @@ open class SwerveModuleKraken(
   private val turningMotor: SparkMax,
   private val turnEncoder: Encoder,
   val turnController: PIDController,
-  override val location: Translation2d,
+  override val location: Translation2d
 ) : SwerveModule {
   init {
     turnController.enableContinuousInput(.0, 2 * PI)
@@ -111,7 +111,7 @@ open class SwerveModuleKraken(
     turningMotor.set(
       turnPid +
         sign(desiredState.angle.radians - turnEncoder.position) *
-        SwerveConstants.STEER_KS,
+          SwerveConstants.STEER_KS,
     )
   }
 
@@ -126,7 +126,7 @@ open class SwerveModuleKraken(
       turnEncoderChannel: Int,
       turnEncoderOffset: Double,
       turnEncoderInverted: Boolean,
-      location: Translation2d,
+      location: Translation2d
     ): SwerveModuleKraken {
       val drivingMotor = TalonFX(driveID)
 
@@ -221,15 +221,15 @@ class SwerveModuleSimKraken(
   turningMotor: SparkMax,
   turnEncoder: Encoder,
   turnController: PIDController,
-  location: Translation2d,
+  location: Translation2d
 ) : SwerveModuleKraken(
-    name,
-    drivingMotor,
-    turningMotor,
-    turnEncoder,
-    turnController,
-    location,
-  ) {
+  name,
+  drivingMotor,
+  turningMotor,
+  turnEncoder,
+  turnController,
+  location,
+) {
   private val turningMotorEncoder = Encoder.SimController(turnEncoder)
 
   private var drivePosition = 0.0

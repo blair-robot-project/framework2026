@@ -26,9 +26,9 @@ object FieldConstants {
     val allianceComp = alliance == Alliance.Red
 
     val REEF_A = if (!allianceComp) {
-      Pose2d(3.681, 4.020, Rotation2d(0.0))//blue
+      Pose2d(3.681, 4.020, Rotation2d(0.0)) // blue
     } else {
-      Pose2d(14.327, 3.893, Rotation2d(PI))//red
+      Pose2d(14.327, 3.893, Rotation2d(PI)) // red
     }
 
     val REEF_B = if (!allianceComp) {
@@ -86,7 +86,7 @@ object FieldConstants {
     }
 
     val REEF_K = if (!allianceComp) {
-      Pose2d(3.976, 5.187, Rotation2d(-PI / 3))//blue
+      Pose2d(3.976, 5.187, Rotation2d(-PI / 3)) // blue
     } else {
       Pose2d(13.572, 2.856, Rotation2d(2 * PI / 3))
     }
@@ -115,9 +115,9 @@ object FieldConstants {
     )
 
     val REEF_A_PIVOT = if (!allianceComp) {
-      Pose2d(3.267, 4.179, Rotation2d(PI))//blue
+      Pose2d(3.267, 4.179, Rotation2d(PI)) // blue
     } else {
-      Pose2d(14.283, 3.850, Rotation2d(0.0))//red
+      Pose2d(14.283, 3.850, Rotation2d(0.0)) // red
     }
 
     val REEF_B_PIVOT = if (!allianceComp) {

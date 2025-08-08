@@ -113,33 +113,40 @@ class PoseSubsystem(
     val alliance = DriverStation.getAlliance().getOrNull()
     val tolerance = 90
     return (
-      if(alliance == DriverStation.Alliance.Red) {
-        abs(MathUtil.inputModulus(
-          heading.degrees - 180.0,
-          -180.0,
-          180.0
-        )) < tolerance
+      if (alliance == DriverStation.Alliance.Red) {
+        abs(
+          MathUtil.inputModulus(
+            heading.degrees - 180.0,
+            -180.0,
+            180.0
+          )
+        ) < tolerance
       } else {
-        abs(MathUtil.inputModulus(
-          heading.degrees - 0.0,
-          -180.0,
-          180.0
-        )) < tolerance
-      })
+        abs(
+          MathUtil.inputModulus(
+            heading.degrees - 0.0,
+            -180.0,
+            180.0
+          )
+        ) < tolerance
+      }
+      )
   }
 
   // handle the case if the robot is on the opposing alliance side of the net
-  fun facingNet():Boolean{
+  fun facingNet(): Boolean {
     val alliance = DriverStation.getAlliance().getOrNull()
     val pos = this.pose.x
     val netX = 8.819
     return (
-      if(
-        (alliance == DriverStation.Alliance.Red && pos < netX ) ||
-        (alliance == DriverStation.Alliance.Blue && pos > netX)){
+      if (
+        (alliance == DriverStation.Alliance.Red && pos < netX) ||
+        (alliance == DriverStation.Alliance.Blue && pos > netX)
+      ) {
         !isFacingNet()
-      }else {
-        isFacingNet() }
+      } else {
+        isFacingNet()
+      }
       )
   }
 
