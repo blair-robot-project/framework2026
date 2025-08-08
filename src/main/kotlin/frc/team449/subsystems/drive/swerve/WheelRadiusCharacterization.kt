@@ -12,9 +12,8 @@ import kotlin.math.hypot
 
 class WheelRadiusCharacterization(
   val drive: SwerveDrive,
-  val pose: PoseSubsystem
+  val pose: PoseSubsystem,
 ) : Command() {
-
   init {
     addRequirements(drive)
   }
@@ -39,18 +38,19 @@ class WheelRadiusCharacterization(
   }
 
   override fun execute() {
-    requestedRotSpeed = if (accumGyroYawRads < 3 * PI) {
-      rateLimiter.calculate(PI / 2)
-    } else {
-      rateLimiter.calculate(0.0)
-    }
+    requestedRotSpeed =
+      if (accumGyroYawRads < 3 * PI) {
+        rateLimiter.calculate(PI / 2)
+      } else {
+        rateLimiter.calculate(0.0)
+      }
 
     drive.set(
       ChassisSpeeds(
         0.0,
         0.0,
-        requestedRotSpeed
-      )
+        requestedRotSpeed,
+      ),
     )
 
     accumGyroYawRads += MathUtil.angleModulus(pose.heading.radians - lastGyroYawRads)
@@ -70,9 +70,7 @@ class WheelRadiusCharacterization(
     currentEffectiveWheelRadius = (accumGyroYawRads * driveRadius) / averageWheelPosition
   }
 
-  override fun isFinished(): Boolean {
-    return requestedRotSpeed == 0.0
-  }
+  override fun isFinished(): Boolean = requestedRotSpeed == 0.0
 
   override fun end(interrupted: Boolean) {
     drive.stop()

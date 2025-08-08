@@ -27,7 +27,6 @@ import frc.team449.system.AHRS
 
 @Logged
 class Robot : RobotBase() {
-
   // Driver/Operator Controllers
   val driveController: CommandXboxController = CommandXboxController(0)
   val mechController: CommandXboxController = CommandXboxController(1)
@@ -38,10 +37,11 @@ class Robot : RobotBase() {
   val ahrs: AHRS = AHRS()
 
   // Instantiate/declare PDP and other stuff here
-  override val powerDistribution: PowerDistribution = PowerDistribution(
-    RobotConstants.PDH_CAN,
-    PowerDistribution.ModuleType.kRev
-  )
+  override val powerDistribution: PowerDistribution =
+    PowerDistribution(
+      RobotConstants.PDH_CAN,
+      PowerDistribution.ModuleType.kRev,
+    )
 
   override val drive: SwerveDrive = SwerveDrive.createSwerveKraken(field)
 

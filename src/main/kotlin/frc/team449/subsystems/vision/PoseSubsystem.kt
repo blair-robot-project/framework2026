@@ -128,6 +128,21 @@ class PoseSubsystem(
       })
   }
 
+  // handle the case if the robot is on the opposing alliance side of the net
+  fun facingNet():Boolean{
+    val alliance = DriverStation.getAlliance().getOrNull()
+    val pos = this.pose.x
+    val netX = 8.819
+    return (
+      if(
+        (alliance == DriverStation.Alliance.Red && pos < netX ) ||
+        (alliance == DriverStation.Alliance.Blue && pos > netX)){
+        !isFacingNet()
+      }else {
+        isFacingNet() }
+      )
+  }
+
   fun isPivotSide(): Boolean {
     val closestReefRadians = pose.nearest(FieldConstants.REEF_CENTER_LOCATIONS).rotation.radians
 
@@ -296,6 +311,7 @@ class PoseSubsystem(
   private fun logData() {
     DogLog.log("PoseSubsystem/Estimated Pose", pose)
     DogLog.log("PoseSubsystem/ IsFacing Net", isFacingNet())
+    DogLog.log("PoseSubsystem/ Facing Net", facingNet())
 
     DogLog.log("PoseSubsystem/Vision Stats/Used Last Vision Estimate", usedVision)
     DogLog.log("PoseSubsystem/Vision Stats/Number of Targets", numTargets)

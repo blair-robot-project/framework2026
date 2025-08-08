@@ -106,25 +106,8 @@ class Intake(
   private fun runIntakeBackwards(slowdownConstant: Double = 1.0): Command {
     return runOnce { setMotorsInwards(slowdownConstant) }
   }
-
   private fun runIntakeForwards(slowdownConstant: Double = 1.0): Command {
     return runOnce { setMotorsOutwards(slowdownConstant) }
-  }
-
-  fun manualIn(): Command {
-    return this.runOnce {
-      topMotor.setVoltage(8.0)
-      rightMotor.setVoltage(8.0)
-      leftMotor.setVoltage(8.0)
-    }
-  }
-
-  fun manualOut(): Command {
-    return this.runOnce {
-      topMotor.setVoltage(-5.0)
-      rightMotor.setVoltage(-5.0)
-      leftMotor.setVoltage(-5.0)
-    }
   }
 
   private fun setMotorsOutwards(slowdownConstant: Double = 1.0) {
@@ -224,21 +207,6 @@ class Intake(
   private var coralIn = true
 
 
-  // TODO: check coral motor stall current
-  private fun horizontalCoralStall(): Boolean {
-    return topMotor.motorStallCurrent.valueAsDouble < 40.0
-  }
-
-  private fun verticalCoralStall(): Boolean {
-    return if (
-      leftMotor.motorStallCurrent.valueAsDouble < 40.0 ||
-      rightMotor.motorStallCurrent.valueAsDouble < 40.0
-    ) {
-      true
-    } else {
-      false
-    }
-  }
 
   fun intakeToHorizontal(): Command {
     return FunctionalCommand(
@@ -308,15 +276,7 @@ class Intake(
         coralPosGoal = CoralPlace.CENTERED
       },
       {
-//        if (sensorsOut) {
-//          setMotorsInwards()
-//        } else if (sensorsOutExceptBack) {
-//          Commands.sequence(
-//            inwards().andThen(
-//              WaitUntilCommand { backSensorDetected() }
-//            )
-//          )
-//        }
+
 
         if (leftSensorDetected() && rightSensorDetected()) {
           // if it's horizontal, just run it right
@@ -330,11 +290,6 @@ class Intake(
       },
       { },
       {
-//        if (sensorsOut) {
-//          verticalCoralStall()
-//        }else if (sensorsOutExceptBack){
-//          backSensorDetected()
-//        } else {
 
         vertDebouncer.calculate(backSensorDetected())
       },

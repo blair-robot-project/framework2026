@@ -25,7 +25,7 @@ fun createSparkMax(
   gearing: Double = 1.0,
   upr: Double = 1.0,
   controlPeriod: Time = Milliseconds.of(0.0),
-  currentLimit: Current = Amps.of(40.0)
+  currentLimit: Current = Amps.of(40.0),
 ): SparkMax {
   val motor = SparkMax(id, SparkLowLevel.MotorType.kBrushless)
   if (motor.lastError != REVLibError.kOk) {
@@ -39,8 +39,7 @@ fun createSparkMax(
     .idleMode(if (brakeMode) IdleMode.kBrake else IdleMode.kCoast)
     .smartCurrentLimit(
       currentLimit.`in`(Amps).toInt(),
-    )
-    .voltageCompensation(RobotController.getBatteryVoltage())
+    ).voltageCompensation(RobotController.getBatteryVoltage())
 
   config.encoder
     .positionConversionFactor(upr * gearing)
@@ -49,7 +48,7 @@ fun createSparkMax(
   motor.configure(
     config,
     SparkBase.ResetMode.kResetSafeParameters,
-    SparkBase.PersistMode.kPersistParameters
+    SparkBase.PersistMode.kPersistParameters,
   )
 
   motor.setControlFramePeriodMs(controlPeriod.`in`(Milliseconds).toInt())
@@ -61,7 +60,7 @@ fun createSparkMax(
 fun createFollowerSpark(
   id: Int,
   leader: SparkMax,
-  invertedFromLeader: Boolean
+  invertedFromLeader: Boolean,
 ): SparkMax {
   val follower = SparkMax(id, SparkLowLevel.MotorType.kBrushless)
   val config = SparkMaxConfig()
@@ -72,9 +71,8 @@ fun createFollowerSpark(
     .idleMode(leaderConfig.idleMode)
     .smartCurrentLimit(
       leaderConfig.smartCurrentLimit,
-      leaderConfig.smartCurrentFreeLimit
-    )
-    .voltageCompensation(leaderConfig.voltageCompensation)
+      leaderConfig.smartCurrentFreeLimit,
+    ).voltageCompensation(leaderConfig.voltageCompensation)
     .follow(leader, invertedFromLeader)
 
   config.encoder
@@ -84,7 +82,7 @@ fun createFollowerSpark(
   follower.configure(
     config,
     SparkBase.ResetMode.kResetSafeParameters,
-    SparkBase.PersistMode.kPersistParameters
+    SparkBase.PersistMode.kPersistParameters,
   )
 
   return follower
@@ -112,7 +110,7 @@ fun createKraken(
   cruiseVel: Double = 0.0,
   maxAccel: Double = 0.0,
   maxJerk: Double = Double.NaN,
-  updateFrequency: Frequency = Hertz.of(50.0)
+  updateFrequency: Frequency = Hertz.of(50.0),
 ): TalonFX {
   val motor = TalonFX(id)
   val config = TalonFXConfiguration()
@@ -157,7 +155,7 @@ fun createKraken(
     motor.motorVoltage,
     motor.supplyCurrent,
     motor.statorCurrent,
-    motor.deviceTemp
+    motor.deviceTemp,
   )
 
   motor.optimizeBusUtilization()

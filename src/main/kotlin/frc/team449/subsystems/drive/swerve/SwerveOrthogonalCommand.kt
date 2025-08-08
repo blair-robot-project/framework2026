@@ -23,9 +23,8 @@ class SwerveOrthogonalCommand(
   private val drive: SwerveDrive,
   private val poseEstimator: PoseSubsystem,
   private val controller: XboxController,
-  private val fieldOriented: () -> Boolean = { true }
+  private val fieldOriented: () -> Boolean = { true },
 ) : Command() {
-
   private var prevX = 0.0
   private var prevY = 0.0
 
@@ -47,11 +46,12 @@ class SwerveOrthogonalCommand(
 
   private val timer = Timer()
 
-  private val rotCtrl = PIDController(
-    RobotConstants.SNAP_KP,
-    RobotConstants.SNAP_KI,
-    RobotConstants.SNAP_KD
-  )
+  private val rotCtrl =
+    PIDController(
+      RobotConstants.SNAP_KP,
+      RobotConstants.SNAP_KI,
+      RobotConstants.SNAP_KD,
+    )
 
   private var skewConstant = SwerveConstants.SKEW_CONSTANT
 
@@ -75,11 +75,12 @@ class SwerveOrthogonalCommand(
     dt = 0.0
     magAccClamped = 0.0
 
-    rotRamp = SlewRateLimiter(
-      RobotConstants.ROT_RATE_LIMIT,
-      RobotConstants.NEG_ROT_RATE_LIM,
-      drive.currentSpeeds.omegaRadiansPerSecond
-    )
+    rotRamp =
+      SlewRateLimiter(
+        RobotConstants.ROT_RATE_LIMIT,
+        RobotConstants.NEG_ROT_RATE_LIM,
+        drive.currentSpeeds.omegaRadiansPerSecond,
+      )
 
     headingLock = false
   }
@@ -94,18 +95,15 @@ class SwerveOrthogonalCommand(
     headingLock = false
   }
 
-  fun checkSnapToAngleTolerance(): Boolean {
-    return abs(rotCtrl.error) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD
-  }
+  fun checkSnapToAngleTolerance(): Boolean = abs(rotCtrl.error) < RobotConstants.SNAP_TO_ANGLE_TOLERANCE_RAD
 
   /** Just a helper command factory to point at a given angle and stop the heading lock once you get into tolerance
    * If you want to customize when the heading lock is lifted, use the internal snapToAngle,
    *  checkSnapToAngleTolerance, and exitSnapToAngle functions */
-  fun pointAtAngleCommand(angle: Rotation2d): Command {
-    return RunCommand({ snapToAngle(angle) })
+  fun pointAtAngleCommand(angle: Rotation2d): Command =
+    RunCommand({ snapToAngle(angle) })
       .until(::checkSnapToAngleTolerance)
       .andThen(::exitSnapToAngle)
-  }
 
   override fun execute() {
     val currTime = timer.get()
@@ -115,11 +113,13 @@ class SwerveOrthogonalCommand(
     val ctrlX = -controller.leftY
     val ctrlY = -controller.leftX
 
-    val ctrlRadius = MathUtil.applyDeadband(
-      min(sqrt(ctrlX.pow(2) + ctrlY.pow(2)), 1.0),
-      RobotConstants.DRIVE_RADIUS_DEADBAND,
-      1.0
-    ).pow(SwerveConstants.JOYSTICK_FILTER_ORDER)
+    val ctrlRadius =
+      MathUtil
+        .applyDeadband(
+          min(sqrt(ctrlX.pow(2) + ctrlY.pow(2)), 1.0),
+          RobotConstants.DRIVE_RADIUS_DEADBAND,
+          1.0,
+        ).pow(SwerveConstants.JOYSTICK_FILTER_ORDER)
 
     val ctrlTheta = atan2(ctrlY, ctrlX)
 
@@ -153,26 +153,27 @@ class SwerveOrthogonalCommand(
 //      snapToAngle(0.0)
 //    }
 
-    rotScaled = if (!headingLock) {
-      rotRamp.calculate(
-        min(
-          MathUtil.applyDeadband(
-            abs(controller.rightX).pow(SwerveConstants.ROT_FILTER_ORDER),
-            RobotConstants.ROTATION_DEADBAND,
-            1.0
-          ),
-          1.0
-        ) * -sign(controller.rightX) * drive.maxRotSpeed
-      )
-    } else {
-      if (checkSnapToAngleTolerance()) headingLock = false
+    rotScaled =
+      if (!headingLock) {
+        rotRamp.calculate(
+          min(
+            MathUtil.applyDeadband(
+              abs(controller.rightX).pow(SwerveConstants.ROT_FILTER_ORDER),
+              RobotConstants.ROTATION_DEADBAND,
+              1.0,
+            ),
+            1.0,
+          ) * -sign(controller.rightX) * drive.maxRotSpeed,
+        )
+      } else {
+        if (checkSnapToAngleTolerance()) headingLock = false
 
-      MathUtil.clamp(
-        rotCtrl.calculate(poseEstimator.heading.radians),
-        -RobotConstants.ALIGN_ROT_SPEED,
-        RobotConstants.ALIGN_ROT_SPEED
-      )
-    }
+        MathUtil.clamp(
+          rotCtrl.calculate(poseEstimator.heading.radians),
+          -RobotConstants.ALIGN_ROT_SPEED,
+          RobotConstants.ALIGN_ROT_SPEED,
+        )
+      }
 
     val vel = Translation2d(xClamped, yClamped)
 
@@ -182,14 +183,15 @@ class SwerveOrthogonalCommand(
        **/
       vel.rotateBy(Rotation2d(-rotScaled * dt * skewConstant))
 
-      val desVel = ChassisSpeeds.fromFieldRelativeSpeeds(
-        vel.x * directionCompensation.invoke(),
-        vel.y * directionCompensation.invoke(),
-        rotScaled,
-        poseEstimator.heading
-      )
+      val desVel =
+        ChassisSpeeds.fromFieldRelativeSpeeds(
+          vel.x * directionCompensation.invoke(),
+          vel.y * directionCompensation.invoke(),
+          rotScaled,
+          poseEstimator.heading,
+        )
       drive.set(
-        desVel
+        desVel,
       )
 
       desiredVel[0] = desVel.vxMetersPerSecond
@@ -200,8 +202,8 @@ class SwerveOrthogonalCommand(
         ChassisSpeeds(
           vel.x,
           vel.y,
-          rotScaled
-        )
+          rotScaled,
+        ),
       )
     }
 

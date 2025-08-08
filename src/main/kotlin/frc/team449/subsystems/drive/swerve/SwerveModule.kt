@@ -5,7 +5,6 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition
 import edu.wpi.first.math.kinematics.SwerveModuleState
 
 interface SwerveModule {
-
   val location: Translation2d
 
   val desiredState: SwerveModuleState

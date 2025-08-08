@@ -36,7 +36,7 @@ open class SwerveModuleNEO(
   private val driveController: PIDController,
   private val turnController: PIDController,
   private val driveFeedforward: SimpleMotorFeedforward,
-  override val location: Translation2d
+  override val location: Translation2d,
 ) : SwerveModule {
   init {
     turnController.enableContinuousInput(.0, 2 * PI)
@@ -44,17 +44,18 @@ open class SwerveModuleNEO(
     turnController.reset()
   }
 
-  override val desiredState = SwerveModuleState(
-    0.0,
-    Rotation2d()
-  )
+  override val desiredState =
+    SwerveModuleState(
+      0.0,
+      Rotation2d(),
+    )
 
   /** The module's [SwerveModuleState], containing speed and angle. */
   override var state: SwerveModuleState
     get() {
       return SwerveModuleState(
         drivingMotor.encoder.velocity,
-        Rotation2d(turnEncoder.position)
+        Rotation2d(turnEncoder.position),
       )
     }
     set(desState) {
@@ -76,7 +77,7 @@ open class SwerveModuleNEO(
     get() {
       return SwerveModulePosition(
         drivingMotor.encoder.position,
-        Rotation2d(turnEncoder.position)
+        Rotation2d(turnEncoder.position),
       )
     }
 
@@ -97,24 +98,27 @@ open class SwerveModuleNEO(
 
   override fun update() {
     /** CONTROL speed of module */
-    val drivePid = driveController.calculate(
-      drivingMotor.encoder.velocity
-    )
-    val driveFF = driveFeedforward.calculate(
-      desiredState.speedMetersPerSecond
-    )
+    val drivePid =
+      driveController.calculate(
+        drivingMotor.encoder.velocity,
+      )
+    val driveFF =
+      driveFeedforward.calculate(
+        desiredState.speedMetersPerSecond,
+      )
 
     drivingMotor.setVoltage(drivePid + driveFF)
 
     /** CONTROL direction of module */
-    val turnPid = turnController.calculate(
-      turningMotor.encoder.position
-    )
+    val turnPid =
+      turnController.calculate(
+        turningMotor.encoder.position,
+      )
 
     turningMotor.set(
       turnPid +
         sign(desiredState.angle.radians - turnEncoder.position) *
-          SwerveConstants.STEER_KS
+        SwerveConstants.STEER_KS,
     )
   }
 
@@ -129,46 +133,52 @@ open class SwerveModuleNEO(
       turnEncoderChannel: Int,
       turnEncoderOffset: Double,
       turnEncoderInverted: Boolean,
-      location: Translation2d
+      location: Translation2d,
     ): SwerveModule {
-      val driveMotor = createSparkMax(
-        driveID,
-        driveInverted,
-        true,
-        gearing = SwerveConstants.DRIVE_GEARING,
-        upr = SwerveConstants.DRIVE_UPR,
-        currentLimit = SwerveConstants.DRIVE_SUPPLY_LIMIT
-      )
-      val turnMotor = createSparkMax(
-        turnID,
-        turnInverted,
-        false,
-        gearing = SwerveConstants.DRIVE_GEARING,
-        upr = SwerveConstants.DRIVE_UPR,
-        currentLimit = SwerveConstants.STEERING_CURRENT_LIM
-      )
-      val turnEncoder = createAbsoluteEncoder(
-        "$name Turn Encoder",
-        turnEncoderChannel,
-        turnEncoderOffset,
-        SwerveConstants.TURN_UPR,
-        turnEncoderInverted
-      )
-      val driveController = PIDController(
-        SwerveConstants.DRIVE_KP,
-        SwerveConstants.DRIVE_KI,
-        SwerveConstants.DRIVE_KD
-      )
-      val turnController = PIDController(
-        SwerveConstants.TURN_KP,
-        SwerveConstants.TURN_KI,
-        SwerveConstants.TURN_KD
-      )
-      val driveFeedforward = SimpleMotorFeedforward(
-        SwerveConstants.DRIVE_KS,
-        SwerveConstants.DRIVE_KV,
-        SwerveConstants.DRIVE_KA
-      )
+      val driveMotor =
+        createSparkMax(
+          driveID,
+          driveInverted,
+          true,
+          gearing = SwerveConstants.DRIVE_GEARING,
+          upr = SwerveConstants.DRIVE_UPR,
+          currentLimit = SwerveConstants.DRIVE_SUPPLY_LIMIT,
+        )
+      val turnMotor =
+        createSparkMax(
+          turnID,
+          turnInverted,
+          false,
+          gearing = SwerveConstants.DRIVE_GEARING,
+          upr = SwerveConstants.DRIVE_UPR,
+          currentLimit = SwerveConstants.STEERING_CURRENT_LIM,
+        )
+      val turnEncoder =
+        createAbsoluteEncoder(
+          "$name Turn Encoder",
+          turnEncoderChannel,
+          turnEncoderOffset,
+          SwerveConstants.TURN_UPR,
+          turnEncoderInverted,
+        )
+      val driveController =
+        PIDController(
+          SwerveConstants.DRIVE_KP,
+          SwerveConstants.DRIVE_KI,
+          SwerveConstants.DRIVE_KD,
+        )
+      val turnController =
+        PIDController(
+          SwerveConstants.TURN_KP,
+          SwerveConstants.TURN_KI,
+          SwerveConstants.TURN_KD,
+        )
+      val driveFeedforward =
+        SimpleMotorFeedforward(
+          SwerveConstants.DRIVE_KS,
+          SwerveConstants.DRIVE_KV,
+          SwerveConstants.DRIVE_KA,
+        )
       if (RobotBase.isReal()) {
         return SwerveModuleNEO(
           name,
@@ -178,7 +188,7 @@ open class SwerveModuleNEO(
           driveController,
           turnController,
           driveFeedforward,
-          location
+          location,
         )
       } else {
         return SwerveModuleSimNEO(
@@ -189,7 +199,7 @@ open class SwerveModuleNEO(
           driveController,
           turnController,
           driveFeedforward,
-          location
+          location,
         )
       }
     }
@@ -205,44 +215,48 @@ class SwerveModuleSimNEO(
   driveController: PIDController,
   turnController: PIDController,
   driveFeedforward: SimpleMotorFeedforward,
-  location: Translation2d
+  location: Translation2d,
 ) : SwerveModuleNEO(
-  name,
-  drivingMotor,
-  turningMotor,
-  turnEncoder,
-  driveController,
-  turnController,
-  driveFeedforward,
-  location
-) {
+    name,
+    drivingMotor,
+    turningMotor,
+    turnEncoder,
+    driveController,
+    turnController,
+    driveFeedforward,
+    location,
+  ) {
   private val turningMotorEncoder = Encoder.SimController(turnEncoder)
-  private val driveEncoder = Encoder.SimController(
-    NEOEncoder.creator(
-      SwerveConstants.DRIVE_UPR,
-      SwerveConstants.DRIVE_GEARING
-    ).create(
-      "drive encoder",
-      drivingMotor,
-      true
+  private val driveEncoder =
+    Encoder.SimController(
+      NEOEncoder
+        .creator(
+          SwerveConstants.DRIVE_UPR,
+          SwerveConstants.DRIVE_GEARING,
+        ).create(
+          "drive encoder",
+          drivingMotor,
+          true,
+        ),
     )
-  )
   private var prevTime = Timer.getFPGATimestamp()
   override var state: SwerveModuleState
-    get() = SwerveModuleState(
-      driveEncoder.velocity,
-      Rotation2d(turningMotorEncoder.position)
-    )
+    get() =
+      SwerveModuleState(
+        driveEncoder.velocity,
+        Rotation2d(turningMotorEncoder.position),
+      )
     set(desiredState) {
       super.state = desiredState
       turningMotorEncoder.position = desiredState.angle.radians
       driveEncoder.velocity = desiredState.speedMetersPerSecond
     }
   override val position: SwerveModulePosition
-    get() = SwerveModulePosition(
-      driveEncoder.position,
-      Rotation2d(turningMotorEncoder.position)
-    )
+    get() =
+      SwerveModulePosition(
+        driveEncoder.position,
+        Rotation2d(turningMotorEncoder.position),
+      )
 
   override fun update() {
     val currTime = Timer.getFPGATimestamp()
