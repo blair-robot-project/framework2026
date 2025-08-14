@@ -215,15 +215,27 @@ class RobotLoop : TimedRobot() {
         0.245 + min(1.735 * sinPivot, elevatorPos * sinPivot),
         Rotation3d(0.0, pivotPos, 0.0)
       ),
+
+
+      /**
+       pose3d(
+       x,
+       y,
+       z,
+       rotation(roll,pitch,yaw)
+       **/
+
+//       max ele = 1.333 in sim
       Pose3d(
-        -.136 + (0.7112 * cosPivot + (0.127 * -sinPivot)) +
+        -.146 + (0.7152 * cosPivot + (0.127 * -sinPivot)) +
           min(1.735 * cosPivot, elevatorPos * cosPivot),
         0.0,
-        .245 + (0.7112 * sinPivot) + (0.127 * cosPivot) +
+        .235 + (0.7152 * sinPivot) + (0.127 * cosPivot) +
           min(1.735 * sinPivot, elevatorPos * sinPivot),
         Rotation3d(0.0, -robot.wrist.positionSupplier.get() + pivotPos, 0.0)
       )
     )
     DogLog.log("AdvScopeComponents", componentStorage)
+    DogLog.log("elevatorPos", elevatorPos)
   }
 }
