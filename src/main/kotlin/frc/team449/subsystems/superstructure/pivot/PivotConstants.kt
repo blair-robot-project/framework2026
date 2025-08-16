@@ -63,9 +63,10 @@ object PivotConstants {
   const val ENC_INVERTED = true
   val ABS_RANGE = Pair(-0.25, 0.75)
   const val ENC_RATIO = 2 * PI * (1.0 / 2.0)
-  val ABS_OFFSET = -2.310589 / ENC_RATIO +
-    (Units.degreesToRadians(90.0) - 1.503581) / ENC_RATIO +
-    (Units.degreesToRadians(90.0) - 1.615284) / ENC_RATIO
+  val ABS_OFFSET =
+    -2.310589 / ENC_RATIO +
+      (Units.degreesToRadians(90.0) - 1.503581) / ENC_RATIO +
+      (Units.degreesToRadians(90.0) - 1.615284) / ENC_RATIO
   val QUAD_ENCODER = Encoder(2, 3)
   const val ENC_CPR = 2048
   const val SAMPLES_TO_AVERAGE = 127

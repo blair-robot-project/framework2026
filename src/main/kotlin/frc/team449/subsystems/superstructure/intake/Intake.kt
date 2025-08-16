@@ -19,7 +19,7 @@ enum class Piece {
   CORAL_VERTICAL,
   CORAL_HORIZONTAL,
   ALGAE,
-  NONE
+  NONE,
 }
 
 enum class CoralPlace {
@@ -27,7 +27,7 @@ enum class CoralPlace {
   HORIZONTAL,
   CENTERED,
   PIVOT,
-  OPP
+  OPP,
 }
 
 class Intake(
@@ -37,15 +37,15 @@ class Intake(
   private val backSensor: LaserCanInterface,
   private val leftSensor: LaserCanInterface,
   private val rightSensor: LaserCanInterface,
-  private val middleSensor: LaserCanInterface
+  private val middleSensor: LaserCanInterface,
 ) : SubsystemBase() {
-
-  private val sensors = listOf(
-    backSensor,
-    leftSensor,
-    rightSensor,
-    middleSensor
-  )
+  private val sensors =
+    listOf(
+      backSensor,
+      leftSensor,
+      rightSensor,
+      middleSensor,
+    )
 
   private var gamePiece = Piece.CORAL_VERTICAL
   private var coralPos = CoralPlace.CENTERED
@@ -54,11 +54,13 @@ class Intake(
   private var command = "none"
   private var inTolerance = true
 
-  private fun setVoltage(vararg motors: TalonFX, voltage: Double): Command {
-    return runOnce {
+  private fun setVoltage(
+    vararg motors: TalonFX,
+    voltage: Double,
+  ): Command =
+    runOnce {
       motors.forEach { it.setVoltage(voltage) }
     }
-  }
 
   private var allSensorsConfigured = true
   private var lasercanConfigured = listOf<Boolean>()
@@ -81,16 +83,20 @@ class Intake(
     }
   }
 
-  private fun setVoltageTop(voltage: Double): Command {
-    return runOnce { topMotor.setVoltage(voltage) }
-  }
+  private fun setVoltageTop(voltage: Double): Command = runOnce { topMotor.setVoltage(voltage) }
 
-  private fun setMotorsRight(rightVoltage: Double = IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE, leftVoltage: Double = rightVoltage) {
+  private fun setMotorsRight(
+    rightVoltage: Double = IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE,
+    leftVoltage: Double = rightVoltage,
+  ) {
     rightMotor.setVoltage(rightVoltage)
     leftMotor.setVoltage(-leftVoltage)
   }
 
-  private fun setMotorsLeft(rightVoltage: Double = IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE, leftVoltage: Double = rightVoltage) {
+  private fun setMotorsLeft(
+    rightVoltage: Double = IntakeConstants.SIDES_RUN_TO_SIDE_VOLTAGE,
+    leftVoltage: Double = rightVoltage,
+  ) {
     rightMotor.setVoltage(-rightVoltage)
     leftMotor.setVoltage(leftVoltage)
   }
@@ -101,12 +107,9 @@ class Intake(
     leftMotor.setVoltage(IntakeConstants.TOP_CORAL_INWARDS_VOLTAGE / slowdownConstant)
   }
 
-  private fun runIntakeBackwards(slowdownConstant: Double = 1.0): Command {
-    return runOnce { setMotorsInwards(slowdownConstant) }
-  }
-  private fun runIntakeForwards(slowdownConstant: Double = 1.0): Command {
-    return runOnce { setMotorsOutwards(slowdownConstant) }
-  }
+  private fun runIntakeBackwards(slowdownConstant: Double = 1.0): Command = runOnce { setMotorsInwards(slowdownConstant) }
+
+  private fun runIntakeForwards(slowdownConstant: Double = 1.0): Command = runOnce { setMotorsOutwards(slowdownConstant) }
 
   private fun setMotorsOutwards(slowdownConstant: Double = 1.0) {
     topMotor.setVoltage(IntakeConstants.TOP_CORAL_OUTTAKE_VOLTAGE / slowdownConstant)
@@ -139,8 +142,8 @@ class Intake(
     positionControlLeft(0.0)
   }
 
-  private fun moveCoralByAmount(distance: Double): Command {
-    return Commands.sequence(
+  private fun moveCoralByAmount(distance: Double): Command =
+    Commands.sequence(
       runOnce {
         inTolerance = false
         positionControlTop(rightMotor.position.valueAsDouble - distance)
@@ -154,58 +157,49 @@ class Intake(
       runOnce {
         inTolerance = true
         holdCoral()
-      }
+      },
     )
-  }
 
-  fun moveCoralForwardsByAmount(distance: Double): Command {
-    return moveCoralByAmount(distance)
-  }
+  fun moveCoralForwardsByAmount(distance: Double): Command = moveCoralByAmount(distance)
 
-  fun moveCoralBackwardsByAmount(distance: Double): Command {
-    return moveCoralByAmount(-distance)
-  }
+  fun moveCoralBackwardsByAmount(distance: Double): Command = moveCoralByAmount(-distance)
 
-  private fun runCoralMovingSequence(intermediateCommand: Command): Command {
-    return Commands.sequence(
+  private fun runCoralMovingSequence(intermediateCommand: Command): Command =
+    Commands.sequence(
       intermediateCommand,
       runOnce {
         holdCoral()
         coralPos = coralPosGoal
-      }
+      },
     )
-  }
 
-  private fun centerCoral(): Command {
-    return when (coralPos) {
+  private fun centerCoral(): Command =
+    when (coralPos) {
       CoralPlace.INTAKEN -> runCoralMovingSequence(moveCoralForwardsByAmount(IntakeConstants.INTAKEN_TO_CENTERED))
       CoralPlace.OPP -> pivotCoralSequence()
       CoralPlace.PIVOT -> oppCoralSequence()
       else -> InstantCommand()
     }
-  }
 
-  private fun pivotCoralSequence(): Command {
-    return when (coralPos) {
+  private fun pivotCoralSequence(): Command =
+    when (coralPos) {
       CoralPlace.CENTERED -> runCoralMovingSequence(moveCoralBackwardsByAmount(IntakeConstants.PIVOT_MOVEMENT))
       CoralPlace.OPP -> runCoralMovingSequence(moveCoralBackwardsByAmount(IntakeConstants.PIVOT_MOVEMENT + IntakeConstants.OPP_MOVEMENT))
       else -> InstantCommand()
     }
-  }
 
-  private fun oppCoralSequence(): Command {
-    return when (coralPos) {
+  private fun oppCoralSequence(): Command =
+    when (coralPos) {
       CoralPlace.CENTERED -> runCoralMovingSequence(moveCoralForwardsByAmount(IntakeConstants.OPP_MOVEMENT))
       CoralPlace.PIVOT -> runCoralMovingSequence(moveCoralForwardsByAmount(IntakeConstants.OPP_MOVEMENT + IntakeConstants.PIVOT_MOVEMENT))
       else -> InstantCommand()
     }
-  }
 
   private var unverticaling = false
   private var coralIn = true
 
-  fun intakeToHorizontal(): Command {
-    return FunctionalCommand(
+  fun intakeToHorizontal(): Command =
+    FunctionalCommand(
       {
         command = "intakeToHorizontal"
         coralIn = true // source: trust me bro
@@ -255,15 +249,13 @@ class Intake(
       { },
       {
         l1Debouncer.calculate(
-          leftSensorDetected() && middleSensorDetected() && rightSensorDetected()
+          leftSensorDetected() && middleSensorDetected() && rightSensorDetected(),
         )
-      }
-    )
-      .andThen(changePieceToL1Coral())
-  }
+      },
+    ).andThen(changePieceToL1Coral())
 
-  fun intakeToVertical(): Command {
-    return FunctionalCommand(
+  fun intakeToVertical(): Command =
+    FunctionalCommand(
       {
         command = "intakeToVertical"
         coralPos = CoralPlace.CENTERED
@@ -284,123 +276,81 @@ class Intake(
       {
         vertDebouncer.calculate(backSensorDetected())
       },
-    )
-      .andThen(changePieceToVertCoral())
-  }
+    ).andThen(changePieceToVertCoral())
 
-  fun intakeAlgae(): Command {
-    return Commands.sequence(
-      runOnce {
-        command = "intaking algae"
-        topMotor.configurator.apply(IntakeConstants.TOP_MOTOR_INTAKING_CONFIG)
-      },
-      setVoltageTop(IntakeConstants.ALGAE_INTAKE_VOLTAGE),
-      changePieceToAlgae(),
-    )
-  }
-
-  fun holdAlgae(): Command {
-    return Commands.sequence(
+  fun holdAlgae(): Command =
+    Commands.sequence(
       runOnce {
         command = "holding algae"
         topMotor.configurator.apply(IntakeConstants.TOP_MOTOR_HOLDING_CONFIG)
       },
-      setVoltageTop(IntakeConstants.ALGAE_HOLD_VOLTAGE)
+      setVoltageTop(IntakeConstants.ALGAE_HOLD_VOLTAGE),
     )
-  }
 
-  fun holdAlgaeProc(): Command {
-    return Commands.sequence(
+  fun holdAlgaeProc(): Command =
+    Commands.sequence(
       runOnce {
         command = "holding algae proc"
         topMotor.configurator.apply(IntakeConstants.TOP_MOTOR_HOLDING_CONFIG_PROC)
       },
       setVoltageTop(IntakeConstants.ALGAE_HOLD_VOLTAGE),
     )
-  }
 
-  fun outtakeL1(): Command {
-    return Commands.sequence(
+  fun outtakeL1(): Command =
+    Commands.sequence(
       runOnce { command = "outtaking l1" },
       setVoltageTop(IntakeConstants.TOP_L1_OUTTAKE),
       changePieceToNone(),
     )
-  }
 
-  fun outtakeCoral(): Command {
-    return Commands.sequence(
+  fun outtakeCoral(): Command =
+    Commands.sequence(
       runOnce { command = "outtaking coral" },
       runOnce { setMotorsOutwards(-1.0) },
       changePieceToNone(),
     )
-  }
 
-  fun outtakeCoralPivot(): Command {
-    return Commands.sequence(
+  fun outtakeCoralPivot(): Command =
+    Commands.sequence(
       runOnce { command = "outtaking coral pivot" },
       runOnce { setMotorsOutwards() },
-      changePieceToNone()
+      changePieceToNone(),
     )
-  }
 
-  fun outtakeAlgae(): Command {
-    return Commands.sequence(
+  fun outtakeAlgae(): Command =
+    Commands.sequence(
       runOnce { command = "outtaking algae" },
       setVoltageTop(IntakeConstants.ALGAE_OUTTAKE_VOLTAGE),
       changePieceToNone(false),
     )
-  }
 
-  private fun laserCanDetected(laserCan: LaserCanInterface): Boolean {
-    return laserCan.measurement != null && (
+  private fun laserCanDetected(laserCan: LaserCanInterface): Boolean =
+    laserCan.measurement != null && (
       laserCan.measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT &&
         laserCan.measurement.distance_mm <= IntakeConstants.CORAL_DETECTION_THRESHOLD
-      )
-  }
+    )
 
-  private fun laserCanIsPlugged(laserCan: LaserCanInterface): Boolean {
-    return laserCan.measurement != null
-  }
+  private fun laserCanIsPlugged(laserCan: LaserCanInterface): Boolean = laserCan.measurement != null
 
-  fun coralDetected(): Boolean {
-    return laserCanDetected(backSensor) || laserCanDetected(leftSensor) || laserCanDetected(rightSensor) || laserCanDetected(middleSensor)
-  }
+  fun coralDetected(): Boolean = laserCanDetected(backSensor) || laserCanDetected(leftSensor) || laserCanDetected(rightSensor) || laserCanDetected(middleSensor)
 
-  fun coralNotDetected(): Boolean {
-    return !coralDetected()
-  }
+  fun coralNotDetected(): Boolean = !coralDetected()
 
-  private fun coralIsVertical(): Boolean {
-    return gamePiece == Piece.CORAL_VERTICAL
-  }
+  private fun coralIsVertical(): Boolean = gamePiece == Piece.CORAL_VERTICAL
 
-  private fun coralIsHorizontal(): Boolean {
-    return gamePiece == Piece.CORAL_HORIZONTAL
-  }
+  private fun coralIsHorizontal(): Boolean = gamePiece == Piece.CORAL_HORIZONTAL
 
-  private fun rightSensorDetected(): Boolean {
-    return laserCanDetected(rightSensor)
-  }
+  private fun rightSensorDetected(): Boolean = laserCanDetected(rightSensor)
 
-  private fun leftSensorDetected(): Boolean {
-    return laserCanDetected(leftSensor)
-  }
+  private fun leftSensorDetected(): Boolean = laserCanDetected(leftSensor)
 
-  private fun middleSensorDetected(): Boolean {
-    return laserCanDetected(middleSensor)
-  }
+  private fun middleSensorDetected(): Boolean = laserCanDetected(middleSensor)
 
-  private fun backSensorDetected(): Boolean {
-    return laserCanDetected(backSensor)
-  }
+  private fun backSensorDetected(): Boolean = laserCanDetected(backSensor)
 
-  private fun onlyMiddleSensor(): Boolean {
-    return !laserCanDetected(leftSensor) && !laserCanDetected(rightSensor) && laserCanDetected(middleSensor)
-  }
+  private fun onlyMiddleSensor(): Boolean = !laserCanDetected(leftSensor) && !laserCanDetected(rightSensor) && laserCanDetected(middleSensor)
 
-  fun hasAlgae(): Boolean {
-    return gamePiece == Piece.ALGAE
-  }
+  fun hasAlgae(): Boolean = gamePiece == Piece.ALGAE
 
   private val algaeDebouncer = Debouncer(IntakeConstants.ALGAE_DEBOUNCER_WAIT, Debouncer.DebounceType.kRising)
   private val l1Debouncer = Debouncer(IntakeConstants.L1_DEBOUNCER_WAIT, Debouncer.DebounceType.kRising)
@@ -413,116 +363,103 @@ class Intake(
 //   return   WaitCommand(2.0)
       algaeDebouncer.calculate(
         topMotor.statorCurrent.valueAsDouble >
-          IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD
+          IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD,
       )
     }.onlyIf { RobotBase.isReal() }
       .andThen(runOnce { gamePiece = Piece.ALGAE })
-  }
 
-  private fun changePieceToVertCoral(): Command {
-    return runOnce {
+  private fun changePieceToVertCoral(): Command =
+    runOnce {
       topMotor.stopMotor()
       holdCoral()
       gamePiece = Piece.CORAL_VERTICAL
     }
-  }
 
-  private fun changePieceToL1Coral(): Command {
-    return runOnce {
+  private fun changePieceToL1Coral(): Command =
+    runOnce {
       leftMotor.stopMotor()
       rightMotor.stopMotor()
       topMotor.setVoltage(IntakeConstants.TOP_L1_HOLD)
       gamePiece = Piece.CORAL_HORIZONTAL
     }
-  }
 
-  private fun changePieceToNone(coralOuttaken: Boolean = true): Command {
-    return Commands.sequence(
+  private fun changePieceToNone(coralOuttaken: Boolean = true): Command =
+    Commands.sequence(
       Commands.race(
         ConditionalCommand(
           // coral
           WaitUntilCommand { !coralDetected() },
-
           // algae
           WaitUntilCommand {
             topMotor.statorCurrent.valueAsDouble >
               IntakeConstants.ALGAE_STALL_VOLTAGE_THRESHOLD
           }.andThen(
-            WaitCommand(IntakeConstants.WAIT_BEFORE_ALGAE_OUT)
-          )
-
+            WaitCommand(IntakeConstants.WAIT_BEFORE_ALGAE_OUT),
+          ),
         ) { coralOuttaken }.onlyIf { RobotBase.isReal() },
         // have this wait just so if we never current sense or we're stuck
         // or smth we're not trapped in the outtake command
-        WaitCommand(1.0)
+        WaitCommand(1.0),
       ),
       runOnce { gamePiece = Piece.NONE },
-      stopMotorsCmd()
+      stopMotorsCmd(),
     )
-  }
 
-  fun moveCoralOppSide(): Command { return runOnce { coralPosGoal = CoralPlace.OPP } }
-  fun moveCoralPivotSide(): Command { return runOnce { coralPosGoal = CoralPlace.PIVOT } }
-  fun moveCoralCentered(): Command { return runOnce { coralPosGoal = CoralPlace.CENTERED } }
+  fun moveCoralOppSide(): Command = runOnce { coralPosGoal = CoralPlace.OPP }
+
+  fun moveCoralPivotSide(): Command = runOnce { coralPosGoal = CoralPlace.PIVOT }
+
+  fun moveCoralCentered(): Command = runOnce { coralPosGoal = CoralPlace.CENTERED }
 
   // intake to vertical sets coralPosGoal to CoralPlace.CENTERED immediately
-  fun moveCoralFromIntake(): Command { return runOnce { coralPos = CoralPlace.INTAKEN } }
+  fun moveCoralFromIntake(): Command = runOnce { coralPos = CoralPlace.INTAKEN }
 
-  private fun moveTowardsBackSensor(): Command {
-    return Commands.sequence(
+  private fun moveTowardsBackSensor(): Command =
+    Commands.sequence(
       runOnce {
         setMotorsInwards(5.0)
       },
       WaitUntilCommand { backSensorDetected() },
       stopMotorsCmd(),
-      runOnce { holdCoral() }
+      runOnce { holdCoral() },
     )
-  }
 
-  private fun moveTowardsMiddleSensor(): Command {
-    return Commands.sequence(
+  private fun moveTowardsMiddleSensor(): Command =
+    Commands.sequence(
       runOnce {
         setMotorsOutwards(5.0)
       },
       WaitUntilCommand { middleSensorDetected() },
       stopMotorsCmd(),
-      runOnce { holdCoral() }
+      runOnce { holdCoral() },
     )
-  }
 
-  private fun moveTowardsLeftSensor(): Command {
-    return Commands.sequence(
+  private fun moveTowardsLeftSensor(): Command =
+    Commands.sequence(
       runOnce {
         setMotorsLeft(2.0)
       },
       stopMotorsCmd(),
       WaitUntilCommand { leftSensorDetected() },
     )
-  }
 
-  private fun moveTowardsRightSensor(): Command {
-    return Commands.sequence(
+  private fun moveTowardsRightSensor(): Command =
+    Commands.sequence(
       runOnce {
         setMotorsRight(2.0)
       },
       stopMotorsCmd(),
       WaitUntilCommand { rightSensorDetected() },
     )
-  }
 
-  fun hasCoral(): Boolean {
-    return gamePiece == Piece.CORAL_HORIZONTAL || gamePiece == Piece.CORAL_VERTICAL
-  }
+  fun hasCoral(): Boolean = gamePiece == Piece.CORAL_HORIZONTAL || gamePiece == Piece.CORAL_VERTICAL
 
-  fun hasPiece(): Boolean {
-    return hasAlgae() || hasCoral()
-  }
+  fun hasPiece(): Boolean = hasAlgae() || hasCoral()
 
-  fun resetPiece(): Command {
-    return runOnce {
+  fun resetPiece(): Command =
+    runOnce {
       gamePiece = Piece.CORAL_VERTICAL
     }
-  }
 
   private fun stopMotors() {
     topMotor.stopMotor()
@@ -530,9 +467,7 @@ class Intake(
     leftMotor.stopMotor()
   }
 
-  fun stopMotorsCmd(): Command {
-    return runOnce { stopMotors() }
-  }
+  fun stopMotorsCmd(): Command = runOnce { stopMotors() }
 
   override fun periodic() {
     if (hasCoral() && pieceResetDebouncer.calculate(!coralDetected())) {
@@ -540,8 +475,8 @@ class Intake(
     }
 
     if (!hasCoral() && (
-      pieceDetectDebonucer.calculate(middleSensorDetected()) ||
-        pieceDetectDebonucer.calculate(backSensorDetected())
+        pieceDetectDebonucer.calculate(middleSensorDetected()) ||
+          pieceDetectDebonucer.calculate(backSensorDetected())
       )
     ) {
       gamePiece =
@@ -556,56 +491,57 @@ class Intake(
   }
 
   fun monitorCoral(): Command {
-    val f = FunctionalCommand(
-      // initialization
-      { command = "monitoring" },
-      // execute
-      {
-        if (coralIsVertical()) {
-          if (coralPos != coralPosGoal) {
-            // if we're moving to a goal
-            when (coralPosGoal) {
-              CoralPlace.CENTERED -> {
-                command = "centering"
-                centerCoral().schedule()
-              }
-              CoralPlace.PIVOT -> {
-                command = "moving to pivot"
-                pivotCoralSequence().schedule()
-              }
-              else -> {
-                command = "moving to opp side"
-                oppCoralSequence().schedule()
+    val f =
+      FunctionalCommand(
+        // initialization
+        { command = "monitoring" },
+        // execute
+        {
+          if (coralIsVertical()) {
+            if (coralPos != coralPosGoal) {
+              // if we're moving to a goal
+              when (coralPosGoal) {
+                CoralPlace.CENTERED -> {
+                  command = "centering"
+                  centerCoral().schedule()
+                }
+                CoralPlace.PIVOT -> {
+                  command = "moving to pivot"
+                  pivotCoralSequence().schedule()
+                }
+                else -> {
+                  command = "moving to opp side"
+                  oppCoralSequence().schedule()
+                }
               }
             }
-          }
 
-          if (!backSensorDetected()) {
-            command = "moving towards back sensor"
-            moveTowardsBackSensor().schedule()
-          }
+            if (!backSensorDetected()) {
+              command = "moving towards back sensor"
+              moveTowardsBackSensor().schedule()
+            }
 
-          if (!middleSensorDetected()) {
-            command = "moving towards middle sensor"
-            moveTowardsMiddleSensor().schedule()
-          }
-        } else if (coralIsHorizontal()) {
-          if (!rightSensorDetected()) {
-            command = "moving towards right sensor"
-            moveTowardsRightSensor().schedule()
-          }
+            if (!middleSensorDetected()) {
+              command = "moving towards middle sensor"
+              moveTowardsMiddleSensor().schedule()
+            }
+          } else if (coralIsHorizontal()) {
+            if (!rightSensorDetected()) {
+              command = "moving towards right sensor"
+              moveTowardsRightSensor().schedule()
+            }
 
-          if (!leftSensorDetected()) {
-            command = "moving towards left sensor"
-            moveTowardsLeftSensor().schedule()
+            if (!leftSensorDetected()) {
+              command = "moving towards left sensor"
+              moveTowardsLeftSensor().schedule()
+            }
           }
-        }
-      },
-      // on end
-      { },
-      // finish requirements
-      { false }
-    )
+        },
+        // on end
+        { },
+        // finish requirements
+        { false },
+      )
     f.addRequirements(this)
     return f
   }
@@ -629,19 +565,21 @@ class Intake(
     DogLog.log("Intake/Motors/Temp/rightMotorTemperature", rightMotor.deviceTemp.valueAsDouble)
 
     // STATE
-    val pieceName = when (gamePiece) {
-      Piece.NONE -> "none"
-      Piece.ALGAE -> "algae"
-      Piece.CORAL_VERTICAL -> "coral vertical"
-      Piece.CORAL_HORIZONTAL -> "coral horizontal"
-    }
-    val place = when (coralPos) {
-      CoralPlace.CENTERED -> "centered"
-      CoralPlace.PIVOT -> "pivot"
-      CoralPlace.OPP -> "opp"
-      CoralPlace.HORIZONTAL -> "horizontal"
-      CoralPlace.INTAKEN -> "intaken"
-    }
+    val pieceName =
+      when (gamePiece) {
+        Piece.NONE -> "none"
+        Piece.ALGAE -> "algae"
+        Piece.CORAL_VERTICAL -> "coral vertical"
+        Piece.CORAL_HORIZONTAL -> "coral horizontal"
+      }
+    val place =
+      when (coralPos) {
+        CoralPlace.CENTERED -> "centered"
+        CoralPlace.PIVOT -> "pivot"
+        CoralPlace.OPP -> "opp"
+        CoralPlace.HORIZONTAL -> "horizontal"
+        CoralPlace.INTAKEN -> "intaken"
+      }
     DogLog.log("Intake/State/Piece State", pieceName)
     DogLog.log("Intake/State/Command", command)
     DogLog.log("Intake/State/In Tolerance", inTolerance)
@@ -700,7 +638,7 @@ class Intake(
           MockLaserCan(),
           MockLaserCan(),
           MockLaserCan(),
-          MockLaserCan()
+          MockLaserCan(),
         )
       }
 
@@ -711,7 +649,7 @@ class Intake(
         LaserCan(IntakeConstants.BACK_CORAL_SENSOR_CAN_ID),
         LaserCan(IntakeConstants.LEFT_CORAL_SENSOR_CAN_ID),
         LaserCan(IntakeConstants.RIGHT_CORAL_SENSOR_CAN_ID),
-        LaserCan(IntakeConstants.MIDDLE_CORAL_SENSOR_CAN_ID)
+        LaserCan(IntakeConstants.MIDDLE_CORAL_SENSOR_CAN_ID),
       )
     }
   }

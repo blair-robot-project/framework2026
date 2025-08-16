@@ -7,7 +7,6 @@ import com.ctre.phoenix6.signals.NeutralModeValue
 import kotlin.math.PI
 
 object IntakeConstants {
-
   const val TOP_MOTOR_ID = 47
   const val RIGHT_MOTOR_ID = 46
   const val LEFT_MOTOR_ID = 48
@@ -34,15 +33,18 @@ object IntakeConstants {
 
   // configs
   val config = TalonFXConfiguration()
-  val TOP_MOTOR_INTAKING_CONFIG: CurrentLimitsConfigs = CurrentLimitsConfigs()
-    .withSupplyCurrentLimit(40.0)
-    .withStatorCurrentLimit(80.0)
-  val TOP_MOTOR_HOLDING_CONFIG: CurrentLimitsConfigs = CurrentLimitsConfigs()
-    .withSupplyCurrentLimit(25.0)
-    .withStatorCurrentLimit(75.0)
-  val TOP_MOTOR_HOLDING_CONFIG_PROC: CurrentLimitsConfigs = CurrentLimitsConfigs()
-    .withSupplyCurrentLimit(25.0)
-    .withStatorCurrentLimit(75.0)
+  val TOP_MOTOR_INTAKING_CONFIG: CurrentLimitsConfigs =
+    CurrentLimitsConfigs()
+      .withSupplyCurrentLimit(40.0)
+      .withStatorCurrentLimit(80.0)
+  val TOP_MOTOR_HOLDING_CONFIG: CurrentLimitsConfigs =
+    CurrentLimitsConfigs()
+      .withSupplyCurrentLimit(25.0)
+      .withStatorCurrentLimit(75.0)
+  val TOP_MOTOR_HOLDING_CONFIG_PROC: CurrentLimitsConfigs =
+    CurrentLimitsConfigs()
+      .withSupplyCurrentLimit(25.0)
+      .withStatorCurrentLimit(75.0)
 
   // debouncers
   const val ALGAE_DEBOUNCER_WAIT = 0.4
@@ -69,7 +71,7 @@ object IntakeConstants {
   const val SIDES_RUN_TO_SIDE_VOLTAGE = 8.0
   const val SIDES_SLOWDOWN_CONSTANT = 1.2
 
-  const val ALGAE_INTAKE_VOLTAGE = -10.0
+  const val ALGAE_INTAKE_VOLTAGE = -11.0
   const val ALGAE_HOLD_VOLTAGE = -10.0
   const val ALGAE_OUTTAKE_VOLTAGE = 11.0
   const val ALGAE_STALL_VOLTAGE_THRESHOLD = 60.0

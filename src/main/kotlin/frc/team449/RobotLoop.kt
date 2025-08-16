@@ -32,23 +32,23 @@ import kotlin.math.*
 /** The main class of the robot, constructs all the subsystems
  * and initializes default commands . */
 class RobotLoop : TimedRobot() {
-
   private val robot = Robot()
 
   val routines = Routines(robot)
 
-  private var componentStorage: Array<Pose3d> = arrayOf(
-    Pose3d(),
-    Pose3d(),
-    Pose3d(),
-    Pose3d(),
-    Pose3d(
-      0.0,
-      0.0,
-      0.0,
-      Rotation3d(0.0, 0.0, 0.0)
+  private var componentStorage: Array<Pose3d> =
+    arrayOf(
+      Pose3d(),
+      Pose3d(),
+      Pose3d(),
+      Pose3d(),
+      Pose3d(
+        0.0,
+        0.0,
+        0.0,
+        Rotation3d(0.0, 0.0, 0.0),
+      ),
     )
-  )
 
   private val controllerBinder = ControllerBindings(robot.driveController, robot.mechController, robot.characController, robot.testController, robot)
 
@@ -90,7 +90,7 @@ class RobotLoop : TimedRobot() {
     DogLog.setOptions(
       DogLogOptions()
         .withCaptureDs(true)
-        .withCaptureNt(true)
+        .withCaptureNt(true),
     )
 
     SmartDashboard.putData("Field", robot.field)
@@ -121,7 +121,8 @@ class RobotLoop : TimedRobot() {
     robot.field.robotPose = robot.poseSubsystem.pose
     robot.field.getObject("bumpers").pose = robot.poseSubsystem.pose
 
-    logAdvScopeComponents()
+    // logAdvScopeComponents()
+    DogLog.log("AdvScopeComponents", RobotVisual.getComponents())
   }
 
   override fun autonomousInit() {
@@ -158,6 +159,12 @@ class RobotLoop : TimedRobot() {
   override fun simulationInit() {}
 
   override fun simulationPeriodic() {
+    RobotVisual.update(
+      robot.pivot.positionSupplier.get(),
+      robot.elevator.positionSupplier.get(),
+      robot.wrist.positionSupplier.get(),
+    )
+
     // Superstructure Simulation
     robot.elevator.elevatorLigament.length = ElevatorConstants.MIN_VIS_HEIGHT + robot.elevator.positionSupplier.get()
     robot.elevator.desiredElevatorLigament.length = ElevatorConstants.MIN_VIS_HEIGHT + robot.elevator.targetSupplier.get()
@@ -173,69 +180,68 @@ class RobotLoop : TimedRobot() {
       it.simulationPeriodic(robot.drive.odometryPose)
     }
 
-    VisionConstants.VISION_SIM.debugField.getObject("EstimatedRobot").pose = robot.poseSubsystem.pose
+    VisionConstants.VISION_SIM.debugField
+      .getObject("EstimatedRobot")
+      .pose = robot.poseSubsystem.pose
 
     // change elevator angle according to pivot position
     robot.elevator.elevatorSim?.changeAngle(robot.pivot.positionSupplier.get())
   }
 
-  private fun logAdvScopeComponents() {
-    val pivotPos = -robot.pivot.positionSupplier.get()
-    val cosPivot = cos(-pivotPos)
-    val sinPivot = sin(-pivotPos)
-
-    val elevatorPos = robot.elevator.positionSupplier.get()
-
-    componentStorage = arrayOf(
-//       pivot/base stage
-      Pose3d(
-        -0.136,
-        0.0,
-        0.245,
-        Rotation3d(0.0, pivotPos, 0.0)
-      ),
-      // first stage max: 0.60
-      Pose3d(
-        -0.136 + min(0.6 * cosPivot, elevatorPos * cosPivot),
-        0.0,
-        0.245 + min(0.6 * sinPivot, elevatorPos * sinPivot),
-        Rotation3d(0.0, pivotPos, 0.0)
-      ),
-      // second stage max : 0.575 (1.175)
-      Pose3d(
-        -0.136 + min(1.175 * cosPivot, elevatorPos * cosPivot),
-        0.0,
-        0.245 + min(1.175 * sinPivot, elevatorPos * sinPivot),
-        Rotation3d(0.0, pivotPos, 0.0)
-      ),
-      // third stage max: 0.56 (1.735)
-      Pose3d(
-        -0.136 + min(1.735 * cosPivot, elevatorPos * cosPivot),
-        0.0,
-        0.245 + min(1.735 * sinPivot, elevatorPos * sinPivot),
-        Rotation3d(0.0, pivotPos, 0.0)
-      ),
-
-
-      /**
-       pose3d(
-       x,
-       y,
-       z,
-       rotation(roll,pitch,yaw)
-       **/
-
-//       max ele = 1.333 in sim
-      Pose3d(
-        -.146 + (0.7152 * cosPivot + (0.127 * -sinPivot)) +
-          min(1.735 * cosPivot, elevatorPos * cosPivot),
-        0.0,
-        .235 + (0.7152 * sinPivot) + (0.127 * cosPivot) +
-          min(1.735 * sinPivot, elevatorPos * sinPivot),
-        Rotation3d(0.0, -robot.wrist.positionSupplier.get() + pivotPos, 0.0)
-      )
-    )
-    DogLog.log("AdvScopeComponents", componentStorage)
-    DogLog.log("elevatorPos", elevatorPos)
-  }
+//  private fun logAdvScopeComponents() {
+//    val pivotPos = -robot.pivot.positionSupplier.get()
+//    val cosPivot = cos(-pivotPos)
+//    val sinPivot = sin(-pivotPos)
+//
+//    val elevatorPos = robot.elevator.positionSupplier.get()
+//
+//    componentStorage =
+//      arrayOf(
+// //       pivot/base stage
+//        Pose3d(
+//          -0.136,
+//          0.0,
+//          0.245,
+//          Rotation3d(0.0, pivotPos, 0.0),
+//        ),
+//        // first stage max: 0.60
+//        Pose3d(
+//          -0.136 + min(0.6 * cosPivot, elevatorPos * cosPivot),
+//          0.0,
+//          0.245 + min(0.6 * sinPivot, elevatorPos * sinPivot),
+//          Rotation3d(0.0, pivotPos, 0.0),
+//        ),
+//        // second stage max : 0.575 (1.175)
+//        Pose3d(
+//          -0.136 + min(1.175 * cosPivot, elevatorPos * cosPivot),
+//          0.0,
+//          0.245 + min(1.175 * sinPivot, elevatorPos * sinPivot),
+//          Rotation3d(0.0, pivotPos, 0.0),
+//        ),
+//        // third stage max: 0.56 (1.735)
+//        Pose3d(
+//          -0.136 + min(1.735 * cosPivot, elevatorPos * cosPivot),
+//          0.0,
+//          0.245 + min(1.735 * sinPivot, elevatorPos * sinPivot),
+//          Rotation3d(0.0, pivotPos, 0.0),
+//        ),
+//        /**
+//         pose3d(
+//         x,
+//         y,
+//         z,
+//         rotation(roll,pitch,yaw)
+//         **/
+//        Pose3d(
+//          -.146 + (0.7152 * cosPivot + (0.127 * -sinPivot)) +
+//            min(1.735 * cosPivot, elevatorPos * cosPivot),
+//          0.0,
+//          .235 + (0.7152 * sinPivot) + (0.127 * cosPivot) +
+//            min(1.735 * sinPivot, elevatorPos * sinPivot),
+//          Rotation3d(0.0, -robot.wrist.positionSupplier.get() + pivotPos, 0.0),
+//        ),
+//      )
+//    // DogLog.log("AdvScopeComponents", componentStorage)
+//    DogLog.log("elevatorPos", elevatorPos)
+//  }
 }
