@@ -358,6 +358,18 @@ class Intake(
   private val pieceResetDebouncer = Debouncer(IntakeConstants.PIECE_RESET_DEBOUNCER_WAIT, Debouncer.DebounceType.kRising)
   private val pieceDetectDebonucer = Debouncer(IntakeConstants.PIECE_DETECT_DEBOUNCER_WAIT, Debouncer.DebounceType.kRising)
 
+  fun intakeAlgae(): Command {
+    return Commands.sequence(
+      runOnce {
+        command = "intaking algae"
+        topMotor.configurator.apply(IntakeConstants.TOP_MOTOR_INTAKING_CONFIG)
+      },
+      setVoltageTop(IntakeConstants.ALGAE_INTAKE_VOLTAGE),
+      changePieceToAlgae(),
+    )
+  }
+
+
   private fun changePieceToAlgae(): Command {
     return WaitUntilCommand {
 //   return   WaitCommand(2.0)
@@ -367,6 +379,7 @@ class Intake(
       )
     }.onlyIf { RobotBase.isReal() }
       .andThen(runOnce { gamePiece = Piece.ALGAE })
+  }
 
   private fun changePieceToVertCoral(): Command =
     runOnce {
