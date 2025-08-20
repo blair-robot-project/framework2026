@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Pose3d
 import edu.wpi.first.math.geometry.Rotation3d
 import edu.wpi.first.math.geometry.Transform3d
 import edu.wpi.first.math.geometry.Translation3d
+import edu.wpi.first.units.Units.Radians
 import kotlin.math.max
 
 object RobotVisual {
@@ -17,7 +18,7 @@ object RobotVisual {
 
   private const val FIRST_STAGE_MAX = 0.6
   private const val SECOND_STAGE_MAX = 0.57
-  private const val THIRD_STAGE_MAX = 0.56
+  private const val THIRD_STAGE_MAX = 0.56 +0.13
 
   private val components = Array(5) { Pose3d() }
 
@@ -74,9 +75,27 @@ object RobotVisual {
     components[4] =
       components[3].transformBy(
         Transform3d(
-          // since wrist is placed on 3rd stage, if 3rd stage not moving take min elevator height
-          Translation3d(max(0.709, thirdStage), 0.0, 0.127), // z-axis offset added bc it was initially based at the pivot
-          Rotation3d(0.0, -wrist, 0.0),
+          Translation3d(
+            //close-ish estimates, might be cooked
+            THIRD_STAGE_MAX + ( if (wrist < 1){
+              0.02
+            } else{
+              -0.001
+            }),
+
+
+            0.0,
+
+
+         if (wrist < 1){
+            0.1025
+          } else{
+            0.071
+          }
+
+
+          ),
+          Rotation3d(0.0,-wrist, 0.0),
         ),
       )
   }
