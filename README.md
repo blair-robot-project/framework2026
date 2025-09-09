@@ -1,6 +1,6 @@
-# robot2025
+# framework2026
 
-Repository for FRC Team 449's code for the [2025 FIRST Robotics Competition REEFSCAPE](https://www.youtube.com/watch?v=YWbxcjlY9JY).
+Repository for FRC Team 449's robot framework for the 2026 season
 
 -----------------------------
 
