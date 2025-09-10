@@ -137,9 +137,6 @@ class RobotLoop : TimedRobot() {
     (robot.light.currentCommand ?: InstantCommand()).cancel()
 
     robot.drive.defaultCommand = robot.driveCommand
-    robot.intake.defaultCommand = robot.intake.monitorCoral()
-    robot.intake.resetPos()
-    robot.intake.stopMotorsCmd().schedule()
   }
 
   override fun teleopPeriodic() {

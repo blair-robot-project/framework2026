@@ -109,64 +109,6 @@ class PoseSubsystem(
     poseEstimator.resetPose(pose)
   }
 
-  fun isFacingNet(): Boolean {
-    val alliance = DriverStation.getAlliance().getOrNull()
-    val tolerance = 90
-    return (
-      if (alliance == DriverStation.Alliance.Red) {
-        abs(
-          MathUtil.inputModulus(
-            heading.degrees - 180.0,
-            -180.0,
-            180.0
-          )
-        ) < tolerance
-      } else {
-        abs(
-          MathUtil.inputModulus(
-            heading.degrees - 0.0,
-            -180.0,
-            180.0
-          )
-        ) < tolerance
-      }
-      )
-  }
-
-  // handle the case if the robot is on the opposing alliance side of the net
-  fun facingNet(): Boolean {
-    val alliance = DriverStation.getAlliance().getOrNull()
-    val pos = this.pose.x
-    val netX = 8.819
-    return (
-      if (
-        (alliance == DriverStation.Alliance.Red && pos < netX) ||
-        (alliance == DriverStation.Alliance.Blue && pos > netX)
-      ) {
-        !isFacingNet()
-      } else {
-        isFacingNet()
-      }
-      )
-  }
-
-  fun isPivotSide(): Boolean {
-    val closestReefRadians = pose.nearest(FieldConstants.REEF_CENTER_LOCATIONS).rotation.radians
-
-    return !(
-      abs(MathUtil.angleModulus(closestReefRadians - heading.radians)) <
-        abs(MathUtil.angleModulus(MathUtil.angleModulus(PI + closestReefRadians) - heading.radians))
-      )
-  }
-
-  fun isBackReefSide(): Boolean {
-    val reefSide = pose.nearest(FieldConstants.REEF_CENTER_LOCATIONS)
-
-    return nearPose(reefSide, FieldConstants.REEF_CENTER_LOCATIONS[2]) ||
-      nearPose(reefSide, FieldConstants.REEF_CENTER_LOCATIONS[3]) ||
-      nearPose(reefSide, FieldConstants.REEF_CENTER_LOCATIONS[4])
-  }
-
   private fun nearPose(pose1: Pose2d, pose2: Pose2d): Boolean {
     return (pose1.translation - pose2.translation).norm < 0.01
   }
@@ -317,8 +259,6 @@ class PoseSubsystem(
 
   private fun logData() {
     DogLog.log("PoseSubsystem/Estimated Pose", pose)
-    DogLog.log("PoseSubsystem/ IsFacing Net", isFacingNet())
-    DogLog.log("PoseSubsystem/ Facing Net", facingNet())
 
     DogLog.log("PoseSubsystem/Vision Stats/Used Last Vision Estimate", usedVision)
     DogLog.log("PoseSubsystem/Vision Stats/Number of Targets", numTargets)

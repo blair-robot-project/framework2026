@@ -51,16 +51,6 @@ class Robot : RobotBase() {
 
   override val driveCommand: SwerveOrthogonalCommand = SwerveOrthogonalCommand(drive, poseSubsystem, driveController.hid)
 
-  val elevator: Elevator = createElevator()
-
-  val pivot: Pivot = createPivot()
-
-  val wrist: Wrist = createWrist()
-
-  val intake: Intake = createIntake()
-
-  val climb: Climb = createClimb()
-
   val superstructureManager: SuperstructureManager = createSuperstructureManager(this)
 
   val light = createLight()
