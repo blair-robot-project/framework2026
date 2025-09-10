@@ -1,12 +1,15 @@
 package frc.team449.subsystems.superstructure
 
 import edu.wpi.first.units.Units.*
-import edu.wpi.first.units.measure.Angle
-import edu.wpi.first.units.measure.Distance
 import frc.team449.subsystems.RobotConstants
 import frc.team449.subsystems.drive.swerve.SwerveDrive
 
 object SuperstructureGoal {
+
+  val STOW = SuperstructureState(
+    DriveDynamics(RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ACCEL, RobotConstants.MAX_ROT_SPEED),
+    "Stow"
+  )
 
   data class SuperstructureState(
     val driveDynamics: DriveDynamics,
@@ -24,5 +27,4 @@ object SuperstructureGoal {
     drive.accel = dynamics.maxAccel
     drive.maxRotSpeed = dynamics.maxRotSpeed
   }
-  
 }

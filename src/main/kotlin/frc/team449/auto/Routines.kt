@@ -3,14 +3,9 @@ package frc.team449.auto
 import choreo.auto.AutoChooser
 import choreo.auto.AutoFactory
 import choreo.auto.AutoRoutine
-import choreo.auto.AutoTrajectory
 import choreo.trajectory.SwerveSample
-import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.*
 import frc.team449.Robot
-import frc.team449.subsystems.FieldConstants
-import frc.team449.subsystems.superstructure.SuperstructureGoal
-import java.util.Optional
 
 open class Routines(
   val robot: Robot
@@ -30,4 +25,8 @@ open class Routines(
     return nothing
   }
 
+  // autoChooser that will be displayed on dashboard
+  fun addOptions(autoChooser: AutoChooser) {
+    autoChooser.addRoutine("Do Nothing", this::doNothing)
+  }
 }

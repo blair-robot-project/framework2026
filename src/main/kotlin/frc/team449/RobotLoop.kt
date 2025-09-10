@@ -8,25 +8,16 @@ import edu.wpi.first.hal.FRCNetComm
 import edu.wpi.first.hal.HAL
 import edu.wpi.first.math.geometry.Pose3d
 import edu.wpi.first.math.geometry.Rotation3d
-import edu.wpi.first.math.util.Units
 import edu.wpi.first.wpilibj.*
-import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers
 import frc.team449.auto.Routines
-import frc.team449.subsystems.FieldConstants
 import frc.team449.subsystems.drive.swerve.SwerveSim
 import frc.team449.subsystems.superstructure.SuperstructureGoal
-import frc.team449.subsystems.superstructure.elevator.ElevatorConstants
-import frc.team449.subsystems.superstructure.elevator.ElevatorFeedForward.Companion.createElevatorFeedForward
-import frc.team449.subsystems.superstructure.pivot.PivotFeedForward.Companion.createPivotFeedForward
-import frc.team449.subsystems.superstructure.wrist.WristFeedForward.Companion.createWristFeedForward
 import frc.team449.subsystems.vision.VisionConstants
-import frc.team449.system.encoder.QuadCalibration
 import org.littletonrobotics.urcl.URCL
-import kotlin.jvm.optionals.getOrDefault
 import kotlin.math.*
 
 /** The main class of the robot, constructs all the subsystems
@@ -66,11 +57,6 @@ class RobotLoop : TimedRobot() {
     // Don't complain about joysticks if there aren't going to be any
     DriverStation.silenceJoystickConnectionWarning(true)
 
-    // Custom Feedforwards
-    robot.elevator.elevatorFeedForward = createElevatorFeedForward(robot.pivot)
-    robot.pivot.pivotFeedForward = createPivotFeedForward(robot.elevator)
-    robot.wrist.wristFeedForward = createWristFeedForward(robot.pivot)
-
     // Generate Auto Routines
     println("Generating Auto Routines : ${Timer.getFPGATimestamp()}")
 
@@ -94,24 +80,14 @@ class RobotLoop : TimedRobot() {
     )
 
     SmartDashboard.putData("Field", robot.field)
-    SmartDashboard.putData("Elevator + Pivot Visual", robot.elevator.mech)
 
     // This class reports data from REV devices
     URCL.start()
-
-    QuadCalibration(robot.pivot, robot.pivot.absoluteEncoder, robot.pivot.quadEncoder, name = "Pivot")
-      .ignoringDisable(true)
-      .schedule()
-
-    if (RobotBase.isReal()) {
-      robot.wrist.startupZero()
-    }
 
     println("Press RT to see instructions for self testing!")
   }
 
   override fun driverStationConnected() {
-    FieldConstants.configureReef(DriverStation.getAlliance().getOrDefault(DriverStation.Alliance.Blue))
   }
 
   override fun robotPeriodic() {
@@ -156,21 +132,9 @@ class RobotLoop : TimedRobot() {
   override fun simulationInit() {}
 
   override fun simulationPeriodic() {
-    RobotVisual.update(
-      robot.pivot.positionSupplier.get(),
-      robot.elevator.positionSupplier.get(),
-      robot.wrist.positionSupplier.get(),
-    )
+    RobotVisual.update()
 
     // Superstructure Simulation
-    robot.elevator.elevatorLigament.length = ElevatorConstants.MIN_VIS_HEIGHT + robot.elevator.positionSupplier.get()
-    robot.elevator.desiredElevatorLigament.length = ElevatorConstants.MIN_VIS_HEIGHT + robot.elevator.targetSupplier.get()
-
-    robot.elevator.elevatorLigament.angle = Units.radiansToDegrees(robot.pivot.positionSupplier.get())
-    robot.elevator.desiredElevatorLigament.angle = Units.radiansToDegrees(robot.pivot.targetSupplier.get())
-
-    robot.elevator.wristLigament.angle = Units.radiansToDegrees(robot.wrist.positionSupplier.get())
-
     robot.drive as SwerveSim
 
     VisionConstants.ESTIMATORS.forEach {
@@ -180,65 +144,5 @@ class RobotLoop : TimedRobot() {
     VisionConstants.VISION_SIM.debugField
       .getObject("EstimatedRobot")
       .pose = robot.poseSubsystem.pose
-
-    // change elevator angle according to pivot position
-    robot.elevator.elevatorSim?.changeAngle(robot.pivot.positionSupplier.get())
   }
-
-//  private fun logAdvScopeComponents() {
-//    val pivotPos = -robot.pivot.positionSupplier.get()
-//    val cosPivot = cos(-pivotPos)
-//    val sinPivot = sin(-pivotPos)
-//
-//    val elevatorPos = robot.elevator.positionSupplier.get()
-//
-//    componentStorage =
-//      arrayOf(
-// //       pivot/base stage
-//        Pose3d(
-//          -0.136,
-//          0.0,
-//          0.245,
-//          Rotation3d(0.0, pivotPos, 0.0),
-//        ),
-//        // first stage max: 0.60
-//        Pose3d(
-//          -0.136 + min(0.6 * cosPivot, elevatorPos * cosPivot),
-//          0.0,
-//          0.245 + min(0.6 * sinPivot, elevatorPos * sinPivot),
-//          Rotation3d(0.0, pivotPos, 0.0),
-//        ),
-//        // second stage max : 0.575 (1.175)
-//        Pose3d(
-//          -0.136 + min(1.175 * cosPivot, elevatorPos * cosPivot),
-//          0.0,
-//          0.245 + min(1.175 * sinPivot, elevatorPos * sinPivot),
-//          Rotation3d(0.0, pivotPos, 0.0),
-//        ),
-//        // third stage max: 0.56 (1.735)
-//        Pose3d(
-//          -0.136 + min(1.735 * cosPivot, elevatorPos * cosPivot),
-//          0.0,
-//          0.245 + min(1.735 * sinPivot, elevatorPos * sinPivot),
-//          Rotation3d(0.0, pivotPos, 0.0),
-//        ),
-//        /**
-//         pose3d(
-//         x,
-//         y,
-//         z,
-//         rotation(roll,pitch,yaw)
-//         **/
-//        Pose3d(
-//          -.146 + (0.7152 * cosPivot + (0.127 * -sinPivot)) +
-//            min(1.735 * cosPivot, elevatorPos * cosPivot),
-//          0.0,
-//          .235 + (0.7152 * sinPivot) + (0.127 * cosPivot) +
-//            min(1.735 * sinPivot, elevatorPos * sinPivot),
-//          Rotation3d(0.0, -robot.wrist.positionSupplier.get() + pivotPos, 0.0),
-//        ),
-//      )
-//    // DogLog.log("AdvScopeComponents", componentStorage)
-//    DogLog.log("elevatorPos", elevatorPos)
-//  }
 }
