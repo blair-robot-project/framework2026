@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Translation3d
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N3
 import edu.wpi.first.math.util.Units
+import edu.wpi.first.wpilibj.Filesystem
 import frc.team449.control.vision.ApriltagCamera
 import frc.team449.subsystems.vision.interpolation.InterpolatedVisionDataset
 import org.photonvision.estimation.TargetModel
@@ -28,12 +29,15 @@ object VisionConstants {
     8.1026
   )
 
+//  val TAG_LAYOUT: AprilTagFieldLayout = TEST_TAG_LAYOUT
+
   // TODO: Update to 2026 Tag Layout
-  val TAG_LAYOUT: AprilTagFieldLayout = TEST_TAG_LAYOUT
+  /** WPILib's AprilTagFieldLayout for the 2025 Reefscape Game */
+  val TAG_LAYOUT: AprilTagFieldLayout = AprilTagFieldLayout(Filesystem.getDeployDirectory().absolutePath + "/reef_only.json")
 
   /** Robot to Camera distance */
   val front = Transform3d(
-    Translation3d(Units.inchesToMeters(-4.0), Units.inchesToMeters(0.0), Units.inchesToMeters(9.5)),
+    Translation3d(Units.inchesToMeters(-4.0), Units.inchesToMeters(0.0), Units.inchesToMeters(8.5)),
     Rotation3d(0.0, Units.degreesToRadians(-17.5), Units.degreesToRadians(0.0))
   )
 
@@ -57,7 +61,7 @@ object VisionConstants {
   var MAX_DISTANCE_SINGLE_TAG = 3.75
   var MAX_DISTANCE_MULTI_TAG = 6.0
   val TAG_HEADING_MAX_DEV_RAD = Units.degreesToRadians(360.0)
-  var MAX_HEIGHT_ERR_METERS = 0.225
+  var MAX_HEIGHT_ERR_METERS = 0.275
   const val NUM_TAG_FACTOR = 2.0
 
   /** Std Dev Calculation Constants */
