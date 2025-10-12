@@ -37,12 +37,10 @@ class SwerveSim(
 
     // Updates the robot's currentSpeeds.
     currentSpeeds = kinematics.toChassisSpeeds(
-      arrayOf(
         modules[0].state,
         modules[1].state,
         modules[2].state,
         modules[3].state
-      )
     )
 
     odometryPose = odometryTracker.update(

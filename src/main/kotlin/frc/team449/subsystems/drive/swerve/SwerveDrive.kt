@@ -124,12 +124,10 @@ open class SwerveDrive(
   override fun periodic() {
     // Updates the robot's currentSpeeds.
     currentSpeeds = kinematics.toChassisSpeeds(
-      arrayOf(
         modules[0].state,
         modules[1].state,
         modules[2].state,
         modules[3].state
-      )
     )
 
     logData()
