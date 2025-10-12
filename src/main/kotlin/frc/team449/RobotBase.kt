@@ -8,7 +8,7 @@ import frc.team449.subsystems.vision.PoseSubsystem
 
 abstract class RobotBase {
 
-  val field = Field2d()
+
 
   abstract val powerDistribution: PowerDistribution
 

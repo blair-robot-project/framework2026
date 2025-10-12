@@ -1,10 +1,13 @@
 package frc.team449.subsystems.drive.swerve
 
+import edu.wpi.first.epilogue.Logged
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.SwerveModulePosition
 import edu.wpi.first.math.kinematics.SwerveModuleState
+import edu.wpi.first.util.struct.StructSerializable
 
-interface SwerveModule {
+@Logged
+interface SwerveModule: StructSerializable {
   val location: Translation2d
 
   val desiredState: SwerveModuleState

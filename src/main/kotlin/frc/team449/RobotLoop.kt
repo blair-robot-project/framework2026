@@ -81,9 +81,6 @@ class RobotLoop : TimedRobot() {
     // Robot Drive Logging
     robot.field.robotPose = robot.poseSubsystem.pose
     robot.field.getObject("bumpers").pose = robot.poseSubsystem.pose
-
-    // logAdvScopeComponents()
-    DogLog.log("AdvScopeComponents", RobotVisual.getComponents())
   }
 
   override fun autonomousInit() {

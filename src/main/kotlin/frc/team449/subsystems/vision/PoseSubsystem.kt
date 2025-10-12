@@ -2,23 +2,23 @@ package frc.team449.subsystems.vision
 
 import dev.doglog.DogLog
 import edu.wpi.first.epilogue.Logged
+import edu.wpi.first.epilogue.NotLogged
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Transform2d
 import edu.wpi.first.math.geometry.Translation2d
-import edu.wpi.first.util.sendable.SendableBuilder
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.smartdashboard.Field2d
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.control.vision.ApriltagCamera
 import frc.team449.subsystems.RobotConstants
 import frc.team449.subsystems.drive.swerve.SwerveDrive
 import frc.team449.subsystems.drive.swerve.SwerveSim
 import frc.team449.system.AHRS
+import org.jetbrains.annotations.NotNull
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.pow
@@ -51,16 +51,17 @@ class PoseSubsystem(
 
   /** Vision statistics */
   private val numTargets = DoubleArray(cameras.size)
-  private val tagDistance = DoubleArray(cameras.size)
+  private val avgTagDistance = DoubleArray(cameras.size)
   private val avgAmbiguity = DoubleArray(cameras.size)
-  private val heightError = DoubleArray(cameras.size)
-  private val usedVision = BooleanArray(cameras.size)
+  private val camHeightError = DoubleArray(cameras.size)
+  private val lastUsedVisionEstimates = BooleanArray(cameras.size)
   private val usedVisionSights = LongArray(cameras.size)
   private val rejectedVisionSights = LongArray(cameras.size)
 
   var enableVisionFusion = true
 
   /** Current estimated vision pose */
+  @get:NotLogged
   var visionPose = DoubleArray(cameras.size * 3)
 
   /** The measured pitch of the robot from the gyro sensor. */
@@ -84,24 +85,7 @@ class PoseSubsystem(
 
   var pureVisionPose: Pose2d = Pose2d()
 
-  init {
-    SmartDashboard.putData("Elastic Swerve Drive") { builder: SendableBuilder ->
-      builder.setSmartDashboardType("SwerveDrive")
-      builder.addDoubleProperty("Front Left Angle", { drive.modules[0].state.angle.radians }, null)
-      builder.addDoubleProperty("Front Left Velocity", { drive.modules[0].state.speedMetersPerSecond }, null)
-
-      builder.addDoubleProperty("Front Right Angle", { drive.modules[1].state.angle.radians }, null)
-      builder.addDoubleProperty("Front Right Velocity", { drive.modules[1].state.speedMetersPerSecond }, null)
-
-      builder.addDoubleProperty("Back Left Angle", { drive.modules[2].state.angle.radians }, null)
-      builder.addDoubleProperty("Back Left Velocity", { drive.modules[2].state.speedMetersPerSecond }, null)
-
-      builder.addDoubleProperty("Back Right Angle", { drive.modules[3].state.angle.radians }, null)
-      builder.addDoubleProperty("Back Right Velocity", { drive.modules[3].state.speedMetersPerSecond }, null)
-
-      builder.addDoubleProperty("Robot Angle", { poseEstimator.estimatedPosition.rotation.radians }, null)
-    }
-  }
+  init {}
 
   fun resetOdometry(pose: Pose2d) {
     poseEstimator.resetPose(pose)
@@ -139,18 +123,18 @@ class PoseSubsystem(
         if (result.isPresent) {
           val presentResult = result.get()
           numTargets[index] = presentResult.targetsUsed.size.toDouble()
-          tagDistance[index] = 0.0
+          avgTagDistance[index] = 0.0
           avgAmbiguity[index] = 0.0
-          heightError[index] = abs(presentResult.estimatedPose.z)
+          camHeightError[index] = abs(presentResult.estimatedPose.z)
 
           for (tag in presentResult.targetsUsed) {
             val tagPose = camera.estimator.fieldTags.getTagPose(tag.fiducialId)
             if (tagPose.isPresent) {
               val estimatedToTag = presentResult.estimatedPose.minus(tagPose.get())
-              tagDistance[index] += sqrt(estimatedToTag.x.pow(2) + estimatedToTag.y.pow(2)) / numTargets[index]
+              avgTagDistance[index] += sqrt(estimatedToTag.x.pow(2) + estimatedToTag.y.pow(2)) / numTargets[index]
               avgAmbiguity[index] = tag.poseAmbiguity / numTargets[index]
             } else {
-              tagDistance[index] = Double.MAX_VALUE
+              avgTagDistance[index] = Double.MAX_VALUE
               avgAmbiguity[index] = Double.MAX_VALUE
               break
             }
@@ -163,9 +147,9 @@ class PoseSubsystem(
           visionPose[2 + 3 * index] = estVisionPose.rotation.radians
 
           val inAmbiguityTolerance = avgAmbiguity[index] <= VisionConstants.MAX_AMBIGUITY
-          val inDistanceTolerance = (numTargets[index] < 2 && tagDistance[index] <= VisionConstants.MAX_DISTANCE_SINGLE_TAG) ||
-            (numTargets[index] >= 2 && tagDistance[index] <= VisionConstants.MAX_DISTANCE_MULTI_TAG + (numTargets[index] - 2) * VisionConstants.NUM_TAG_FACTOR)
-          val inHeightTolerance = heightError[index] < VisionConstants.MAX_HEIGHT_ERR_METERS
+          val inDistanceTolerance = (numTargets[index] < 2 && avgTagDistance[index] <= VisionConstants.MAX_DISTANCE_SINGLE_TAG) ||
+            (numTargets[index] >= 2 && avgTagDistance[index] <= VisionConstants.MAX_DISTANCE_MULTI_TAG + (numTargets[index] - 2) * VisionConstants.NUM_TAG_FACTOR)
+          val inHeightTolerance = camHeightError[index] < VisionConstants.MAX_HEIGHT_ERR_METERS
 
           if (presentResult.timestampSeconds > 0 &&
             inGyroTolerance(estVisionPose.rotation) &&
@@ -179,13 +163,13 @@ class PoseSubsystem(
               poseEstimator.addVisionMeasurement(
                 estVisionPose,
                 presentResult.timestampSeconds,
-                camera.getEstimationStdDevs(numTargets[index].toInt(), tagDistance[index])
+                camera.getEstimationStdDevs(numTargets[index].toInt(), avgTagDistance[index])
               )
-              usedVision[index] = true
+              lastUsedVisionEstimates[index] = true
               usedVisionSights[index] += 1.toLong()
             }
           } else {
-            usedVision[index] = false
+            lastUsedVisionEstimates[index] = false
             rejectedVisionSights[index] += 1.toLong()
           }
         }
@@ -228,28 +212,28 @@ class PoseSubsystem(
 
     this.field.getObject("FL").pose = this.pose.plus(
       Transform2d(
-        drive.modules[0].location,
+        drive.frontLeftModule.location,
         drive.getPositions()[0].angle
       )
     )
 
     this.field.getObject("FR").pose = this.pose.plus(
       Transform2d(
-        drive.modules[1].location,
+        drive.frontRightModule.location,
         drive.getPositions()[1].angle
       )
     )
 
     this.field.getObject("BL").pose = this.pose.plus(
       Transform2d(
-        drive.modules[2].location,
+        drive.backLeftModule.location,
         drive.getPositions()[2].angle
       )
     )
 
     this.field.getObject("BR").pose = this.pose.plus(
       Transform2d(
-        drive.modules[3].location,
+        drive.backRightModule.location,
         drive.getPositions()[0].angle
       )
     )
@@ -258,11 +242,11 @@ class PoseSubsystem(
   private fun logData() {
     DogLog.log("PoseSubsystem/Estimated Pose", pose)
 
-    DogLog.log("PoseSubsystem/Vision Stats/Used Last Vision Estimate", usedVision)
+    DogLog.log("PoseSubsystem/Vision Stats/Used Last Vision Estimate", lastUsedVisionEstimates)
     DogLog.log("PoseSubsystem/Vision Stats/Number of Targets", numTargets)
-    DogLog.log("PoseSubsystem/Vision Stats/Avg Tag Distance", tagDistance)
+    DogLog.log("PoseSubsystem/Vision Stats/Avg Tag Distance", avgTagDistance)
     DogLog.log("PoseSubsystem/Vision Stats/Average Ambiguity", avgAmbiguity)
-    DogLog.log("PoseSubsystem/Vision Stats/Cam Height Error", heightError)
+    DogLog.log("PoseSubsystem/Vision Stats/Cam Height Error", camHeightError)
     DogLog.log("PoseSubsystem/Vision Stats/Total Used Vision Sights", usedVisionSights)
     DogLog.log("PoseSubsystem/Vision Stats/Total Rejected Vision Sights", rejectedVisionSights)
     for ((index, _) in cameras.withIndex()) {
