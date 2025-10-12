@@ -2,14 +2,10 @@ package frc.team449
 
 import au.grapplerobotics.CanBridge
 import com.ctre.phoenix6.SignalLogger
-import dev.doglog.DogLog
-import dev.doglog.DogLogOptions
 import edu.wpi.first.epilogue.Epilogue
 import edu.wpi.first.epilogue.Logged
 import edu.wpi.first.hal.FRCNetComm
 import edu.wpi.first.hal.HAL
-import edu.wpi.first.math.geometry.Pose3d
-import edu.wpi.first.math.geometry.Rotation3d
 import edu.wpi.first.wpilibj.*
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.CommandScheduler
@@ -20,12 +16,11 @@ import frc.team449.subsystems.drive.swerve.SwerveSim
 import frc.team449.subsystems.superstructure.SuperstructureGoal
 import frc.team449.subsystems.vision.VisionConstants
 import org.littletonrobotics.urcl.URCL
-import javax.xml.crypto.Data
 import kotlin.math.*
 
-@Logged
 /** The main class of the robot, constructs all the subsystems
  * and initializes default commands . */
+@Logged
 class RobotLoop : TimedRobot() {
   private val robot = Robot()
 

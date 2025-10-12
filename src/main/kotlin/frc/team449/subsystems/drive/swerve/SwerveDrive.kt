@@ -1,7 +1,6 @@
 package frc.team449.subsystems.drive.swerve
 
 import choreo.trajectory.SwerveSample
-import dev.doglog.DogLog
 import edu.wpi.first.epilogue.Logged
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.controller.PIDController
@@ -20,7 +19,6 @@ import frc.team449.auto.AutoConstants
 import frc.team449.subsystems.RobotConstants
 import frc.team449.subsystems.drive.swerve.SwerveModuleKraken.Companion.createKrakenModule
 import frc.team449.subsystems.drive.swerve.SwerveModuleNEO.Companion.createNEOModule
-import kotlin.math.hypot
 
 /**
  * A Swerve Drive chassis.
@@ -76,9 +74,11 @@ open class SwerveDrive(
   @get:Logged
   val xController: PIDController
     get() = PIDController(AutoConstants.DEFAULT_X_KP, 0.0, 0.0)
+
   @get:Logged
   val yController: PIDController
     get() = PIDController(AutoConstants.DEFAULT_Y_KP, 0.0, 0.0)
+
   @get:Logged
   val headingController: PIDController
     get() = PIDController(AutoConstants.DEFAULT_ROTATION_KP, 0.0, 0.0)
@@ -156,10 +156,10 @@ open class SwerveDrive(
   override fun periodic() {
     // Updates the robot's currentSpeeds.
     currentSpeeds = kinematics.toChassisSpeeds(
-        frontLeftModule.state,
-        frontRightModule.state,
-        backLeftModule.state,
-        backRightModule.state
+      frontLeftModule.state,
+      frontRightModule.state,
+      backLeftModule.state,
+      backRightModule.state
     )
   }
 
@@ -187,7 +187,6 @@ open class SwerveDrive(
       backRightModule.state
     )
   }
-
 
   companion object {
     /** Create a [SwerveDrive] using [SwerveConstants]. */

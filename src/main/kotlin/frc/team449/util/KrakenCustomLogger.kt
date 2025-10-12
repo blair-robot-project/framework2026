@@ -6,7 +6,6 @@ import edu.wpi.first.epilogue.logging.ClassSpecificLogger
 import edu.wpi.first.epilogue.logging.EpilogueBackend
 import edu.wpi.first.units.Units.*
 
-
 @CustomLoggerFor(TalonFX::class)
 class KrakenCustomLogger : ClassSpecificLogger<TalonFX>(TalonFX::class.java) {
   override fun update(backend: EpilogueBackend, motor: TalonFX) {

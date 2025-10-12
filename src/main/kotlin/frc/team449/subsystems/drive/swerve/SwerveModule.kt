@@ -7,7 +7,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState
 import edu.wpi.first.util.struct.StructSerializable
 
 @Logged
-interface SwerveModule: StructSerializable {
+interface SwerveModule : StructSerializable {
   val location: Translation2d
 
   val desiredState: SwerveModuleState

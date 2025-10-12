@@ -32,23 +32,22 @@ class Robot {
   val ahrs: AHRS = AHRS()
 
   // Instantiate/declare PDP and other stuff here
-   val powerDistribution: PowerDistribution =
+  val powerDistribution: PowerDistribution =
     PowerDistribution(
       RobotConstants.PDH_CAN,
       PowerDistribution.ModuleType.kRev,
     )
 
-
   @get:NotLogged
-   val drive: SwerveDrive = SwerveDrive.createSwerveKraken(field)
+  val drive: SwerveDrive = SwerveDrive.createSwerveKraken(field)
 
   val autoChooser = AutoChooser()
 
   @get:NotLogged
-   val poseSubsystem: PoseSubsystem = createPoseSubsystem(ahrs, drive, field)
+  val poseSubsystem: PoseSubsystem = createPoseSubsystem(ahrs, drive, field)
 
   @get:NotLogged
-   val driveCommand: SwerveOrthogonalCommand = SwerveOrthogonalCommand(drive, poseSubsystem, driveController.hid)
+  val driveCommand: SwerveOrthogonalCommand = SwerveOrthogonalCommand(drive, poseSubsystem, driveController.hid)
 
   val superstructureManager: SuperstructureManager = createSuperstructureManager(this)
 

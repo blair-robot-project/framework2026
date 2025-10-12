@@ -1,12 +1,10 @@
 package frc.team449.subsystems.drive.swerve
 
-import edu.wpi.first.epilogue.Logged
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry
 import edu.wpi.first.wpilibj.Timer.getFPGATimestamp
 import edu.wpi.first.wpilibj.smartdashboard.Field2d
-
 
 class SwerveSim(
   frontLeftModule: SwerveModule,
@@ -42,17 +40,16 @@ class SwerveSim(
 
     // Updates the robot's currentSpeeds.
     currentSpeeds = kinematics.toChassisSpeeds(
-        frontLeftModule.state,
-        frontRightModule.state,
-        backLeftModule.state,
-        backRightModule.state
+      frontLeftModule.state,
+      frontRightModule.state,
+      backLeftModule.state,
+      backRightModule.state
     )
 
     odometryPose = odometryTracker.update(
       currHeading,
       getPositions()
     )
-
   }
 
   fun resetOdometryOnly(pose: Pose2d) {
