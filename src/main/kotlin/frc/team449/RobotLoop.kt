@@ -17,6 +17,7 @@ import frc.team449.auto.Routines
 import frc.team449.subsystems.drive.swerve.SwerveSim
 import frc.team449.subsystems.superstructure.SuperstructureGoal
 import frc.team449.subsystems.vision.VisionConstants
+import org.ironmaple.simulation.SimulatedArena
 import org.littletonrobotics.urcl.URCL
 import kotlin.math.*
 
@@ -132,6 +133,9 @@ class RobotLoop : TimedRobot() {
   override fun simulationInit() {}
 
   override fun simulationPeriodic() {
+    // MapleSim Periodic
+    SimulatedArena.getInstance().simulationPeriodic()
+
     RobotVisual.update()
 
     // Superstructure Simulation

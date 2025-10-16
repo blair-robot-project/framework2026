@@ -1,0 +1,131 @@
+package frc.team449.subsystems.drive.swerve
+
+import edu.wpi.first.math.controller.PIDController
+import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.math.geometry.Translation2d
+import edu.wpi.first.math.kinematics.SwerveModulePosition
+import edu.wpi.first.math.kinematics.SwerveModuleState
+import edu.wpi.first.units.Units.*
+import edu.wpi.first.units.measure.Voltage
+import org.ironmaple.simulation.drivesims.SwerveModuleSimulation
+import org.ironmaple.simulation.motorsims.SimulatedMotorController
+import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.sign
+
+// MapleSim Swerve Module Sim
+class SwerveModuleSim(
+  private val name: String,
+  private val module: SwerveModuleSimulation,
+  private val turnController: PIDController,
+  private val driveController: PIDController,
+  override val location: Translation2d
+) : SwerveModule {
+  init {
+    turnController.enableContinuousInput(0.0, 2.0 * PI)
+    turnController.reset()
+    driveController.reset()
+  }
+
+  val drive: SimulatedMotorController.GenericMotorController = module
+    .useGenericMotorControllerForDrive()
+    .withCurrentLimit(SwerveConstants.DRIVE_STATOR_LIMIT)
+
+  private val turn: SimulatedMotorController.GenericMotorController = module
+    .useGenericControllerForSteer()
+    .withCurrentLimit(SwerveConstants.STEERING_CURRENT_LIM)
+
+  override val desiredState: SwerveModuleState = SwerveModuleState(
+    0.0,
+    Rotation2d()
+  )
+
+  /** The module's [SwerveModuleState], containing speed and angle. */
+  override var state: SwerveModuleState
+    get() {
+      return module.currentState
+    }
+    set(desState) {
+      if (abs(desState.speedMetersPerSecond) < .001) {
+        stop()
+        return
+      }
+      /** Ensure the module doesn't turn more than 90 degrees. */
+      desState.optimize(module.steerAbsoluteFacing)
+
+      turnController.setpoint = desState.angle.radians
+      driveController.setpoint = desState.speedMetersPerSecond
+      desiredState.speedMetersPerSecond = desState.speedMetersPerSecond
+      desiredState.angle = desState.angle
+    }
+
+  /** The module's [SwerveModulePosition], containing distance and angle. */
+  override val position: SwerveModulePosition
+    get() {
+      return SwerveModulePosition(
+        module.driveWheelFinalPosition.`in`(Rotations),
+        Rotation2d(module.steerRelativeEncoderPosition)
+      )
+    }
+
+  override fun setVoltage(volts: Double) {
+    desiredState.speedMetersPerSecond = 0.0
+    turnController.setpoint = 0.0
+    driveController.setpoint = 0.0
+    turn.requestVoltage(Volts.of(turnController.calculate(module.steerRelativeEncoderPosition.`in`(Radians))))
+    drive.requestVoltage(Volts.of(volts))
+  }
+
+  /** Set module speed to zero but keep module angle the same. */
+  override fun stop() {
+    turnController.setpoint = module.steerRelativeEncoderPosition.`in`(Radians)
+    desiredState.speedMetersPerSecond = 0.0
+  }
+  override fun update() {
+    // Drive Motor
+    val drivePID: Double =
+      driveController.calculate(
+        module.currentState.speedMetersPerSecond,
+        desiredState.speedMetersPerSecond
+      )
+    val driveVoltage: Voltage = Volts.of(
+      drivePID + sign(desiredState.speedMetersPerSecond - module.currentState.speedMetersPerSecond) *
+        SwerveConstants.DRIVE_KS
+    )
+    drive.requestVoltage(driveVoltage)
+    // Turn Motor
+    val turnPID: Double = turnController.calculate(
+      module.steerAbsoluteFacing.radians,
+      desiredState.angle.radians
+    )
+    val turnVoltage: Voltage = Volts.of(
+      turnPID + sign(desiredState.angle.radians - module.steerAbsoluteFacing.radians) *
+        SwerveConstants.STEER_KS
+    )
+    turn.requestVoltage(turnVoltage)
+  }
+
+  companion object {
+    fun createModuleSim(
+      name: String,
+      module: SwerveModuleSimulation,
+      location: Translation2d
+    ): SwerveModuleSim {
+      return SwerveModuleSim(
+        name,
+        module,
+        PIDController(
+          SwerveConstants.TURN_KP,
+          SwerveConstants.TURN_KI,
+          SwerveConstants.TURN_KD
+        ),
+        PIDController(
+          SwerveConstants.DRIVE_KP,
+          SwerveConstants.DRIVE_KI,
+          SwerveConstants.DRIVE_KD
+        ),
+        location
+      )
+    }
+  }
+}
