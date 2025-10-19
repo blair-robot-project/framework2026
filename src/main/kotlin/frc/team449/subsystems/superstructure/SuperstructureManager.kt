@@ -1,6 +1,5 @@
 package frc.team449.subsystems.superstructure
 
-import dev.doglog.DogLog
 import edu.wpi.first.epilogue.Logged
 import edu.wpi.first.epilogue.NotLogged
 import edu.wpi.first.units.Units.*

@@ -1,6 +1,5 @@
 package frc.team449.subsystems.drive.swerve
 
-import dev.doglog.DogLog
 import edu.wpi.first.epilogue.Logged
 import edu.wpi.first.epilogue.NotLogged
 import edu.wpi.first.math.MathUtil
@@ -209,23 +208,6 @@ class SwerveOrthogonalCommand(
       )
     }
 
-    logData()
   }
 
-  private fun logData() {
-    DogLog.log("TeleopDrive/Controller/currX", if (abs(controller.leftY) < RobotConstants.DRIVE_RADIUS_DEADBAND) .0 else -controller.leftY)
-    DogLog.log("TeleopDrive/Controller/currY", if (abs(controller.leftX) < RobotConstants.DRIVE_RADIUS_DEADBAND) .0 else -controller.leftX)
-    DogLog.log("TeleopDrive/Controller/prevX", prevX)
-    DogLog.log("TeleopDrive/Controller/prevY", prevY)
-
-    DogLog.log("TeleopDrive/Delta/dx", dx)
-    DogLog.log("TeleopDrive/Delta/dy", dy)
-    DogLog.log("TeleopDrive/Delta/dt", dt)
-
-    DogLog.log("TeleopDrive/Accel/Raw Accel", magAcc)
-    DogLog.log("TeleopDrive/Accel/Clamped Accel", magAccClamped)
-
-    DogLog.log("TeleopDrive/Rotation Control/In Heading Lock", headingLock)
-    DogLog.log("TeleopDrive/Rotation Control/In Snap to Angle Tolerance", checkSnapToAngleTolerance())
-  }
 }
