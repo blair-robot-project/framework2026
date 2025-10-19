@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import kotlin.math.log
 
 @CustomLoggerFor(CommandXboxController::class)
-class CommandXboxControllerCustomLogger: ClassSpecificLogger<CommandXboxController>(CommandXboxController::class.java) {
+class CommandXboxControllerCustomLogger : ClassSpecificLogger<CommandXboxController>(CommandXboxController::class.java) {
   override fun update(backend: EpilogueBackend, controller: CommandXboxController) {
     backend.log("A", controller.a().asBoolean)
     backend.log("B", controller.b().asBoolean)

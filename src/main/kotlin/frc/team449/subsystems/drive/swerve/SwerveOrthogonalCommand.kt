@@ -207,7 +207,5 @@ class SwerveOrthogonalCommand(
         ),
       )
     }
-
   }
-
 }

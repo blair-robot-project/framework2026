@@ -23,10 +23,13 @@ class Robot {
   // Driver/Operator Controllers
   @get:NotLogged
   val driveController: CommandXboxController = CommandXboxController(0)
+
   @get:NotLogged
   val mechController: CommandXboxController = CommandXboxController(1)
+
   @get:NotLogged
   val characController: CommandXboxController = CommandXboxController(2)
+
   @get:NotLogged
   val testController: CommandXboxController = CommandXboxController(3)
 
