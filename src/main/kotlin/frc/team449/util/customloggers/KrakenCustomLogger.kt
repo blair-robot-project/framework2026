@@ -1,10 +1,9 @@
-package frc.team449.util
+package frc.team449.util.customloggers
 
 import com.ctre.phoenix6.hardware.TalonFX
 import edu.wpi.first.epilogue.CustomLoggerFor
 import edu.wpi.first.epilogue.logging.ClassSpecificLogger
 import edu.wpi.first.epilogue.logging.EpilogueBackend
-import edu.wpi.first.units.Units.*
 
 @CustomLoggerFor(TalonFX::class)
 class KrakenCustomLogger : ClassSpecificLogger<TalonFX>(TalonFX::class.java) {

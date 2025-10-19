@@ -27,7 +27,9 @@ import kotlin.math.sqrt
 class PoseSubsystem(
   private val ahrs: AHRS,
   private val cameras: List<ApriltagCamera> = mutableListOf(),
+  @NotLogged
   private val drive: SwerveDrive,
+  @NotLogged
   private val field: Field2d
 ) : SubsystemBase() {
 

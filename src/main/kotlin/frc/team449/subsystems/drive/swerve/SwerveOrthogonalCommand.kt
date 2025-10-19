@@ -2,6 +2,7 @@ package frc.team449.subsystems.drive.swerve
 
 import dev.doglog.DogLog
 import edu.wpi.first.epilogue.Logged
+import edu.wpi.first.epilogue.NotLogged
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.filter.SlewRateLimiter
@@ -22,6 +23,7 @@ import kotlin.math.*
 class SwerveOrthogonalCommand(
   private val drive: SwerveDrive,
   private val poseEstimator: PoseSubsystem,
+  @NotLogged
   private val controller: XboxController,
   private val fieldOriented: () -> Boolean = { true }
 ) : Command() {
