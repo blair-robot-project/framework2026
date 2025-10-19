@@ -1,6 +1,5 @@
 package frc.team449.subsystems.vision
 
-import dev.doglog.DogLog
 import edu.wpi.first.epilogue.Logged
 import edu.wpi.first.epilogue.NotLogged
 import edu.wpi.first.math.MathUtil
@@ -113,8 +112,6 @@ class PoseSubsystem(
     if (cameras.isNotEmpty()) localize()
 
     setRobotPose()
-
-    logData()
   }
 
   private fun localize() = try {
@@ -238,32 +235,6 @@ class PoseSubsystem(
         drive.getPositions()[0].angle
       )
     )
-  }
-
-  private fun logData() {
-    DogLog.log("PoseSubsystem/Estimated Pose", pose)
-
-    DogLog.log("PoseSubsystem/Vision Stats/Used Last Vision Estimate", lastUsedVisionEstimates)
-    DogLog.log("PoseSubsystem/Vision Stats/Number of Targets", numTargets)
-    DogLog.log("PoseSubsystem/Vision Stats/Avg Tag Distance", avgTagDistance)
-    DogLog.log("PoseSubsystem/Vision Stats/Average Ambiguity", avgAmbiguity)
-    DogLog.log("PoseSubsystem/Vision Stats/Cam Height Error", camHeightError)
-    DogLog.log("PoseSubsystem/Vision Stats/Total Used Vision Sights", usedVisionSights)
-    DogLog.log("PoseSubsystem/Vision Stats/Total Rejected Vision Sights", rejectedVisionSights)
-    for ((index, _) in cameras.withIndex()) {
-      DogLog.log("PoseSubsystem/Vision Stats/Vision Pose Cam $index", visionPose.slice(IntRange(0 + 3 * index, 2 + 3 * index)).toDoubleArray())
-    }
-    DogLog.log("PoseSubsystem/Vision Stats/Enabled Vision Fusion", enableVisionFusion)
-
-    DogLog.log("PoseSubsystem/AHRS Values/Heading Degrees", ahrs.heading.degrees)
-    DogLog.log("PoseSubsystem/AHRS Values/Pitch Degrees", ahrs.pitch.degrees)
-    DogLog.log("PoseSubsystem/AHRS Values/Roll Degrees", ahrs.roll.degrees)
-    DogLog.log("PoseSubsystem/AHRS Values/Angular X Vel", ahrs.angularXVel())
-    DogLog.log("PoseSubsystem/AHRS Values/Navx Connected", ahrs.connected())
-    DogLog.log("PoseSubsystem/AHRS Values/Navx Calibrated", ahrs.calibrated())
-    for ((index, _) in cameras.withIndex()) {
-      DogLog.log("PoseSubsystem/Vision Stats/Vision Pose Cam ${cameras[index].estimator.camera.name}", cameras[index].estimator.camera.isConnected)
-    }
   }
 
   companion object {

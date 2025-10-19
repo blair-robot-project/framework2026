@@ -48,11 +48,6 @@ class SuperstructureManager(
     return lastCompletedGoal
   }
 
-  fun logData() {
-    DogLog.log("Superstructure/Current Requested Goal", requestedGoal.name)
-    DogLog.log("Superstructure/Last Completed Goal", lastCompletedGoal.name)
-  }
-
   companion object {
     fun createSuperstructureManager(robot: Robot): SuperstructureManager {
       return SuperstructureManager(

@@ -93,7 +93,6 @@ class RobotLoop : TimedRobot() {
   }
 
   override fun teleopPeriodic() {
-    robot.superstructureManager.logData()
   }
 
   override fun disabledInit() {
