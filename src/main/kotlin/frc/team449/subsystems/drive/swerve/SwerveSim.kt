@@ -7,13 +7,16 @@ import edu.wpi.first.wpilibj.Timer.getFPGATimestamp
 import edu.wpi.first.wpilibj.smartdashboard.Field2d
 
 class SwerveSim(
-  modules: List<SwerveModule>,
+  frontLeftModule: SwerveModule,
+  frontRightModule: SwerveModule,
+  backLeftModule: SwerveModule,
+  backRightModule: SwerveModule,
   maxLinearSpeed: Double,
   accel: Double,
   maxRotSpeed: Double,
   field: Field2d,
   maxModuleSpeed: Double
-) : SwerveDrive(modules, maxLinearSpeed, accel, maxRotSpeed, field, maxModuleSpeed) {
+) : SwerveDrive(frontLeftModule, frontRightModule, backLeftModule, backRightModule, maxLinearSpeed, accel, maxRotSpeed, field, maxModuleSpeed) {
 
   private var lastTime = getFPGATimestamp()
   var currHeading = Rotation2d()
@@ -37,20 +40,16 @@ class SwerveSim(
 
     // Updates the robot's currentSpeeds.
     currentSpeeds = kinematics.toChassisSpeeds(
-      arrayOf(
-        modules[0].state,
-        modules[1].state,
-        modules[2].state,
-        modules[3].state
-      )
+      frontLeftModule.state,
+      frontRightModule.state,
+      backLeftModule.state,
+      backRightModule.state
     )
 
     odometryPose = odometryTracker.update(
       currHeading,
       getPositions()
     )
-
-    logData()
   }
 
   fun resetOdometryOnly(pose: Pose2d) {

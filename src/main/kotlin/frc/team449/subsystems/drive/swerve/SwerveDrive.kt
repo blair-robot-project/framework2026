@@ -1,7 +1,7 @@
 package frc.team449.subsystems.drive.swerve
 
 import choreo.trajectory.SwerveSample
-import dev.doglog.DogLog
+import edu.wpi.first.epilogue.Logged
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.geometry.Rotation2d
@@ -19,7 +19,6 @@ import frc.team449.auto.AutoConstants
 import frc.team449.subsystems.RobotConstants
 import frc.team449.subsystems.drive.swerve.SwerveModuleKraken.Companion.createKrakenModule
 import frc.team449.subsystems.drive.swerve.SwerveModuleNEO.Companion.createNEOModule
-import kotlin.math.hypot
 
 /**
  * A Swerve Drive chassis.
@@ -29,33 +28,59 @@ import kotlin.math.hypot
  * @param field The SmartDashboard [Field2d] widget that shows the robot's pose.
  */
 open class SwerveDrive(
-  val modules: List<SwerveModule>,
+  @Logged
+  val frontLeftModule: SwerveModule,
+  @Logged
+  val frontRightModule: SwerveModule,
+  @Logged
+  val backLeftModule: SwerveModule,
+  @Logged
+  val backRightModule: SwerveModule,
+  @Logged
   var maxLinearSpeed: Double,
+  @Logged
   var accel: Double,
+  @Logged
   var maxRotSpeed: Double,
   protected val field: Field2d,
+  @Logged
   val maxModuleSpeed: Double
 ) : SubsystemBase() {
 
   /** The kinematics that convert [ChassisSpeeds] into multiple [SwerveModuleState] objects. */
+
+  // This can't be logged because it doesn't have a struct, and marking it @NotLogged still tries to generate the broken struct call, so
   val kinematics = SwerveDriveKinematics(
-    *this.modules.map { it.location }.toTypedArray()
+    frontLeftModule.location,
+    frontRightModule.location,
+    backLeftModule.location,
+    backRightModule.location,
   )
 
   /** The current speed of the robot's drive. */
+  @Logged
   var currentSpeeds = ChassisSpeeds()
 
+  @Logged
   var desiredSpeeds: ChassisSpeeds = ChassisSpeeds()
 
+  @Logged
   var desiredAngle = 0.0
+
+  @Logged
   var desiredOmega = 0.0
 
   // Removed magic numbers
-  private val xController: PIDController
+  @get:Logged
+  val xController: PIDController
     get() = PIDController(AutoConstants.DEFAULT_X_KP, 0.0, 0.0)
-  private val yController: PIDController
+
+  @get:Logged
+  val yController: PIDController
     get() = PIDController(AutoConstants.DEFAULT_Y_KP, 0.0, 0.0)
-  private val headingController: PIDController
+
+  @get:Logged
+  val headingController: PIDController
     get() = PIDController(AutoConstants.DEFAULT_ROTATION_KP, 0.0, 0.0)
 
   init {
@@ -94,24 +119,31 @@ open class SwerveDrive(
       desiredModuleStates,
       maxModuleSpeed
     )
-    for (i in this.modules.indices) {
-      this.modules[i].state = desiredModuleStates[i]
-    }
+    frontLeftModule.state = desiredModuleStates[0]
+    frontRightModule.state = desiredModuleStates[1]
+    backLeftModule.state = desiredModuleStates[2]
+    backRightModule.state = desiredModuleStates[3]
 
-    for (module in modules)
-      module.update()
+    frontLeftModule.update()
+    frontRightModule.update()
+    backLeftModule.update()
+    backRightModule.update()
   }
 
   fun setVoltage(volts: Double) {
-    modules.forEach {
-      it.setVoltage(volts)
-    }
+    frontLeftModule.setVoltage(volts)
+    frontRightModule.setVoltage(volts)
+    backLeftModule.setVoltage(volts)
+    backRightModule.setVoltage(volts)
   }
 
   fun getModuleVel(): Double {
-    var totalVel = 0.0
-    modules.forEach { totalVel += it.state.speedMetersPerSecond }
-    return totalVel / modules.size
+    return arrayOf(
+      frontLeftModule.state.speedMetersPerSecond,
+      frontRightModule.state.speedMetersPerSecond,
+      backLeftModule.state.speedMetersPerSecond,
+      backRightModule.state.speedMetersPerSecond
+    ).average()
   }
 
   /** Stops the robot's drive. */
@@ -124,15 +156,11 @@ open class SwerveDrive(
   override fun periodic() {
     // Updates the robot's currentSpeeds.
     currentSpeeds = kinematics.toChassisSpeeds(
-      arrayOf(
-        modules[0].state,
-        modules[1].state,
-        modules[2].state,
-        modules[3].state
-      )
+      frontLeftModule.state,
+      frontRightModule.state,
+      backLeftModule.state,
+      backRightModule.state
     )
-
-    logData()
   }
 
   /** Stops the robot's drive. */
@@ -142,94 +170,89 @@ open class SwerveDrive(
 
   /** @return An array of [SwerveModulePosition] for each module, containing distance and angle. */
   fun getPositions(): Array<SwerveModulePosition> {
-    return Array(modules.size) { i -> modules[i].position }
+    return arrayOf(
+      frontLeftModule.position,
+      frontRightModule.position,
+      backLeftModule.position,
+      backRightModule.position
+    )
   }
 
   /** @return An array of [SwerveModuleState] for each module, containing speed and angle. */
   private fun getStates(): Array<SwerveModuleState> {
-    return Array(modules.size) { i -> modules[i].state }
-  }
-
-  fun logData() {
-    DogLog.log("Swerve/FL Module Current State", modules[0].state)
-    DogLog.log("Swerve/FR Module Current State", modules[1].state)
-    DogLog.log("Swerve/BL Module Current State", modules[2].state)
-    DogLog.log("Swerve/BR Module Current State", modules[3].state)
-
-    DogLog.log("Swerve/FL Module Desired State", modules[0].desiredState)
-    DogLog.log("Swerve/FR Module Desired State", modules[1].desiredState)
-    DogLog.log("Swerve/BL Module Desired State", modules[2].desiredState)
-    DogLog.log("Swerve/BR Module Desired State", modules[3].desiredState)
-
-    DogLog.log("Swerve/Current Speeds", currentSpeeds)
-    DogLog.log("Swerve/Desired Speeds", desiredSpeeds)
-    DogLog.log("Swerve/Translation Speed", hypot(currentSpeeds.vxMetersPerSecond, currentSpeeds.vyMetersPerSecond))
+    return arrayOf(
+      frontLeftModule.state,
+      frontRightModule.state,
+      backLeftModule.state,
+      backRightModule.state
+    )
   }
 
   companion object {
     /** Create a [SwerveDrive] using [SwerveConstants]. */
     fun createSwerveKraken(field: Field2d): SwerveDrive {
-      val modules = listOf(
-        createKrakenModule(
-          "FLModule",
-          SwerveConstants.DRIVE_MOTOR_FL,
-          SwerveConstants.DRIVE_INVERTED,
-          SwerveConstants.TURN_MOTOR_FL,
-          SwerveConstants.TURN_INVERTED,
-          SwerveConstants.TURN_ENC_CHAN_FL,
-          SwerveConstants.TURN_ENC_OFFSET_FL,
-          SwerveConstants.TURN_ENC_INVERTED,
-          Translation2d(
-            SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
-            SwerveConstants.TRACKWIDTH / 2
-          )
-        ),
-        createKrakenModule(
-          "FRModule",
-          SwerveConstants.DRIVE_MOTOR_FR,
-          SwerveConstants.DRIVE_INVERTED,
-          SwerveConstants.TURN_MOTOR_FR,
-          SwerveConstants.TURN_INVERTED,
-          SwerveConstants.TURN_ENC_CHAN_FR,
-          SwerveConstants.TURN_ENC_OFFSET_FR,
-          SwerveConstants.TURN_ENC_INVERTED,
-          Translation2d(
-            SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
-            -SwerveConstants.TRACKWIDTH / 2
-          )
-        ),
-        createKrakenModule(
-          "BLModule",
-          SwerveConstants.DRIVE_MOTOR_BL,
-          SwerveConstants.DRIVE_INVERTED,
-          SwerveConstants.TURN_MOTOR_BL,
-          SwerveConstants.TURN_INVERTED,
-          SwerveConstants.TURN_ENC_CHAN_BL,
-          SwerveConstants.TURN_ENC_OFFSET_BL,
-          SwerveConstants.TURN_ENC_INVERTED,
-          Translation2d(
-            -SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
-            SwerveConstants.TRACKWIDTH / 2
-          )
-        ),
-        createKrakenModule(
-          "BLModule",
-          SwerveConstants.DRIVE_MOTOR_BR,
-          SwerveConstants.DRIVE_INVERTED,
-          SwerveConstants.TURN_MOTOR_BR,
-          SwerveConstants.TURN_INVERTED,
-          SwerveConstants.TURN_ENC_CHAN_BR,
-          SwerveConstants.TURN_ENC_OFFSET_BR,
-          SwerveConstants.TURN_ENC_INVERTED,
-          Translation2d(
-            -SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
-            -SwerveConstants.TRACKWIDTH / 2
-          )
+      val frontLeftModule = createKrakenModule(
+        "FLModule",
+        SwerveConstants.DRIVE_MOTOR_FL,
+        SwerveConstants.DRIVE_INVERTED,
+        SwerveConstants.TURN_MOTOR_FL,
+        SwerveConstants.TURN_INVERTED,
+        SwerveConstants.TURN_ENC_CHAN_FL,
+        SwerveConstants.TURN_ENC_OFFSET_FL,
+        SwerveConstants.TURN_ENC_INVERTED,
+        Translation2d(
+          SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
+          SwerveConstants.TRACKWIDTH / 2
+        )
+      )
+      val frontRightModule = createKrakenModule(
+        "FRModule",
+        SwerveConstants.DRIVE_MOTOR_FR,
+        SwerveConstants.DRIVE_INVERTED,
+        SwerveConstants.TURN_MOTOR_FR,
+        SwerveConstants.TURN_INVERTED,
+        SwerveConstants.TURN_ENC_CHAN_FR,
+        SwerveConstants.TURN_ENC_OFFSET_FR,
+        SwerveConstants.TURN_ENC_INVERTED,
+        Translation2d(
+          SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
+          -SwerveConstants.TRACKWIDTH / 2
+        )
+      )
+      val backLeftModule = createKrakenModule(
+        "BLModule",
+        SwerveConstants.DRIVE_MOTOR_BL,
+        SwerveConstants.DRIVE_INVERTED,
+        SwerveConstants.TURN_MOTOR_BL,
+        SwerveConstants.TURN_INVERTED,
+        SwerveConstants.TURN_ENC_CHAN_BL,
+        SwerveConstants.TURN_ENC_OFFSET_BL,
+        SwerveConstants.TURN_ENC_INVERTED,
+        Translation2d(
+          -SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
+          SwerveConstants.TRACKWIDTH / 2
+        )
+      )
+      val backRightModule = createKrakenModule(
+        "BLModule",
+        SwerveConstants.DRIVE_MOTOR_BR,
+        SwerveConstants.DRIVE_INVERTED,
+        SwerveConstants.TURN_MOTOR_BR,
+        SwerveConstants.TURN_INVERTED,
+        SwerveConstants.TURN_ENC_CHAN_BR,
+        SwerveConstants.TURN_ENC_OFFSET_BR,
+        SwerveConstants.TURN_ENC_INVERTED,
+        Translation2d(
+          -SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
+          -SwerveConstants.TRACKWIDTH / 2
         )
       )
       return if (isReal()) {
         SwerveDrive(
-          modules,
+          frontLeftModule,
+          frontRightModule,
+          backLeftModule,
+          backRightModule,
           RobotConstants.MAX_LINEAR_SPEED,
           RobotConstants.MAX_ACCEL,
           RobotConstants.MAX_ROT_SPEED,
@@ -238,7 +261,10 @@ open class SwerveDrive(
         )
       } else {
         SwerveSim(
-          modules,
+          frontLeftModule,
+          frontRightModule,
+          backLeftModule,
+          backRightModule,
           RobotConstants.MAX_LINEAR_SPEED,
           RobotConstants.MAX_ACCEL,
           RobotConstants.MAX_ROT_SPEED,
@@ -249,67 +275,68 @@ open class SwerveDrive(
     }
 
     fun createSwerveNEO(field: Field2d): SwerveDrive {
-      val modules = listOf(
-        createNEOModule(
-          "FLModule",
-          SwerveConstants.DRIVE_MOTOR_FL,
-          SwerveConstants.DRIVE_INVERTED,
-          SwerveConstants.TURN_MOTOR_FL,
-          SwerveConstants.TURN_INVERTED,
-          SwerveConstants.TURN_ENC_CHAN_FL,
-          SwerveConstants.TURN_ENC_OFFSET_FL,
-          SwerveConstants.TURN_ENC_INVERTED,
-          Translation2d(
-            SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
-            SwerveConstants.TRACKWIDTH / 2
-          )
-        ),
-        createNEOModule(
-          "FRModule",
-          SwerveConstants.DRIVE_MOTOR_FR,
-          SwerveConstants.DRIVE_INVERTED,
-          SwerveConstants.TURN_MOTOR_FR,
-          SwerveConstants.TURN_INVERTED,
-          SwerveConstants.TURN_ENC_CHAN_FR,
-          SwerveConstants.TURN_ENC_OFFSET_FR,
-          SwerveConstants.TURN_ENC_INVERTED,
-          Translation2d(
-            SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
-            -SwerveConstants.TRACKWIDTH / 2
-          )
-        ),
-        createNEOModule(
-          "BLModule",
-          SwerveConstants.DRIVE_MOTOR_BL,
-          SwerveConstants.DRIVE_INVERTED,
-          SwerveConstants.TURN_MOTOR_BL,
-          SwerveConstants.TURN_INVERTED,
-          SwerveConstants.TURN_ENC_CHAN_BL,
-          SwerveConstants.TURN_ENC_OFFSET_BL,
-          SwerveConstants.TURN_ENC_INVERTED,
-          Translation2d(
-            -SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
-            SwerveConstants.TRACKWIDTH / 2
-          )
-        ),
-        createNEOModule(
-          "BLModule",
-          SwerveConstants.DRIVE_MOTOR_BR,
-          SwerveConstants.DRIVE_INVERTED,
-          SwerveConstants.TURN_MOTOR_BR,
-          SwerveConstants.TURN_INVERTED,
-          SwerveConstants.TURN_ENC_CHAN_BR,
-          SwerveConstants.TURN_ENC_OFFSET_BR,
-          SwerveConstants.TURN_ENC_INVERTED,
-          Translation2d(
-            -SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
-            -SwerveConstants.TRACKWIDTH / 2
-          )
+      val frontLeftModule = createNEOModule(
+        "FLModule",
+        SwerveConstants.DRIVE_MOTOR_FL,
+        SwerveConstants.DRIVE_INVERTED,
+        SwerveConstants.TURN_MOTOR_FL,
+        SwerveConstants.TURN_INVERTED,
+        SwerveConstants.TURN_ENC_CHAN_FL,
+        SwerveConstants.TURN_ENC_OFFSET_FL,
+        SwerveConstants.TURN_ENC_INVERTED,
+        Translation2d(
+          SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
+          SwerveConstants.TRACKWIDTH / 2
+        )
+      )
+      val frontRightModule = createNEOModule(
+        "FRModule",
+        SwerveConstants.DRIVE_MOTOR_FR,
+        SwerveConstants.DRIVE_INVERTED,
+        SwerveConstants.TURN_MOTOR_FR,
+        SwerveConstants.TURN_INVERTED,
+        SwerveConstants.TURN_ENC_CHAN_FR,
+        SwerveConstants.TURN_ENC_OFFSET_FR,
+        SwerveConstants.TURN_ENC_INVERTED,
+        Translation2d(
+          SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
+          -SwerveConstants.TRACKWIDTH / 2
+        )
+      )
+      val backLeftModule = createNEOModule(
+        "BLModule",
+        SwerveConstants.DRIVE_MOTOR_BL,
+        SwerveConstants.DRIVE_INVERTED,
+        SwerveConstants.TURN_MOTOR_BL,
+        SwerveConstants.TURN_INVERTED,
+        SwerveConstants.TURN_ENC_CHAN_BL,
+        SwerveConstants.TURN_ENC_OFFSET_BL,
+        SwerveConstants.TURN_ENC_INVERTED,
+        Translation2d(
+          -SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
+          SwerveConstants.TRACKWIDTH / 2
+        )
+      )
+      val backRightModule = createNEOModule(
+        "BLModule",
+        SwerveConstants.DRIVE_MOTOR_BR,
+        SwerveConstants.DRIVE_INVERTED,
+        SwerveConstants.TURN_MOTOR_BR,
+        SwerveConstants.TURN_INVERTED,
+        SwerveConstants.TURN_ENC_CHAN_BR,
+        SwerveConstants.TURN_ENC_OFFSET_BR,
+        SwerveConstants.TURN_ENC_INVERTED,
+        Translation2d(
+          -SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
+          -SwerveConstants.TRACKWIDTH / 2
         )
       )
       return if (isReal()) {
         SwerveDrive(
-          modules,
+          frontLeftModule,
+          frontRightModule,
+          backLeftModule,
+          backRightModule,
           RobotConstants.MAX_LINEAR_SPEED,
           RobotConstants.MAX_ACCEL,
           RobotConstants.MAX_ROT_SPEED,
@@ -318,7 +345,10 @@ open class SwerveDrive(
         )
       } else {
         SwerveSim(
-          modules,
+          frontLeftModule,
+          frontRightModule,
+          backLeftModule,
+          backRightModule,
           RobotConstants.MAX_LINEAR_SPEED,
           RobotConstants.MAX_ACCEL,
           RobotConstants.MAX_ROT_SPEED,
