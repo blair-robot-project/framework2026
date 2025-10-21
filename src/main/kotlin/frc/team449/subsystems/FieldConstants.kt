@@ -9,11 +9,6 @@ object FieldConstants {
   const val fieldLength = 17.55
   const val fieldWidth = 8.05
 
-  enum class ReefSide {
-    LEFT,
-    RIGHT
-  }
-
   private fun findPose(x: Double, y: Double, angle: Double, isRed: Boolean): Pose2d {
     return if (isRed) {
       Pose2d(fieldLength - x, fieldWidth - y, Rotation2d(MathUtil.angleModulus(angle + PI)))

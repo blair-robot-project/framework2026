@@ -7,6 +7,7 @@ import com.ctre.phoenix6.hardware.TalonFX
 import com.ctre.phoenix6.signals.InvertedValue
 import com.ctre.phoenix6.signals.NeutralModeValue
 import com.revrobotics.spark.SparkMax
+import edu.wpi.first.epilogue.Logged
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
@@ -31,6 +32,7 @@ import kotlin.math.sign
  * @param location The location of the module in reference to the center of the robot.
  * NOTE: In relation to the robot [+X is forward, +Y is left, and +THETA is Counter Clock-Wise].
  */
+@Logged
 open class SwerveModuleKraken(
   private val name: String,
   private val drivingMotor: TalonFX,

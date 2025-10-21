@@ -152,6 +152,7 @@ fun createKraken(
     updateFrequency,
     motor.position,
     motor.velocity,
+    motor.acceleration,
     motor.motorVoltage,
     motor.supplyCurrent,
     motor.statorCurrent,
