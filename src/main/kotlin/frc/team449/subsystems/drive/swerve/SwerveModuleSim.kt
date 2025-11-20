@@ -63,8 +63,8 @@ class SwerveModuleSim(
   override val position: SwerveModulePosition
     get() {
       return SwerveModulePosition(
-        module.driveWheelFinalPosition.`in`(Rotations),
-        Rotation2d(module.steerRelativeEncoderPosition)
+        module.driveEncoderUnGearedPosition.`in`(Radians)* SwerveConstants.WHEEL_RADIUS,
+        module.steerAbsoluteFacing
       )
     }
 

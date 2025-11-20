@@ -5,6 +5,9 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry
 import edu.wpi.first.wpilibj.Timer.getFPGATimestamp
 import edu.wpi.first.wpilibj.smartdashboard.Field2d
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
+import frc.team449.subsystems.vision.PoseSubsystem
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
 
 class SwerveSim(
   frontLeftModule: SwerveModule,
@@ -15,7 +18,8 @@ class SwerveSim(
   accel: Double,
   maxRotSpeed: Double,
   field: Field2d,
-  maxModuleSpeed: Double
+  maxModuleSpeed: Double,
+  var driveSim: SwerveDriveSimulation
 ) : SwerveDrive(frontLeftModule, frontRightModule, backLeftModule, backRightModule, maxLinearSpeed, accel, maxRotSpeed, field, maxModuleSpeed) {
 
   private var lastTime = getFPGATimestamp()
@@ -28,35 +32,26 @@ class SwerveSim(
     Pose2d()
   )
 
-  var odometryPose: Pose2d = odometryTracker.poseMeters
+  var odometryPose: Pose2d = driveSim.simulatedDriveTrainPose
 
   override fun periodic() {
     val currTime = getFPGATimestamp()
 
-    currHeading = currHeading.plus(Rotation2d(super.desiredSpeeds.omegaRadiansPerSecond * (currTime - lastTime)))
+    currHeading = driveSim.simulatedDriveTrainPose.rotation
     this.lastTime = currTime
 
     set(super.desiredSpeeds)
 
     // Updates the robot's currentSpeeds.
-    currentSpeeds = kinematics.toChassisSpeeds(
-      frontLeftModule.state,
-      frontRightModule.state,
-      backLeftModule.state,
-      backRightModule.state
-    )
+    currentSpeeds = driveSim.driveTrainSimulatedChassisSpeedsFieldRelative
 
-    odometryPose = odometryTracker.update(
-      currHeading,
-      getPositions()
-    )
+    // Update Robot Position
+    odometryPose = driveSim.simulatedDriveTrainPose
+
+
   }
 
   fun resetOdometryOnly(pose: Pose2d) {
-    odometryTracker.resetPosition(
-      currHeading,
-      getPositions(),
-      pose
-    )
+    driveSim.setSimulationWorldPose(pose)
   }
 }

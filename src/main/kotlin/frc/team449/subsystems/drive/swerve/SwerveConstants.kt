@@ -2,8 +2,6 @@ package frc.team449.subsystems.drive.swerve
 
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.*
-import edu.wpi.first.units.measure.MomentOfInertia
-import edu.wpi.first.units.measure.Voltage
 import kotlin.math.PI
 
 object SwerveConstants {
@@ -93,9 +91,6 @@ object SwerveConstants {
 
   /** MapleSim Required Values */
   // TODO: Get Real Values
-  val STEER_GEARING: Double = 12.8
-  val DRIVE_FRICTION_VOLTAGE: Voltage = Volts.of(0.1)
-  val STEER_FRICTION_VOLTAGE: Voltage = Volts.of(0.1)
-  val STEER_ROTATIONAL_INERTIA: MomentOfInertia = KilogramSquareMeters.of(0.03)
-  val WHEEL_FRICTION_COEFFICIENT: Double = 1.2
+  val WHEEL_COF: Double = 1.0
+  val GEAR_RATIO_LEVEL: Int = 1
 }
