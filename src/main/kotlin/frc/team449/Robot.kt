@@ -46,7 +46,7 @@ class Robot {
     )
 
   @get:NotLogged
-  val drive: SwerveDrive = SwerveDrive.createSwerveKraken(field)
+  val drive: SwerveDrive = SwerveDrive.createSwerveNEO(field)
 
   val autoChooser = AutoChooser()
 

@@ -1,6 +1,7 @@
 package frc.team449.subsystems.drive.swerve
 
 import com.revrobotics.spark.SparkMax
+import edu.wpi.first.epilogue.Logged
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.controller.SimpleMotorFeedforward
 import edu.wpi.first.math.geometry.Rotation2d
@@ -28,6 +29,7 @@ import kotlin.math.sign
  * @param location The location of the module in reference to the center of the robot.
  * NOTE: In relation to the robot [+X is forward, +Y is left, and +THETA is Counter Clock-Wise].
  */
+@Logged
 open class SwerveModuleNEO(
   private val name: String,
   private val drivingMotor: SparkMax,
@@ -112,7 +114,7 @@ open class SwerveModuleNEO(
     /** CONTROL direction of module */
     val turnPid =
       turnController.calculate(
-        turningMotor.encoder.position,
+        turnEncoder.position,
       )
 
     turningMotor.set(

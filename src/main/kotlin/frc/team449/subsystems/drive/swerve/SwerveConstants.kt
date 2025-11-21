@@ -11,38 +11,30 @@ object SwerveConstants {
   const val DUTY_CYCLE_DEADBAND = 0.001
 
   /** Drive motor ports */
-  const val DRIVE_MOTOR_FL = 21
-  const val DRIVE_MOTOR_FR = 22
-  const val DRIVE_MOTOR_BL = 23
-  const val DRIVE_MOTOR_BR = 24
+  const val DRIVE_MOTOR_FL = 30
+  const val DRIVE_MOTOR_FR = 9
+  const val DRIVE_MOTOR_BL = 11
+  const val DRIVE_MOTOR_BR = 5
 
-  const val TURN_MOTOR_FL = 19
-  const val TURN_MOTOR_FR = 6
-  const val TURN_MOTOR_BL = 13
-  const val TURN_MOTOR_BR = 5
+  const val TURN_MOTOR_FL = 8
+  const val TURN_MOTOR_FR = 10
+  const val TURN_MOTOR_BL = 12
+  const val TURN_MOTOR_BR = 62
 
   /** Turning encoder channels */
-  const val TURN_ENC_CHAN_FL = 9
+  const val TURN_ENC_CHAN_FL = 8
   const val TURN_ENC_CHAN_FR = 7
   const val TURN_ENC_CHAN_BL = 6
-  const val TURN_ENC_CHAN_BR = 8
+  const val TURN_ENC_CHAN_BR = 9
 
   /** Offsets for the absolute encoders in rotations. */
-  val TURN_ENC_OFFSET_FL =
-    Units.radiansToRotations(-1.9721847889188047) +
-      Units.radiansToRotations(-0.023566500800433245)
-  val TURN_ENC_OFFSET_FR =
-    Units.radiansToRotations(-1.3803421761481829) +
-      Units.radiansToRotations(-1.4175450743616982) + 0.5
-  val TURN_ENC_OFFSET_BL =
-    Units.radiansToRotations(-0.8920550992085665) +
-      Units.radiansToRotations(-1.9177244935091542 + 3.114585873128222)
-  val TURN_ENC_OFFSET_BR =
-    Units.radiansToRotations(-1.7617422152440068) +
-      Units.radiansToRotations(-2.2696186936648175 - 0.8904340373587881) + 0.5
+  val TURN_ENC_OFFSET_FL = Radians.of(2.871) //Units.radiansToRotations(2.871)
+  val TURN_ENC_OFFSET_FR = Radians.of(-2.294) //Units.radiansToRotations(-2.294)
+  val TURN_ENC_OFFSET_BL = Radians.of(1.290)
+  val TURN_ENC_OFFSET_BR = Radians.of(-0.814) //Units.radiansToRotations(-0.814)
 
   /** Inverted */
-  const val DRIVE_INVERTED = false
+  const val DRIVE_INVERTED = true
   const val TURN_INVERTED = true
   const val TURN_ENC_INVERTED = false
 
@@ -60,7 +52,7 @@ object SwerveConstants {
   const val STEER_KS = 0.05 / 12.0
 
   /** PID gains for driving each module*/
-  const val DRIVE_KP = 0.75
+  const val DRIVE_KP = 0.1
   const val DRIVE_KI = 0.0
   const val DRIVE_KD = 0.0
 

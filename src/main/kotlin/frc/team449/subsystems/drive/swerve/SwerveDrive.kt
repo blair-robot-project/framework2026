@@ -10,6 +10,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics
 import edu.wpi.first.math.kinematics.SwerveModulePosition
 import edu.wpi.first.math.kinematics.SwerveModuleState
+import edu.wpi.first.units.Units.Rotations
 import edu.wpi.first.wpilibj.RobotBase.isReal
 import edu.wpi.first.wpilibj.smartdashboard.Field2d
 import edu.wpi.first.wpilibj2.command.Command
@@ -198,7 +199,7 @@ open class SwerveDrive(
         SwerveConstants.TURN_MOTOR_FL,
         SwerveConstants.TURN_INVERTED,
         SwerveConstants.TURN_ENC_CHAN_FL,
-        SwerveConstants.TURN_ENC_OFFSET_FL,
+        SwerveConstants.TURN_ENC_OFFSET_FL.`in`(Rotations),
         SwerveConstants.TURN_ENC_INVERTED,
         Translation2d(
           SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
@@ -212,7 +213,7 @@ open class SwerveDrive(
         SwerveConstants.TURN_MOTOR_FR,
         SwerveConstants.TURN_INVERTED,
         SwerveConstants.TURN_ENC_CHAN_FR,
-        SwerveConstants.TURN_ENC_OFFSET_FR,
+        SwerveConstants.TURN_ENC_OFFSET_FR.`in`(Rotations),
         SwerveConstants.TURN_ENC_INVERTED,
         Translation2d(
           SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
@@ -226,7 +227,7 @@ open class SwerveDrive(
         SwerveConstants.TURN_MOTOR_BL,
         SwerveConstants.TURN_INVERTED,
         SwerveConstants.TURN_ENC_CHAN_BL,
-        SwerveConstants.TURN_ENC_OFFSET_BL,
+        SwerveConstants.TURN_ENC_OFFSET_BL.`in`(Rotations),
         SwerveConstants.TURN_ENC_INVERTED,
         Translation2d(
           -SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
@@ -240,7 +241,7 @@ open class SwerveDrive(
         SwerveConstants.TURN_MOTOR_BR,
         SwerveConstants.TURN_INVERTED,
         SwerveConstants.TURN_ENC_CHAN_BR,
-        SwerveConstants.TURN_ENC_OFFSET_BR,
+        SwerveConstants.TURN_ENC_OFFSET_BR.`in`(Rotations),
         SwerveConstants.TURN_ENC_INVERTED,
         Translation2d(
           -SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
@@ -282,7 +283,7 @@ open class SwerveDrive(
         SwerveConstants.TURN_MOTOR_FL,
         SwerveConstants.TURN_INVERTED,
         SwerveConstants.TURN_ENC_CHAN_FL,
-        SwerveConstants.TURN_ENC_OFFSET_FL,
+        SwerveConstants.TURN_ENC_OFFSET_FL.`in`(Rotations),
         SwerveConstants.TURN_ENC_INVERTED,
         Translation2d(
           SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
@@ -296,7 +297,7 @@ open class SwerveDrive(
         SwerveConstants.TURN_MOTOR_FR,
         SwerveConstants.TURN_INVERTED,
         SwerveConstants.TURN_ENC_CHAN_FR,
-        SwerveConstants.TURN_ENC_OFFSET_FR,
+        SwerveConstants.TURN_ENC_OFFSET_FR.`in`(Rotations),
         SwerveConstants.TURN_ENC_INVERTED,
         Translation2d(
           SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
@@ -310,7 +311,7 @@ open class SwerveDrive(
         SwerveConstants.TURN_MOTOR_BL,
         SwerveConstants.TURN_INVERTED,
         SwerveConstants.TURN_ENC_CHAN_BL,
-        SwerveConstants.TURN_ENC_OFFSET_BL,
+        SwerveConstants.TURN_ENC_OFFSET_BL.`in`(Rotations),
         SwerveConstants.TURN_ENC_INVERTED,
         Translation2d(
           -SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
@@ -324,7 +325,7 @@ open class SwerveDrive(
         SwerveConstants.TURN_MOTOR_BR,
         SwerveConstants.TURN_INVERTED,
         SwerveConstants.TURN_ENC_CHAN_BR,
-        SwerveConstants.TURN_ENC_OFFSET_BR,
+        SwerveConstants.TURN_ENC_OFFSET_BR.`in`(Rotations),
         SwerveConstants.TURN_ENC_INVERTED,
         Translation2d(
           -SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
