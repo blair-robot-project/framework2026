@@ -86,24 +86,24 @@ object VisionConstants {
 
   /** List of cameras that we want to use */
   val ESTIMATORS: ArrayList<ApriltagCamera> = arrayListOf(
-    ApriltagCamera(
-      "reef_cam",
-      TAG_LAYOUT,
-      front,
-      VISION_SIM
-    ),
-    ApriltagCamera(
-      "jojocam",
-      TAG_LAYOUT,
-      back_left,
-      VISION_SIM
-    ),
-    ApriltagCamera(
-      "edzmjr",
-      TAG_LAYOUT,
-      back_right,
-      VISION_SIM
-    )
+//    ApriltagCamera(
+//      "reef_cam",
+//      TAG_LAYOUT,
+//      front,
+//      VISION_SIM
+//    ),
+//    ApriltagCamera(
+//      "jojocam",
+//      TAG_LAYOUT,
+//      back_left,
+//      VISION_SIM
+//    ),
+//    ApriltagCamera(
+//      "edzmjr",
+//      TAG_LAYOUT,
+//      back_right,
+//      VISION_SIM
+//    )
 //    ApriltagCamera(
 //      "Camera_03",
 //      TAG_LAYOUT,

@@ -96,6 +96,7 @@ open class SwerveModuleNEO(
   override fun stop() {
     turnController.setpoint = turnEncoder.position
     desiredState.speedMetersPerSecond = 0.0
+    driveController.setpoint = 0.0
   }
 
   override fun update() {

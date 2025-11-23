@@ -29,9 +29,9 @@ object SwerveConstants {
 
   /** Offsets for the absolute encoders in rotations. */
   val TURN_ENC_OFFSET_FL = Radians.of(2.871) //Units.radiansToRotations(2.871)
-  val TURN_ENC_OFFSET_FR = Radians.of(-2.294) //Units.radiansToRotations(-2.294)
+  val TURN_ENC_OFFSET_FR = Radians.of(-2.294)+ Rotations.of(0.5) //Units.radiansToRotations(-2.294)
   val TURN_ENC_OFFSET_BL = Radians.of(1.290)
-  val TURN_ENC_OFFSET_BR = Radians.of(-0.814) //Units.radiansToRotations(-0.814)
+  val TURN_ENC_OFFSET_BR = Radians.of(-0.814)+ Rotations.of(0.5) //Units.radiansToRotations(-0.814)
 
   /** Inverted */
   const val DRIVE_INVERTED = true
@@ -52,7 +52,7 @@ object SwerveConstants {
   const val STEER_KS = 0.05 / 12.0
 
   /** PID gains for driving each module*/
-  const val DRIVE_KP = 0.1
+  const val DRIVE_KP = 0.75
   const val DRIVE_KI = 0.0
   const val DRIVE_KD = 0.0
 
