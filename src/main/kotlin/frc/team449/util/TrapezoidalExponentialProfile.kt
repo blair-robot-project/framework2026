@@ -16,7 +16,7 @@ import kotlin.math.*
  * @param startingDistance the start distance of the profile
  * @param finalDistance the goal distance of the profile
  * @param aStop the max negative acceleration of the profile
- * @param efficiency percent efficiency of the system
+ * @param efficiency percent efficiency of the hardware
  */
 class TrapezoidalExponentialProfile(
   pulleyRadius: Double,

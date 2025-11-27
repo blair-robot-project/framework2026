@@ -6,8 +6,8 @@ import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.wpilibj2.command.Command
-import frc.team449.subsystems.drive.swerve.SwerveDrive
-import frc.team449.subsystems.vision.PoseSubsystem
+import frc.team449.hardwaremanagers.drive.swerve.SwerveDrive
+import frc.team449.hardwaremanagers.PoseSubsystem
 import kotlin.math.PI
 import kotlin.math.hypot
 

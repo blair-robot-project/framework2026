@@ -12,10 +12,10 @@ import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.team449.auto.AutoConstants
-import frc.team449.subsystems.RobotConstants
-import frc.team449.subsystems.drive.swerve.SwerveConstants
-import frc.team449.subsystems.drive.swerve.SwerveDrive
-import frc.team449.subsystems.vision.PoseSubsystem
+import frc.team449.hardwaremanagers.RobotConstants
+import frc.team449.hardwaremanagers.drive.swerve.SwerveConstants
+import frc.team449.hardwaremanagers.drive.swerve.SwerveDrive
+import frc.team449.hardwaremanagers.PoseSubsystem
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.*
 

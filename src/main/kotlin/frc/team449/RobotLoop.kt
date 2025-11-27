@@ -6,11 +6,7 @@ import edu.wpi.first.epilogue.Epilogue
 import edu.wpi.first.epilogue.Logged
 import edu.wpi.first.hal.FRCNetComm
 import edu.wpi.first.hal.HAL
-import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Pose3d
-import edu.wpi.first.math.geometry.Rotation2d
-import edu.wpi.first.math.geometry.Translation2d
-import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.networktables.StructArrayPublisher
 import edu.wpi.first.units.Units.*
@@ -20,19 +16,15 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers
 import frc.team449.auto.Routines
-import frc.team449.sim.Lunite
 import frc.team449.sim.Scoreboard
-import frc.team449.subsystems.drive.swerve.SwerveSim
-import frc.team449.subsystems.superstructure.SuperstructureGoal
-import frc.team449.subsystems.vision.PoseSubsystem
-import frc.team449.subsystems.vision.VisionConstants
+import frc.team449.hardwaremanagers.drive.swerve.SwerveSim
+import frc.team449.hardwaremanagers.superstructure.SuperstructureGoal
+import frc.team449.hardwaremanagers.VisionConstants
 import org.ironmaple.simulation.SimulatedArena
 import org.littletonrobotics.urcl.URCL
-import org.opencv.dnn.Net
 import kotlin.math.*
 
-
-/** The main class of the robot, constructs all the subsystems
+/** The main class of the robot, constructs all the hardwaremanagers
  * and initializes default commands . */
 @Logged
 class RobotLoop : TimedRobot() {
@@ -42,7 +34,7 @@ class RobotLoop : TimedRobot() {
 
   private val controllerBinder = ControllerBindings(robot.driveController, robot.mechController, robot.characController, robot.testController, robot)
 
-  init {
+  override fun robotInit() {
     CanBridge.runTCP()
 
     // Yes this should be a print statement, it's useful to know that robotInit started.

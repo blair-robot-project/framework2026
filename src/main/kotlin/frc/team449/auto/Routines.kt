@@ -4,16 +4,16 @@ import choreo.auto.AutoChooser
 import choreo.auto.AutoFactory
 import choreo.auto.AutoRoutine
 import choreo.trajectory.SwerveSample
-import edu.wpi.first.wpilibj2.command.*
 import frc.team449.Robot
+import frc.team449.hardwaremanagers.PoseSubsystem
 
 open class Routines(
   val robot: Robot
 ) {
 
   private val autoFactory = AutoFactory(
-    robot.poseSubsystem::pose,
-    robot.poseSubsystem::resetOdometry,
+      PoseSubsystem::pose,
+      PoseSubsystem::resetOdometry,
     { sample: SwerveSample -> robot.drive.followTrajectory(robot, sample) },
     true,
     robot.drive

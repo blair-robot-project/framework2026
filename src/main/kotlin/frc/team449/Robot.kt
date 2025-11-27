@@ -6,16 +6,16 @@ import edu.wpi.first.epilogue.NotLogged
 import edu.wpi.first.wpilibj.PowerDistribution
 import edu.wpi.first.wpilibj.smartdashboard.Field2d
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
-import frc.team449.subsystems.RobotConstants
-import frc.team449.subsystems.drive.swerve.SwerveDrive
-import frc.team449.subsystems.drive.swerve.SwerveOrthogonalCommand
-import frc.team449.subsystems.light.Light.Companion.createLight
-import frc.team449.subsystems.superstructure.SuperstructureManager
-import frc.team449.subsystems.superstructure.SuperstructureManager.Companion.createSuperstructureManager
-import frc.team449.subsystems.vision.PoseSubsystem
-import frc.team449.subsystems.vision.PoseSubsystem.Companion.createPoseSubsystem
-import frc.team449.system.AHRS
-// import frc.team449.subsystems.superstructure.BIT.BuiltInTests
+import frc.team449.hardwaremanagers.RobotConstants
+import frc.team449.hardwaremanagers.drive.swerve.SwerveDrive
+import frc.team449.commands.SwerveOrthogonalCommand
+import frc.team449.hardware.light.Light.Companion.createLight
+import frc.team449.hardwaremanagers.superstructure.SuperstructureManager
+import frc.team449.hardwaremanagers.superstructure.SuperstructureManager.Companion.createSuperstructureManager
+import frc.team449.hardwaremanagers.PoseSubsystem
+import frc.team449.hardwaremanagers.PoseSubsystem.Companion.createPoseSubsystem
+import frc.team449.hardware.AHRS
+// import frc.team449.hardwaremanagers.superstructure.BIT.BuiltInTests
 
 @Logged
 class Robot {

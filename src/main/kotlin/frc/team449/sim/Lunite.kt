@@ -5,19 +5,19 @@ import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.geometry.Translation3d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.units.Units.Inches
-import edu.wpi.first.units.Units.Pounds
 import edu.wpi.first.units.Units.Meters
+import edu.wpi.first.units.Units.Pounds
 import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.Distance
 import edu.wpi.first.units.measure.LinearVelocity
-import org.dyn4j.geometry.Ellipse
-import org.ironmaple.simulation.gamepieces.GamePieceOnFieldSimulation
-import org.ironmaple.simulation.gamepieces.GamePieceProjectile
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase.isReal
 import frc.team449.Robot
-import frc.team449.subsystems.drive.swerve.SwerveSim
+import frc.team449.hardwaremanagers.drive.swerve.SwerveSim
+import org.dyn4j.geometry.Ellipse
 import org.ironmaple.simulation.SimulatedArena
+import org.ironmaple.simulation.gamepieces.GamePieceOnFieldSimulation
+import org.ironmaple.simulation.gamepieces.GamePieceProjectile
 import org.ironmaple.utils.FieldMirroringUtils
 
 /**
@@ -26,9 +26,9 @@ import org.ironmaple.utils.FieldMirroringUtils
  * @param relativeShooterPosition Position of the shooter, relative to the robot
  * @param
  */
-class Lunite (
-  robotPosition: Translation2d ,
-  shooterPositionOnRobot: Translation2d ,
+class Lunite(
+  robotPosition: Translation2d,
+  shooterPositionOnRobot: Translation2d,
   chassisSpeedsFieldRelative: ChassisSpeeds,
   shooterFacing: Rotation2d,
   initialHeight: Distance,
@@ -55,12 +55,14 @@ class Lunite (
 
     // Launch Lunite
     fun launchLunite(robot: Robot, shooter: Translation3d, angle: Angle, velocity: LinearVelocity) {
-      if (isReal())
+      if (isReal()) {
         return
+      }
       val driveSim = robot.drive as SwerveSim
-      SimulatedArena.getInstance().addGamePieceProjectile(Lunite(
+      SimulatedArena.getInstance().addGamePieceProjectile(
+        Lunite(
           driveSim.odometryPose.translation,
-        Translation2d(shooter.x,shooter.y),
+          Translation2d(shooter.x, shooter.y),
           driveSim.currentSpeeds,
           driveSim.currHeading,
           Meters.of(shooter.z),
@@ -95,5 +97,4 @@ class Lunite (
         this.cleanUp()
       }
   }
-
 }
