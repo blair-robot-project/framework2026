@@ -2,139 +2,94 @@ package frc.team449.input
 
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.filter.SlewRateLimiter
-import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
+import edu.wpi.first.units.Units.Meters
+import edu.wpi.first.units.Units.MetersPerSecond
+import edu.wpi.first.units.Units.MetersPerSecondPerSecond
+import edu.wpi.first.units.Units.Radians
+import edu.wpi.first.units.Units.RadiansPerSecond
 import edu.wpi.first.units.Units.Seconds
 import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.LinearAcceleration
 import edu.wpi.first.units.measure.LinearVelocity
-import edu.wpi.first.util.sendable.Sendable
-import edu.wpi.first.util.sendable.SendableBuilder
-import edu.wpi.first.wpilibj.Timer
-import edu.wpi.first.wpilibj.XboxController
-import edu.wpi.first.wpilibj2.command.Command
 import frc.team449.hardwaremanagers.RobotConstants
 import frc.team449.util.Clock
-import java.util.function.DoubleSupplier
-import kotlin.math.abs
 import kotlin.math.hypot
 
 /**
  * Create an OI for controlling a holonomic drivetrain (probably swerve).
  * The x and y axes on one joystick are used to control x and y velocity (m/s),
- * while the x axis on another joystick is used to control rotational velocity (m/s).
+ * while the x-axis on another joystick is used to control rotational velocity (m/s).
  * <p> The magnitude of the acceleration is clamped
  * <p>Note that the joystick's X
  * axis corresponds to the robot's/field's Y and vice versa
  *
- * @param drive The drivetrain this OI is controlling
- * @param xThrottle The Y axis of the strafing joystick
- * @param yThrottle The X axis of the strafing joystick
- * @param rotThrottle The X axis of the rotating joystick
  * @param rotRamp Used to ramp angular velocity
- * @param maxAccel Max accel, used for ramping
- * @param fieldOriented Whether the OI x and y translation shoulds
+ * @param maxLinearSpeed Maximum desired linear drive speed (Unit agnostic)
+ * @param maxRotationalSpeed Maximum desired angular rotation speed (Unit agnostic)
+ * @param maxAccel Max desired drive acceleration (Unit agnostic), used for scaling speed
  * be relative to the field rather than relative to the robot. This better be true.
  */
 class HolonomicOI(
-  private val xThrottle: DoubleSupplier,
-  private val yThrottle: DoubleSupplier,
-  private val rotThrottle: DoubleSupplier,
   private val rotRamp: SlewRateLimiter,
   private val maxLinearSpeed: LinearVelocity,
   private val maxRotationalSpeed: AngularVelocity,
   private val maxAccel: LinearAcceleration,
-  private val fieldOriented: () -> Boolean
-) : Command(), Sendable {
+) {
 
-  /** Previous X velocity (scaled and clamped). */
-  private var prevX = 0.0
-
-  /** Previous Y velocity (scaled and clamped) */
-  private var prevY = 0.0
-
-  private var prevTime = Double.NaN
-
-  private var dx = 0.0
-  private var dy = 0.0
-  private var acclerationMagnitude = 0.0
-  private var dt = 0.0
-  private var magAccClamped = 0.0
+  private var xVelocity = Meters.per(Seconds).mutable(0.0)
+  private var yVelocity = Meters.per(Seconds).mutable(0.0)
+  private var rotationVelocity = Radians.per(Seconds).mutable(0.0)
 
   /**
-   * @return The [ChassisSpeeds] for the given x, y and
+   *
+   * @param prevChassisCommand The previously calculated chassis output command
+   * @param xThrottle The scalar Y axis of the strafing joystick
+   * @param yThrottle The scalar X axis of the strafing joystick
+   * @param rotThrottle The scalar X axis of the rotating joystick
+   *
+   * @return The new [ChassisSpeeds] for the given x, y and
    * rotation input from the joystick */
-  override fun execute() {
-    this.dt = Clock.deltaTime.`in`(Seconds)
+  fun calculate(prevChassisCommand: ChassisSpeeds, xThrottle: Double, yThrottle: Double, rotThrottle: Double): ChassisSpeeds {
+    val dt = Clock.deltaTime.`in`(Seconds)
 
-    val xScaled = xThrottle.asDouble * maxLinearSpeed
-    val yScaled = yThrottle.asDouble * maxLinearSpeed
+    // Deadband axes
+    val xRoundedScalar = MathUtil.applyDeadband(xThrottle, RobotConstants.DRIVE_RADIUS_DEADBAND)
+    val yRoundedScalar = MathUtil.applyDeadband(yThrottle, RobotConstants.DRIVE_RADIUS_DEADBAND)
+    val rotRoundedScalar = MathUtil.applyDeadband(rotThrottle, RobotConstants.ROTATION_DEADBAND)
 
-    // Clamp the acceleration
-    this.dx = xScaled - this.prevX
-    this.dy = yScaled - this.prevY
-    this.acclerationMagnitude = hypot(dx / dt, dy / dt)
-    this.magAccClamped = MathUtil.clamp(acclerationMagnitude, -this.maxAccel, this.maxAccel)
+    // Normalize axes (convert units to expected)
+    val xScaled = xRoundedScalar * maxLinearSpeed.`in`(MetersPerSecond)
+    val yScaled = yRoundedScalar * maxLinearSpeed.`in`(MetersPerSecond)
+    val rotScaled = rotRoundedScalar * maxRotationalSpeed.`in`(RadiansPerSecond)
 
-    // Scale the change in x and y the same as the acceleration
-    val factor = if (magAcc == 0.0) 0.0 else magAccClamped / magAcc
+    // Calculate and clamp the desired acceleration
+    val dx = xScaled - prevChassisCommand.vxMetersPerSecond
+    val dy = yScaled - prevChassisCommand.vyMetersPerSecond
+    val accelerationMagnitude = hypot(dx / dt, dy / dt)
+    val magAccClamped = MathUtil.clamp(
+      accelerationMagnitude,
+      -this.maxAccel.`in`(MetersPerSecondPerSecond),
+      this.maxAccel.`in`(MetersPerSecondPerSecond)
+    )
+
+    // Scale the change in x and y the same way the acceleration would scale
+    val factor = if (accelerationMagnitude == 0.0) 0.0 else magAccClamped / accelerationMagnitude
     val dxClamped = dx * factor
     val dyClamped = dy * factor
-    val xClamped = prevX + dxClamped
-    val yClamped = prevY + dyClamped
 
-    this.prevX = xClamped
-    this.prevY = yClamped
+    // Ease rotation
+    val easedRotation = rotRamp.calculate(rotScaled)
 
-    val rotRaw = rotThrottle.asDouble
-    val rotScaled = rotRamp.calculate(rotRaw * maxRotationalSpeed)
+    xVelocity.mut_replace(MetersPerSecond.of(prevChassisCommand.vxMetersPerSecond + dxClamped))
+    yVelocity.mut_replace(MetersPerSecond.of(prevChassisCommand.vyMetersPerSecond + dyClamped))
+    rotationVelocity.mut_replace(RadiansPerSecond.of(easedRotation))
 
-    // translation velocity vector
-    val vel = Translation2d(xClamped, yClamped)
-
-    if (this.fieldOriented()) {
-      drive.set(
-        ChassisSpeeds.fromFieldRelativeSpeeds(
-          vel.x,
-          vel.y,
-          rotScaled,
-          drive.heading
-        )
-      )
-    } else {
-      drive.set(
-        ChassisSpeeds(
-          vel.x,
-          vel.y,
-          rotScaled
-        )
-      )
-    }
-  }
-
-  override fun initSendable(builder: SendableBuilder) {
-    builder.addDoubleProperty("currX", this.xThrottle::getAsDouble, null)
-    builder.addDoubleProperty("currY", this.yThrottle::getAsDouble, null)
-    builder.addDoubleProperty("prevX", { this.prevX }, null)
-    builder.addDoubleProperty("prevY", { this.prevY }, null)
-    builder.addDoubleProperty("dx", { this.dx }, null)
-    builder.addDoubleProperty("dy", { this.dy }, null)
-    builder.addDoubleProperty("dt", { this.dt }, null)
-    builder.addDoubleProperty("magAcc", { this.magAcc }, null)
-    builder.addDoubleProperty("magAccClamped", { this.magAccClamped }, null)
-  }
-
-  companion object {
-    fun createHolonomicOI(drive: HolonomicDrive, driveController: XboxController): HolonomicOI {
-      return HolonomicOI(
-        drive,
-        { if (abs(driveController.leftY) < RobotConstants.DRIVE_RADIUS_DEADBAND) .0 else -driveController.leftY },
-        { if (abs(driveController.leftX) < RobotConstants.DRIVE_RADIUS_DEADBAND) .0 else -driveController.leftX },
-        { if (abs(driveController.getRawAxis(4)) < RobotConstants.ROTATION_DEADBAND) .0 else -driveController.getRawAxis(4) },
-        SlewRateLimiter(RobotConstants.ROT_RATE_LIMIT, RobotConstants.NEG_ROT_RATE_LIM, 0.0),
-        RobotConstants.MAX_ACCEL,
-        { true }
-      )
-    }
+    return ChassisSpeeds(
+      xVelocity,
+      yVelocity,
+      rotationVelocity
+    )
+    // TODO: field relative should be controlled on the drive end, not the input end.
   }
 }
