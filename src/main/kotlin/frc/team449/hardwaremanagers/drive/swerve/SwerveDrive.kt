@@ -18,11 +18,11 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.Robot
 import frc.team449.auto.AutoConstants
-import frc.team449.hardwaremanagers.RobotConstants
 import frc.team449.hardware.gearbox.SwerveModule
 import frc.team449.hardware.gearbox.SwerveModuleKraken.Companion.createKrakenModule
 import frc.team449.hardware.gearbox.SwerveModuleNEO.Companion.createNEOModule
 import frc.team449.hardware.gearbox.SwerveModuleSim.Companion.createModuleSim
+import frc.team449.hardwaremanagers.RobotConstants
 import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.COTS
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
@@ -67,7 +67,7 @@ open class SwerveDrive(
 
   /** The current speed of the robot's drive. */
   @Logged
-  var currentSpeeds = ChassisSpeeds()
+  var currentSpeeds: ChassisSpeeds = ChassisSpeeds()
 
   @Logged
   var desiredSpeeds: ChassisSpeeds = ChassisSpeeds()

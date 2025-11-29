@@ -5,8 +5,8 @@ import edu.wpi.first.epilogue.NotLogged
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import frc.team449.Robot
-import frc.team449.hardwaremanagers.drive.swerve.SwerveDrive
 import frc.team449.hardwaremanagers.PoseSubsystem
+import frc.team449.hardwaremanagers.drive.swerve.SwerveDrive
 
 @Logged
 class SuperstructureManager(

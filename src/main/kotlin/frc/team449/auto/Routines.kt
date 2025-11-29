@@ -12,8 +12,8 @@ open class Routines(
 ) {
 
   private val autoFactory = AutoFactory(
-      PoseSubsystem::pose,
-      PoseSubsystem::resetOdometry,
+    PoseSubsystem::pose,
+    PoseSubsystem::resetOdometry,
     { sample: SwerveSample -> robot.drive.followTrajectory(robot, sample) },
     true,
     robot.drive

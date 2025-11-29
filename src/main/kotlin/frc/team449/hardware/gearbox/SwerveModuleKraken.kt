@@ -16,10 +16,10 @@ import edu.wpi.first.math.kinematics.SwerveModuleState
 import edu.wpi.first.units.Units.Amps
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.Timer
-import frc.team449.hardwaremanagers.drive.swerve.SwerveConstants
 import frc.team449.hardware.encoder.AbsoluteEncoder
 import frc.team449.hardware.encoder.Encoder
 import frc.team449.hardware.motor.createSparkMax
+import frc.team449.hardwaremanagers.drive.swerve.SwerveConstants
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.sign

@@ -4,6 +4,7 @@ import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.filter.SlewRateLimiter
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
+import edu.wpi.first.units.Units.Seconds
 import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.LinearAcceleration
 import edu.wpi.first.units.measure.LinearVelocity
@@ -13,6 +14,7 @@ import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj.XboxController
 import edu.wpi.first.wpilibj2.command.Command
 import frc.team449.hardwaremanagers.RobotConstants
+import frc.team449.util.Clock
 import java.util.function.DoubleSupplier
 import kotlin.math.abs
 import kotlin.math.hypot
@@ -63,12 +65,7 @@ class HolonomicOI(
    * @return The [ChassisSpeeds] for the given x, y and
    * rotation input from the joystick */
   override fun execute() {
-    val currTime = Timer.getFPGATimestamp()
-    if (this.prevTime.isNaN()) {
-      this.prevTime = currTime - RobotConstants.LOOP_TIME
-    }
-    this.dt = currTime - prevTime
-    this.prevTime = currTime
+    this.dt = Clock.deltaTime.`in`(Seconds)
 
     val xScaled = xThrottle.asDouble * maxLinearSpeed
     val yScaled = yThrottle.asDouble * maxLinearSpeed

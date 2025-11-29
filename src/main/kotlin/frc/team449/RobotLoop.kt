@@ -16,10 +16,11 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers
 import frc.team449.auto.Routines
-import frc.team449.sim.Scoreboard
+import frc.team449.hardwaremanagers.VisionConstants
 import frc.team449.hardwaremanagers.drive.swerve.SwerveSim
 import frc.team449.hardwaremanagers.superstructure.SuperstructureGoal
-import frc.team449.hardwaremanagers.VisionConstants
+import frc.team449.sim.Scoreboard
+import frc.team449.util.Clock
 import org.ironmaple.simulation.SimulatedArena
 import org.littletonrobotics.urcl.URCL
 import kotlin.math.*
@@ -28,8 +29,8 @@ import kotlin.math.*
  * and initializes default commands . */
 @Logged
 class RobotLoop : TimedRobot() {
-  private val robot = Robot()
-
+  private val robot = Robot
+  private val clock = Clock
   val routines = Routines(robot)
 
   private val controllerBinder = ControllerBindings(robot.driveController, robot.mechController, robot.characController, robot.testController, robot)

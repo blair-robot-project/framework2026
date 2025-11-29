@@ -13,9 +13,9 @@ import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.smartdashboard.Field2d
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.team449.control.vision.ApriltagCamera
+import frc.team449.hardware.AHRS
 import frc.team449.hardwaremanagers.drive.swerve.SwerveDrive
 import frc.team449.hardwaremanagers.drive.swerve.SwerveSim
-import frc.team449.hardware.AHRS
 import kotlin.Array.get
 import kotlin.DoubleArray.get
 import kotlin.LongArray.get
