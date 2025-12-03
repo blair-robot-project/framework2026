@@ -12,7 +12,7 @@ import edu.wpi.first.units.Units.Seconds
 import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.LinearAcceleration
 import edu.wpi.first.units.measure.LinearVelocity
-import frc.team449.hardwaremanagers.RobotConstants
+import frc.team449.config.RobotConstants
 import frc.team449.util.Clock
 import kotlin.math.hypot
 
@@ -34,7 +34,7 @@ class HolonomicOI(
   private val rotRamp: SlewRateLimiter,
   private val maxLinearSpeed: LinearVelocity,
   private val maxRotationalSpeed: AngularVelocity,
-  private val maxAccel: LinearAcceleration,
+  private val maxAccel: LinearAcceleration
 ) {
 
   private var xVelocity = Meters.per(Seconds).mutable(0.0)

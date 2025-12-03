@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.smartdashboard.Field2d
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import frc.team449.config.RobotConstants
+import frc.team449.config.VisionConstants
 import frc.team449.control.vision.ApriltagCamera
 import frc.team449.hardware.AHRS
 import frc.team449.hardwaremanagers.drive.swerve.SwerveDrive

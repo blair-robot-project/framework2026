@@ -1,4 +1,4 @@
-package frc.team449.hardwaremanagers.drive.swerve
+package frc.team449.config
 
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.*
@@ -69,7 +69,7 @@ object SwerveConstants {
   const val DRIVE_GEARING = (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0)
   val DRIVE_UPR = 2 * PI * WHEEL_RADIUS
   const val TURN_UPR = 2 * PI
-  val MAX_ATTAINABLE_MK4I_SPEED = Units.feetToMeters(15.5) // (12 - DRIVE_KS) / DRIVE_KV
+  val MAX_ATTAINABLE_MK4I_SPEED = FeetPerSecond.of(15.5) // (12 - DRIVE_KS) / DRIVE_KV
 
   val DRIVE_SUPPLY_LIMIT = Amps.of(60.0)
   val DRIVE_STATOR_LIMIT = Amps.of(105.0)

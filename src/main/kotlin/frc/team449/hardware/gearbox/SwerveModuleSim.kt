@@ -7,7 +7,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition
 import edu.wpi.first.math.kinematics.SwerveModuleState
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.units.measure.Voltage
-import frc.team449.hardwaremanagers.drive.swerve.SwerveConstants
+import frc.team449.config.SwerveConstants
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation
 import org.ironmaple.simulation.motorsims.SimulatedMotorController
 import kotlin.math.PI

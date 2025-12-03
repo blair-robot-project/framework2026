@@ -14,12 +14,14 @@ import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.SwerveModulePosition
 import edu.wpi.first.math.kinematics.SwerveModuleState
 import edu.wpi.first.units.Units.Amps
+import edu.wpi.first.units.Units.Seconds
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.Timer
 import frc.team449.hardware.encoder.AbsoluteEncoder
 import frc.team449.hardware.encoder.Encoder
 import frc.team449.hardware.motor.createSparkMax
-import frc.team449.hardwaremanagers.drive.swerve.SwerveConstants
+import frc.team449.config.SwerveConstants
+import frc.team449.util.Clock
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.sign
@@ -259,8 +261,6 @@ class SwerveModuleSimKraken(
       )
 
   override fun update() {
-    val currTime = Timer.getFPGATimestamp()
-    drivePosition += driveVelocity * (currTime - prevTime)
-    prevTime = currTime
+    drivePosition += driveVelocity * Clock.deltaTime.`in`(Seconds)
   }
 }

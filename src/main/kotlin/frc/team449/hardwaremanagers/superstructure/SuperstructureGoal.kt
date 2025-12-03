@@ -1,6 +1,6 @@
 package frc.team449.hardwaremanagers.superstructure
 
-import frc.team449.hardwaremanagers.RobotConstants
+import frc.team449.config.RobotConstants
 import frc.team449.hardwaremanagers.drive.swerve.SwerveDrive
 
 object SuperstructureGoal {

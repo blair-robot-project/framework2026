@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.Command
 import frc.team449.auto.AutoConstants
 import frc.team449.hardwaremanagers.PoseSubsystem
-import frc.team449.hardwaremanagers.RobotConstants
+import frc.team449.config.RobotConstants
 import frc.team449.hardwaremanagers.drive.swerve.SwerveDrive
 import kotlin.math.PI
 import kotlin.math.hypot

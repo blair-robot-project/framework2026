@@ -9,7 +9,7 @@ import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N3
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.smartdashboard.Field2d
-import frc.team449.hardwaremanagers.VisionConstants
+import frc.team449.config.VisionConstants
 import frc.team449.hardwaremanagers.vision.ReefOnlyEstimator
 import org.photonvision.EstimatedRobotPose
 import org.photonvision.PhotonCamera

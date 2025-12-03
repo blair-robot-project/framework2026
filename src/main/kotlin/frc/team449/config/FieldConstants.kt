@@ -1,4 +1,4 @@
-package frc.team449.hardwaremanagers
+package frc.team449.config
 
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.geometry.Pose2d

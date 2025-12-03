@@ -1,9 +1,8 @@
-package frc.team449.hardwaremanagers
+package frc.team449.config
 
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.util.Units
-import frc.team449.hardwaremanagers.drive.swerve.SwerveConstants
 import kotlin.math.PI
 
 object RobotConstants {

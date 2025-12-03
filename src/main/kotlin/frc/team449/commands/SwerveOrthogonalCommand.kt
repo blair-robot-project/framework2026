@@ -14,8 +14,8 @@ import edu.wpi.first.wpilibj.XboxController
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.RunCommand
 import frc.team449.hardwaremanagers.PoseSubsystem
-import frc.team449.hardwaremanagers.RobotConstants
-import frc.team449.hardwaremanagers.drive.swerve.SwerveConstants
+import frc.team449.config.RobotConstants
+import frc.team449.config.SwerveConstants
 import frc.team449.hardwaremanagers.drive.swerve.SwerveDrive
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.*

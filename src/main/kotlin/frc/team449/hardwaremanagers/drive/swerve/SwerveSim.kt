@@ -5,8 +5,8 @@ import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry
 import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.networktables.StructPublisher
+import edu.wpi.first.units.measure.LinearVelocity
 import edu.wpi.first.wpilibj.Timer.getFPGATimestamp
-import edu.wpi.first.wpilibj.smartdashboard.Field2d
 import frc.team449.hardware.gearbox.SwerveModule
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
 
@@ -15,13 +15,9 @@ class SwerveSim(
   frontRightModule: SwerveModule,
   backLeftModule: SwerveModule,
   backRightModule: SwerveModule,
-  maxLinearSpeed: Double,
-  accel: Double,
-  maxRotSpeed: Double,
-  field: Field2d,
-  maxModuleSpeed: Double,
+  maxModuleSpeed: LinearVelocity,
   var driveSim: SwerveDriveSimulation
-) : SwerveDrive(frontLeftModule, frontRightModule, backLeftModule, backRightModule, maxLinearSpeed, accel, maxRotSpeed, field, maxModuleSpeed) {
+) : SwerveDrive(frontLeftModule, frontRightModule, backLeftModule, backRightModule, maxModuleSpeed) {
 
   private var lastTime = getFPGATimestamp()
   var currHeading = Rotation2d()

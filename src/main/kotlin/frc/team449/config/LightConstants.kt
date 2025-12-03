@@ -1,4 +1,4 @@
-package frc.team449.hardware.light
+package frc.team449.config
 
 object LightConstants {
   const val LIGHT_PORT: Int = 9

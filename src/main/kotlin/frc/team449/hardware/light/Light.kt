@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.LEDPattern.GradientType
 import edu.wpi.first.wpilibj.util.Color
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import frc.team449.config.LightConstants
 import java.util.function.DoubleSupplier
 
 /**
@@ -106,7 +107,7 @@ class Light(
   }
 
   companion object {
-    /** Create an LED strip controller using [LightConstants]. */
+    /** Create an LED strip controller using [frc.team449.config.LightConstants]. */
     fun createLight(): Light {
       return Light(
         LightConstants.LIGHT_PORT,

@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers
 import frc.team449.auto.Routines
-import frc.team449.hardwaremanagers.VisionConstants
+import frc.team449.config.VisionConstants
 import frc.team449.hardwaremanagers.drive.swerve.SwerveSim
 import frc.team449.hardwaremanagers.superstructure.SuperstructureGoal
 import frc.team449.sim.Scoreboard

@@ -4,10 +4,11 @@ import edu.wpi.first.math.filter.SlewRateLimiter
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds
+import edu.wpi.first.units.Units.MetersPerSecond
 import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.InstantCommand
-import frc.team449.hardwaremanagers.RobotConstants
+import frc.team449.config.RobotConstants
 import frc.team449.hardwaremanagers.drive.differential.DifferentialDrive
 
 /**
@@ -99,9 +100,9 @@ object DifferentialOIs {
   ): Command = InstantCommand({
     drive.kinematics.toChassisSpeeds(
       DifferentialDriveWheelSpeeds(
-        leftRamp.calculate(leftThrottle() * RobotConstants.MAX_LINEAR_SPEED),
+        leftRamp.calculate(leftThrottle() * RobotConstants.MAX_LINEAR_SPEED.`in`(MetersPerSecond)),
         rightRamp.calculate(
-          rightThrottle() * RobotConstants.MAX_LINEAR_SPEED
+          rightThrottle() * RobotConstants.MAX_LINEAR_SPEED.`in`(MetersPerSecond)
         )
       )
     )
@@ -128,8 +129,8 @@ object DifferentialOIs {
     ramp: SlewRateLimiter,
     rotRamp: SlewRateLimiter
   ): ChassisSpeeds {
-    val leftVel = wheelThrottles.left * RobotConstants.MAX_LINEAR_SPEED
-    val rightVel = wheelThrottles.right * RobotConstants.MAX_LINEAR_SPEED
+    val leftVel = RobotConstants.MAX_LINEAR_SPEED.times(wheelThrottles.left)
+    val rightVel = RobotConstants.MAX_LINEAR_SPEED.times(wheelThrottles.right)
     val chassisSpeeds = kinematics.toChassisSpeeds(
       DifferentialDriveWheelSpeeds(leftVel, rightVel)
     )

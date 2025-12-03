@@ -9,11 +9,12 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import frc.team449.config.DifferentialConstants
 import frc.team449.hardware.AHRS
 import frc.team449.hardware.encoder.Encoder
 import frc.team449.hardware.encoder.QuadEncoder
 import frc.team449.hardware.motor.createSparkMax
-import frc.team449.hardwaremanagers.RobotConstants
+import frc.team449.config.RobotConstants
 import frc.team449.hardwaremanagers.drive.DriveSubsystem
 
 /**
@@ -114,7 +115,7 @@ open class DifferentialDrive(
   }
 
   companion object {
-    /** Create a [DifferentialDrive] using [DifferentialConstants]. */
+    /** Create a [DifferentialDrive] using [frc.team449.config.DifferentialConstants]. */
     fun createDifferentialDrive(ahrs: AHRS): DifferentialDrive {
       return DifferentialDrive(
         createSparkMax(
