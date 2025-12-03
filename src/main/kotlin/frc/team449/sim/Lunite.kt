@@ -1,5 +1,6 @@
 package frc.team449.sim
 
+import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.geometry.Translation3d
@@ -23,8 +24,7 @@ import org.ironmaple.utils.FieldMirroringUtils
 /**
  * Creates a flying Lunite Football
  * @param robotPosition Position of the robot, relative to the field
- * @param relativeShooterPosition Position of the shooter, relative to the robot
- * @param
+ * @param shooterPositionOnRobot Position of the shooter, relative to the robot
  */
 class Lunite (
   robotPosition: Translation2d ,
@@ -68,6 +68,11 @@ class Lunite (
           angle
         )
       )
+    }
+
+    // Field Lunite
+    fun getLunite(initialPose: Pose2d): GamePieceOnFieldSimulation {
+      return GamePieceOnFieldSimulation(LUNITE_INFO, initialPose)
     }
   }
 
