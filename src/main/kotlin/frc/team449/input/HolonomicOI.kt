@@ -8,11 +8,14 @@ import edu.wpi.first.units.Units.MetersPerSecond
 import edu.wpi.first.units.Units.MetersPerSecondPerSecond
 import edu.wpi.first.units.Units.Radians
 import edu.wpi.first.units.Units.RadiansPerSecond
+import edu.wpi.first.units.Units.RadiansPerSecondPerSecond
 import edu.wpi.first.units.Units.Seconds
+import edu.wpi.first.units.measure.AngularAcceleration
 import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.LinearAcceleration
 import edu.wpi.first.units.measure.LinearVelocity
 import frc.team449.config.RobotConstants
+import frc.team449.config.SwerveConstants
 import frc.team449.util.Clock
 import kotlin.math.hypot
 
@@ -30,13 +33,13 @@ import kotlin.math.hypot
  * @param maxAccel Max desired drive acceleration (Unit agnostic), used for scaling speed
  * be relative to the field rather than relative to the robot. This better be true.
  */
-class HolonomicOI(
-  private val rotRamp: SlewRateLimiter,
-  private val maxLinearSpeed: LinearVelocity,
-  private val maxRotationalSpeed: AngularVelocity,
-  private val maxAccel: LinearAcceleration
+class HolonomicOI(rotationRateLimit: AngularAcceleration,
+  val maxLinearSpeed: LinearVelocity,
+  val maxRotationalSpeed: AngularVelocity,
+  val maxAccel: LinearAcceleration
 ) {
 
+  private val rotRamp = SlewRateLimiter(rotationRateLimit.`in`(RadiansPerSecondPerSecond))
   private var xVelocity = Meters.per(Seconds).mutable(0.0)
   private var yVelocity = Meters.per(Seconds).mutable(0.0)
   private var rotationVelocity = Radians.per(Seconds).mutable(0.0)
@@ -53,37 +56,58 @@ class HolonomicOI(
   fun calculate(prevChassisCommand: ChassisSpeeds, xThrottle: Double, yThrottle: Double, rotThrottle: Double): ChassisSpeeds {
     val dt = Clock.deltaTime.`in`(Seconds)
 
-    // Deadband axes
-    val xRoundedScalar = MathUtil.applyDeadband(xThrottle, RobotConstants.DRIVE_RADIUS_DEADBAND)
-    val yRoundedScalar = MathUtil.applyDeadband(yThrottle, RobotConstants.DRIVE_RADIUS_DEADBAND)
-    val rotRoundedScalar = MathUtil.applyDeadband(rotThrottle, RobotConstants.ROTATION_DEADBAND)
+    // Polar conversion
+    val ctrlRadius =
+      MathUtil
+        .applyDeadband(
+          min(sqrt(xThrottle.pow(2) + yThrottle.pow(2)), 1.0),
+          RobotConstants.DRIVE_RADIUS_DEADBAND,
+          1.0,
+        ).pow(SwerveConstants.JOYSTICK_FILTER_ORDER)
+    val ctrlTheta = atan2(xThrottle, yThrottle)
 
-    // Normalize axes (convert units to expected)
-    val xScaled = xRoundedScalar * maxLinearSpeed.`in`(MetersPerSecond)
-    val yScaled = yRoundedScalar * maxLinearSpeed.`in`(MetersPerSecond)
-    val rotScaled = rotRoundedScalar * maxRotationalSpeed.`in`(RadiansPerSecond)
-
-    // Calculate and clamp the desired acceleration
-    val dx = xScaled - prevChassisCommand.vxMetersPerSecond
-    val dy = yScaled - prevChassisCommand.vyMetersPerSecond
-    val accelerationMagnitude = hypot(dx / dt, dy / dt)
-    val magAccClamped = MathUtil.clamp(
-      accelerationMagnitude,
-      -this.maxAccel.`in`(MetersPerSecondPerSecond),
-      this.maxAccel.`in`(MetersPerSecondPerSecond)
+    // Normalize axes and ease rotation (convert units to expected)
+    val xScaled = ctrlRadius * cos(ctrlTheta) * maxLinearSpeed.`in`(MetersPerSecond)
+    val yScaled = ctrlRadius * sin(ctrlTheta) * maxLinearSpeed.`in`(MetersPerSecond)
+    val rotScaled = rotRamp.calculate(
+      min(
+        MathUtil.applyDeadband(
+          abs(rotThrottle).pow(SwerveConstants.ROT_FILTER_ORDER),
+          RobotConstants.ROTATION_DEADBAND,
+          1.0,
+        ),
+        1.0,
+      ) * -sign(rotThrottle) * maxRotationalSpeed.`in`(RadiansPerSecond),
     )
 
-    // Scale the change in x and y the same way the acceleration would scale
-    val factor = if (accelerationMagnitude == 0.0) 0.0 else magAccClamped / accelerationMagnitude
-    val dxClamped = dx * factor
-    val dyClamped = dy * factor
+    if (RobotConstants.USE_ACCEL_LIMIT) {
+      // Calculate and clamp the desired acceleration
+      val dx = xScaled - prevChassisCommand.vxMetersPerSecond
+      val dy = yScaled - prevChassisCommand.vyMetersPerSecond
+      val accelerationMagnitude = hypot(dx / dt, dy / dt)
+      val magAccClamped = MathUtil.clamp(
+        accelerationMagnitude,
+        -this.maxAccel.`in`(MetersPerSecondPerSecond),
+        this.maxAccel.`in`(MetersPerSecondPerSecond)
+      )
 
-    // Ease rotation
-    val easedRotation = rotRamp.calculate(rotScaled)
+      // Scale the change in x and y the same way the acceleration would scale
+      val factor = if (accelerationMagnitude == 0.0) 0.0 else magAccClamped / accelerationMagnitude
+      val dxClamped = dx * factor
+      val dyClamped = dy * factor
 
-    xVelocity.mut_replace(MetersPerSecond.of(prevChassisCommand.vxMetersPerSecond + dxClamped))
-    yVelocity.mut_replace(MetersPerSecond.of(prevChassisCommand.vyMetersPerSecond + dyClamped))
-    rotationVelocity.mut_replace(RadiansPerSecond.of(easedRotation))
+      xVelocity.mut_replace(MetersPerSecond.of(prevChassisCommand.vxMetersPerSecond + dxClamped))
+      yVelocity.mut_replace(MetersPerSecond.of(prevChassisCommand.vyMetersPerSecond + dyClamped))
+    } else {
+      xVelocity.mut_replace(MetersPerSecond.of(xScaled))
+      yVelocity.mut_replace(MetersPerSecond.of(yScaled))
+    }
+    rotationVelocity.mut_replace(RadiansPerSecond.of(rotScaled))
+
+    /** Quick fix for the velocity skewing towards the direction of rotation
+     * by rotating it with offset proportional to how much we are rotating
+     **/
+//    vel.rotateBy(Rotation2d(-rotScaled * dt * skewConstant))
 
     return ChassisSpeeds(
       xVelocity,

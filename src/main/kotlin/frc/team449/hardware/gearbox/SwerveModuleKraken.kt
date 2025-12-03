@@ -17,10 +17,10 @@ import edu.wpi.first.units.Units.Amps
 import edu.wpi.first.units.Units.Seconds
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.Timer
+import frc.team449.config.SwerveConstants
 import frc.team449.hardware.encoder.AbsoluteEncoder
 import frc.team449.hardware.encoder.Encoder
 import frc.team449.hardware.motor.createSparkMax
-import frc.team449.config.SwerveConstants
 import frc.team449.util.Clock
 import kotlin.math.PI
 import kotlin.math.abs

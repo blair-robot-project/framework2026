@@ -9,12 +9,12 @@ import edu.wpi.first.math.kinematics.SwerveModuleState
 import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.units.measure.LinearVelocity
 import edu.wpi.first.wpilibj2.command.SubsystemBase
+import frc.team449.config.RobotConstants
+import frc.team449.config.SwerveConstants
 import frc.team449.hardware.gearbox.SwerveModule
 import frc.team449.hardware.gearbox.SwerveModuleKraken.Companion.createKrakenModule
 import frc.team449.hardware.gearbox.SwerveModuleNEO.Companion.createNEOModule
 import frc.team449.hardware.gearbox.SwerveModuleSim.Companion.createModuleSim
-import frc.team449.config.RobotConstants
-import frc.team449.config.SwerveConstants
 import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig
@@ -263,13 +263,13 @@ open class SwerveDrive(
       )
     }
 
-    fun createSwerveSim(module: SwerveModuleSimulationConfig): SwerveDrive {
+    fun createSwerveSim(): SwerveDrive {
       val driveSim: SwerveDriveSimulation = SwerveDriveSimulation(
         DriveTrainSimulationConfig.Default()
           .withTrackLengthTrackWidth(
             Meters.of(SwerveConstants.TRACKWIDTH),
             Meters.of(SwerveConstants.WHEELBASE)
-          ).withSwerveModule(module),
+          ).withSwerveModule(RobotConstants.MODULE_SIMULATION),
         RobotConstants.INITIAL_POSE
       )
       SimulatedArena.getInstance().addDriveTrainSimulation(driveSim)

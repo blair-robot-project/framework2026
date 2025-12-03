@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism
-import frc.team449.commands.WheelRadiusCharacterization
+import frc.team449.commands.drive.WheelRadiusCharacterization
 import frc.team449.config.RobotConstants
 import frc.team449.hardwaremanagers.drive.swerve.SwerveSim
 import frc.team449.hardwaremanagers.superstructure.SuperstructureGoal

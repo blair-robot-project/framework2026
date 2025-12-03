@@ -1,15 +1,16 @@
-package frc.team449.commands.driveAlign
+package frc.team449.commands.drive
 
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.trajectory.TrapezoidProfile
+import edu.wpi.first.units.Units.MetersPerSecond
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.Command
 import frc.team449.auto.AutoConstants
-import frc.team449.hardwaremanagers.PoseSubsystem
 import frc.team449.config.RobotConstants
+import frc.team449.hardwaremanagers.PoseSubsystem
 import frc.team449.hardwaremanagers.drive.swerve.SwerveDrive
 import kotlin.math.PI
 import kotlin.math.hypot
@@ -43,8 +44,8 @@ class ProfiledPoseAlign(
     0.0,
     0.0
   ),
-  private val xProfile: TrapezoidProfile = TrapezoidProfile(TrapezoidProfile.Constraints(RobotConstants.MAX_LINEAR_SPEED - 1.25, 2.25)),
-  private val yProfile: TrapezoidProfile = TrapezoidProfile(TrapezoidProfile.Constraints(RobotConstants.MAX_LINEAR_SPEED - 1.25, 2.25)),
+  private val xProfile: TrapezoidProfile = TrapezoidProfile(TrapezoidProfile.Constraints(RobotConstants.MAX_LINEAR_SPEED.`in`(MetersPerSecond) - 1.25, 2.25)),
+  private val yProfile: TrapezoidProfile = TrapezoidProfile(TrapezoidProfile.Constraints(RobotConstants.MAX_LINEAR_SPEED.`in`(MetersPerSecond) - 1.25, 2.25)),
   private val tolerance: Pose2d = Pose2d(0.05, 0.05, Rotation2d(0.05)),
   private val speedTol: Double = 0.05,
   private val speedTolRot: Double = 0.05
