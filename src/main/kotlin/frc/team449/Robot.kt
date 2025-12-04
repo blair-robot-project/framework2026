@@ -2,6 +2,7 @@ package frc.team449
 
 import choreo.auto.AutoChooser
 import choreo.auto.AutoFactory
+import choreo.trajectory.SwerveSample
 import edu.wpi.first.epilogue.Logged
 import edu.wpi.first.epilogue.NotLogged
 import edu.wpi.first.math.geometry.Translation3d
@@ -14,8 +15,8 @@ import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
+import frc.team449.commands.drive.AutoPoseToPose
 import frc.team449.commands.drive.SwerveDriveCommand
-import frc.team449.commands.drive.WheelRadiusCharacterization
 import frc.team449.config.RobotConstants
 import frc.team449.hardwaremanagers.PoseSubsystem
 import frc.team449.hardwaremanagers.PoseSubsystem.Companion.createPoseSubsystem
@@ -52,10 +53,11 @@ object Robot {
   @get:NotLogged
   val driveCommand: SwerveDriveCommand = SwerveDriveCommand(drive, poseSubsystem, driveController.hid, holonomicOi, RobotConstants.FIELD_RELATIVE_ENABLED)
 
+  
   val autoFactory = AutoFactory(
     poseSubsystem::pose,
     poseSubsystem::resetOdometry,
-    drive::followTrajectory,
+    { sample: SwerveSample ->  drive.set(AutoPoseToPose.calculate(poseSubsystem.pose, sample.pose))},
     true,
     drive
   )
