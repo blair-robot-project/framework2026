@@ -18,9 +18,6 @@ import frc.team449.control.vision.ApriltagCamera
 import frc.team449.hardware.AHRS
 import frc.team449.hardwaremanagers.drive.swerve.SwerveDrive
 import frc.team449.hardwaremanagers.drive.swerve.SwerveSim
-import kotlin.Array.get
-import kotlin.DoubleArray.get
-import kotlin.LongArray.get
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.pow
@@ -28,13 +25,13 @@ import kotlin.math.sqrt
 
 @Logged
 class PoseSubsystem(
-  private val ahrs: AHRS,
   private val cameras: List<ApriltagCamera> = mutableListOf(),
   @NotLogged
-  private val drive: SwerveDrive,
-  @NotLogged
-  private val field: Field2d
+  private val drive: SwerveDrive
 ) : SubsystemBase() {
+
+  private val ahrs: AHRS = AHRS()
+  private val field: Field2d = Field2d()
 
   private val isReal = RobotBase.isReal()
 
@@ -160,8 +157,6 @@ class PoseSubsystem(
             inHeightTolerance
           ) {
             if (enableVisionFusion) {
-//              val interpolatedPose = InterpolatedVision.interpolatePose(estVisionPose, index)
-
               poseEstimator.addVisionMeasurement(
                 estVisionPose,
                 presentResult.timestampSeconds,
@@ -242,12 +237,10 @@ class PoseSubsystem(
   }
 
   companion object {
-    fun createPoseSubsystem(ahrs: AHRS, drive: SwerveDrive, field: Field2d): PoseSubsystem {
+    fun createPoseSubsystem(drive: SwerveDrive): PoseSubsystem {
       return PoseSubsystem(
-        ahrs,
         VisionConstants.ESTIMATORS,
         drive,
-        field
       )
     }
   }

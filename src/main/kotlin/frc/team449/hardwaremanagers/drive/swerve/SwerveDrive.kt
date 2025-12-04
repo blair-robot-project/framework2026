@@ -1,5 +1,6 @@
 package frc.team449.hardwaremanagers.drive.swerve
 
+import choreo.trajectory.SwerveSample
 import edu.wpi.first.epilogue.Logged
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
@@ -18,7 +19,6 @@ import frc.team449.hardware.gearbox.SwerveModuleSim.Companion.createModuleSim
 import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig
-import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig
 
 /**
  * A Swerve Drive chassis.
@@ -69,6 +69,10 @@ open class SwerveDrive(
     frontRightModule.state = desiredModuleStates[1]
     backLeftModule.state = desiredModuleStates[2]
     backRightModule.state = desiredModuleStates[3]
+  }
+
+  fun followTrajectory(swerveSample: SwerveSample) {
+    // todo, hmmmmm I don't like the idea of throwing an entire trajectory controller in here since this class should exclusively be for controlling the gearboxes
   }
 
   fun setVoltage(volts: Double) {

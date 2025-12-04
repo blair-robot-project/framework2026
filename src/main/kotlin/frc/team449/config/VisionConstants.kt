@@ -103,13 +103,6 @@ object VisionConstants {
       back_right,
       VISION_SIM
     )
-//    ApriltagCamera(
-//      "Camera_03",
-//      TAG_LAYOUT,
-//      testTrans,
-//      VISION_SIM
-//    )
-
   )
 
   val ENCODER_TRUST: Matrix<N3, N1> = MatBuilder.fill(Nat.N3(), Nat.N1(), .125, .125, .0075)

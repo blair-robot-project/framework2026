@@ -17,7 +17,15 @@ import edu.wpi.first.units.measure.LinearVelocity
 import frc.team449.config.RobotConstants
 import frc.team449.config.SwerveConstants
 import frc.team449.util.Clock
+import kotlin.math.abs
+import kotlin.math.atan2
+import kotlin.math.cos
 import kotlin.math.hypot
+import kotlin.math.min
+import kotlin.math.pow
+import kotlin.math.sign
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 /**
  * Create an OI for controlling a holonomic drivetrain (probably swerve).
@@ -33,10 +41,11 @@ import kotlin.math.hypot
  * @param maxAccel Max desired drive acceleration (Unit agnostic), used for scaling speed
  * be relative to the field rather than relative to the robot. This better be true.
  */
-class HolonomicOI(rotationRateLimit: AngularAcceleration,
-  val maxLinearSpeed: LinearVelocity,
-  val maxRotationalSpeed: AngularVelocity,
-  val maxAccel: LinearAcceleration
+class HolonomicOI(
+  rotationRateLimit: AngularAcceleration,
+  var maxLinearSpeed: LinearVelocity,
+  var maxRotationalSpeed: AngularVelocity,
+  var maxAccel: LinearAcceleration
 ) {
 
   private val rotRamp = SlewRateLimiter(rotationRateLimit.`in`(RadiansPerSecondPerSecond))
@@ -103,7 +112,6 @@ class HolonomicOI(rotationRateLimit: AngularAcceleration,
       yVelocity.mut_replace(MetersPerSecond.of(yScaled))
     }
     rotationVelocity.mut_replace(RadiansPerSecond.of(rotScaled))
-
 
     return ChassisSpeeds(
       xVelocity,

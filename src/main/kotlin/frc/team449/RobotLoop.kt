@@ -13,12 +13,10 @@ import edu.wpi.first.units.Units.*
 import edu.wpi.first.wpilibj.*
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.CommandScheduler
-import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers
 import frc.team449.auto.Routines
 import frc.team449.config.VisionConstants
 import frc.team449.hardwaremanagers.drive.swerve.SwerveSim
-import frc.team449.hardwaremanagers.superstructure.SuperstructureGoal
 import frc.team449.sim.Scoreboard
 import frc.team449.util.Clock
 import org.ironmaple.simulation.SimulatedArena
@@ -31,9 +29,6 @@ import kotlin.math.*
 class RobotLoop : TimedRobot() {
   private val robot = Robot
   private val clock = Clock
-  val routines = Routines(robot)
-
-  private val controllerBinder = ControllerBindings(robot.driveController, robot.mechController, robot.characController, robot.testController, robot)
 
   override fun robotInit() {
     CanBridge.runTCP()
@@ -46,23 +41,10 @@ class RobotLoop : TimedRobot() {
     // Don't complain about joysticks if there aren't going to be any
     DriverStation.silenceJoystickConnectionWarning(true)
 
-    // Generate Auto Routines
-    println("Generating Auto Routines : ${Timer.getFPGATimestamp()}")
-
-    // Adds Auto Routines to Auto Chooser
-    routines.addOptions(robot.autoChooser)
-
-    // Adds Auto Selection into Smart Dashboard
-    SmartDashboard.putData("Auto Chooser", robot.autoChooser)
-
-    // While in Autonomous Period, run the selected auto until autos are over, then cancel command.
-    RobotModeTriggers.autonomous().whileTrue(robot.autoChooser.selectedCommandScheduler())
-    println("DONE Generating Auto Routines : ${Timer.getFPGATimestamp()}")
     SmartDashboard.putData("Command Scheduler", CommandScheduler.getInstance())
 
-    controllerBinder.bindButtons()
-
-    SmartDashboard.putData("Field", robot.field)
+    // todo, should this be happening here?
+    SmartDashboard.putData("Field", robot.poseSubsystem.field)
 
     // CTRE Logger
     SignalLogger.setPath("/media/sda1/ctre-logs/")
@@ -72,6 +54,8 @@ class RobotLoop : TimedRobot() {
 
     DataLogManager.start()
     Epilogue.bind(this)
+
+    robot.robotInit()
   }
 
   override fun driverStationConnected() {
@@ -85,26 +69,15 @@ class RobotLoop : TimedRobot() {
     robot.field.getObject("bumpers").pose = robot.poseSubsystem.pose
   }
 
-  override fun autonomousInit() {
-    /** Every time auto starts, we update the chosen auto command. */
-  }
+  override fun autonomousInit() {}
 
   override fun autonomousPeriodic() {}
 
-  override fun teleopInit() {
-    robot.superstructureManager.requestGoal(SuperstructureGoal.STOW).schedule()
+  override fun teleopInit() {}
 
-    (robot.light.currentCommand ?: InstantCommand()).cancel()
+  override fun teleopPeriodic() {}
 
-    robot.drive.defaultCommand = robot.driveCommand
-  }
-
-  override fun teleopPeriodic() {
-  }
-
-  override fun disabledInit() {
-    robot.drive.stop()
-  }
+  override fun disabledInit() {}
 
   override fun disabledPeriodic() {}
 
@@ -125,8 +98,6 @@ class RobotLoop : TimedRobot() {
 
     val lunitePoses: Array<Pose3d> = SimulatedArena.getInstance().getGamePiecesArrayByType("Lunite")
     lunites.set(lunitePoses)
-
-    RobotVisual.update()
 
     // Superstructure Simulation
     robot.drive as SwerveSim
