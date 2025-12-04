@@ -94,8 +94,11 @@ class SwerveDriveCommand(
 
     // hijack velocity (apply skew compensation)
     val skew: Rotation2d = Rotation2d(newChassisSpeeds.omegaRadiansPerSecond * Clock.deltaTime.`in`(Seconds) * SwerveConstants.SKEW_CONSTANT)
-    newChassisSpeeds.vxMetersPerSecond *= skew.cos
-    newChassisSpeeds.vyMetersPerSecond *= skew.sin
+    val skewedX = newChassisSpeeds.vxMetersPerSecond * skew.cos - newChassisSpeeds.vyMetersPerSecond * skew.sin
+    val skewedY = newChassisSpeeds.vxMetersPerSecond * skew.sin + newChassisSpeeds.vyMetersPerSecond * skew.cos
+
+    newChassisSpeeds.vxMetersPerSecond = skewedX
+    newChassisSpeeds.vyMetersPerSecond = skewedY
 
     // hijack rotation
     if (headingLock) {

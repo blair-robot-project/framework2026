@@ -104,10 +104,6 @@ class HolonomicOI(rotationRateLimit: AngularAcceleration,
     }
     rotationVelocity.mut_replace(RadiansPerSecond.of(rotScaled))
 
-    /** Quick fix for the velocity skewing towards the direction of rotation
-     * by rotating it with offset proportional to how much we are rotating
-     **/
-//    vel.rotateBy(Rotation2d(-rotScaled * dt * skewConstant))
 
     return ChassisSpeeds(
       xVelocity,
