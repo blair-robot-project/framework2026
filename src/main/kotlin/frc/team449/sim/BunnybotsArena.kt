@@ -14,7 +14,7 @@ class BunnybotsArena() : SimulatedArena(BunnybotsFieldMap()) {
       // Coordinates are relative to bottom left of field, with blue on the left
 
       // AdvantageScope Model Offset
-      val offset = Translation2d(0.673100/2+0.088900, -0.431800/2+0.088900)
+      val offset = Translation2d(0.673100/2+0.088900*1.5, -0.431800/2+0.088900/2)
 
       // Bottom Wall
       super.addBorderLine(
