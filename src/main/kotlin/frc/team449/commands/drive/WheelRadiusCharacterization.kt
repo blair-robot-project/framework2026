@@ -4,6 +4,7 @@ import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.filter.SlewRateLimiter
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.math.util.Units
+import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.wpilibj2.command.Command
 import frc.team449.config.SwerveConstants
 import frc.team449.hardwaremanagers.PoseSubsystem
@@ -67,7 +68,7 @@ class WheelRadiusCharacterization(
 
     averageWheelPosition /= 4.0
 
-    val driveRadius = hypot(SwerveConstants.WHEELBASE, SwerveConstants.TRACKWIDTH) / 2.0
+    val driveRadius = hypot(SwerveConstants.WHEELBASE.`in`(Meters), SwerveConstants.TRACKWIDTH.`in`(Meters)) / 2.0
 
     currentEffectiveWheelRadius = (accumGyroYawRads * driveRadius) / averageWheelPosition
   }

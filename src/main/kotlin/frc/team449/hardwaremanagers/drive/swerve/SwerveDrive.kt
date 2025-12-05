@@ -146,8 +146,8 @@ open class SwerveDrive(
         SwerveConstants.TURN_ENC_OFFSET_FL,
         SwerveConstants.TURN_ENC_INVERTED,
         Translation2d(
-          SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
-          SwerveConstants.TRACKWIDTH / 2
+          SwerveConstants.WHEELBASE.`in`(Meters) / 2 - SwerveConstants.X_SHIFT,
+          SwerveConstants.TRACKWIDTH.`in`(Meters) / 2
         )
       )
       val frontRightModule = createKrakenModule(
@@ -160,8 +160,8 @@ open class SwerveDrive(
         SwerveConstants.TURN_ENC_OFFSET_FR,
         SwerveConstants.TURN_ENC_INVERTED,
         Translation2d(
-          SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
-          -SwerveConstants.TRACKWIDTH / 2
+          SwerveConstants.WHEELBASE.`in`(Meters) / 2 - SwerveConstants.X_SHIFT,
+          -SwerveConstants.TRACKWIDTH.`in`(Meters) / 2
         )
       )
       val backLeftModule = createKrakenModule(
@@ -174,8 +174,8 @@ open class SwerveDrive(
         SwerveConstants.TURN_ENC_OFFSET_BL,
         SwerveConstants.TURN_ENC_INVERTED,
         Translation2d(
-          -SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
-          SwerveConstants.TRACKWIDTH / 2
+          -SwerveConstants.WHEELBASE.`in`(Meters) / 2 - SwerveConstants.X_SHIFT,
+          SwerveConstants.TRACKWIDTH.`in`(Meters) / 2
         )
       )
       val backRightModule = createKrakenModule(
@@ -188,8 +188,8 @@ open class SwerveDrive(
         SwerveConstants.TURN_ENC_OFFSET_BR,
         SwerveConstants.TURN_ENC_INVERTED,
         Translation2d(
-          -SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
-          -SwerveConstants.TRACKWIDTH / 2
+          -SwerveConstants.WHEELBASE.`in`(Meters) / 2 - SwerveConstants.X_SHIFT,
+          -SwerveConstants.TRACKWIDTH.`in`(Meters) / 2
         )
       )
       return SwerveDrive(
@@ -212,8 +212,8 @@ open class SwerveDrive(
         SwerveConstants.TURN_ENC_OFFSET_FL,
         SwerveConstants.TURN_ENC_INVERTED,
         Translation2d(
-          SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
-          SwerveConstants.TRACKWIDTH / 2
+          SwerveConstants.WHEELBASE.`in`(Meters) / 2 - SwerveConstants.X_SHIFT,
+          SwerveConstants.TRACKWIDTH.`in`(Meters) / 2
         )
       )
       val frontRightModule = createNEOModule(
@@ -226,8 +226,8 @@ open class SwerveDrive(
         SwerveConstants.TURN_ENC_OFFSET_FR,
         SwerveConstants.TURN_ENC_INVERTED,
         Translation2d(
-          SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
-          -SwerveConstants.TRACKWIDTH / 2
+          SwerveConstants.WHEELBASE.`in`(Meters) / 2 - SwerveConstants.X_SHIFT,
+          -SwerveConstants.TRACKWIDTH.`in`(Meters) / 2
         )
       )
       val backLeftModule = createNEOModule(
@@ -240,8 +240,8 @@ open class SwerveDrive(
         SwerveConstants.TURN_ENC_OFFSET_BL,
         SwerveConstants.TURN_ENC_INVERTED,
         Translation2d(
-          -SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
-          SwerveConstants.TRACKWIDTH / 2
+          -SwerveConstants.WHEELBASE.`in`(Meters) / 2 - SwerveConstants.X_SHIFT,
+          SwerveConstants.TRACKWIDTH.`in`(Meters) / 2
         )
       )
       val backRightModule = createNEOModule(
@@ -254,8 +254,8 @@ open class SwerveDrive(
         SwerveConstants.TURN_ENC_OFFSET_BR,
         SwerveConstants.TURN_ENC_INVERTED,
         Translation2d(
-          -SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
-          -SwerveConstants.TRACKWIDTH / 2
+          -SwerveConstants.WHEELBASE.`in`(Meters) / 2 - SwerveConstants.X_SHIFT,
+          -SwerveConstants.TRACKWIDTH.`in`(Meters) / 2
         )
       )
       return SwerveDrive(
@@ -271,8 +271,8 @@ open class SwerveDrive(
       val driveSim: SwerveDriveSimulation = SwerveDriveSimulation(
         DriveTrainSimulationConfig.Default()
           .withTrackLengthTrackWidth(
-            Meters.of(SwerveConstants.TRACKWIDTH),
-            Meters.of(SwerveConstants.WHEELBASE)
+            SwerveConstants.TRACKWIDTH,
+            SwerveConstants.WHEELBASE
           ).withSwerveModule(RobotConstants.MODULE_SIMULATION),
         RobotConstants.INITIAL_POSE
       )
@@ -281,32 +281,32 @@ open class SwerveDrive(
         "FLModule",
         driveSim.modules[0],
         Translation2d(
-          SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
-          SwerveConstants.TRACKWIDTH / 2
+          SwerveConstants.WHEELBASE.`in`(Meters) / 2 - SwerveConstants.X_SHIFT,
+          SwerveConstants.TRACKWIDTH.`in`(Meters) / 2
         )
       )
       val frontRightModule = createModuleSim(
         "FRModule",
         driveSim.modules[1],
         Translation2d(
-          SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
-          -SwerveConstants.TRACKWIDTH / 2
+          SwerveConstants.WHEELBASE.`in`(Meters) / 2 - SwerveConstants.X_SHIFT,
+          -SwerveConstants.TRACKWIDTH.`in`(Meters) / 2
         )
       )
       val backLeftModule = createModuleSim(
         "BLModule",
         driveSim.modules[2],
         Translation2d(
-          -SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
-          SwerveConstants.TRACKWIDTH / 2
+          -SwerveConstants.WHEELBASE.`in`(Meters) / 2 - SwerveConstants.X_SHIFT,
+          SwerveConstants.TRACKWIDTH.`in`(Meters) / 2
         )
       )
       val backRightModule = createModuleSim(
         "BLModule",
         driveSim.modules[3],
         Translation2d(
-          -SwerveConstants.WHEELBASE / 2 - SwerveConstants.X_SHIFT,
-          -SwerveConstants.TRACKWIDTH / 2
+          -SwerveConstants.WHEELBASE.`in`(Meters) / 2 - SwerveConstants.X_SHIFT,
+          -SwerveConstants.TRACKWIDTH.`in`(Meters) / 2
         )
       )
       return SwerveSim(

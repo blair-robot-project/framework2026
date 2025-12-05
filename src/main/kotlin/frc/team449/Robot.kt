@@ -33,7 +33,12 @@ object Robot {
   @get:NotLogged
   val poseSubsystem: PoseSubsystem = createPoseSubsystem(drive)
 
-  val holonomicOi: HolonomicOI = HolonomicOI(RobotConstants.ROT_RATE_LIMIT, RobotConstants.MAX_LINEAR_SPEED, RobotConstants.MAX_ROT_SPEED, RobotConstants.MAX_ACCEL)
+  val holonomicOi: HolonomicOI = HolonomicOI(
+    RobotConstants.ROT_RATE_LIMIT,
+    RobotConstants.MAX_LINEAR_SPEED,
+    RobotConstants.MAX_ROT_SPEED,
+    RobotConstants.MAX_ACCEL
+  )
 
   @get:NotLogged
   val driveCommand: SwerveDriveCommand = SwerveDriveCommand(drive, poseSubsystem, driveController.hid, holonomicOi, RobotConstants.FIELD_RELATIVE_ENABLED)
@@ -60,22 +65,22 @@ object Robot {
     }
   }
 
-  private fun bindCharacterizationController(controller: CommandXboxController, commands: Commands) {
+  private fun bindCharacterizationController(controller: CommandXboxController) {
     controller.leftTrigger().onTrue(
-      commands.wheelRadiusCharacterization()
+      Commands.wheelRadiusCharacterization()
     )
 
     controller.povUp().onTrue(
-      commands.driveCharacterization().quasistatic(SysIdRoutine.Direction.kForward),
+      Commands.driveCharacterization().quasistatic(SysIdRoutine.Direction.kForward),
     )
     controller.povDown().onTrue(
-      commands.driveCharacterization().quasistatic(SysIdRoutine.Direction.kReverse),
+      Commands.driveCharacterization().quasistatic(SysIdRoutine.Direction.kReverse),
     )
     controller.povRight().onTrue(
-      commands.driveCharacterization().dynamic(SysIdRoutine.Direction.kForward),
+      Commands.driveCharacterization().dynamic(SysIdRoutine.Direction.kForward),
     )
     controller.povLeft().onTrue(
-      commands.driveCharacterization().dynamic(SysIdRoutine.Direction.kReverse),
+      Commands.driveCharacterization().dynamic(SysIdRoutine.Direction.kReverse),
     )
   }
 

@@ -2,6 +2,8 @@ package frc.team449.hardware.encoder
 
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.filter.MedianFilter
+import edu.wpi.first.units.Units.Rotations
+import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.wpilibj.DutyCycleEncoder
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj.motorcontrol.MotorController
@@ -16,7 +18,7 @@ open class AbsoluteEncoder(
   private val enc: DutyCycleEncoder,
   unitPerRotation: Double,
   private val inverted: Boolean,
-  private var offset: Double,
+  private var offset: Angle,
   pollTime: Double = .02,
   samplesPerAverage: Int = 1,
   private val max: Double,
@@ -33,7 +35,7 @@ open class AbsoluteEncoder(
     return if (inverted) {
       filter.calculate(
         MathUtil.inputModulus(
-          1 - (enc.get() - offset),
+          1 - (enc.get() - offset.`in`(Rotations)),
           min,
           max
         )
@@ -41,7 +43,7 @@ open class AbsoluteEncoder(
     } else {
       filter.calculate(
         MathUtil.inputModulus(
-          (enc.get() - offset),
+          (enc.get() - offset.`in`(Rotations)),
           min,
           max
         )
@@ -51,7 +53,8 @@ open class AbsoluteEncoder(
   }
 
   override fun resetPosition(pos: Double) {
-    offset += getPositionNative() - pos
+    // TODO: gut this entire class
+    offset = offset.plus(Rotations.of(getPositionNative() - pos))
   }
 
   /** This returns the rotational velocity (on vertical axis) of the module */
@@ -89,7 +92,7 @@ open class AbsoluteEncoder(
      */
     fun <T : MotorController> creator(
       channel: Int,
-      offset: Double,
+      offset: Angle,
       unitPerRotation: Double,
       inverted: Boolean,
       max: Double = 0.5,
@@ -111,7 +114,7 @@ open class AbsoluteEncoder(
     fun createAbsoluteEncoder(
       name: String,
       channel: Int,
-      offset: Double,
+      offset: Angle,
       unitPerRotation: Double,
       inverted: Boolean,
       max: Double = 0.5,

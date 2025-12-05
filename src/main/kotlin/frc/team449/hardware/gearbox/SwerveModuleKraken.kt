@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition
 import edu.wpi.first.math.kinematics.SwerveModuleState
 import edu.wpi.first.units.Units.Amps
 import edu.wpi.first.units.Units.Seconds
+import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.Timer
 import frc.team449.config.SwerveConstants
@@ -129,7 +130,7 @@ open class SwerveModuleKraken(
       turnID: Int,
       turnInverted: Boolean,
       turnEncoderChannel: Int,
-      turnEncoderOffset: Double,
+      turnEncoderOffset: Angle,
       turnEncoderInverted: Boolean,
       location: Translation2d
     ): SwerveModuleKraken {

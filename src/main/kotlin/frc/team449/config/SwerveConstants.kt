@@ -2,6 +2,11 @@ package frc.team449.config
 
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.Units.*
+import edu.wpi.first.units.measure.Angle
+import edu.wpi.first.units.measure.Current
+import edu.wpi.first.units.measure.Distance
+import edu.wpi.first.units.measure.Frequency
+import edu.wpi.first.units.measure.LinearVelocity
 import kotlin.math.PI
 
 object SwerveConstants {
@@ -28,18 +33,10 @@ object SwerveConstants {
   const val TURN_ENC_CHAN_BR = 8
 
   /** Offsets for the absolute encoders in rotations. */
-  val TURN_ENC_OFFSET_FL =
-    Units.radiansToRotations(-1.9721847889188047) +
-      Units.radiansToRotations(-0.023566500800433245)
-  val TURN_ENC_OFFSET_FR =
-    Units.radiansToRotations(-1.3803421761481829) +
-      Units.radiansToRotations(-1.4175450743616982) + 0.5
-  val TURN_ENC_OFFSET_BL =
-    Units.radiansToRotations(-0.8920550992085665) +
-      Units.radiansToRotations(-1.9177244935091542 + 3.114585873128222)
-  val TURN_ENC_OFFSET_BR =
-    Units.radiansToRotations(-1.7617422152440068) +
-      Units.radiansToRotations(-2.2696186936648175 - 0.8904340373587881) + 0.5
+  val TURN_ENC_OFFSET_FL: Angle = Radians.of(-1.9721847889188047 + -0.023566500800433245)
+  val TURN_ENC_OFFSET_FR: Angle = Radians.of(-1.3803421761481829 + -1.4175450743616982).plus(Rotations.of(0.5))
+  val TURN_ENC_OFFSET_BL: Angle = Radians.of(-0.8920550992085665 + -1.9177244935091542 + 3.114585873128222)
+  val TURN_ENC_OFFSET_BR: Angle = Radians.of(-1.7617422152440068 + -2.2696186936648175 - 0.8904340373587881).plus(Rotations.of(0.5))
 
   /** Inverted */
   const val DRIVE_INVERTED = false
@@ -69,28 +66,29 @@ object SwerveConstants {
   const val DRIVE_GEARING = (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0)
   val DRIVE_UPR = 2 * PI * WHEEL_RADIUS
   const val TURN_UPR = 2 * PI
-  val MAX_ATTAINABLE_MK4I_SPEED = FeetPerSecond.of(15.5) // (12 - DRIVE_KS) / DRIVE_KV
+  val MAX_ATTAINABLE_MK4I_SPEED: LinearVelocity = FeetPerSecond.of(15.5) // (12 - DRIVE_KS) / DRIVE_KV
 
-  val DRIVE_SUPPLY_LIMIT = Amps.of(60.0)
-  val DRIVE_STATOR_LIMIT = Amps.of(105.0)
-  val STEERING_CURRENT_LIM = Amps.of(40.0)
+  val DRIVE_SUPPLY_LIMIT: Current = Amps.of(60.0)
+  val DRIVE_STATOR_LIMIT: Current = Amps.of(105.0)
+  val STEERING_CURRENT_LIM: Current = Amps.of(40.0)
 
-  val KRAKEN_UPDATE_RATE = Hertz.of(100.0)
-  val VALUE_UPDATE_RATE = Hertz.of(50.0)
+  val KRAKEN_UPDATE_RATE: Frequency = Hertz.of(100.0)
+  val VALUE_UPDATE_RATE: Frequency = Hertz.of(50.0)
 
   const val JOYSTICK_FILTER_ORDER = 2
   const val ROT_FILTER_ORDER = 1.25
   const val SKEW_CONSTANT = 15.5
 
   /** Wheelbase = wheel-to-wheel distance from front to back of the robot */
+  val WHEELBASE: Distance = Inches.of(27.0 - 5.25) // ex. FL to BL, aka 5.25in less than robot length
 
   /** Trackwidth = wheel-to-wheel distance from side to side of the robot */
-  val WHEELBASE = Units.inchesToMeters(27.0 - 5.25) // ex. FL to BL, aka 5.25in less than robot length
-  val TRACKWIDTH = Units.inchesToMeters(27.0 - 5.25) // ex. BL to BR, aka 5.25in less than robot width
+  val TRACKWIDTH: Distance = Inches.of(27.0 - 5.25) // ex. BL to BR, aka 5.25in less than robot width
+
   val X_SHIFT = 0.0 // ex. if your modules aren't centered and have a shifted wheelbase
 
   /** MapleSim Required Values */
   // TODO: Get Real Values
-  val WHEEL_COF: Double = 1.0
-  val GEAR_RATIO_LEVEL: Int = 1
+  const val WHEEL_COF: Double = 1.0
+  const val GEAR_RATIO_LEVEL: Int = 1
 }
