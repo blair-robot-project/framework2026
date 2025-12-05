@@ -5,6 +5,7 @@ import edu.wpi.first.epilogue.NotLogged
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator
 import edu.wpi.first.math.geometry.Pose2d
+import edu.wpi.first.math.geometry.Pose3d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.geometry.Transform2d
 import edu.wpi.first.math.geometry.Translation2d
@@ -31,7 +32,7 @@ class PoseSubsystem(
 ) : SubsystemBase() {
 
   private val ahrs: AHRS = AHRS()
-  private val field: Field2d = Field2d()
+  val field: Field2d = Field2d()
 
   private val isReal = RobotBase.isReal()
 
@@ -127,9 +128,10 @@ class PoseSubsystem(
           camHeightError[index] = abs(presentResult.estimatedPose.z)
 
           for (tag in presentResult.targetsUsed) {
-            val tagPose = camera.estimator.fieldTags.getTagPose(tag.fiducialId)
-            if (tagPose.isPresent) {
-              val estimatedToTag = presentResult.estimatedPose.minus(tagPose.get())
+            // TODO: put this back :(
+            val tagPose = Pose3d()
+            if (true) {
+              val estimatedToTag = presentResult.estimatedPose.minus(tagPose)
               avgTagDistance[index] += sqrt(estimatedToTag.x.pow(2) + estimatedToTag.y.pow(2)) / numTargets[index]
               avgAmbiguity[index] = tag.poseAmbiguity / numTargets[index]
             } else {
@@ -234,6 +236,8 @@ class PoseSubsystem(
         drive.getPositions()[0].angle
       )
     )
+
+    field.getObject("bumpers").pose = this.pose
   }
 
   companion object {

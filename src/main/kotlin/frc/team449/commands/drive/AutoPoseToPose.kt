@@ -84,5 +84,4 @@ object AutoPoseToPose {
       ) < speedTol.`in`(MetersPerSecond) &&
       currentSpeeds.omegaRadiansPerSecond < speedTolRot.`in`(RadiansPerSecond)
   }
-
 }

@@ -15,7 +15,6 @@ import frc.team449.hardware.AHRS
 import frc.team449.hardware.encoder.Encoder
 import frc.team449.hardware.encoder.QuadEncoder
 import frc.team449.hardware.motor.createSparkMax
-import frc.team449.hardwaremanagers.drive.DriveSubsystem
 
 /**
  * A differential drive (aka. tank drive).
@@ -35,7 +34,7 @@ open class DifferentialDrive(
   private val feedForward: DifferentialDriveFeedforward,
   private val makeSidePID: () -> PIDController,
   private val trackwidth: Double
-) : DriveSubsystem, SubsystemBase() {
+) : SubsystemBase() {
   init {
     leftEncoder.resetPosition(0.0)
     rightEncoder.resetPosition(0.0)
@@ -70,7 +69,7 @@ open class DifferentialDrive(
   private var rightVel = 0.0
 
   /** Calculate left and right side speeds from given [ChassisSpeeds]. */
-  override fun set(desiredSpeeds: ChassisSpeeds) {
+  fun set(desiredSpeeds: ChassisSpeeds) {
     prevWheelSpeeds = desiredWheelSpeeds
 
     prevLeftVel = desiredWheelSpeeds.leftMetersPerSecond
@@ -100,13 +99,13 @@ open class DifferentialDrive(
   }
 
   /** The (x, y, theta) position of the robot on the field. */
-  override var pose: Pose2d
+  open var pose: Pose2d
     get() = this.poseEstimator.estimatedPosition
     set(pose) {
       this.poseEstimator.resetPosition(ahrs.heading, leftEncoder.position, rightEncoder.position, pose)
     }
 
-  override fun stop() {
+  fun stop() {
     this.set(ChassisSpeeds(0.0, 0.0, 0.0))
   }
 

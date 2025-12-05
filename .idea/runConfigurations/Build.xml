@@ -10,7 +10,6 @@
       </option>
       <option name="taskNames">
         <list>
-          <option value="ktlintFormat" />
           <option value="build" />
         </list>
       </option>
@@ -20,6 +19,8 @@
     <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
     <DebugAllEnabled>false</DebugAllEnabled>
     <RunAsTest>false</RunAsTest>
-    <method v="2" />
+    <method v="2">
+      <option name="Gradle.BeforeRunTask" enabled="true" tasks="ktlintFormat" externalProjectPath="$PROJECT_DIR$" vmOptions="" scriptParameters="" />
+    </method>
   </configuration>
 </component>

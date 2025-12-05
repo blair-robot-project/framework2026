@@ -10,7 +10,6 @@ import edu.wpi.first.math.numbers.N3
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj.smartdashboard.Field2d
 import frc.team449.config.VisionConstants
-import frc.team449.hardwaremanagers.vision.ReefOnlyEstimator
 import org.photonvision.EstimatedRobotPose
 import org.photonvision.PhotonCamera
 import org.photonvision.simulation.PhotonCameraSim
@@ -28,9 +27,6 @@ class ApriltagCamera(
 ) {
 
   val cam = PhotonCamera(name)
-
-  // TODO: Update Estimator
-  val estimator = ReefOnlyEstimator(tagLayout, cam, robotToCam)
 
   private var lastEstTimestamp = 0.0
 
@@ -65,20 +61,20 @@ class ApriltagCamera(
     val poses = ArrayList<Optional<EstimatedRobotPose>>()
 
     for (result in results) {
-      val visionEst = estimator.updatePose(result, currPose)
+      val visionEst = Optional.empty<Integer>()
       val latestTimestamp = result.timestampSeconds
       val newResult = abs(latestTimestamp - lastEstTimestamp) > 1e-6
       if (RobotBase.isSimulation()) {
         visionEst.ifPresentOrElse(
           { est ->
-            getSimDebugField()!!
-              .getObject("VisionEstimation").pose = est.estimatedPose.toPose2d()
+//            getSimDebugField()!!
+//              .getObject("VisionEstimation").pose = est.estimatedPose.toPose2d()
           }
         ) { if (newResult) getSimDebugField()!!.getObject("VisionEstimation").setPoses() }
       }
 
       if (newResult) {
-        poses.add(visionEst)
+//        poses.add(visionEst)
         lastEstTimestamp = latestTimestamp
       }
     }

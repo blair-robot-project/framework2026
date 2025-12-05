@@ -1,7 +1,6 @@
 package frc.team449.util
 
 import edu.wpi.first.units.Units.Seconds
-import edu.wpi.first.units.measure.Time
 import edu.wpi.first.wpilibj.RobotController
 import edu.wpi.first.wpilibj2.command.Subsystem
 
@@ -23,9 +22,5 @@ object Clock : Subsystem {
     deltaTime.mut_replace(currentTime)
     deltaTime.mut_minus(savedTime)
     savedTime.mut_replace(currentTime)
-  }
-
-  fun getDeltaTime(): Time? {
-    return deltaTime
   }
 }

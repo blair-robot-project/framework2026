@@ -1,30 +1,17 @@
 package frc.team449
 
-import choreo.auto.AutoChooser
-import choreo.auto.AutoFactory
-import choreo.trajectory.SwerveSample
 import edu.wpi.first.epilogue.Logged
 import edu.wpi.first.epilogue.NotLogged
-import edu.wpi.first.math.geometry.Translation3d
-import edu.wpi.first.units.Units.Degrees
-import edu.wpi.first.units.Units.MetersPerSecond
 import edu.wpi.first.wpilibj.PowerDistribution
 import edu.wpi.first.wpilibj.RobotBase
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
-import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
-import frc.team449.commands.drive.AutoPoseToPose
 import frc.team449.commands.drive.SwerveDriveCommand
 import frc.team449.config.RobotConstants
 import frc.team449.hardwaremanagers.PoseSubsystem
 import frc.team449.hardwaremanagers.PoseSubsystem.Companion.createPoseSubsystem
 import frc.team449.hardwaremanagers.drive.swerve.SwerveDrive
-import frc.team449.hardwaremanagers.superstructure.SuperstructureManager
-import frc.team449.hardwaremanagers.superstructure.SuperstructureManager.Companion.createSuperstructureManager
 import frc.team449.input.HolonomicOI
-import frc.team449.sim.Lunite
 
 @Logged
 object Robot {
@@ -43,8 +30,6 @@ object Robot {
   @get:NotLogged
   val drive: SwerveDrive = if (RobotBase.isReal()) SwerveDrive.createSwerveKraken() else SwerveDrive.createSwerveSim()
 
-  val autoChooser = AutoChooser()
-
   @get:NotLogged
   val poseSubsystem: PoseSubsystem = createPoseSubsystem(drive)
 
@@ -53,44 +38,25 @@ object Robot {
   @get:NotLogged
   val driveCommand: SwerveDriveCommand = SwerveDriveCommand(drive, poseSubsystem, driveController.hid, holonomicOi, RobotConstants.FIELD_RELATIVE_ENABLED)
 
-  
-  val autoFactory = AutoFactory(
-    poseSubsystem::pose,
-    poseSubsystem::resetOdometry,
-    { sample: SwerveSample ->  drive.set(AutoPoseToPose.calculate(poseSubsystem.pose, sample.pose))},
-    true,
-    drive
-  )
-  val commands = Commands(this)
-  val routines = Routines(autoFactory)
-
-  @get:NotLogged
-  val superstructureManager: SuperstructureManager = createSuperstructureManager(this)
-
   fun bindAutoRoutines() {
     // add routines
-    autoChooser.addRoutine("Do nothing", routines::doNothing)
-
-    // Adds Auto Selection into Smart Dashboard
-    SmartDashboard.putData("Auto Chooser", autoChooser)
-    // While in Autonomous Period, run the selected auto until autos are over, then cancel command.
-    RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler())
+    Routines.addRoutine("Do nothing", Routines.doNothing())
   }
 
   private fun bindDriveController(controller: CommandXboxController) {
-    controller.rightBumper().onTrue(commands.slowDrive()).onFalse(commands.restoreDriveSpeed())
+    controller.rightBumper().onTrue(Commands.slowDrive()).onFalse(Commands.restoreDriveSpeed())
 
-    controller.a().onTrue(commands.pointToRight())
+    controller.a().onTrue(Commands.pointToRight())
 
-    controller.povUp().onTrue(commands.resetGyro())
+    controller.povUp().onTrue(Commands.resetGyro())
 
     if (RobotBase.isSimulation()) {
-      controller.a().onTrue(commands.resetOdometrySim())
-      controller.x().onTrue(
-        runOnce({
-          Lunite.launchLunite(robot, Translation3d(), Degrees.of(45.0), MetersPerSecond.of(5.0))
-        })
-      )
+      controller.a().onTrue(Commands.resetOdometrySim())
+//      controller.x().onTrue(
+//        runOnce({
+//          Lunite.launchLunite(robot, Translation3d(), Degrees.of(45.0), MetersPerSecond.of(5.0))
+//        })
+//      )
     }
   }
 

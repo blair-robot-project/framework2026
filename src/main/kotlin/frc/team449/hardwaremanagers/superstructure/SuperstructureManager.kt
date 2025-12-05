@@ -1,27 +1,19 @@
 package frc.team449.hardwaremanagers.superstructure
 
 import edu.wpi.first.epilogue.Logged
-import edu.wpi.first.epilogue.NotLogged
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import frc.team449.Robot
-import frc.team449.hardwaremanagers.PoseSubsystem
-import frc.team449.hardwaremanagers.drive.swerve.SwerveDrive
 
 @Logged
-class SuperstructureManager(
-  @NotLogged
-  private val drive: SwerveDrive,
-  @NotLogged
-  private val poseSubsystem: PoseSubsystem
-) {
+object SuperstructureManager {
 
   private var requestedGoal = SuperstructureGoal.STOW
   private var lastCompletedGoal = SuperstructureGoal.STOW
   private var ready = false
 
   fun requestGoal(goal: SuperstructureGoal.SuperstructureState): Command {
-    return InstantCommand({ SuperstructureGoal.applyDriveDynamics(drive, goal.driveDynamics) })
+    return InstantCommand({ SuperstructureGoal.applyDriveDynamics(Robot.holonomicOi, goal.driveDynamics) })
       .andThen(InstantCommand({ ready = false }))
       .andThen(InstantCommand({ requestedGoal = goal }))
       .andThen(InstantCommand({ lastCompletedGoal = goal }))
@@ -44,14 +36,5 @@ class SuperstructureManager(
 
   fun lastCompletedGoal(): SuperstructureGoal.SuperstructureState {
     return lastCompletedGoal
-  }
-
-  companion object {
-    fun createSuperstructureManager(robot: Robot): SuperstructureManager {
-      return SuperstructureManager(
-        robot.drive,
-        robot.poseSubsystem
-      )
-    }
   }
 }

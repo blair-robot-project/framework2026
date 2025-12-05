@@ -21,47 +21,47 @@ import kotlin.jvm.optionals.getOrNull
 import kotlin.math.PI
 import kotlin.random.Random
 
-class Commands(val robot: Robot) {
+object Commands {
 
   fun resetGyro(): Command {
     return ConditionalCommand(
-      InstantCommand({ robot.poseSubsystem.heading = Rotation2d(PI) }),
-      InstantCommand({ robot.poseSubsystem.heading = Rotation2d() }),
+      InstantCommand({ Robot.poseSubsystem.heading = Rotation2d(PI) }),
+      InstantCommand({ Robot.poseSubsystem.heading = Rotation2d() }),
     ) { DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red }
   }
 
   fun slowDrive(): Command {
-    return InstantCommand({ robot.holonomicOi.maxLinearSpeed = MetersPerSecond.of(1.0) })
-      .andThen(InstantCommand({ robot.holonomicOi.maxRotationalSpeed = RadiansPerSecond.of(PI / 2) }))
+    return InstantCommand({ Robot.holonomicOi.maxLinearSpeed = MetersPerSecond.of(1.0) })
+      .andThen(InstantCommand({ Robot.holonomicOi.maxRotationalSpeed = RadiansPerSecond.of(PI / 2) }))
   }
 
   fun restoreDriveSpeed(): Command {
-    return InstantCommand({ robot.holonomicOi.maxLinearSpeed = RobotConstants.MAX_LINEAR_SPEED })
+    return InstantCommand({ Robot.holonomicOi.maxLinearSpeed = RobotConstants.MAX_LINEAR_SPEED })
       .andThen(
-        InstantCommand({ robot.holonomicOi.maxRotationalSpeed = RobotConstants.MAX_ROT_SPEED }),
+        InstantCommand({ Robot.holonomicOi.maxRotationalSpeed = RobotConstants.MAX_ROT_SPEED }),
       )
   }
 
   fun resetOdometrySim(): Command {
     return InstantCommand({
-      robot.drive as SwerveSim
-      robot.drive.resetOdometryOnly(
+      Robot.drive as SwerveSim
+      Robot.drive.resetOdometryOnly(
         Pose2d(
-          robot.drive.odometryPose.x + Random.nextDouble(-1.0, 1.0),
-          robot.drive.odometryPose.y + Random.nextDouble(-1.0, 1.0),
-          robot.drive.odometryPose.rotation,
+          Robot.drive.odometryPose.x + Random.nextDouble(-1.0, 1.0),
+          Robot.drive.odometryPose.y + Random.nextDouble(-1.0, 1.0),
+          Robot.drive.odometryPose.rotation,
         )
       )
     })
   }
 
   fun pointToRight(): Command {
-    return robot.driveCommand.pointAtAngleCommand(Rotation2d.fromDegrees(90.0))
+    return Robot.driveCommand.pointAtAngleCommand(Rotation2d.fromDegrees(90.0))
   }
 
   /** Characterization functions */
   fun wheelRadiusCharacterization(): Command {
-    return WheelRadiusCharacterization(robot.drive, robot.poseSubsystem)
+    return WheelRadiusCharacterization(Robot.drive, Robot.poseSubsystem)
   }
 
   fun driveCharacterization(): SysIdRoutine {
@@ -72,9 +72,9 @@ class Commands(val robot: Robot) {
         Seconds.of(4.0),
       ) { state -> SignalLogger.writeString("state", state.toString()) },
       SysIdRoutine.Mechanism(
-        { voltage: Voltage -> robot.drive.setVoltage(-voltage.`in`(Volts)) },
+        { voltage: Voltage -> Robot.drive.setVoltage(-voltage.`in`(Volts)) },
         null,
-        robot.drive,
+        Robot.drive,
       )
     )
   }
