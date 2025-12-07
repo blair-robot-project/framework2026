@@ -1,8 +1,12 @@
 package frc.team449
 
 import com.ctre.phoenix6.SignalLogger
+import com.therekrab.autopilot.APTarget
+import com.therekrab.autopilot.Autopilot
+import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.units.Units.MetersPerSecond
 import edu.wpi.first.units.Units.RadiansPerSecond
 import edu.wpi.first.units.Units.Second
@@ -14,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
+import frc.team449.commands.drive.AutoPoseToPose
 import frc.team449.commands.drive.WheelRadiusCharacterization
 import frc.team449.config.RobotConstants
 import frc.team449.hardwaremanagers.drive.swerve.SwerveSim
@@ -40,6 +45,29 @@ object Commands {
       .andThen(
         InstantCommand({ Robot.holonomicOi.maxRotationalSpeed = RobotConstants.MAX_ROT_SPEED }),
       )
+  }
+
+  fun DriveToPose(endPose: Pose2d): Command {
+    return Robot.drive.run {
+      Robot.drive.set(AutoPoseToPose.calculate(Robot.poseSubsystem.pose, endPose))
+    }.until {
+      AutoPoseToPose.isFinished(Robot.drive.currentSpeeds)
+    }
+  }
+
+  fun DriveToPoseAutopilot(target: APTarget): Command {
+    return Robot.drive.run {
+      val controller: PIDController = PIDController(0.0, 0.0, 0.0)
+      val result: Autopilot.APResult = AutoPoseToPose.autopilotCalculator.calculate(
+        Robot.poseSubsystem.pose,
+        Robot.drive.currentSpeeds,
+        target
+      )
+
+      val angularSpeed = RadiansPerSecond.of(controller.calculate(Robot.poseSubsystem.heading.radians, result.targetAngle.radians))
+
+      Robot.drive.set(ChassisSpeeds(result.vx, result.vy, angularSpeed))
+    }
   }
 
   fun resetOdometrySim(): Command {

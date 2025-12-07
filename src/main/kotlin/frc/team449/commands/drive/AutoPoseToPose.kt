@@ -1,12 +1,17 @@
 package frc.team449.commands.drive
 
+import com.therekrab.autopilot.APConstraints
+import com.therekrab.autopilot.APProfile
+import com.therekrab.autopilot.Autopilot
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
+import edu.wpi.first.units.Units.Centimeters
 import edu.wpi.first.units.Units.Meters
 import edu.wpi.first.units.Units.MetersPerSecond
+import edu.wpi.first.units.Units.MetersPerSecondPerSecond
 import edu.wpi.first.units.Units.RadiansPerSecond
 import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.LinearVelocity
@@ -16,10 +21,22 @@ import kotlin.math.hypot
 
 object AutoPoseToPose {
 
+  // TODO This needs to be configurable with constants
   private val xPID: PIDController = PIDController(7.5, 0.0, 0.0)
   private val yPID: PIDController = PIDController(7.5, 0.0, 0.0)
   private val headingPID: PIDController = PIDController(5.0, 0.0, 0.0)
   private val tolerance: Pose2d = Pose2d(0.05, 0.05, Rotation2d.fromDegrees(3.0))
+
+  private val autopilotConstraints: APConstraints? = APConstraints()
+    .withAcceleration(RobotConstants.MAX_ACCEL.`in`(MetersPerSecondPerSecond))
+    .withJerk(2.0)
+
+  private val autopilotProfile: APProfile? = APProfile(autopilotConstraints)
+    .withErrorXY(tolerance.measureX)
+    .withErrorTheta(tolerance.rotation.measure)
+    .withBeelineRadius(Centimeters.of(8.0))
+
+  val autopilotCalculator: Autopilot = Autopilot(autopilotProfile)
 
   init {
     headingPID.enableContinuousInput(-PI, PI)
@@ -76,12 +93,12 @@ object AutoPoseToPose {
     )
   }
 
-  fun isFinished(currentSpeeds: ChassisSpeeds, speedTol: LinearVelocity, speedTolRot: AngularVelocity): Boolean {
+  fun isFinished(currentSpeeds: ChassisSpeeds): Boolean {
     return xPID.atSetpoint() && yPID.atSetpoint() && headingPID.atSetpoint() &&
       hypot(
         currentSpeeds.vxMetersPerSecond,
         currentSpeeds.vyMetersPerSecond
-      ) < speedTol.`in`(MetersPerSecond) &&
-      currentSpeeds.omegaRadiansPerSecond < speedTolRot.`in`(RadiansPerSecond)
+      ) < hypot(tolerance.x, tolerance.y)
+//      && currentSpeeds.omegaRadiansPerSecond < tolera.`in`(RadiansPerSecond)
   }
 }
