@@ -4,7 +4,7 @@ import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.LinearAcceleration
 import edu.wpi.first.units.measure.LinearVelocity
 import frc.team449.config.RobotConstants
-import frc.team449.input.HolonomicOI
+import frc.team449.hardwaremanagers.drive.ChassisController
 
 object SuperstructureGoal {
 
@@ -18,13 +18,9 @@ object SuperstructureGoal {
     val name: String
   )
 
-  data class DriveDynamics(
-    val maxSpeed: LinearVelocity,
-    val maxAccel: LinearAcceleration,
-    val maxRotSpeed: AngularVelocity
-  )
 
-  fun applyDriveDynamics(oi: HolonomicOI, dynamics: DriveDynamics) {
+
+  fun applyDriveDynamics(oi: ChassisController, dynamics: DriveDynamics) {
     oi.maxLinearSpeed = dynamics.maxSpeed
     oi.maxAccel = dynamics.maxAccel
     oi.maxRotationalSpeed = dynamics.maxRotSpeed

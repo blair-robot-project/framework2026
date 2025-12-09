@@ -1,6 +1,5 @@
-package frc.team449.hardwaremanagers.drive.swerve
+package frc.team449.hardwaremanagers.drive
 
-import choreo.trajectory.SwerveSample
 import edu.wpi.first.epilogue.Logged
 import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
@@ -22,9 +21,9 @@ import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig
 
 /**
  * A Swerve Drive chassis.
- * @param modules An array of [frc.team449.hardware.gearbox.SwerveModule]s that are on the drivetrain.
+ * @param modules An array of [SwerveModule]s that are on the drivetrain.
  */
-open class SwerveDrive(
+open class SwerveChassis(
   @Logged
   val frontLeftModule: SwerveModule,
   @Logged
@@ -52,7 +51,7 @@ open class SwerveDrive(
   @Logged
   var desiredSpeeds: ChassisSpeeds = ChassisSpeeds()
 
-  fun set(desiredSpeeds: ChassisSpeeds) {
+  private fun set(desiredSpeeds: ChassisSpeeds) {
     this.desiredSpeeds = desiredSpeeds
     // Converts the desired [ChassisSpeeds] into an array of [SwerveModuleState].
     val desiredModuleStates =
@@ -71,11 +70,7 @@ open class SwerveDrive(
     backRightModule.state = desiredModuleStates[3]
   }
 
-  fun followTrajectory(swerveSample: SwerveSample) {
-    // todo, hmmmmm I don't like the idea of throwing an entire trajectory controller in here since this class should exclusively be for controlling the gearboxes
-  }
-
-  fun setVoltage(volts: Double) {
+  private fun setVoltage(volts: Double) {
     frontLeftModule.setVoltage(volts)
     frontRightModule.setVoltage(volts)
     backLeftModule.setVoltage(volts)
@@ -107,11 +102,6 @@ open class SwerveDrive(
     )
   }
 
-  /** Stops the robot's drive. */
-  fun stop() {
-    this.set(ChassisSpeeds(0.0, 0.0, 0.0))
-  }
-
   /** @return An array of [SwerveModulePosition] for each module, containing distance and angle. */
   fun getPositions(): Array<SwerveModulePosition> {
     return arrayOf(
@@ -133,8 +123,8 @@ open class SwerveDrive(
   }
 
   companion object {
-    /** Create a [SwerveDrive] using [frc.team449.config.SwerveConstants]. */
-    fun createSwerveKraken(): SwerveDrive {
+    /** Create a [SwerveChassis] using [SwerveConstants]. */
+    fun createSwerveKraken(): SwerveChassis {
       // Real Modules
       val frontLeftModule = createKrakenModule(
         "FLModule",
@@ -192,7 +182,7 @@ open class SwerveDrive(
           -SwerveConstants.TRACKWIDTH.`in`(Meters) / 2
         )
       )
-      return SwerveDrive(
+      return SwerveChassis(
         frontLeftModule,
         frontRightModule,
         backLeftModule,
@@ -201,7 +191,7 @@ open class SwerveDrive(
       )
     }
 
-    fun createSwerveNEO(): SwerveDrive {
+    fun createSwerveNEO(): SwerveChassis {
       val frontLeftModule = createNEOModule(
         "FLModule",
         SwerveConstants.DRIVE_MOTOR_FL,
@@ -258,7 +248,7 @@ open class SwerveDrive(
           -SwerveConstants.TRACKWIDTH.`in`(Meters) / 2
         )
       )
-      return SwerveDrive(
+      return SwerveChassis(
         frontLeftModule,
         frontRightModule,
         backLeftModule,
@@ -267,7 +257,7 @@ open class SwerveDrive(
       )
     }
 
-    fun createSwerveSim(): SwerveDrive {
+    fun createSwerveSim(): SwerveChassis {
       val driveSim: SwerveDriveSimulation = SwerveDriveSimulation(
         DriveTrainSimulationConfig.Default()
           .withTrackLengthTrackWidth(

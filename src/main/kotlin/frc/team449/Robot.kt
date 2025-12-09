@@ -6,12 +6,13 @@ import edu.wpi.first.wpilibj.PowerDistribution
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
-import frc.team449.commands.drive.SwerveDriveCommand
+import frc.team449.commands.SwerveDriveCommand
 import frc.team449.config.RobotConstants
 import frc.team449.hardwaremanagers.PoseSubsystem
 import frc.team449.hardwaremanagers.PoseSubsystem.Companion.createPoseSubsystem
-import frc.team449.hardwaremanagers.drive.swerve.SwerveDrive
-import frc.team449.input.HolonomicOI
+import frc.team449.hardwaremanagers.drive.ChassisController
+import frc.team449.hardwaremanagers.drive.DriveDynamics
+import frc.team449.hardwaremanagers.drive.SwerveChassis
 
 @Logged
 object Robot {
@@ -28,20 +29,22 @@ object Robot {
     )
 
   @get:NotLogged
-  val drive: SwerveDrive = if (RobotBase.isReal()) SwerveDrive.createSwerveKraken() else SwerveDrive.createSwerveSim()
-
-  @get:NotLogged
-  val poseSubsystem: PoseSubsystem = createPoseSubsystem(drive)
-
-  val holonomicOi: HolonomicOI = HolonomicOI(
-    RobotConstants.ROT_RATE_LIMIT,
-    RobotConstants.MAX_LINEAR_SPEED,
-    RobotConstants.MAX_ROT_SPEED,
-    RobotConstants.MAX_ACCEL
+  val drive: ChassisController = ChassisController(
+    if (RobotBase.isReal()) {
+      SwerveChassis.createSwerveKraken()
+    } else {
+      SwerveChassis.createSwerveSim()
+    },
+    DriveDynamics(
+      RobotConstants.MAX_LINEAR_SPEED,
+      RobotConstants.MAX_ACCEL,
+      RobotConstants.MAX_ROT_SPEED,
+      RobotConstants.ROT_RATE_LIMIT
+    )
   )
 
   @get:NotLogged
-  val driveCommand: SwerveDriveCommand = SwerveDriveCommand(drive, poseSubsystem, driveController.hid, holonomicOi, RobotConstants.FIELD_RELATIVE_ENABLED)
+  val poseSubsystem: PoseSubsystem = createPoseSubsystem(drive)
 
   fun bindAutoRoutines() {
     // add routines
@@ -65,6 +68,9 @@ object Robot {
     }
   }
 
+  private fun bindOperatorController(controller: CommandXboxController) {
+  }
+
   private fun bindCharacterizationController(controller: CommandXboxController) {
     controller.leftTrigger().onTrue(
       Commands.wheelRadiusCharacterization()
@@ -85,10 +91,10 @@ object Robot {
   }
 
   fun robotInit() {
-    drive.defaultCommand = driveCommand
-
     bindAutoRoutines()
 
     bindDriveController(driveController)
+//    bindOperatorController()
+//    bindCharacterizationController()
   }
 }

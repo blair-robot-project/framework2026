@@ -17,8 +17,9 @@ import frc.team449.config.RobotConstants
 import frc.team449.config.VisionConstants
 import frc.team449.control.vision.ApriltagCamera
 import frc.team449.hardware.AHRS
-import frc.team449.hardwaremanagers.drive.swerve.SwerveDrive
-import frc.team449.hardwaremanagers.drive.swerve.SwerveSim
+import frc.team449.hardwaremanagers.drive.ChassisController
+import frc.team449.hardwaremanagers.drive.SwerveChassis
+import frc.team449.hardwaremanagers.drive.SwerveSim
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.pow
@@ -28,9 +29,10 @@ import kotlin.math.sqrt
 class PoseSubsystem(
   private val cameras: List<ApriltagCamera> = mutableListOf(),
   @NotLogged
-  private val drive: SwerveDrive
+  private val chassisController: ChassisController
 ) : SubsystemBase() {
 
+  private val drive: SwerveChassis = chassisController.chassis
   private val ahrs: AHRS = AHRS()
   val field: Field2d = Field2d()
 
@@ -241,7 +243,7 @@ class PoseSubsystem(
   }
 
   companion object {
-    fun createPoseSubsystem(drive: SwerveDrive): PoseSubsystem {
+    fun createPoseSubsystem(drive: ChassisController): PoseSubsystem {
       return PoseSubsystem(
         VisionConstants.ESTIMATORS,
         drive,

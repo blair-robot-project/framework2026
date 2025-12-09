@@ -1,4 +1,4 @@
-package frc.team449.hardwaremanagers.drive.swerve
+package frc.team449.hardwaremanagers.drive
 
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
@@ -17,7 +17,7 @@ class SwerveSim(
   backRightModule: SwerveModule,
   maxModuleSpeed: LinearVelocity,
   var driveSim: SwerveDriveSimulation
-) : SwerveDrive(frontLeftModule, frontRightModule, backLeftModule, backRightModule, maxModuleSpeed) {
+) : SwerveChassis(frontLeftModule, frontRightModule, backLeftModule, backRightModule, maxModuleSpeed) {
 
   private var lastTime = getFPGATimestamp()
   var currHeading = Rotation2d()

@@ -1,4 +1,4 @@
-package frc.team449.commands.drive
+package frc.team449.commands
 
 import edu.wpi.first.epilogue.Logged
 import edu.wpi.first.epilogue.NotLogged
@@ -16,19 +16,19 @@ import edu.wpi.first.wpilibj2.command.RunCommand
 import frc.team449.config.RobotConstants
 import frc.team449.config.SwerveConstants
 import frc.team449.hardwaremanagers.PoseSubsystem
-import frc.team449.hardwaremanagers.drive.swerve.SwerveDrive
-import frc.team449.input.HolonomicOI
+import frc.team449.hardwaremanagers.drive.ChassisController
+import frc.team449.hardwaremanagers.drive.SwerveChassis
 import frc.team449.util.Clock
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.*
 
 @Logged
 class SwerveDriveCommand(
-  private val drive: SwerveDrive,
+  private val drive: ChassisController,
   private val poseEstimator: PoseSubsystem,
   @NotLogged
   private val controller: XboxController,
-  private val oi: HolonomicOI,
+  private val oi: ChassisController,
   private val fieldRelative: Boolean
 ) : Command() {
   // todo, refactor these to be updated on ds connect, so we don't have to poll it all the time

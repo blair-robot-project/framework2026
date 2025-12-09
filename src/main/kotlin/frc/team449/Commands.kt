@@ -18,10 +18,10 @@ import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.ConditionalCommand
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
-import frc.team449.commands.drive.AutoPoseToPose
-import frc.team449.commands.drive.WheelRadiusCharacterization
+import frc.team449.commands.AutoPoseToPose
+import frc.team449.commands.WheelRadiusCharacterizationCommand
 import frc.team449.config.RobotConstants
-import frc.team449.hardwaremanagers.drive.swerve.SwerveSim
+import frc.team449.hardwaremanagers.drive.SwerveSim
 import kotlin.jvm.optionals.getOrNull
 import kotlin.math.PI
 import kotlin.random.Random
@@ -89,7 +89,7 @@ object Commands {
 
   /** Characterization functions */
   fun wheelRadiusCharacterization(): Command {
-    return WheelRadiusCharacterization(Robot.drive, Robot.poseSubsystem)
+    return WheelRadiusCharacterizationCommand(Robot.drive, Robot.poseSubsystem)
   }
 
   fun driveCharacterization(): SysIdRoutine {

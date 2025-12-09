@@ -6,7 +6,7 @@ import choreo.auto.AutoRoutine
 import choreo.trajectory.SwerveSample
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers
-import frc.team449.commands.drive.AutoPoseToPose
+import frc.team449.commands.AutoPoseToPose
 
 object Routines {
 
