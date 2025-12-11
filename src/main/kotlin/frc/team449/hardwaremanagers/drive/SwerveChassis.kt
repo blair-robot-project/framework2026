@@ -51,7 +51,7 @@ open class SwerveChassis(
   @Logged
   var desiredSpeeds: ChassisSpeeds = ChassisSpeeds()
 
-  private fun set(desiredSpeeds: ChassisSpeeds) {
+  fun set(desiredSpeeds: ChassisSpeeds) {
     this.desiredSpeeds = desiredSpeeds
     // Converts the desired [ChassisSpeeds] into an array of [SwerveModuleState].
     val desiredModuleStates =

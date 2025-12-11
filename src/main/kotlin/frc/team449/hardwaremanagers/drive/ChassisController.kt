@@ -1,19 +1,30 @@
 package frc.team449.hardwaremanagers.drive
 
 import edu.wpi.first.math.MathUtil
+import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.filter.SlewRateLimiter
+import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
+import edu.wpi.first.math.geometry.Translation2d
 import edu.wpi.first.math.kinematics.ChassisSpeeds
 import edu.wpi.first.units.Units
+import edu.wpi.first.units.Units.Centimeters
+import edu.wpi.first.units.Units.MetersPerSecondPerSecond
 import edu.wpi.first.units.Units.Seconds
 import edu.wpi.first.units.measure.AngularAcceleration
 import edu.wpi.first.units.measure.AngularVelocity
 import edu.wpi.first.units.measure.LinearAcceleration
 import edu.wpi.first.units.measure.LinearVelocity
+import edu.wpi.first.units.measure.Time
+import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj2.command.Command
+import edu.wpi.first.wpilibj2.command.RunCommand
 import frc.team449.config.RobotConstants
 import frc.team449.config.SwerveConstants
+import frc.team449.hardwaremanagers.PoseSubsystem
 import frc.team449.util.Clock
+import java.util.function.DoubleSupplier
+import kotlin.jvm.optionals.getOrNull
 import kotlin.math.*
 
 /**
@@ -32,20 +43,61 @@ import kotlin.math.*
  */
 class ChassisController(
   val chassis: SwerveChassis,
-  val constraints: DriveDynamics
+  var constraints: DriveDynamics,
+  val poseEstimator: PoseSubsystem,
+  private val xAxisSupplier: DoubleSupplier,
+  private val yAxisSupplier: DoubleSupplier,
+  private val rotationAxisSupplier: DoubleSupplier,
+  private val autoXAxisPID: PIDController = PIDController(7.5, 0.0, 0.0), // TODO This needs to be pulling from config file by default
+  private val autoYAxisPID: PIDController = PIDController(7.5, 0.0, 0.0),
+  private val autoHeadingPID: PIDController = PIDController(5.0, 0.0, 0.0),
+  private val tolerance: Pose2d = Pose2d(0.05, 0.05, Rotation2d.fromDegrees(3.0))
 ) : Command() {
 
   private val rotRamp = SlewRateLimiter(constraints.maxAngularSpeedRate.`in`(Units.RadiansPerSecondPerSecond))
-  private var xVelocity = Units.Meters.per(Units.Seconds).mutable(0.0)
-  private var yVelocity = Units.Meters.per(Units.Seconds).mutable(0.0)
-  private var rotationVelocity = Units.Radians.per(Units.Seconds).mutable(0.0)
+
   private var prevChassisSpeeds: ChassisSpeeds = ChassisSpeeds()
 
+  private val allianceCompensation = { if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) PI else 0.0 }
+  private val directionCompensation = { if (DriverStation.getAlliance().getOrNull() == DriverStation.Alliance.Red) -1.0 else 1.0 }
+
+  private var headingOverride = false
+  private var pointLock = false
+  private var orbitPoint: Translation2d = Translation2d()
+  private var fieldRelative = true
+
+  private val autopilotConstraints: APConstraints? = APConstraints()
+    .withAcceleration(RobotConstants.MAX_ACCEL.`in`(MetersPerSecondPerSecond))
+    .withJerk(2.0)
+
+  private val autopilotProfile: APProfile? = APProfile(autopilotConstraints)
+    .withErrorXY(tolerance.measureX)
+    .withErrorTheta(tolerance.rotation.measure)
+    .withBeelineRadius(Centimeters.of(8.0))
+
+  val autopilotCalculator: Autopilot = Autopilot(autopilotProfile)
+
   init {
+    addRequirements(chassis)
     chassis.defaultCommand = this
+
+    autoHeadingPID.enableContinuousInput(-PI, PI)
+
+    // Set tolerances from the given pose tolerance
+    autoXAxisPID.setTolerance(tolerance.x)
+    autoYAxisPID.setTolerance(tolerance.y)
+    autoHeadingPID.setTolerance(tolerance.rotation.radians)
+
+    autoXAxisPID.reset()
+    autoYAxisPID.reset()
+    autoHeadingPID.reset()
   }
 
-  fun driverInput(xThrottle: Double, yThrottle: Double, rotThrottle: Double) {
+  fun getDriverInput(): ChassisSpeeds {
+    val xThrottle = xAxisSupplier.asDouble
+    val yThrottle = yAxisSupplier.asDouble
+    val rotThrottle = rotationAxisSupplier.asDouble
+
     // Polar conversion
     val ctrlRadius =
       MathUtil
@@ -59,36 +111,45 @@ class ChassisController(
     // Normalize axes and ease rotation (convert units to expected)
     val xScaled = ctrlRadius * cos(ctrlTheta) * constraints.maxSpeed.`in`(Units.MetersPerSecond)
     val yScaled = ctrlRadius * sin(ctrlTheta) * constraints.maxSpeed.`in`(Units.MetersPerSecond)
-    val rotScaled = rotRamp.calculate(
-      min(
-        MathUtil.applyDeadband(
-          abs(rotThrottle).pow(SwerveConstants.ROT_FILTER_ORDER),
-          RobotConstants.ROTATION_DEADBAND,
-          1.0,
-        ),
-        1.0,
-      ) * -sign(rotThrottle) * maxRotationalSpeed.`in`(Units.RadiansPerSecond),
-    )
+    val rotScaled = MathUtil.applyDeadband(
+      abs(rotThrottle).pow(SwerveConstants.ROT_FILTER_ORDER),
+      RobotConstants.ROTATION_DEADBAND,
+      1.0,
+    ) * -sign(rotThrottle) * constraints.maxAngularSpeed.`in`(Units.RadiansPerSecond)
 
-
+    return ChassisSpeeds(xScaled, yScaled, rotScaled)
   }
 
-  /**
-   *
-   * @param prevChassisCommand The previously calculated chassis output command
-   * @param xThrottle The scalar Y axis of the strafing joystick
-   * @param yThrottle The scalar X axis of the strafing joystick
-   * @param rotThrottle The scalar X axis of the rotating joystick
-   *
-   * @return The new [edu.wpi.first.math.kinematics.ChassisSpeeds] for the given x, y and
-   * rotation input from the joystick */
-  fun calculate(): ChassisSpeeds {
-    val dt = Clock.deltaTime.`in`(Units.Seconds)
+  fun changeDriveDynamics(constraints: DriveDynamics): Command {
+    return RunCommand({
+      this.constraints = constraints
+    })
+  }
 
+  fun snapToAngle(angle: Rotation2d): Command {
+    return RunCommand({
+      this.autoHeadingPID.setpoint = MathUtil.angleModulus(angle.radians + allianceCompensation.invoke())
+      this.headingOverride = true
+      this.pointLock = false
+    })
+  }
+
+  fun snapToPoint(point: Translation2d): Command {
+    return RunCommand({
+      this.orbitPoint = point
+      this.headingOverride = true
+      this.pointLock = true
+    })
+  }
+
+  fun constraintModifier(deltaTime: Time, prevChassisSpeeds: ChassisSpeeds, targetChassisSpeeds: ChassisSpeeds) {
+    val dt = deltaTime.`in`(Seconds)
+
+    // Apply acceleration scaling
     if (RobotConstants.USE_ACCEL_LIMIT) {
       // Calculate and clamp the desired acceleration
-      val dx = xScaled - prevChassisSpeeds.vxMetersPerSecond
-      val dy = yScaled - prevChassisSpeeds.vyMetersPerSecond
+      val dx = targetChassisSpeeds.vxMetersPerSecond - prevChassisSpeeds.vxMetersPerSecond
+      val dy = targetChassisSpeeds.vyMetersPerSecond - prevChassisSpeeds.vyMetersPerSecond
       val accelerationMagnitude = hypot(dx / dt, dy / dt)
       val magAccClamped = MathUtil.clamp(
         accelerationMagnitude,
@@ -101,61 +162,59 @@ class ChassisController(
       val dxClamped = dx * factor
       val dyClamped = dy * factor
 
-      xVelocity.mut_replace(Units.MetersPerSecond.of(prevChassisSpeeds.vxMetersPerSecond + dxClamped))
-      yVelocity.mut_replace(Units.MetersPerSecond.of(prevChassisSpeeds.vyMetersPerSecond + dyClamped))
-    } else {
-      xVelocity.mut_replace(Units.MetersPerSecond.of(xScaled))
-      yVelocity.mut_replace(Units.MetersPerSecond.of(yScaled))
+      targetChassisSpeeds.vxMetersPerSecond = prevChassisSpeeds.vxMetersPerSecond + dxClamped
+      targetChassisSpeeds.vyMetersPerSecond = prevChassisSpeeds.vyMetersPerSecond + dyClamped
     }
-    rotationVelocity.mut_replace(Units.RadiansPerSecond.of(rotScaled))
 
-    return ChassisSpeeds(
-      xVelocity,
-      yVelocity,
-      rotationVelocity
+    // apply rotation scaling
+    targetChassisSpeeds.omegaRadiansPerSecond = rotRamp.calculate(targetChassisSpeeds.omegaRadiansPerSecond)
+  }
+  fun rotationModifier(deltaTime: Time, targetChassisSpeeds: ChassisSpeeds) {
+    if (pointLock) {
+      val fieldToRobot = poseEstimator.pose.translation
+      val robotToPoint = orbitPoint - fieldToRobot
+      autoHeadingPID.setpoint = robotToPoint.angle.radians
+    }
+    targetChassisSpeeds.omegaRadiansPerSecond = MathUtil.clamp(
+      autoHeadingPID.calculate(poseEstimator.heading.radians),
+      -RobotConstants.ALIGN_ROT_SPEED,
+      RobotConstants.ALIGN_ROT_SPEED,
     )
-
   }
 
+  fun motionVectorModifier(deltaTime: Time, targetChassisSpeeds: ChassisSpeeds) {
+    // apply skew compensation
+    val skew = Rotation2d(targetChassisSpeeds.omegaRadiansPerSecond * Clock.deltaTime.`in`(Seconds) * SwerveConstants.SKEW_CONSTANT)
+    val skewedX = targetChassisSpeeds.vxMetersPerSecond * skew.cos - targetChassisSpeeds.vyMetersPerSecond * skew.sin
+    val skewedY = targetChassisSpeeds.vxMetersPerSecond * skew.sin + targetChassisSpeeds.vyMetersPerSecond * skew.cos
+
+    targetChassisSpeeds.vxMetersPerSecond = skewedX
+    targetChassisSpeeds.vyMetersPerSecond = skewedY
+  }
+
+  // Takes target, applies physical constraints, send to IK calculator/gearbox manager
   override fun execute() {
-    val newChassisSpeeds: ChassisSpeeds = oi.calculate(prevChassisSpeeds, controller.leftX, controller.leftY, controller.rightX)
-    prevChassisSpeeds = newChassisSpeeds
+    val dt = Clock.deltaTime
+    var targetChassisSpeeds: ChassisSpeeds
 
-    // hijack velocity (apply skew compensation)
-    val skew: Rotation2d = Rotation2d(newChassisSpeeds.omegaRadiansPerSecond * Clock.deltaTime.`in`(Seconds) * SwerveConstants.SKEW_CONSTANT)
-    val skewedX = newChassisSpeeds.vxMetersPerSecond * skew.cos - newChassisSpeeds.vyMetersPerSecond * skew.sin
-    val skewedY = newChassisSpeeds.vxMetersPerSecond * skew.sin + newChassisSpeeds.vyMetersPerSecond * skew.cos
-
-    newChassisSpeeds.vxMetersPerSecond = skewedX
-    newChassisSpeeds.vyMetersPerSecond = skewedY
-
-    // hijack rotation
-    if (headingLock) {
-      if (checkSnapToAngelTolerance()) {
-        exitSnapToAngle()
-      } else {
-        if (pointLock) {
-          val fieldToRobot = poseEstimator.pose.translation
-          val robotToPoint = orbitPoint - fieldToRobot
-          rotCtrl.setpoint = robotToPoint.angle.radians
-        }
-        newChassisSpeeds.omegaRadiansPerSecond = MathUtil.clamp(
-          rotCtrl.calculate(poseEstimator.heading.radians),
-          -RobotConstants.ALIGN_ROT_SPEED,
-          RobotConstants.ALIGN_ROT_SPEED,
-        )
-      }
-    }
+    targetChassisSpeeds = getDriverInput()
+    rotationModifier(dt, targetChassisSpeeds)
+    motionVectorModifier(dt, targetChassisSpeeds)
+    constraintModifier(dt, prevChassisSpeeds, targetChassisSpeeds)
 
     // drive
     if (fieldRelative) {
-      newChassisSpeeds.vxMetersPerSecond *= directionCompensation.invoke()
-      newChassisSpeeds.vyMetersPerSecond *= directionCompensation.invoke()
+      targetChassisSpeeds.vxMetersPerSecond *= directionCompensation.invoke()
+      targetChassisSpeeds.vyMetersPerSecond *= directionCompensation.invoke()
 
-      drive.set(ChassisSpeeds.fromFieldRelativeSpeeds(newChassisSpeeds, poseEstimator.heading))
+      chassis.set(ChassisSpeeds.fromFieldRelativeSpeeds(targetChassisSpeeds, poseEstimator.heading))
     } else {
-      drive.set(newChassisSpeeds)
+      chassis.set(targetChassisSpeeds)
     }
+
+    // update previous
+    prevChassisSpeeds = targetChassisSpeeds
+  }
 }
 
 data class DriveDynamics(

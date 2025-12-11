@@ -1,10 +1,7 @@
 package frc.team449.hardwaremanagers.superstructure
 
-import edu.wpi.first.units.measure.AngularVelocity
-import edu.wpi.first.units.measure.LinearAcceleration
-import edu.wpi.first.units.measure.LinearVelocity
 import frc.team449.config.RobotConstants
-import frc.team449.hardwaremanagers.drive.ChassisController
+import frc.team449.hardwaremanagers.drive.DriveDynamics
 
 object SuperstructureGoal {
 
@@ -17,12 +14,4 @@ object SuperstructureGoal {
     val driveDynamics: DriveDynamics,
     val name: String
   )
-
-
-
-  fun applyDriveDynamics(oi: ChassisController, dynamics: DriveDynamics) {
-    oi.maxLinearSpeed = dynamics.maxSpeed
-    oi.maxAccel = dynamics.maxAccel
-    oi.maxRotationalSpeed = dynamics.maxRotSpeed
-  }
 }

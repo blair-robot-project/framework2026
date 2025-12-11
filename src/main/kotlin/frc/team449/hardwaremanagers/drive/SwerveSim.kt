@@ -2,7 +2,6 @@ package frc.team449.hardwaremanagers.drive
 
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry
 import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.networktables.StructPublisher
 import edu.wpi.first.units.measure.LinearVelocity
@@ -22,13 +21,6 @@ class SwerveSim(
   private var lastTime = getFPGATimestamp()
   var currHeading = Rotation2d()
 
-  private val odometryTracker = SwerveDriveOdometry(
-    kinematics,
-    currHeading,
-    getPositions(),
-    Pose2d()
-  )
-
   var odometryPose: Pose2d = driveSim.simulatedDriveTrainPose
 
   private var maplesimDrive: StructPublisher<Pose2d> = NetworkTableInstance.getDefault()
@@ -38,7 +30,7 @@ class SwerveSim(
     val currTime = getFPGATimestamp()
     this.lastTime = currTime
 
-    set(super.desiredSpeeds)
+    set(super.desiredSpeeds) // this needs to go through the chassis controller
 
     // Updates the robot's currentSpeeds.
     currentSpeeds = driveSim.driveTrainSimulatedChassisSpeedsFieldRelative

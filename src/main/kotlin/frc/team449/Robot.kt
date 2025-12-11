@@ -6,12 +6,10 @@ import edu.wpi.first.wpilibj.PowerDistribution
 import edu.wpi.first.wpilibj.RobotBase
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
-import frc.team449.commands.SwerveDriveCommand
 import frc.team449.config.RobotConstants
 import frc.team449.hardwaremanagers.PoseSubsystem
 import frc.team449.hardwaremanagers.PoseSubsystem.Companion.createPoseSubsystem
 import frc.team449.hardwaremanagers.drive.ChassisController
-import frc.team449.hardwaremanagers.drive.DriveDynamics
 import frc.team449.hardwaremanagers.drive.SwerveChassis
 
 @Logged
@@ -35,12 +33,13 @@ object Robot {
     } else {
       SwerveChassis.createSwerveSim()
     },
-    DriveDynamics(
+    ChassisController.DriveDynamics(
       RobotConstants.MAX_LINEAR_SPEED,
       RobotConstants.MAX_ACCEL,
       RobotConstants.MAX_ROT_SPEED,
       RobotConstants.ROT_RATE_LIMIT
-    )
+    ),
+    poseSubsystem
   )
 
   @get:NotLogged
