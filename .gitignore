@@ -318,7 +318,6 @@ gradle-app.setting
 
 # Additional entries for previous types
 # Save run configurations in git for sharing
-!.idea/runConfigurations
 
 # JetBrains Fleet IDE
 .fleet

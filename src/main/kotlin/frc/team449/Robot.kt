@@ -1,63 +1,91 @@
 package frc.team449
 
-import choreo.auto.AutoChooser
-import edu.wpi.first.epilogue.Logged
-import edu.wpi.first.epilogue.NotLogged
-import edu.wpi.first.wpilibj.PowerDistribution
-import edu.wpi.first.wpilibj.smartdashboard.Field2d
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController
-import frc.team449.subsystems.RobotConstants
-import frc.team449.subsystems.drive.swerve.SwerveDrive
-import frc.team449.subsystems.drive.swerve.SwerveOrthogonalCommand
-import frc.team449.subsystems.light.Light.Companion.createLight
-import frc.team449.subsystems.superstructure.SuperstructureManager
-import frc.team449.subsystems.superstructure.SuperstructureManager.Companion.createSuperstructureManager
-import frc.team449.subsystems.vision.PoseSubsystem
-import frc.team449.subsystems.vision.PoseSubsystem.Companion.createPoseSubsystem
-import frc.team449.system.AHRS
-// import frc.team449.subsystems.superstructure.BIT.BuiltInTests
+import au.grapplerobotics.CanBridge
+import edu.wpi.first.hal.FRCNetComm
+import edu.wpi.first.hal.HAL
+import edu.wpi.first.wpilibj.DriverStation
+import edu.wpi.first.wpilibj.Threads
+import edu.wpi.first.wpilibj2.command.Command
+import edu.wpi.first.wpilibj2.command.CommandScheduler
+import org.ironmaple.simulation.SimulatedArena
+import org.littletonrobotics.junction.LogFileUtil
+import org.littletonrobotics.junction.LoggedRobot
+import org.littletonrobotics.junction.Logger
+import org.littletonrobotics.junction.networktables.NT4Publisher
+import org.littletonrobotics.junction.wpilog.WPILOGReader
+import org.littletonrobotics.junction.wpilog.WPILOGWriter
 
-@Logged
-class Robot {
+/** The main class of the robot, constructs all the subsystems
+ * and initializes default commands . */
+class Robot : LoggedRobot() {
+  init {
+    println("Started robotInit.")
 
-  // Driver/Operator Controllers
-  @get:NotLogged
-  val driveController: CommandXboxController = CommandXboxController(0)
+    CanBridge.runTCP()
 
-  @get:NotLogged
-  val mechController: CommandXboxController = CommandXboxController(1)
+    HAL.report(FRCNetComm.tResourceType.kResourceType_Language, FRCNetComm.tInstances.kLanguage_Kotlin)
+    DriverStation.silenceJoystickConnectionWarning(true)
 
-  @get:NotLogged
-  val characController: CommandXboxController = CommandXboxController(2)
+    when (RobotConstants.CURRENT_MODE) {
+      RobotConstants.Mode.REAL -> {
+        Logger.addDataReceiver(WPILOGWriter())
+        Logger.addDataReceiver(NT4Publisher())
+      }
 
-  @get:NotLogged
-  val testController: CommandXboxController = CommandXboxController(3)
+      RobotConstants.Mode.SIM -> {
+        Logger.addDataReceiver(NT4Publisher())
+      }
 
-  val field = Field2d()
+      RobotConstants.Mode.REPLAY -> {
+        this.setUseTiming(false)
+        val logPath: String = LogFileUtil.findReplayLog()
+        Logger.setReplaySource(WPILOGReader(logPath))
+        Logger.addDataReceiver(WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")))
+      }
+    }
 
-  // NavX
-  val ahrs: AHRS = AHRS()
+    Logger.start()
+  }
 
-  // Instantiate/declare PDP and other stuff here
-  val powerDistribution: PowerDistribution =
-    PowerDistribution(
-      RobotConstants.PDH_CAN,
-      PowerDistribution.ModuleType.kRev,
-    )
+  private val robotContainer = RobotContainer()
 
-  @get:NotLogged
-  val drive: SwerveDrive = SwerveDrive.createSwerveKraken(field)
+  override fun driverStationConnected() {
+  }
 
-  val autoChooser = AutoChooser()
+  override fun robotPeriodic() {
+    // high priority (real-time) thread for loop timing
+    Threads.setCurrentThreadPriority(true, 99)
 
-  @get:NotLogged
-  val poseSubsystem: PoseSubsystem = createPoseSubsystem(ahrs, drive, field)
+    CommandScheduler.getInstance().run()
 
-  @get:NotLogged
-  val driveCommand: SwerveOrthogonalCommand = SwerveOrthogonalCommand(drive, poseSubsystem, driveController.hid)
+    // return thread to low priority (standard)
+    Threads.setCurrentThreadPriority(false, 10)
+  }
 
-  @get:NotLogged
-  val superstructureManager: SuperstructureManager = createSuperstructureManager(this)
+  override fun autonomousInit() {
+    val autonomousCommand: Command = robotContainer.autonomousCommand
 
-  val light = createLight()
+    autonomousCommand.schedule()
+  }
+
+  override fun autonomousPeriodic() {}
+
+  override fun teleopInit() {}
+
+  override fun teleopPeriodic() {
+  }
+
+  override fun disabledInit() {}
+
+  override fun disabledPeriodic() {}
+
+  override fun testInit() {}
+
+  override fun testPeriodic() {}
+
+  override fun simulationInit() {}
+
+  override fun simulationPeriodic() {
+    robotContainer.updateSimulation()
+  }
 }

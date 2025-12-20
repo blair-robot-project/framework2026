@@ -1,22 +1,18 @@
+import edu.wpi.first.gradlerio.GradleRIOPlugin
+import groovy.json.JsonSlurper
+
 plugins {
     id "java"
     id "idea"
     id "org.jetbrains.kotlin.jvm" version "2.2.20"
     id "edu.wpi.first.GradleRIO" version "2025.3.2"
     id "org.jlleitschuh.gradle.ktlint" version "11.6.1"
-    /*
-    IMPORTANT: The 'id "org.jetbrains.kotlin.kapt" version "2.0.21"'
-    and 'kapt wpi.java.deps.wpilibAnnotations()'
-    lines are to enable epilogue support;
-    however, they can slightly increase initial compile times.
-
-    If you do not wish to use epilogue in your project,
-    you can remove them.
-     */
-    id "org.jetbrains.kotlin.kapt" version "2.2.20"
+    id "org.jetbrains.kotlin.kapt" version "2.1.10"
 }
 
 java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 def ROBOT_MAIN_CLASS = "frc.team449.Main"
@@ -63,7 +59,6 @@ def includeDesktopSupport = false
 dependencies {
     implementation wpi.java.deps.wpilib()
     implementation wpi.java.vendor.java()
-    kapt wpi.java.deps.wpilibAnnotations()
 
     roborioDebug wpi.java.deps.wpilibJniDebug(wpi.platforms.roborio)
     roborioDebug wpi.java.vendor.jniDebug(wpi.platforms.roborio)
@@ -82,6 +77,9 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+
+    def akitJson = new JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
+    kapt "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
 }
 
 test {
@@ -99,7 +97,7 @@ wpi.sim.addDriverstation()
 jar {
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
     from sourceSets.main.allSource
-    manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
+    manifest GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
@@ -109,7 +107,7 @@ wpi.java.configureExecutableTasks(jar)
 wpi.java.configureTestTasks(test)
 
 // Configure string concat to always inline compile
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.compilerArgs.add '-XDstringConcat=inline'
 }
 
@@ -117,6 +115,7 @@ ktlint {
     version = "0.47.0"
     disabledRules = ["no-wildcard-imports", "trailing-comma-on-call-site"]
 }
+
 repositories {
     mavenCentral()
 }
