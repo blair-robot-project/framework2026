@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.Timer
 import org.ironmaple.simulation.SimulatedArena
 import java.util.function.Supplier
 
-
 object PhoenixUtil {
   /** Attempts to run the command until no error is produced.  */
   fun tryUntilOk(maxAttempts: Int, command: Supplier<StatusCode>) {
@@ -20,9 +19,9 @@ object PhoenixUtil {
     val odometryTimeStamps = DoubleArray(SimulatedArena.getSimulationSubTicksIn1Period())
     for (i in odometryTimeStamps.indices) {
       odometryTimeStamps[i] = (
-        Timer.getFPGATimestamp()
-        - 0.02
-        + i * SimulatedArena.getSimulationDt().`in`(Seconds)
+        Timer.getFPGATimestamp() -
+          0.02 +
+          i * SimulatedArena.getSimulationDt().`in`(Seconds)
         )
     }
 

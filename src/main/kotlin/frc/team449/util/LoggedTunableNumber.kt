@@ -1,6 +1,6 @@
 package frc.team449.util
 
-import frc.team449.RobotConstants
+import frc.team449.Constants
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber
 import java.util.Arrays
 import java.util.function.Consumer
@@ -37,7 +37,7 @@ class LoggedTunableNumber(dashboardKey: String) : DoubleSupplier {
     if (!hasDefault) {
       hasDefault = true
       this.defaultValue = defaultValue
-      if (RobotConstants.TUNING_MODE) {
+      if (Constants.TUNING_MODE) {
         dashboardNumber = LoggedNetworkNumber(key, defaultValue)
       }
     }
@@ -52,7 +52,7 @@ class LoggedTunableNumber(dashboardKey: String) : DoubleSupplier {
     return if (!hasDefault) {
       0.0
     } else {
-      if (RobotConstants.TUNING_MODE) dashboardNumber.get() else defaultValue
+      if (Constants.TUNING_MODE) dashboardNumber.get() else defaultValue
     }
   }
 

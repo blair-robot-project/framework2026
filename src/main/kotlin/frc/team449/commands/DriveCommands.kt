@@ -10,9 +10,9 @@ import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.DriverStation.Alliance
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
-import frc.team449.RobotConstants
-import frc.team449.subsystems.drive.SwerveConstants
-import frc.team449.subsystems.drive.SwerveDrive
+import frc.team449.Constants
+import frc.team449.subsystems.drive.custom.SwerveConstants
+import frc.team449.subsystems.drive.custom.SwerveDrive
 import java.util.function.DoubleSupplier
 import kotlin.math.hypot
 import kotlin.math.withSign
@@ -23,7 +23,7 @@ import kotlin.math.withSign
 object DriveCommands {
   fun getLinearVelocityFromJoysticks(x: Double, y: Double): Translation2d {
     // apply deadband
-    var linearMagnitude = MathUtil.applyDeadband(hypot(x, y), RobotConstants.DRIVE_DEADBAND)
+    var linearMagnitude = MathUtil.applyDeadband(hypot(x, y), Constants.DriveConstants.TRANSLATION_DEADBAND)
     val linearDirection = if (hypot(x, y) > 1e-6) {
       Rotation2d(x, y)
     } else {
@@ -40,8 +40,8 @@ object DriveCommands {
   }
 
   fun getOmegaFromJoysticks(driverOmega: Double): Double {
-    val omega = MathUtil.applyDeadband(driverOmega, RobotConstants.ROT_DEADBAND)
-    return omega * omega.withSign(omega)
+    val omega = MathUtil.applyDeadband(driverOmega, Constants.DriveConstants.ANGULAR_DEADBAND)
+    return (omega * omega).withSign(omega)
   }
 
   fun joystickDrive(

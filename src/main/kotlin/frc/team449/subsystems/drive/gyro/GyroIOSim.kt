@@ -5,9 +5,8 @@ import edu.wpi.first.units.Units.RadiansPerSecond
 import frc.team449.util.PhoenixUtil
 import org.ironmaple.simulation.drivesims.GyroSimulation
 
-
 class GyroIOSim(
-  val gyroSimulation: GyroSimulation,
+  val gyroSimulation: GyroSimulation
 ) : GyroIO {
 
   override fun updateInputs(inputs: GyroIO.GyroIOInputs) {
@@ -20,5 +19,4 @@ class GyroIOSim(
     inputs.odometryYawTimestamps = PhoenixUtil.getSimulationOdometryTimeStamps()
     inputs.odometryYawPositions = gyroSimulation.cachedGyroReadings
   }
-
 }

@@ -1,4 +1,4 @@
-package frc.team449.subsystems.drive
+package frc.team449.subsystems.drive.custom
 
 import edu.wpi.first.math.util.Units
 import kotlin.math.PI
@@ -69,8 +69,8 @@ object SwerveConstants {
 
   const val WHEEL_COF = 1.2
 
-  const val DRIVE_L2_GEARING: Double = (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) // 1/6.75
-  const val DRIVE_L3_GEARING: Double = (14.0 / 50.0) * (28.0 / 16.0) * (15.0 / 45.0) // 1/6.12
+  const val DRIVE_L2_GEARING: Double = (14.0 / 50.0) * (27.0 / 17.0) * (15.0 / 45.0) // 1 / 6.75
+  const val DRIVE_L3_GEARING: Double = (14.0 / 50.0) * (28.0 / 16.0) * (15.0 / 45.0) // 1 / 6.12
 
   const val TURN_UPR: Double = 2 * PI
   const val MAX_LINEAR_SPEED: Double = 4.7244 // m / s (12 - DRIVE_KS) / DRIVE_KV

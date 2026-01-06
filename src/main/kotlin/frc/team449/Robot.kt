@@ -5,9 +5,7 @@ import edu.wpi.first.hal.FRCNetComm
 import edu.wpi.first.hal.HAL
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.Threads
-import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.CommandScheduler
-import org.ironmaple.simulation.SimulatedArena
 import org.littletonrobotics.junction.LogFileUtil
 import org.littletonrobotics.junction.LoggedRobot
 import org.littletonrobotics.junction.Logger
@@ -26,17 +24,17 @@ class Robot : LoggedRobot() {
     HAL.report(FRCNetComm.tResourceType.kResourceType_Language, FRCNetComm.tInstances.kLanguage_Kotlin)
     DriverStation.silenceJoystickConnectionWarning(true)
 
-    when (RobotConstants.CURRENT_MODE) {
-      RobotConstants.Mode.REAL -> {
+    when (Constants.CURRENT_MODE) {
+      Constants.Mode.REAL -> {
         Logger.addDataReceiver(WPILOGWriter())
         Logger.addDataReceiver(NT4Publisher())
       }
 
-      RobotConstants.Mode.SIM -> {
+      Constants.Mode.SIM -> {
         Logger.addDataReceiver(NT4Publisher())
       }
 
-      RobotConstants.Mode.REPLAY -> {
+      Constants.Mode.REPLAY -> {
         this.setUseTiming(false)
         val logPath: String = LogFileUtil.findReplayLog()
         Logger.setReplaySource(WPILOGReader(logPath))
@@ -63,9 +61,7 @@ class Robot : LoggedRobot() {
   }
 
   override fun autonomousInit() {
-    val autonomousCommand: Command = robotContainer.autonomousCommand
-
-    autonomousCommand.schedule()
+    robotContainer.autonomousCommand.schedule()
   }
 
   override fun autonomousPeriodic() {}
@@ -85,7 +81,5 @@ class Robot : LoggedRobot() {
 
   override fun simulationInit() {}
 
-  override fun simulationPeriodic() {
-    robotContainer.updateSimulation()
-  }
+  override fun simulationPeriodic() {}
 }

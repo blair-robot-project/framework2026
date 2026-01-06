@@ -8,7 +8,7 @@ import com.ctre.phoenix6.hardware.Pigeon2
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.units.measure.Angle
 import edu.wpi.first.units.measure.AngularVelocity
-import frc.team449.subsystems.drive.SwerveConstants
+import frc.team449.subsystems.drive.custom.SwerveConstants
 
 class GyroIOPigeon2 : GyroIO {
   private val pigeon = Pigeon2(SwerveConstants.PIGEON_CAN_ID)

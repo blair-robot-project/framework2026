@@ -1,4 +1,4 @@
-package frc.team449.subsystems.drive
+package frc.team449.subsystems.drive.custom
 
 import edu.wpi.first.math.Matrix
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator
@@ -12,17 +12,15 @@ import edu.wpi.first.math.kinematics.SwerveModuleState
 import edu.wpi.first.math.numbers.N1
 import edu.wpi.first.math.numbers.N3
 import edu.wpi.first.math.system.plant.DCMotor
-import edu.wpi.first.units.Units.*
+import edu.wpi.first.units.Units
 import edu.wpi.first.units.measure.Voltage
 import edu.wpi.first.wpilibj.Alert
-import edu.wpi.first.wpilibj.Alert.AlertType
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism
-import frc.team449.RobotConstants
+import frc.team449.Constants
 import frc.team449.generated.TunerConstants
 import frc.team449.subsystems.drive.gyro.GyroIO
 import frc.team449.subsystems.drive.gyro.GyroIOInputsAutoLogged
@@ -43,11 +41,11 @@ class SwerveDrive(
   frModuleIO: SwerveModuleIO,
   blModuleIO: SwerveModuleIO,
   brModuleIO: SwerveModuleIO,
-  val resetSimulationPoseCallBack: Consumer<Pose2d>,
+  val resetSimulationPoseCallBack: Consumer<Pose2d>
 ) : SubsystemBase() {
   private val gyroInputs: GyroIOInputsAutoLogged = GyroIOInputsAutoLogged()
   private var rawGyroRotation = Rotation2d()
-  private val gyroDisconnectedAlert = Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError)
+  private val gyroDisconnectedAlert = Alert("Disconnected gyro, using kinematics as fallback.", Alert.AlertType.kError)
 
   private val modules: Array<SwerveModule> = arrayOf(
     SwerveModule(flModuleIO, 0, TunerConstants.FrontLeft),
@@ -66,9 +64,14 @@ class SwerveDrive(
   private val poseEstimator = SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d())
 
   private val sysId: SysIdRoutine = SysIdRoutine(
-    SysIdRoutine.Config(null, null, null) { state: SysIdRoutineLog.State -> Logger.recordOutput("Drive/SysIdState", state.toString()) },
-    Mechanism(
-      { voltage: Voltage -> runCharacterization(voltage.`in`(Volts)) },
+    SysIdRoutine.Config(null, null, null) { state: SysIdRoutineLog.State ->
+      Logger.recordOutput(
+        "Drive/SysIdState",
+        state.toString()
+      )
+    },
+    SysIdRoutine.Mechanism(
+      { voltage: Voltage -> runCharacterization(voltage.`in`(Units.Volts)) },
       null,
       this
     )
@@ -137,7 +140,7 @@ class SwerveDrive(
     }
 
     // Update gyro alert
-    gyroDisconnectedAlert.set(!gyroInputs.connected && RobotConstants.CURRENT_MODE !== RobotConstants.Mode.SIM)
+    gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.CURRENT_MODE !== Constants.Mode.SIM)
   }
 
   /**
@@ -252,7 +255,7 @@ class SwerveDrive(
 
   val maxLinearSpeedMetersPerSec: Double
     /** Returns the maximum linear speed in meters per sec. */
-    get() = TunerConstants.kSpeedAt12Volts.`in`(MetersPerSecond)
+    get() = TunerConstants.kSpeedAt12Volts.`in`(Units.MetersPerSecond)
 
   val maxAngularSpeedRadPerSec: Double
     /** Returns the maximum angular speed in radians per sec. */
@@ -288,7 +291,7 @@ class SwerveDrive(
 
     // maple sim config
     val driveTrainSimulationConfig: DriveTrainSimulationConfig = DriveTrainSimulationConfig.Default()
-      .withRobotMass(Kilograms.of(RobotConstants.ROBOT_MASS_KG))
+      .withRobotMass(Units.Kilograms.of(Constants.ROBOT_MASS_KG))
       .withCustomModuleTranslations(moduleTranslations)
       .withGyro(COTS.ofPigeon2())
       .withSwerveModule(
@@ -297,13 +300,12 @@ class SwerveDrive(
           DCMotor.getNEO(1),
           TunerConstants.FrontLeft.DriveMotorGearRatio, // use front left config for all
           TunerConstants.FrontLeft.SteerMotorGearRatio,
-          Volts.of(TunerConstants.FrontLeft.DriveFrictionVoltage),
-          Volts.of(TunerConstants.FrontLeft.SteerFrictionVoltage),
-          Meters.of(SwerveConstants.WHEEL_RADIUS_METERS),
-          TunerConstants.FrontLeft.SteerInertia,
+          Units.Volts.of(TunerConstants.FrontLeft.DriveFrictionVoltage),
+          Units.Volts.of(TunerConstants.FrontLeft.SteerFrictionVoltage),
+          Units.Meters.of(SwerveConstants.WHEEL_RADIUS_METERS),
+          Units.KilogramSquareMeters.of(TunerConstants.FrontLeft.SteerInertia),
           SwerveConstants.WHEEL_COF
         )
       )
-
   }
 }

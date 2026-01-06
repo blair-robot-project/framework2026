@@ -17,7 +17,7 @@ package frc.team449
 // import kotlin.math.PI
 // import kotlin.random.Random
 //
-// class ControllerBindings(
+class ControllerBindings()
 //    private val driveController: CommandXboxController,
 //    private val mechanismController: CommandXboxController,
 //    private val characterizationController: CommandXboxController,

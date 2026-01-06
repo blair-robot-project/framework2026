@@ -1,4 +1,4 @@
-package frc.team449.subsystems.drive
+package frc.team449.subsystems.drive.custom
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration
 import com.ctre.phoenix6.configs.TalonFXConfiguration
@@ -8,7 +8,6 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition
 import edu.wpi.first.math.kinematics.SwerveModuleState
 import edu.wpi.first.math.util.Units
 import edu.wpi.first.wpilibj.Alert
-import edu.wpi.first.wpilibj.Alert.AlertType
 import org.littletonrobotics.junction.Logger
 
 class SwerveModule(
@@ -20,15 +19,15 @@ class SwerveModule(
 
   private val driveDisconnectedAlert: Alert = Alert(
     "Disconnected drive motor on module $index.",
-    AlertType.kError
+    Alert.AlertType.kError
   )
   private val turnDisconnectedAlert: Alert = Alert(
     "Disconnected turn motor on module $index.",
-    AlertType.kError
+    Alert.AlertType.kError
   )
   private val turnEncoderDisconnectedAlert: Alert = Alert(
     "Disconnected turn encoder on module $index.",
-    AlertType.kError
+    Alert.AlertType.kError
   )
 
   /** Returns the module positions received this cycle. */
