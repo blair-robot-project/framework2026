@@ -11,24 +11,24 @@ import edu.wpi.first.units.measure.AngularVelocity
 import frc.team449.subsystems.drive.custom.SwerveConstants
 
 class GyroIOPigeon2 : GyroIO {
-  private val pigeon = Pigeon2(SwerveConstants.PIGEON_CAN_ID)
-  private val yaw: StatusSignal<Angle> = pigeon.yaw
-  private val yawVelocity: StatusSignal<AngularVelocity> = pigeon.angularVelocityZWorld
+    private val pigeon = Pigeon2(SwerveConstants.PIGEON_CAN_ID)
+    private val yaw: StatusSignal<Angle> = pigeon.yaw
+    private val yawVelocity: StatusSignal<AngularVelocity> = pigeon.angularVelocityZWorld
 
-  init {
-    pigeon.configurator.apply(Pigeon2Configuration())
+    init {
+        pigeon.configurator.apply(Pigeon2Configuration())
 
-    // resetting gyro
-    pigeon.configurator.setYaw(0.0)
-    BaseStatusSignal.setUpdateFrequencyForAll(50.0, yaw, yawVelocity)
-    pigeon.optimizeBusUtilization()
-  }
+        // resetting gyro
+        pigeon.configurator.setYaw(0.0)
+        BaseStatusSignal.setUpdateFrequencyForAll(50.0, yaw, yawVelocity)
+        pigeon.optimizeBusUtilization()
+    }
 
-  /** Updates the set of loggable inputs. */
-  override fun updateInputs(inputs: GyroIO.GyroIOInputs) {
-    inputs.connected = BaseStatusSignal.refreshAll(yaw, yawVelocity) == StatusCode.OK
-    // pigeon2 is ccw+
-    inputs.yawPosition = pigeon.rotation2d
-    inputs.yawVelocityRadPerSec = Units.degreesToRadians(yawVelocity.valueAsDouble)
-  }
+    /** Updates the set of loggable inputs. */
+    override fun updateInputs(inputs: GyroIO.GyroIOInputs) {
+        inputs.connected = BaseStatusSignal.refreshAll(yaw, yawVelocity) == StatusCode.OK
+        // pigeon2 is ccw+
+        inputs.yawPosition = pigeon.rotation2d
+        inputs.yawVelocityRadPerSec = Units.degreesToRadians(yawVelocity.valueAsDouble)
+    }
 }

@@ -3,7 +3,7 @@ package frc.team449.auto
 import frc.team449.RobotContainer
 
 open class Routines(
-  val robot: RobotContainer
+    val robot: RobotContainer
 ) {
 
 //  private val autoFactory = AutoFactory(
@@ -14,14 +14,14 @@ open class Routines(
 //    robot.drive
 //  )
 
-  // do nothing
+    // do nothing
 //  fun doNothing(): AutoRoutine {
 //    val nothing: AutoRoutine = autoFactory.newRoutine("Nothing")
 //    return nothing
 //  }
 
-  // Elevator is cooked!
-  // autoChooser that will be displayed on dashboard
+    // Elevator is cooked!
+    // autoChooser that will be displayed on dashboard
 //  fun addOptions(autoChooser: AutoChooser) {
 //    autoChooser.addRoutine("Do Nothing", this::doNothing)
 //  }

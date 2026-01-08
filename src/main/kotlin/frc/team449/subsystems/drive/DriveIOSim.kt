@@ -10,6 +10,7 @@ import edu.wpi.first.math.system.plant.DCMotor
 import edu.wpi.first.units.Units.*
 import edu.wpi.first.wpilibj.Notifier
 import frc.team449.Constants
+import frc.team449.Constants.DriveConstants.SIM_LOOP_TIME
 import org.ironmaple.simulation.SimulatedArena
 import org.ironmaple.simulation.drivesims.COTS
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation
@@ -19,125 +20,123 @@ import org.ironmaple.simulation.motorsims.SimulatedBattery
 import org.ironmaple.simulation.motorsims.SimulatedMotorController
 import java.util.function.Consumer
 
-class DriveIOSim private constructor(
-  driveConstants: SwerveDrivetrainConstants,
-  moduleConstants: Array<SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>>
+class DriveIOSim(
+    driveConstants: SwerveDrivetrainConstants,
+    moduleConstants: Array<SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>>
 ) : DriveIOHardware(
-  driveConstants,
-  moduleConstants,
+    driveConstants,
+    sanitizeConstantsForSim(moduleConstants),
 ) {
 
-  constructor(
-    moduleConstants: Array<SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>>,
-    driveConstants: SwerveDrivetrainConstants
-  ) : this(
-    driveConstants,
-    sanitizeConstantsForSim(moduleConstants)
-  )
-
-  private val simulationConfig = DriveTrainSimulationConfig.Default()
-    .withRobotMass(Kilograms.of(Constants.ROBOT_MASS_KG))
-    .withCustomModuleTranslations(moduleLocations)
-    .withGyro(COTS.ofPigeon2())
-    .withSwerveModule(
-      SwerveModuleSimulationConfig(
-        DCMotor.getKrakenX60(1), // Drive
-        DCMotor.getNEO(1), // Steer
-        moduleConstants[0].DriveMotorGearRatio,
-        moduleConstants[0].SteerMotorGearRatio,
-        Volts.of(moduleConstants[0].DriveFrictionVoltage),
-        Volts.of(moduleConstants[0].SteerFrictionVoltage), // friction
-        Meters.of(moduleConstants[0].WheelRadius),
-        KilogramSquareMeters.of(moduleConstants[0].SteerInertia),
-        Constants.DriveConstants.WHEEL_FRICTION_COEFFICIENT // COF
-      )
-    )
-
-  private val mapleSimDrive = SwerveDriveSimulation(
-    simulationConfig,
-    Pose2d(3.0, 3.0, Rotation2d())
-  )
-
-  private val simTelemetryConsumer: Consumer<SwerveDriveState> = Consumer { swerveDriveState: SwerveDriveState ->
-    swerveDriveState.Pose = mapleSimDrive.simulatedDriveTrainPose
-    telemetryConsumer.accept(swerveDriveState)
-  }
-
-  private val simNotifier = Notifier {
-    SimulatedArena.getInstance().simulationPeriodic()
-
-    this.pigeon2.simState.setRawYaw(mapleSimDrive.simulatedDriveTrainPose.rotation.measure)
-    this.pigeon2.simState.setAngularVelocityZ(
-      RadiansPerSecond.of(mapleSimDrive.driveTrainSimulatedChassisSpeedsRobotRelative.omegaRadiansPerSecond)
-    )
-  }
-
-  init {
-    for (i in 0 until 4) {
-      val realModule = this.getModule(i)
-      val simModule = mapleSimDrive.modules[i]
-
-      simModule.useDriveMotorController(
-        SimulatedMotorController { _, _, _, _ ->
-          realModule.driveMotor.simState.setSupplyVoltage(SimulatedBattery.getBatteryVoltage())
-
-          realModule.driveMotor.simState.setRawRotorPosition(simModule.driveEncoderUnGearedPosition)
-          realModule.driveMotor.simState.setRotorVelocity(simModule.driveEncoderUnGearedSpeed)
-
-          realModule.driveMotor.simState.motorVoltageMeasure
-        }
-      )
-
-      simModule.useSteerMotorController(
-        SimulatedMotorController { _, _, _, _ ->
-          realModule.steerMotor.simState.setSupplyVoltage(SimulatedBattery.getBatteryVoltage())
-
-          realModule.steerMotor.simState.setRawRotorPosition(simModule.steerRelativeEncoderPosition)
-          realModule.steerMotor.simState.setRotorVelocity(simModule.steerRelativeEncoderVelocity)
-
-          realModule.encoder.simState.setRawPosition(simModule.steerAbsoluteFacing.measure)
-          realModule.encoder.simState.setVelocity(simModule.steerAbsoluteEncoderSpeed)
-
-          realModule.steerMotor.simState.motorVoltageMeasure
-        }
-      )
+    val simTelemetryConsumer: Consumer<SwerveDriveState> = Consumer { swerveDriveState: SwerveDriveState ->
+        swerveDriveState.Pose = mapleSimDrive.simulatedDriveTrainPose
+        telemetryConsumer.accept(swerveDriveState)
     }
 
-    SimulatedArena.getInstance().addDriveTrainSimulation(mapleSimDrive)
-    registerTelemetry(simTelemetryConsumer)
-    SimulatedArena.overrideSimulationTimings(Seconds.of(.005), 1)
-    simNotifier.startPeriodic(.005)
-  }
+    val simulationConfig: DriveTrainSimulationConfig = DriveTrainSimulationConfig.Default()
+        .withRobotMass(Kilograms.of(Constants.ROBOT_MASS_KG))
+        .withBumperSize(Inches.of(Constants.ROBOT_LENGTH_INCHES), Inches.of(Constants.ROBOT_WIDTH_INCHES))
+        .withGyro(COTS.ofPigeon2())
+        .withCustomModuleTranslations(moduleLocations)
+        .withSwerveModule(
+            SwerveModuleSimulationConfig(
+                DCMotor.getKrakenX60(1),
+                DCMotor.getNEO(1),
+                moduleConstants[0].DriveMotorGearRatio,
+                moduleConstants[0].SteerMotorGearRatio,
+                Volts.of(moduleConstants[0].DriveFrictionVoltage),
+                Volts.of(moduleConstants[0].SteerFrictionVoltage),
+                Meters.of(moduleConstants[0].WheelRadius),
+                KilogramSquareMeters.of(moduleConstants[0].SteerInertia),
+                1.2
+            )
+        )
 
-  override fun updateInputs(inputs: DriveIO.DriveIOInputs) {
-    super.updateInputs(inputs)
-  }
+    val mapleSimDrive = SwerveDriveSimulation(simulationConfig, Pose2d(3.0, 3.0, Rotation2d()))
 
-  override fun resetOdometry(pose: Pose2d) {
-    mapleSimDrive.setSimulationWorldPose(pose)
-    super.resetOdometry(pose)
-  }
+    private val simNotifier = Notifier {
+        SimulatedArena.getInstance().simulationPeriodic()
 
-  companion object {
-    private fun sanitizeConstantsForSim(
-      originalConstants: Array<SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>>
-    ): Array<SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>> {
-      // create a new array to hold the modified constants
-      return originalConstants.map { module ->
-        // create a modified copy of the module constant
-        module
-          .withEncoderOffset(0.0)
-          .withDriveMotorInverted(false)
-          .withSteerMotorInverted(false)
-          .withEncoderInverted(false)
-          .withSteerMotorGains(
-            module.SteerMotorGains
-              .withKP(15.0)
-              .withKD(0.5)
-          )
-          .withDriveFrictionVoltage(Volts.of(0.1))
-          .withSteerFrictionVoltage(Volts.of(0.15))
-      }.toTypedArray()
+        pigeon2.simState.setRawYaw(mapleSimDrive.simulatedDriveTrainPose.rotation.measure)
+        pigeon2.simState.setAngularVelocityZ(
+            RadiansPerSecond.of(
+                mapleSimDrive.getDriveTrainSimulatedChassisSpeedsRobotRelative()
+                    .omegaRadiansPerSecond
+            )
+        )
     }
-  }
+
+    init {
+        initializeSimulation()
+
+        registerTelemetry(simTelemetryConsumer)
+        simNotifier.startPeriodic(SIM_LOOP_TIME)
+    }
+
+    fun initializeSimulation() {
+        SimulatedArena.overrideSimulationTimings(Seconds.of(SIM_LOOP_TIME), 1)
+        SimulatedArena.getInstance().addDriveTrainSimulation(mapleSimDrive)
+
+        for (i in 0 until 4) {
+            val realModule = this.getModule(i)
+            val simModule = mapleSimDrive.modules[i]
+
+            simModule.useDriveMotorController(
+                SimulatedMotorController { _, _, encAngle, encVel ->
+                    realModule.driveMotor.simState.setRawRotorPosition(encAngle)
+                    realModule.driveMotor.simState.setRotorVelocity(encVel)
+                    realModule.driveMotor.simState.setSupplyVoltage(SimulatedBattery.getBatteryVoltage())
+
+                    realModule.driveMotor.simState.motorVoltageMeasure
+                }
+            )
+
+            simModule.useSteerMotorController(
+                SimulatedMotorController { mechPos, mechVel, encPos, encVel ->
+                    realModule.encoder.simState.setRawPosition(mechPos)
+                    realModule.encoder.simState.setVelocity(mechVel)
+
+                    realModule.steerMotor.simState.setRawRotorPosition(encPos)
+                    realModule.steerMotor.simState.setRotorVelocity(encVel)
+                    realModule.steerMotor.simState.setSupplyVoltage(SimulatedBattery.getBatteryVoltage())
+
+                    realModule.steerMotor.simState.motorVoltageMeasure
+                }
+            )
+        }
+    }
+
+    override fun updateInputs(inputs: DriveIO.DriveIOInputs) {
+        super.updateInputs(inputs)
+    }
+
+    override fun resetOdometry(pose: Pose2d) {
+        mapleSimDrive.setSimulationWorldPose(pose)
+        super.resetPose(pose)
+    }
+
+    companion object {
+        private fun sanitizeConstantsForSim(
+            originalConstants: Array<SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>>
+        ): Array<SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>> {
+            // create a new array to hold the modified constants
+            return originalConstants.map { module ->
+                // create a modified copy of the module constant
+                module
+                    .withEncoderOffset(0.0)
+                    .withDriveMotorInverted(false)
+                    .withSteerMotorInverted(false)
+                    .withEncoderInverted(false)
+                    .withSteerMotorGains(
+                        module
+                            .SteerMotorGains
+                            .withKP(70.0)
+                            .withKD(4.5)
+                    )
+                    .withDriveFrictionVoltage(Volts.of(0.1))
+                    .withSteerFrictionVoltage(Volts.of(0.15))
+                    .withSteerInertia(KilogramSquareMeters.of(0.05))
+            }.toTypedArray()
+        }
+    }
 }

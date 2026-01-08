@@ -11,99 +11,99 @@ import edu.wpi.first.wpilibj.Alert
 import org.littletonrobotics.junction.Logger
 
 class SwerveModule(
-  private val io: SwerveModuleIO,
-  private val index: Int,
-  private val constants: SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
+    private val io: SwerveModuleIO,
+    private val index: Int,
+    private val constants: SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
 ) {
-  private val inputs: SwerveModuleIOInputsAutoLogged = SwerveModuleIOInputsAutoLogged()
+    private val inputs: SwerveModuleIOInputsAutoLogged = SwerveModuleIOInputsAutoLogged()
 
-  private val driveDisconnectedAlert: Alert = Alert(
-    "Disconnected drive motor on module $index.",
-    Alert.AlertType.kError
-  )
-  private val turnDisconnectedAlert: Alert = Alert(
-    "Disconnected turn motor on module $index.",
-    Alert.AlertType.kError
-  )
-  private val turnEncoderDisconnectedAlert: Alert = Alert(
-    "Disconnected turn encoder on module $index.",
-    Alert.AlertType.kError
-  )
+    private val driveDisconnectedAlert: Alert = Alert(
+        "Disconnected drive motor on module $index.",
+        Alert.AlertType.kError
+    )
+    private val turnDisconnectedAlert: Alert = Alert(
+        "Disconnected turn motor on module $index.",
+        Alert.AlertType.kError
+    )
+    private val turnEncoderDisconnectedAlert: Alert = Alert(
+        "Disconnected turn encoder on module $index.",
+        Alert.AlertType.kError
+    )
 
-  /** Returns the module positions received this cycle. */
-  var odometryPositions: Array<SwerveModulePosition> = arrayOf()
+    /** Returns the module positions received this cycle. */
+    var odometryPositions: Array<SwerveModulePosition> = arrayOf()
 
-  fun periodic() {
-    io.updateInputs(inputs)
-    Logger.processInputs("Drive/Module$index", inputs)
+    fun periodic() {
+        io.updateInputs(inputs)
+        Logger.processInputs("Drive/Module$index", inputs)
 
-    // calculate positions for odometry
-    val sampleCount: Int = inputs.odometryTimestamps.size // all signals are sampled together
-    odometryPositions = Array(sampleCount) { SwerveModulePosition() }
-    for (i in 0 until sampleCount) {
-      val positionMeters: Double = inputs.odometryDrivePositionsRad[i] * constants.WheelRadius
-      val angle: Rotation2d = inputs.odometryTurnPositions[i]
-      odometryPositions[i] = SwerveModulePosition(positionMeters, angle)
+        // calculate positions for odometry
+        val sampleCount: Int = inputs.odometryTimestamps.size // all signals are sampled together
+        odometryPositions = Array(sampleCount) { SwerveModulePosition() }
+        for (i in 0 until sampleCount) {
+            val positionMeters: Double = inputs.odometryDrivePositionsRad[i] * constants.WheelRadius
+            val angle: Rotation2d = inputs.odometryTurnPositions[i]
+            odometryPositions[i] = SwerveModulePosition(positionMeters, angle)
+        }
+
+        // update alerts
+        driveDisconnectedAlert.set(!inputs.driveConnected)
+        turnDisconnectedAlert.set(!inputs.turnConnected)
+        turnEncoderDisconnectedAlert.set(!inputs.turnEncoderConnected)
     }
 
-    // update alerts
-    driveDisconnectedAlert.set(!inputs.driveConnected)
-    turnDisconnectedAlert.set(!inputs.turnConnected)
-    turnEncoderDisconnectedAlert.set(!inputs.turnEncoderConnected)
-  }
+    /** Runs the module with the specified setpoint state. Mutates the state to optimize it. */
+    fun runSetpoint(state: SwerveModuleState) {
+        // optimize velocity setpoint
+        state.optimize(this.angle)
+        state.cosineScale(inputs.turnPosition)
 
-  /** Runs the module with the specified setpoint state. Mutates the state to optimize it. */
-  fun runSetpoint(state: SwerveModuleState) {
-    // optimize velocity setpoint
-    state.optimize(this.angle)
-    state.cosineScale(inputs.turnPosition)
+        // apply setpoints
+        io.setDriveVelocity(state.speedMetersPerSecond / constants.WheelRadius)
+        io.setTurnPosition(state.angle)
+    }
 
-    // apply setpoints
-    io.setDriveVelocity(state.speedMetersPerSecond / constants.WheelRadius)
-    io.setTurnPosition(state.angle)
-  }
+    /** Runs the module with the specified output while controlling to zero degrees.  */
+    fun runCharacterization(output: Double) {
+        io.setDriveOpenLoop(output)
+        io.setTurnPosition(Rotation2d())
+    }
 
-  /** Runs the module with the specified output while controlling to zero degrees.  */
-  fun runCharacterization(output: Double) {
-    io.setDriveOpenLoop(output)
-    io.setTurnPosition(Rotation2d())
-  }
+    /** Disables all outputs to motors.  */
+    fun stop() {
+        io.setDriveOpenLoop(0.0)
+        io.setTurnOpenLoop(0.0)
+    }
 
-  /** Disables all outputs to motors.  */
-  fun stop() {
-    io.setDriveOpenLoop(0.0)
-    io.setTurnOpenLoop(0.0)
-  }
+    val angle: Rotation2d
+        /** Returns the current turn angle of the module.  */
+        get() = inputs.turnPosition
 
-  val angle: Rotation2d
-    /** Returns the current turn angle of the module.  */
-    get() = inputs.turnPosition
+    val positionMeters: Double
+        /** Returns the current drive position of the module in meters.  */
+        get() = inputs.drivePositionRad * constants.WheelRadius
 
-  val positionMeters: Double
-    /** Returns the current drive position of the module in meters.  */
-    get() = inputs.drivePositionRad * constants.WheelRadius
+    val velocityMetersPerSec: Double
+        /** Returns the current drive velocity of the module in meters per second.  */
+        get() = inputs.driveVelocityRadPerSec * constants.WheelRadius
 
-  val velocityMetersPerSec: Double
-    /** Returns the current drive velocity of the module in meters per second.  */
-    get() = inputs.driveVelocityRadPerSec * constants.WheelRadius
+    val position: SwerveModulePosition
+        /** Returns the module position (turn angle and drive position).  */
+        get() = SwerveModulePosition(this.positionMeters, this.angle)
 
-  val position: SwerveModulePosition
-    /** Returns the module position (turn angle and drive position).  */
-    get() = SwerveModulePosition(this.positionMeters, this.angle)
+    val state: SwerveModuleState
+        /** Returns the module state (turn angle and drive velocity).  */
+        get() = SwerveModuleState(this.velocityMetersPerSec, this.angle)
 
-  val state: SwerveModuleState
-    /** Returns the module state (turn angle and drive velocity).  */
-    get() = SwerveModuleState(this.velocityMetersPerSec, this.angle)
+    val odometryTimestamps: DoubleArray
+        /** Returns the timestamps of the samples received this cycle.  */
+        get() = inputs.odometryTimestamps
 
-  val odometryTimestamps: DoubleArray
-    /** Returns the timestamps of the samples received this cycle.  */
-    get() = inputs.odometryTimestamps
+    val wheelRadiusCharacterizationPosition: Double
+        /** Returns the module position in radians.  */
+        get() = inputs.drivePositionRad
 
-  val wheelRadiusCharacterizationPosition: Double
-    /** Returns the module position in radians.  */
-    get() = inputs.drivePositionRad
-
-  val fFCharacterizationVelocity: Double
-    /** Returns the module velocity in rotations/sec (Phoenix native units).  */
-    get() = Units.radiansToRotations(inputs.driveVelocityRadPerSec)
+    val fFCharacterizationVelocity: Double
+        /** Returns the module velocity in rotations/sec (Phoenix native units).  */
+        get() = Units.radiansToRotations(inputs.driveVelocityRadPerSec)
 }

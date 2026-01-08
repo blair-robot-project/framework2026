@@ -1,6 +1,7 @@
 package frc.team449
 
 import au.grapplerobotics.CanBridge
+import com.ctre.phoenix6.SignalLogger
 import edu.wpi.first.hal.FRCNetComm
 import edu.wpi.first.hal.HAL
 import edu.wpi.first.wpilibj.DriverStation
@@ -16,70 +17,71 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter
 /** The main class of the robot, constructs all the subsystems
  * and initializes default commands . */
 class Robot : LoggedRobot() {
-  init {
-    println("Started robotInit.")
+    init {
+        println("Initializing Robot!")
 
-    CanBridge.runTCP()
+        CanBridge.runTCP()
 
-    HAL.report(FRCNetComm.tResourceType.kResourceType_Language, FRCNetComm.tInstances.kLanguage_Kotlin)
-    DriverStation.silenceJoystickConnectionWarning(true)
+        HAL.report(FRCNetComm.tResourceType.kResourceType_Language, FRCNetComm.tInstances.kLanguage_Kotlin)
+        DriverStation.silenceJoystickConnectionWarning(true)
 
-    when (Constants.CURRENT_MODE) {
-      Constants.Mode.REAL -> {
-        Logger.addDataReceiver(WPILOGWriter())
-        Logger.addDataReceiver(NT4Publisher())
-      }
+        when (Constants.CURRENT_MODE) {
+            Constants.Mode.REAL -> {
+                Logger.addDataReceiver(WPILOGWriter())
+                Logger.addDataReceiver(NT4Publisher())
+            }
 
-      Constants.Mode.SIM -> {
-        Logger.addDataReceiver(NT4Publisher())
-      }
+            Constants.Mode.SIM -> {
+                Logger.addDataReceiver(NT4Publisher())
+            }
 
-      Constants.Mode.REPLAY -> {
-        this.setUseTiming(false)
-        val logPath: String = LogFileUtil.findReplayLog()
-        Logger.setReplaySource(WPILOGReader(logPath))
-        Logger.addDataReceiver(WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")))
-      }
+            Constants.Mode.REPLAY -> {
+                this.setUseTiming(false) // run as fast as possible
+                val logPath: String = LogFileUtil.findReplayLog()
+                Logger.setReplaySource(WPILOGReader(logPath))
+                Logger.addDataReceiver(WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")))
+            }
+        }
+
+        SignalLogger.enableAutoLogging(false)
+        Logger.start()
     }
 
-    Logger.start()
-  }
+    private val robotContainer = RobotContainer
 
-  private val robotContainer = RobotContainer()
+    override fun driverStationConnected() {
+    }
 
-  override fun driverStationConnected() {
-  }
+    override fun robotPeriodic() {
+        // high priority (real-time) thread for loop timing
+        Threads.setCurrentThreadPriority(true, 99)
 
-  override fun robotPeriodic() {
-    // high priority (real-time) thread for loop timing
-    Threads.setCurrentThreadPriority(true, 99)
+        CommandScheduler.getInstance().run()
 
-    CommandScheduler.getInstance().run()
+        // return thread to low priority (standard)
+        Threads.setCurrentThreadPriority(false, 10)
+    }
 
-    // return thread to low priority (standard)
-    Threads.setCurrentThreadPriority(false, 10)
-  }
+    override fun autonomousInit() {
+        robotContainer.autonomousCommand.schedule()
+    }
 
-  override fun autonomousInit() {
-    robotContainer.autonomousCommand.schedule()
-  }
+    override fun autonomousPeriodic() {}
 
-  override fun autonomousPeriodic() {}
+    override fun teleopInit() {}
 
-  override fun teleopInit() {}
+    override fun teleopPeriodic() {
+    }
 
-  override fun teleopPeriodic() {
-  }
+    override fun disabledInit() {}
 
-  override fun disabledInit() {}
+    override fun disabledPeriodic() {}
 
-  override fun disabledPeriodic() {}
+    override fun testInit() {}
 
-  override fun testInit() {}
+    override fun testPeriodic() {}
 
-  override fun testPeriodic() {}
+    override fun simulationInit() {}
 
-  override fun simulationInit() {}
-
-  override fun simulationPeriodic() {}
+    override fun simulationPeriodic() {}
 }
